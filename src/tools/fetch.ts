@@ -6,7 +6,8 @@ export async function universalFetch(url: string, options: RequestInit): Promise
     // Node.js <18 (dynamically load node-fetch if available)
     try {
       const fetchModule = await import("node-fetch");
-      return fetchModule.default(url, options);
+      const nodeFetch = fetchModule.default as unknown as typeof fetch;
+      return nodeFetch(url, options) as unknown as Response;
     } catch (error) {
       throw new Error(
         "Fetch is not available in this environment. If you are using Node.js <18, install 'node-fetch' manually: npm install node-fetch"
