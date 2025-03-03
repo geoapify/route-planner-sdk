@@ -6,4 +6,6 @@ async function main() {
     console.log("API Status:", result);
 }
 
-main().catch(console.error);
+main()
+    .catch(console.error)
+    .finally(() => process.exit(0)); // Force exit after execution
