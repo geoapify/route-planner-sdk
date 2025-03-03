@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Route Planner SDK - Example</title>
+  <script src="../../dist/route-planner-sdk.umd.js"></script>
+</head>
+<body>
+<h1>Route Planner SDK Test</h1>
+<button onclick="testRoutePlanner()">Test Route Planner</button>
+<p id="result"></p>
+
+<script>
+    async function testRoutePlanner() {
+        const apiKey = "YOUR_API_KEY";
+        const result = await RoutePlannerSDK.testConnection(apiKey);
+        document.getElementById("result").innerText = result;
+    }
+</script>
+</body>
+</html>
