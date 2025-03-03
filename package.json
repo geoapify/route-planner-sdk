@@ -12,7 +12,8 @@
     "build-all": "npm run build && npm run build-minimized",
     "build-minimized": "rollup -c rollup-config.mjs",
     "demo-vanilla": "open -a 'Google Chrome' demo/html-vanilla/demo.html",
-    "demo-node": "node demo/node/demo.js"
+    "demo-node-new": "node demo/node-new/demo.js",
+    "demo-node-old": "node demo/node-old/demo.js"
   },
   "type": "module",
   "jest": {
