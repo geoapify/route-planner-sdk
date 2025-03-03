@@ -1,4 +1,4 @@
-import { RoutePlannerSDK } from "../../dist/route-planner-sdk.cjs.js";
+import RoutePlannerSDK from "../../dist/route-planner-sdk.esm.js";
 
 async function main() {
     const apiKey = "YOUR_API_KEY"; // Replace with a real API key
