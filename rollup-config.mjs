@@ -7,6 +7,12 @@ import { readFileSync } from 'node:fs';
 
 import dts from "rollup-plugin-dts";
 
+const externalModules = [
+  "fs", "path", "http", "https", "net", "tls", "zlib", "stream",
+  "util", "crypto", "os", "buffer", "url", "querystring", "child_process",
+  "node-fetch"
+].map((mod) => `node:${mod}`);
+
 // Load package.json
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
 
@@ -34,7 +40,7 @@ export default [{
       freeze: false
     }
   ],
-  external: ["node-fetch"],
+  external: [...externalModules, "node-fetch"],
   plugins: [
     json(),
     terser({
@@ -49,9 +55,9 @@ export default [{
     }),
     typescript({
       tsconfig: "./tsconfig.json",
-      declaration: true,      // Generate type declarations
-      declarationDir: "dist", // Store .d.ts files in the dist folder
-      rootDir: "src"          // Keep import paths clean
+      declaration: true,
+      declarationDir: "dist",
+      rootDir: "src"
     }),
     commonjs({
       ignoreGlobal: true
