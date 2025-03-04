@@ -5,6 +5,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import { readFileSync } from 'node:fs';
 
+import dts from "rollup-plugin-dts";
+
 // Load package.json
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
 
@@ -45,9 +47,19 @@ export default [{
       browser: true,
       preferBuiltins: false
     }),
-    typescript(),
+    typescript({
+      tsconfig: "./tsconfig.json",
+      declaration: true,      // Generate type declarations
+      declarationDir: "dist", // Store .d.ts files in the dist folder
+      rootDir: "src"          // Keep import paths clean
+    }),
     commonjs({
       ignoreGlobal: true
     })
   ]
-}];
+},
+  {
+    input: "dist/index.d.ts",
+    output: [{ file: "dist/index.d.ts", format: "es" }],
+    plugins: [dts()]
+  }];
