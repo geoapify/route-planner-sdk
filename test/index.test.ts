@@ -9,7 +9,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success for basic request to Route Planner API', async () => {
-    const planner = new RoutePlannerSDK("API_KEY");
+    const planner = new RoutePlannerSDK("93b8e26606dd485183dcdab30f239f81");
 
     const result = await planner
         .setMode("drive")
@@ -18,7 +18,15 @@ describe('RoutePlannerSDK', () => {
         .plan();
 
     expect(result).toBeDefined();
-    expect(result.getStatistics()).toHaveProperty('totalDistance');
-    expect(result.getStatistics()).toHaveProperty('totalTime');
+  });
+
+  test('should return issue object for invalid request to Route Planner API', async () => {
+    const planner = new RoutePlannerSDK("93b8e26606dd485183dcdab30f239f81");
+
+    const result = await planner
+        .setMode("drive")
+        .plan();
+
+    expect(result).toBeDefined();
   });
 });

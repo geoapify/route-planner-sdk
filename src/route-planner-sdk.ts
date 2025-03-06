@@ -78,7 +78,6 @@ export class RoutePlannerSDK {
     }
 
     public async plan(): Promise<RoutePlanResult> {
-        this.agents[0].toJSON();
         const requestBody = {
             mode: this.mode,
             agents: this.agents.length ? this.agents.map(agent => agent.toJSON()) : undefined,
@@ -100,12 +99,12 @@ export class RoutePlannerSDK {
             body: JSON.stringify(requestBody)
         });
 
+        let result = await response.json();
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${await response.text()}`);
         }
 
-        const data = await response.json();
-        return new RoutePlanResult(data);
+        return await response.json();
     }
 
 }

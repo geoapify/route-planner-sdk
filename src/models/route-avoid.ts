@@ -1,16 +1,17 @@
 import { BaseSerializable } from "./base-serializable";
 
 export class RouteAvoid extends BaseSerializable {
-    public id?: string;
-    public location?: [number, number];
+    // TODO: need to test
+    public type?: string;
+    public values: [number, number][] = [];
 
-    public setId(id: string): this {
-        this.id = id;
+    public setType(type: string): this {
+        this.type = type;
         return this;
     }
 
-    public setLocation(lon: number, lat: number): this {
-        this.location = [lon, lat];
+    public addValue(lon: number, lat: number): this {
+        this.values.push([lon, lat]);
         return this;
     }
 }
