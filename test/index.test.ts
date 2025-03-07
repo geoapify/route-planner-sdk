@@ -4,7 +4,7 @@ import { RouteAgent } from "../src/models/route-agent";
 import { RouteLocation } from "../src/models/route-location";
 import { RouteShipment } from "../src/models/route-shipment";
 import { RouteShipmentLocation } from "../src/models/route-shipment-location";
-import { RoutePlanResult, RPAction, RPLeg, RPWaypoint } from "../src/models/route-plan-result";
+import { RoutePlannerResult, RPAction, RPLeg, RPWaypoint } from "../src/models/route-planner-result";
 import { RouteAvoid } from "../src/models/route-avoid";
 import { RouteBreak } from "../src/models/route-break";
 
@@ -299,7 +299,7 @@ describe('RoutePlannerSDK', () => {
     expect(firstLeg.steps[0].distance).toBeDefined();
   }
 
-  function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlanResult) {
+  function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResult) {
     expect(result.features).toBeDefined();
     expect(result.features[0].type).toBe("Feature");
     expect(result.features[0].geometry.type).toBe("MultiLineString");

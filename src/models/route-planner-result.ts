@@ -4,7 +4,7 @@ import { RouteShipment } from "./route-shipment";
 import { RouteLocation } from "./route-location";
 import { RouteAvoid } from "./route-avoid";
 
-export interface RoutePlanResult {
+export interface RoutePlannerResult {
     type: string;
     properties: {
         mode: string;

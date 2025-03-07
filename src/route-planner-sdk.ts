@@ -4,7 +4,7 @@ import { RouteJob } from "./models/route-job";
 import { RouteShipment } from "./models/route-shipment";
 import { RouteLocation } from "./models/route-location";
 import { RouteAvoid } from "./models/route-avoid";
-import { RoutePlanResult } from "./models/route-plan-result";
+import { RoutePlannerResult } from "./models/route-planner-result";
 
 export class RoutePlannerSDK {
     public mode?: string;
@@ -77,7 +77,7 @@ export class RoutePlannerSDK {
         return this;
     }
 
-    public async plan(): Promise<RoutePlanResult> {
+    public async plan(): Promise<RoutePlannerResult> {
         const requestBody = {
             mode: this.mode,
             agents: this.agents.length ? this.agents.map(agent => agent.toJSON()) : undefined,
