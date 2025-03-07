@@ -1,24 +1,32 @@
+import { RouteAgent } from "./route-agent";
+import { RouteJob } from "./route-job";
+import { RouteShipment } from "./route-shipment";
+import { RouteLocation } from "./route-location";
+import { RouteAvoid } from "./route-avoid";
+
 export interface RoutePlanResult {
     type: string;
     properties: {
         mode: string;
         params: {
-            mode: string;
-            agents: RPAgent[];
-            jobs: RPJob[];
+            mode?: string;
+            agents: RouteAgent[];
+            jobs: RouteJob[];
+            shipments: RouteShipment[];
+            locations: RouteLocation[];
+            avoid: RouteAvoid[];
+            traffic?: string;
+            type?: string;
+            max_speed?: number;
+            units?: string;
+        }
+        issues: {
+            unassigned_agents: number[];
+            unassigned_jobs: number[];
+            unassigned_shipments: number[];
         }
     }
     features: RPFeature[];
-}
-
-export interface RPAgent {
-    id: string;
-    location: [number, number];
-}
-
-export interface RPJob {
-    id: string;
-    location: [number, number];
 }
 
 interface RPGeometry {
@@ -36,13 +44,14 @@ interface RPProperties {
     total_time?: number;
     distance: number;
     mode: string;
-    legs: RPLeg[];
+    legs?: RPLeg[];
     actions: RPAction[];
     waypoints: RPWaypoint[];
 }
 
 export interface RPFeature {
     geometry: RPGeometry
+    type: string;
     properties: RPProperties
 }
 
@@ -65,18 +74,18 @@ export interface RPAction {
     type: string;
     start_time: number;
     duration: number;
-    // TODO: double check shipment_index/shipment_id
     shipment_index?: number;
     shipment_id?: number;
-    job_index: number;
-    job_id: string;
-    index: number;
+    location_index?: number;
+    location_id?: number;
+    job_index?: number;
+    job_id?: string;
+    index?: number;
     waypoint_index: number;
 }
 
 export interface RPWaypoint {
     original_location: [number, number];
-    // TODO: double check original_location_index/original_location_id
     original_location_index?: number;
     original_location_id?: number;
     location: [number, number];

@@ -1,9 +1,9 @@
 import { BaseSerializable } from "./base-serializable";
+import { RouteCoordinates } from "./route-coordinates";
 
 export class RouteAvoid extends BaseSerializable {
-    // TODO: need to test
     public type?: string;
-    public values: [number, number][] = [];
+    public values: RouteCoordinates[] = [];
 
     public setType(type: string): this {
         this.type = type;
@@ -11,7 +11,7 @@ export class RouteAvoid extends BaseSerializable {
     }
 
     public addValue(lon: number, lat: number): this {
-        this.values.push([lon, lat]);
+        this.values.push(new RouteCoordinates().setLat(lat).setLon(lon));
         return this;
     }
 }

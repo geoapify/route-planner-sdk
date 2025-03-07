@@ -2,8 +2,8 @@ export class RouteBreak {
     public duration?: number;
     public time_windows: [number, number][] = [];
 
-    public addTimeWindow(lon: number, lat: number): this {
-        this.time_windows.push([lon, lat]);
+    public addTimeWindow(start: number, end: number): this {
+        this.time_windows.push([start, end]);
         return this;
     }
 

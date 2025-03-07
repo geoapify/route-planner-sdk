@@ -7,16 +7,16 @@ import { RouteAvoid } from "./models/route-avoid";
 import { RoutePlanResult } from "./models/route-plan-result";
 
 export class RoutePlannerSDK {
-    private mode?: string;
-    private agents: RouteAgent[] = [];
-    private jobs: RouteJob[] = [];
-    private shipments: RouteShipment[] = [];
-    private locations: RouteLocation[] = [];
-    private avoid: RouteAvoid[] = [];
-    private traffic?: string;
-    private type?: string;
-    private max_speed?: number;
-    private units?: string;
+    public mode?: string;
+    public agents: RouteAgent[] = [];
+    public jobs: RouteJob[] = [];
+    public shipments: RouteShipment[] = [];
+    public locations: RouteLocation[] = [];
+    public avoid: RouteAvoid[] = [];
+    public traffic?: string;
+    public type?: string;
+    public max_speed?: number;
+    public units?: string;
 
     constructor(private apiKey: string) {}
 
@@ -99,7 +99,6 @@ export class RoutePlannerSDK {
             body: JSON.stringify(requestBody)
         });
 
-        let result = await response.json();
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${await response.text()}`);
         }
