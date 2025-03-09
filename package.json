@@ -11,7 +11,8 @@
     "test": "jest",
     "build-all": "npm run build && npm run build-minimized",
     "build-minimized": "rollup -c rollup-config.mjs",
-    "demo-vanilla": "open -a 'Google Chrome' demo/html-vanilla/demo.html",
+    "start-server": "http-server -p 8080",
+    "demo-vanilla": "concurrently \"npm run start-server\" \"sleep 2 && open -a 'Google Chrome' http://localhost:8080/demo/html-vanilla/demo.html\"",
     "demo-node-new": "node demo/node-new/demo.js",
     "demo-node-old": "node demo/node-old/demo.js",
     "demo-angular": "cd demo/angular-demo && npm run start",
@@ -41,5 +42,9 @@
     "ts-jest": "^29.0.0",
     "tslib": "^2.7.0",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "http-server": "^14.1.1"
   }
 }

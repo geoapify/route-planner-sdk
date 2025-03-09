@@ -1,14 +1,13 @@
-import RoutePlannerSDK from "../src";
-import { RouteJob } from "../src/models/route-job";
-import { RouteAgent } from "../src/models/route-agent";
-import { RouteLocation } from "../src/models/route-location";
-import { RouteShipment } from "../src/models/route-shipment";
-import { RouteShipmentLocation } from "../src/models/route-shipment-location";
-import { RoutePlannerResult, RPAction, RPLeg, RPWaypoint } from "../src/models/route-planner-result";
-import { RouteAvoid } from "../src/models/route-avoid";
-import { RouteBreak } from "../src/models/route-break";
+import RoutePlannerSDK, {
+  RouteAgent, RouteAvoid, RouteBreak,
+  RouteJob,
+  RouteLocation, RoutePlannerResult,
+  RouteShipment,
+  RouteShipmentLocation, RPAction, RPLeg,
+  RPWaypoint
+} from "../src";
 
-const API_KEY = "API_KEY";
+const API_KEY = "93b8e26606dd485183dcdab30f239f81";
 
 describe('RoutePlannerSDK', () => {
   test('should return a success message if Geoapify is reachable', async () => {

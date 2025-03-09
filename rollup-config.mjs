@@ -31,7 +31,8 @@ export default [{
       file: pkg.module,
       format: 'esm',
       sourcemap: "inline",
-      freeze: false
+      freeze: false,
+      exports: "named"
     },
     {
       file: pkg.main,
