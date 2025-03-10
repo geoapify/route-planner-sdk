@@ -1,6 +1,6 @@
 import RoutePlannerSDK, {RouteAgent, RouteJob} from "../../dist/route-planner-sdk.esm.js";
 
-const apiKey = "93b8e26606dd485183dcdab30f239f81"; // Replace with a real API key
+const apiKey = "API_KEY"; // Replace with a real API key
 
 async function testConnection() {
     const result = await RoutePlannerSDK.testConnection(apiKey);

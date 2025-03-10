@@ -16,7 +16,7 @@
 <p id="testSimpleRequest"></p>
 
 <script type="module">
-    const apiKey = "93b8e26606dd485183dcdab30f239f81";
+    const apiKey = "API_KEY";
     async function testConnection() {
         const result = await RoutePlannerSDK.RoutePlannerSDK.testConnection(apiKey);
         document.getElementById("testConnectionResult").innerText = result;

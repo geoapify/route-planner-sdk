@@ -17,7 +17,7 @@ const RoutePlannerComponent: React.FC = () => {
 
     const makeSimpleRequest = async () => {
         try {
-            const sdk = new RoutePlannerSDK("93b8e26606dd485183dcdab30f239f81");
+            const sdk = new RoutePlannerSDK("API_KEY");
             const response = await sdk
                 .setMode("drive")
                 .addAgent(new RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))

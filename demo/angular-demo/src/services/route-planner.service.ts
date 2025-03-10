@@ -16,7 +16,7 @@ export class RoutePlannerService {
 
   async makeSimpleRequest() {
     try {
-      const planner = new RoutePlannerSDK('93b8e26606dd485183dcdab30f239f81');
+      const planner = new RoutePlannerSDK('API_KEY');
       return await planner
           .setMode("drive")
           .addAgent(new RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))

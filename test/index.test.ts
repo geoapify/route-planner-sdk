@@ -7,7 +7,7 @@ import RoutePlannerSDK, {
   RPWaypoint
 } from "../src";
 
-const API_KEY = "93b8e26606dd485183dcdab30f239f81";
+const API_KEY = "API_KEY";
 
 describe('RoutePlannerSDK', () => {
   test('should return a success message if Geoapify is reachable', async () => {
