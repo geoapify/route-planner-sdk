@@ -1,7 +1,8 @@
-import RoutePlanner from "../src";
+import RoutePlanner, { RouteLocation } from "../src";
 
 describe('RoutePlanner (Real API Calls in Node.js)', () => {
   const originalFetch = global.fetch;
+  const API_KEY = "API_KEY";
 
   afterEach(() => {
     global.fetch = originalFetch;
@@ -12,9 +13,8 @@ describe('RoutePlanner (Real API Calls in Node.js)', () => {
     // @ts-ignore - Removing fetch to trigger node-fetch usage
     delete global.fetch;
 
-    const result = await RoutePlanner.testConnection("api-ket");
-
-    // Expecting success response
-    expect(result).toBe("Geoapify is reachable");
+    let planner = new RoutePlanner(API_KEY);
+    planner.addLocation(new RouteLocation().setId('1'));
+    expect(planner.locations.length).toBe(1);
   });
 });

@@ -10,14 +10,9 @@ import { RoutePlannerService } from "../services/route-planner.service";
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  testConnectionResult = "";
   simpleRequestResult = "";
 
   constructor(private routePlannerService: RoutePlannerService) {}
-
-  async checkConnection() {
-    this.testConnectionResult = await this.routePlannerService.testConnection();
-  }
 
   async makeSimpleRequest() {
     let result = await this.routePlannerService.makeSimpleRequest();

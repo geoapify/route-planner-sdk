@@ -11,11 +11,6 @@ import RoutePlanner, {
 const API_KEY = "API_KEY";
 
 describe('RoutePlanner', () => {
-  test('should return a success message if Geoapify is reachable', async () => {
-    const result = await RoutePlanner.testConnection('api-key');
-    expect(result).toBe("Geoapify is reachable");
-  });
-
   test('should return success for basic request to Route Planner API', async () => {
     const planner = new RoutePlanner(API_KEY);
 

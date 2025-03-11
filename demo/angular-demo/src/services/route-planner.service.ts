@@ -5,14 +5,6 @@ import RoutePlanner, {RouteAgent, RouteJob} from '../../../../dist';
   providedIn: 'root'
 })
 export class RoutePlannerService {
-  async testConnection(): Promise<string> {
-    try {
-      return await RoutePlanner.testConnection("YOUR_API_KEY");
-    } catch (error) {
-      console.error("API test failed:", error);
-      return "Error connecting to API";
-    }
-  }
 
   async makeSimpleRequest() {
     try {

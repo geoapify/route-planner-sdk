@@ -2,14 +2,6 @@ import RoutePlanner, {RouteAgent, RouteJob} from "../../dist/route-planner-sdk.e
 
 const apiKey = "API_KEY"; // Replace with a real API key
 
-async function main() {
-    // Remove fetch to simulate an environment where it's not available
-    globalThis.fetch = undefined;
-
-    const result = await RoutePlanner.testConnection(apiKey);
-    console.log("API Status:", result);
-}
-
 async function makeSimpleRoutePlannerRequest() {
     const planner = new RoutePlanner(apiKey);
 
@@ -21,5 +13,4 @@ async function makeSimpleRoutePlannerRequest() {
     console.log("Route Planner result:", result);
 }
 
-main().catch(console.error);
 makeSimpleRoutePlannerRequest().catch(console.error);

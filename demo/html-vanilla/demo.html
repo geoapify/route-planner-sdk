@@ -7,9 +7,6 @@
   <script src="../../dist/route-planner-sdk.umd.js"></script>
 </head>
 <body>
-<h1>Route Planner Connection Test</h1>
-<button onclick="testConnection()">Test Route Planner Connection</button>
-<p id="testConnectionResult"></p>
 
 <h1>Route Planner Simple Request Test</h1>
 <button onclick="makeSimpleRoutePlannerRequest()">Test Route Planner Simple Request</button>
@@ -17,10 +14,6 @@
 
 <script type="module">
     const apiKey = "API_KEY";
-    async function testConnection() {
-        const result = await RoutePlannerSDK.RoutePlanner.testConnection(apiKey);
-        document.getElementById("testConnectionResult").innerText = result;
-    }
     async function makeSimpleRoutePlannerRequest() {
         const planner = new RoutePlannerSDK.RoutePlanner(apiKey);
 
@@ -31,7 +24,6 @@
             .plan();
         document.getElementById("testSimpleRequest").innerText = result;
     }
-    window.testConnection = testConnection;
     window.makeSimpleRoutePlannerRequest = makeSimpleRoutePlannerRequest;
 </script>
 </body>

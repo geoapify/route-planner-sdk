@@ -2,18 +2,7 @@ import React, { useState } from "react";
 import RoutePlanner, { RouteAgent, RouteJob } from "./dist/route-planner-sdk.esm";
 
 const RoutePlannerComponent: React.FC = () => {
-    const [testConnectionResult, setTestConnectionResult] = useState<string>("");
     const [simpleRequestResult, setSimpleRequestResult] = useState<string>("");
-
-    const checkConnection = async () => {
-        try {
-            const response = await RoutePlanner.testConnection("YOUR_API_KEY");
-            setTestConnectionResult(response);
-        } catch (error) {
-            console.error("API Error:", error);
-            setTestConnectionResult("Error connecting to API");
-        }
-    };
 
     const makeSimpleRequest = async () => {
         try {
@@ -32,10 +21,6 @@ const RoutePlannerComponent: React.FC = () => {
 
     return (
         <div>
-            <h1>Route Planner Connection Test</h1>
-            <button onClick={checkConnection}>Check API</button>
-            <p>{testConnectionResult}</p>
-
             <h1>Route Planner Simple Request</h1>
             <button onClick={makeSimpleRequest}>Simple Request</button>
             <p>{simpleRequestResult}</p>
