@@ -4,7 +4,8 @@ import RoutePlanner, {
   RouteLocation, RoutePlannerResult,
   RouteShipment,
   RouteShipmentLocation, RPAction, RPLeg,
-  RPWaypoint
+  RPWaypoint,
+  RoutePlannerError
 } from "../src";
 
 const API_KEY = "API_KEY";
@@ -250,8 +251,13 @@ describe('RoutePlanner', () => {
           .plan();
       fail();
     } catch (error: any) {
-      expect(error).toBeDefined();
-      expect(error?.message).toBe(`Error 400: {"statusCode":400,"error":"Bad Request","message":"\\"agents\\" is required"}`);
+      if (error instanceof RoutePlannerError) {
+        expect(error).toBeDefined();
+        expect(error.message).toBe("\"agents\" is required");
+        expect(error.errorName).toBe("Bad Request");
+      } else {
+        throw error;  // Re-throw if it's not the expected error type
+      }
     }
   });
 

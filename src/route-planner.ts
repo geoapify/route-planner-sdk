@@ -1,10 +1,11 @@
 import { universalFetch } from './tools/fetch';
-import { RouteAgent } from "./models/route-agent";
-import { RouteJob } from "./models/route-job";
-import { RouteShipment } from "./models/route-shipment";
-import { RouteLocation } from "./models/route-location";
-import { RouteAvoid } from "./models/route-avoid";
-import { RoutePlannerResult } from "./models/route-planner-result";
+import { RouteAgent } from "./models";
+import { RouteJob } from "./models";
+import { RouteShipment } from "./models";
+import { RouteLocation } from "./models";
+import { RouteAvoid } from "./models";
+import { RoutePlannerResult } from "./models";
+import { RoutePlannerError } from "./models";
 
 export class RoutePlanner {
     public mode?: string;
@@ -100,7 +101,8 @@ export class RoutePlanner {
         });
 
         if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${await response.text()}`);
+            let errorResponse = await response.json();
+            throw new RoutePlannerError(errorResponse.error, errorResponse.message);
         }
 
         return await response.json();
