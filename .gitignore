@@ -1,0 +1,8 @@
+/dist/
+/.idea/
+/node_modules/
+/demo/angular-demo/.angular/
+/demo/angular-demo/node_modules/
+/demo/angular-demo/.vscode/
+/demo/react-demo/node_modules/
+/demo/react-demo/src/dist/

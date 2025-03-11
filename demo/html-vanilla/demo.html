@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Route Planner SDK - Example</title>
+  <script src="../../dist/route-planner-sdk.umd.js"></script>
+</head>
+<body>
+<h1>Route Planner Connection Test</h1>
+<button onclick="testConnection()">Test Route Planner Connection</button>
+<p id="testConnectionResult"></p>
+
+<h1>Route Planner Simple Request Test</h1>
+<button onclick="makeSimpleRoutePlannerRequest()">Test Route Planner Simple Request</button>
+<p id="testSimpleRequest"></p>
+
+<script type="module">
+    const apiKey = "API_KEY";
+    async function testConnection() {
+        const result = await RoutePlannerSDK.RoutePlannerSDK.testConnection(apiKey);
+        document.getElementById("testConnectionResult").innerText = result;
+    }
+    async function makeSimpleRoutePlannerRequest() {
+        const planner = new RoutePlannerSDK.RoutePlannerSDK(apiKey);
+
+        const result = await planner
+            .setMode("drive")
+            .addAgent(new RoutePlannerSDK.RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))
+            .addJob(new RoutePlannerSDK.RouteJob().setId("job-1").setLocation(13.39, 52.51))
+            .plan();
+        document.getElementById("testSimpleRequest").innerText = result;
+    }
+    window.testConnection = testConnection;
+    window.makeSimpleRoutePlannerRequest = makeSimpleRoutePlannerRequest;
+</script>
+</body>
+</html>

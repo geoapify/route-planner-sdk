@@ -1,12 +1,16 @@
-import { universalFetch } from './tools/fetch';
+import { RoutePlannerSDK } from "./route-planner-sdk";
+import { RouteEditor } from "./tools/route-editor";
+import * as Models from "./models";
 
-export class RoutePlannerSDK {
-  constructor(private apiKey: string) {}
+export * from "./models";
+export { RoutePlannerSDK, RouteEditor };
+export default RoutePlannerSDK;
 
-  async testMethod(): Promise<string> {
-    const response = await universalFetch('https://www.geoapify.com/', {
-      method: 'GET'
-    });
-    return response.status === 200 ? "Geoapify is reachable" : "Error";
-  }
+// Ensure proper UMD export for browsers
+if (typeof window !== "undefined") {
+    (window as any).RoutePlannerSDK = {
+        RoutePlannerSDK: RoutePlannerSDK,
+        RouteEditor: RouteEditor,
+        ...Models
+    };
 }
