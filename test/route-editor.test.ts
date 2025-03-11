@@ -3,7 +3,7 @@ import RoutePlanner, {
   RouteLocation,
 } from "../src";
 
-const API_KEY = "API_KEY";
+const API_KEY = "TEST_API_KEY";
 
 describe('RouteEditor', () => {
   test('removeLocation should work as expected', async () => {

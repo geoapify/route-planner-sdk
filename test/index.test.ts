@@ -8,7 +8,7 @@ import RoutePlanner, {
   RoutePlannerError
 } from "../src";
 
-const API_KEY = "API_KEY";
+const API_KEY = "TEST_API_KEY";
 
 describe('RoutePlanner', () => {
   test('should return success for basic request to Route Planner API', async () => {

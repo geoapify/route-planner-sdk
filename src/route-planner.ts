@@ -1,5 +1,5 @@
 import { universalFetch } from './tools/fetch';
-import { RouteAgent } from "./models";
+import { RouteAgent, TravelMode } from "./models";
 import { RouteJob } from "./models";
 import { RouteShipment } from "./models";
 import { RouteLocation } from "./models";
@@ -8,7 +8,7 @@ import { RoutePlannerResult } from "./models";
 import { RoutePlannerError } from "./models";
 
 export class RoutePlanner {
-    public mode?: string;
+    public mode?: TravelMode;
     public agents: RouteAgent[] = [];
     public jobs: RouteJob[] = [];
     public shipments: RouteShipment[] = [];
@@ -21,7 +21,7 @@ export class RoutePlanner {
 
     constructor(private apiKey: string) {}
 
-    public setMode(mode: string): this {
+    public setMode(mode: TravelMode): this {
         this.mode = mode;
         return this;
     }

@@ -9,3 +9,4 @@ export * from "./route-planner-result";
 export * from "./route-shipment";
 export * from "./route-shipment-location";
 export * from "./route-planner-error";
+export * from "./types"

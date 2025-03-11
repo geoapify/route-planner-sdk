@@ -5,7 +5,7 @@ import RoutePlanner, {RouteAgent, RouteJob} from '../../../../dist';
   providedIn: 'root'
 })
 export class RoutePlannerService {
-  API_KEY = 'API_KEY'
+  API_KEY = 'TEST_API_KEY'
 
   async makeSimpleRequest() {
     try {

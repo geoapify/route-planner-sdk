@@ -1,0 +1,18 @@
+export type TravelMode =
+    | "drive"
+    | "light_truck"
+    | "medium_truck"
+    | "truck"
+    | "heavy_truck"
+    | "truck_dangerous_goods"
+    | "long_truck"
+    | "bus"
+    | "scooter"
+    | "motorcycle"
+    | "bicycle"
+    | "mountain_bike"
+    | "road_bike"
+    | "walk"
+    | "hike"
+    | "transit"
+    | "approximated_transit";
