@@ -40,8 +40,6 @@ interface RPProperties {
     time: number;
     start_time: number;
     end_time: number;
-    // TODO: double check total_time
-    total_time?: number;
     distance: number;
     mode: string;
     legs?: RPLeg[];
