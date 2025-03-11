@@ -18,11 +18,11 @@
 <script type="module">
     const apiKey = "API_KEY";
     async function testConnection() {
-        const result = await RoutePlannerSDK.RoutePlannerSDK.testConnection(apiKey);
+        const result = await RoutePlannerSDK.RoutePlanner.testConnection(apiKey);
         document.getElementById("testConnectionResult").innerText = result;
     }
     async function makeSimpleRoutePlannerRequest() {
-        const planner = new RoutePlannerSDK.RoutePlannerSDK(apiKey);
+        const planner = new RoutePlannerSDK.RoutePlanner(apiKey);
 
         const result = await planner
             .setMode("drive")

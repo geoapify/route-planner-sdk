@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import RoutePlannerSDK, { RouteAgent, RouteJob } from "./dist/route-planner-sdk.esm";
+import RoutePlanner, { RouteAgent, RouteJob } from "./dist/route-planner-sdk.esm";
 
 const RoutePlannerComponent: React.FC = () => {
     const [testConnectionResult, setTestConnectionResult] = useState<string>("");
@@ -7,7 +7,7 @@ const RoutePlannerComponent: React.FC = () => {
 
     const checkConnection = async () => {
         try {
-            const response = await RoutePlannerSDK.testConnection("YOUR_API_KEY");
+            const response = await RoutePlanner.testConnection("YOUR_API_KEY");
             setTestConnectionResult(response);
         } catch (error) {
             console.error("API Error:", error);
@@ -17,7 +17,7 @@ const RoutePlannerComponent: React.FC = () => {
 
     const makeSimpleRequest = async () => {
         try {
-            const sdk = new RoutePlannerSDK("API_KEY");
+            const sdk = new RoutePlanner("API_KEY");
             const response = await sdk
                 .setMode("drive")
                 .addAgent(new RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))

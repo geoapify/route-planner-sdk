@@ -1,4 +1,4 @@
-import RoutePlannerSDK, {
+import RoutePlanner, {
   RouteAgent, RouteAvoid, RouteBreak,
   RouteJob,
   RouteLocation, RoutePlannerResult,
@@ -9,14 +9,14 @@ import RoutePlannerSDK, {
 
 const API_KEY = "API_KEY";
 
-describe('RoutePlannerSDK', () => {
+describe('RoutePlanner', () => {
   test('should return a success message if Geoapify is reachable', async () => {
-    const result = await RoutePlannerSDK.testConnection('api-key');
+    const result = await RoutePlanner.testConnection('api-key');
     expect(result).toBe("Geoapify is reachable");
   });
 
   test('should return success for basic request to Route Planner API', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     const result = await planner
         .setMode("drive")
@@ -28,7 +28,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success for complex test 1 - "Simple delivery route planner"', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     planner.setMode("drive");
 
@@ -71,7 +71,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success for complex test 2 - "Deliver shipments and pickup returns"', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     planner.setMode("drive");
 
@@ -106,7 +106,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success for complex test 3 - "Pickup bulky items from different locations"', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     planner.setMode("drive");
 
@@ -141,7 +141,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success for complex test 4 - "Delivery / pickup with constraints"', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     planner.setMode("drive");
 
@@ -178,7 +178,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success for complex test 5 - "Garbage collector truck routes"', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     planner.setMode("drive");
 
@@ -206,7 +206,7 @@ describe('RoutePlannerSDK', () => {
   });
 
   test('should return success test all not used fields"', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     planner.setMode("drive");
 
@@ -242,7 +242,7 @@ describe('RoutePlannerSDK', () => {
 
 
   test('should return issue object for invalid request to Route Planner API', async () => {
-    const planner = new RoutePlannerSDK(API_KEY);
+    const planner = new RoutePlanner(API_KEY);
 
     try {
       await planner

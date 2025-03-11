@@ -1,4 +1,4 @@
-import RoutePlannerSDK, {
+import RoutePlanner, {
   RouteEditor,
   RouteLocation,
 } from "../src";
@@ -7,7 +7,7 @@ const API_KEY = "API_KEY";
 
 describe('RouteEditor', () => {
   test('removeLocation should work as expected', async () => {
-    let planner = new RoutePlannerSDK(API_KEY);
+    let planner = new RoutePlanner(API_KEY);
     planner.addLocation(new RouteLocation().setId('1'));
     expect(planner.locations.length).toBe(1);
 

@@ -1,15 +1,15 @@
-import { RoutePlannerSDK } from "./route-planner-sdk";
+import { RoutePlanner } from "./route-planner";
 import { RouteEditor } from "./tools/route-editor";
 import * as Models from "./models";
 
 export * from "./models";
-export { RoutePlannerSDK, RouteEditor };
-export default RoutePlannerSDK;
+export { RoutePlanner, RouteEditor };
+export default RoutePlanner;
 
 // Ensure proper UMD export for browsers
 if (typeof window !== "undefined") {
     (window as any).RoutePlannerSDK = {
-        RoutePlannerSDK: RoutePlannerSDK,
+        RoutePlanner: RoutePlanner,
         RouteEditor: RouteEditor,
         ...Models
     };

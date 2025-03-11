@@ -1,10 +1,10 @@
-import { RoutePlannerSDK } from "../route-planner-sdk";
+import { RoutePlanner } from "../route-planner";
 import { RouteJob, RouteLocation, RouteShipment } from "../models";
 
 export class RouteEditor {
-  private readonly routePlanner: RoutePlannerSDK;
+  private readonly routePlanner: RoutePlanner;
 
-  constructor(routePlanner: RoutePlannerSDK) {
+  constructor(routePlanner: RoutePlanner) {
     this.routePlanner = routePlanner;
   }
 
@@ -64,9 +64,9 @@ export class RouteEditor {
 
 
   /**
-   * Gets the modified RoutePlannerSDK instance.
+   * Gets the modified RoutePlanner instance.
    */
-  public getRoutePlanner(): RoutePlannerSDK {
+  public getRoutePlanner(): RoutePlanner {
     return this.routePlanner;
   }
 }

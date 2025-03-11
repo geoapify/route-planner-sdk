@@ -6,7 +6,7 @@ import { RouteLocation } from "./models/route-location";
 import { RouteAvoid } from "./models/route-avoid";
 import { RoutePlannerResult } from "./models/route-planner-result";
 
-export class RoutePlannerSDK {
+export class RoutePlanner {
     public mode?: string;
     public agents: RouteAgent[] = [];
     public jobs: RouteJob[] = [];

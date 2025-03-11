@@ -1,6 +1,6 @@
-import RoutePlannerSDK from "../src";
+import RoutePlanner from "../src";
 
-describe('RoutePlannerSDK (Real API Calls in Node.js)', () => {
+describe('RoutePlanner (Real API Calls in Node.js)', () => {
   const originalFetch = global.fetch;
 
   afterEach(() => {
@@ -12,7 +12,7 @@ describe('RoutePlannerSDK (Real API Calls in Node.js)', () => {
     // @ts-ignore - Removing fetch to trigger node-fetch usage
     delete global.fetch;
 
-    const result = await RoutePlannerSDK.testConnection("api-ket");
+    const result = await RoutePlanner.testConnection("api-ket");
 
     // Expecting success response
     expect(result).toBe("Geoapify is reachable");

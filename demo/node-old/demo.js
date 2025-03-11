@@ -1,4 +1,4 @@
-import RoutePlannerSDK, {RouteAgent, RouteJob} from "../../dist/route-planner-sdk.esm.js";
+import RoutePlanner, {RouteAgent, RouteJob} from "../../dist/route-planner-sdk.esm.js";
 
 const apiKey = "API_KEY"; // Replace with a real API key
 
@@ -6,12 +6,12 @@ async function main() {
     // Remove fetch to simulate an environment where it's not available
     globalThis.fetch = undefined;
 
-    const result = await RoutePlannerSDK.testConnection(apiKey);
+    const result = await RoutePlanner.testConnection(apiKey);
     console.log("API Status:", result);
 }
 
 async function makeSimpleRoutePlannerRequest() {
-    const planner = new RoutePlannerSDK(apiKey);
+    const planner = new RoutePlanner(apiKey);
 
     const result = await planner
         .setMode("drive")
