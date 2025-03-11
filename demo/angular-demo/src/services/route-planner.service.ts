@@ -5,10 +5,11 @@ import RoutePlanner, {RouteAgent, RouteJob} from '../../../../dist';
   providedIn: 'root'
 })
 export class RoutePlannerService {
+  API_KEY = '93b8e26606dd485183dcdab30f239f81'
 
   async makeSimpleRequest() {
     try {
-      const planner = new RoutePlanner('API_KEY');
+      const planner = new RoutePlanner(this.API_KEY);
       return await planner
           .setMode("drive")
           .addAgent(new RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))
