@@ -1,4 +1,4 @@
-import RoutePlanner, { RouteLocation } from "../src";
+import RoutePlanner, { Location } from "../src";
 
 describe('RoutePlanner (Real API Calls in Node.js)', () => {
   const originalFetch = global.fetch;
@@ -13,8 +13,8 @@ describe('RoutePlanner (Real API Calls in Node.js)', () => {
     // @ts-ignore - Removing fetch to trigger node-fetch usage
     delete global.fetch;
 
-    let planner = new RoutePlanner(API_KEY);
-    planner.addLocation(new RouteLocation().setId('1'));
-    expect(planner.locations.length).toBe(1);
+    let planner = new RoutePlanner({apiKey: API_KEY});
+    planner.addLocation(new Location().setId('1'));
+    expect(planner.getRaw().locations.length).toBe(1);
   });
 });

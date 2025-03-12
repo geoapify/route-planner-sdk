@@ -1,5 +1,5 @@
 import { RoutePlanner } from "../route-planner";
-import { RouteJob, RouteLocation, RouteShipment } from "../models";
+import { Job, Location, Shipment } from "../models";
 
 export class RouteEditor {
   private readonly routePlanner: RoutePlanner;
@@ -12,7 +12,7 @@ export class RouteEditor {
    * Adds a job to the route planner.
    * @param job RouteJob
    */
-  public addJob(job: RouteJob): this {
+  public addJob(job: Job): this {
     this.routePlanner.addJob(job);
     return this;
   }
@@ -22,7 +22,7 @@ export class RouteEditor {
    * @param jobId string
    */
   public removeJob(jobId: string): this {
-    this.routePlanner.jobs = this.routePlanner.jobs.filter(job => job.id !== jobId);
+    this.routePlanner.getRaw().jobs = this.routePlanner.getRaw().jobs.filter(job => job.id !== jobId);
     return this;
   }
 
@@ -30,7 +30,7 @@ export class RouteEditor {
    * Adds a shipment to the route planner.
    * @param shipment RouteShipment
    */
-  public addShipment(shipment: RouteShipment): this {
+  public addShipment(shipment: Shipment): this {
     this.routePlanner.addShipment(shipment);
     return this;
   }
@@ -40,7 +40,7 @@ export class RouteEditor {
    * @param shipmentId string
    */
   public removeShipment(shipmentId: string): this {
-    this.routePlanner.shipments = this.routePlanner.shipments.filter(shipment => shipment.id !== shipmentId);
+    this.routePlanner.getRaw().shipments = this.routePlanner.getRaw().shipments.filter(shipment => shipment.id !== shipmentId);
     return this;
   }
 
@@ -48,7 +48,7 @@ export class RouteEditor {
    * Adds a location to the route planner.
    * @param location RouteShipment
    */
-  public addLocation(location: RouteLocation): this {
+  public addLocation(location: Location): this {
     this.routePlanner.addLocation(location);
     return this;
   }
@@ -58,7 +58,7 @@ export class RouteEditor {
    * @param locationId string
    */
   public removeLocation(locationId: string): this {
-    this.routePlanner.locations = this.routePlanner.locations.filter(location => location.id !== locationId);
+    this.routePlanner.getRaw().locations = this.routePlanner.getRaw().locations.filter(location => location.id !== locationId);
     return this;
   }
 

@@ -1,94 +1,113 @@
 import { universalFetch } from './tools/fetch';
-import { RouteAgent, TravelMode } from "./models";
-import { RouteJob } from "./models";
-import { RouteShipment } from "./models";
-import { RouteLocation } from "./models";
-import { RouteAvoid } from "./models";
-import { RoutePlannerResult } from "./models";
-import { RoutePlannerError } from "./models";
-import { TrafficType } from "./models/types/traffic-type";
-import { RouteType } from "./models/types/route-type";
-import { DistanceUnitType } from "./models/types/distance-unit-type";
+import {
+    Agent,
+    RoutePlannerData,
+    RoutePlannerResultData,
+    TravelMode,
+    Job,
+    Shipment,
+    Location,
+    Avoid,
+    RoutePlannerError,
+    TrafficType,
+    DistanceUnitType,
+    RouteType
+} from "./models";
+import { RoutePlannerOptions } from "./models/interfaces/route-planner-options";
 
 export class RoutePlanner {
-    public mode?: TravelMode;
-    public agents: RouteAgent[] = [];
-    public jobs: RouteJob[] = [];
-    public shipments: RouteShipment[] = [];
-    public locations: RouteLocation[] = [];
-    public avoid: RouteAvoid[] = [];
-    public traffic?: TrafficType;
-    public type?: RouteType;
-    public max_speed?: number;
-    public units?: DistanceUnitType;
+    private raw: RoutePlannerData;
+    private options: RoutePlannerOptions;
 
-    constructor(private apiKey: string) {}
+    constructor(options: RoutePlannerOptions,
+                raw?: RoutePlannerData) {
+        this.options = options;
+        if(raw) {
+            this.raw = raw;
+        } else {
+            this.raw = {
+                agents: [],
+                jobs: [],
+                shipments: [],
+                locations: [],
+                avoid: []
+            };
+        }
+    }
+
+    getRaw(): RoutePlannerData {
+        return this.raw;
+    }
+
+    setRaw(value: RoutePlannerData) {
+        this.raw = value;
+    }
 
     public setMode(mode: TravelMode): this {
-        this.mode = mode;
+        this.raw.mode = mode;
         return this;
     }
 
-    public addAgent(agent: RouteAgent): this {
-        this.agents.push(agent);
+    public addAgent(agent: Agent): this {
+        this.raw.agents.push(agent.getRaw());
         return this;
     }
 
-    public addJob(job: RouteJob): this {
-        this.jobs.push(job);
+    public addJob(job: Job): this {
+        this.raw.jobs.push(job.getRaw());
         return this;
     }
 
-    public addLocation(location: RouteLocation): this {
-        this.locations.push(location);
+    public addLocation(location: Location): this {
+        this.raw.locations.push(location.getRaw());
         return this;
     }
 
-    public addShipment(shipment: RouteShipment): this {
-        this.shipments.push(shipment);
+    public addShipment(shipment: Shipment): this {
+        this.raw.shipments.push(shipment.getRaw());
         return this;
     }
 
-    public addAvoid(avoid: RouteAvoid): this {
-        this.avoid.push(avoid);
+    public addAvoid(avoid: Avoid): this {
+        this.raw.avoid.push(avoid.getRaw());
         return this;
     }
 
     public setTraffic(traffic: TrafficType): this {
-        this.traffic = traffic;
+        this.raw.traffic = traffic;
         return this;
     }
 
     public setType(type: RouteType): this {
-        this.type = type;
+        this.raw.type = type;
         return this;
     }
 
     public setMaxSpeed(max_speed: number): this {
-        this.max_speed = max_speed;
+        this.raw.max_speed = max_speed;
         return this;
     }
 
     public setUnits(units: DistanceUnitType): this {
-        this.units = units;
+        this.raw.units = units;
         return this;
     }
 
-    public async plan(): Promise<RoutePlannerResult> {
+    public async plan(): Promise<RoutePlannerResultData> {
         const requestBody = {
-            mode: this.mode,
-            agents: this.agents.length ? this.agents.map(agent => agent.toJSON()) : undefined,
-            jobs: this.jobs.length ? this.jobs.map(job => job.toJSON()) : undefined,
-            shipments: this.shipments.length ? this.shipments.map(shipment => shipment.toJSON()) : undefined,
-            locations: this.locations.length ? this.locations.map(location => location.toJSON()) : undefined,
-            avoid: this.avoid.length ? this.avoid.map(avoid => avoid.toJSON()) : undefined,
-            traffic: this.traffic,
-            type: this.type,
-            max_speed: this.max_speed,
-            units: this.units,
+            mode: this.raw.mode,
+            agents: this.raw.agents.length ? this.raw.agents : undefined,
+            jobs: this.raw.jobs.length ? this.raw.jobs : undefined,
+            shipments: this.raw.shipments.length ? this.raw.shipments : undefined,
+            locations: this.raw.locations.length ? this.raw.locations : undefined,
+            avoid: this.raw.avoid.length ? this.raw.avoid : undefined,
+            traffic: this.raw.traffic,
+            type: this.raw.type,
+            max_speed: this.raw.max_speed,
+            units: this.raw.units,
         };
 
-        const response = await universalFetch(`https://api.geoapify.com/v1/routeplanner?apiKey=${this.apiKey}`, {
+        const response = await universalFetch(`https://api.geoapify.com/v1/routeplanner?apiKey=${this.options.apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -1,20 +1,20 @@
-import { RouteAgent } from "./route-agent";
-import { RouteJob } from "./route-job";
-import { RouteShipment } from "./route-shipment";
-import { RouteLocation } from "./route-location";
-import { RouteAvoid } from "./route-avoid";
+import { AgentData } from "./nested/agent-data";
+import { JobData } from "./nested/job-data";
+import { ShipmentData } from "./nested/shipment-data";
+import { LocationData } from "./nested/location-data";
+import { AvoidData } from "./nested/avoid-data";
 
-export interface RoutePlannerResult {
+export interface RoutePlannerResultData {
     type: string;
     properties: {
         mode: string;
         params: {
             mode?: string;
-            agents: RouteAgent[];
-            jobs: RouteJob[];
-            shipments: RouteShipment[];
-            locations: RouteLocation[];
-            avoid: RouteAvoid[];
+            agents: AgentData[];
+            jobs: JobData[];
+            shipments: ShipmentData[];
+            locations: LocationData[];
+            avoid: AvoidData[];
             traffic?: string;
             type?: string;
             max_speed?: number;

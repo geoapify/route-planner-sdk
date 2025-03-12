@@ -1,49 +1,49 @@
 import RoutePlanner, {
-  RouteAgent, RouteAvoid, RouteBreak,
-  RouteJob,
-  RouteLocation, RoutePlannerResult,
-  RouteShipment,
-  RouteShipmentLocation, RPAction, RPLeg,
+  Agent, Avoid, Break,
+  Job,
+  Location,
+  Shipment,
+  ShipmentStep, RPAction, RPLeg,
   RPWaypoint,
-  RoutePlannerError
+  RoutePlannerError, RoutePlannerResultData
 } from "../src";
 
 const API_KEY = "TEST_API_KEY";
 
 describe('RoutePlanner', () => {
   test('should return success for basic request to Route Planner API', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     const result = await planner
         .setMode("drive")
-        .addAgent(new RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))
-        .addJob(new RouteJob().setId("job-1").setLocation(13.39, 52.51))
+        .addAgent(new Agent().setId("agent-1").setStartLocation(13.38, 52.52))
+        .addJob(new Job().setId("job-1").setLocation(13.39, 52.51))
         .plan();
 
     expect(result).toBeDefined();
   });
 
   test('should return success for complex test 1 - "Simple delivery route planner"', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     planner.setMode("drive");
 
-    planner.addAgent(new RouteAgent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
-    planner.addAgent(new RouteAgent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
-    planner.addAgent(new RouteAgent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
+    planner.addAgent(new Agent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
+    planner.addAgent(new Agent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
+    planner.addAgent(new Agent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
 
-    planner.addLocation(new RouteLocation().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
-    planner.addShipment(new RouteShipment().setId("order-1")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocation(44.50932929564537, 40.18686625))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocationIndex(0)));
+    planner.addShipment(new Shipment().setId("order-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50932929564537, 40.18686625))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
 
-    planner.addShipment(new RouteShipment().setId("order-2")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocation(44.511160727462574, 40.1816037))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocationIndex(0)));
+    planner.addShipment(new Shipment().setId("order-2")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.511160727462574, 40.1816037))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
 
-    planner.addAvoid(new RouteAvoid().setType("tolls"));
-    planner.addAvoid(new RouteAvoid().addValue(40.50485912329202, 42.177547000000004).setType("locations"));
+    planner.addAvoid(new Avoid().setType("tolls"));
+    planner.addAvoid(new Avoid().addValue(40.50485912329202, 42.177547000000004).setType("locations"));
 
     planner.setTraffic("approximated")
     planner.setType("short")
@@ -57,8 +57,8 @@ describe('RoutePlanner', () => {
     expect(result.properties).toBeDefined();
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.agents, shipments: planner.shipments, locations: planner.locations,
-              avoid: planner.avoid, traffic: planner.traffic, type: planner.type, max_speed: planner.max_speed, units: planner.units}
+            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations,
+              avoid: planner.getRaw().avoid, traffic: planner.getRaw().traffic, type: planner.getRaw().type, max_speed: planner.getRaw().max_speed, units: planner.getRaw().units}
         ));
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
@@ -67,23 +67,23 @@ describe('RoutePlanner', () => {
   });
 
   test('should return success for complex test 2 - "Deliver shipments and pickup returns"', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     planner.setMode("drive");
 
-    planner.addAgent(new RouteAgent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800));
-    planner.addAgent(new RouteAgent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
-    planner.addAgent(new RouteAgent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800));
 
-    planner.addLocation(new RouteLocation().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
-    planner.addShipment(new RouteShipment().setId("order-1")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocation(44.50932929564537, 40.18686625))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocationIndex(0)));
+    planner.addShipment(new Shipment().setId("order-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50932929564537, 40.18686625))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
 
-    planner.addShipment(new RouteShipment().setId("order-2")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocationIndex(0))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocation(44.505007387303756, 40.1877687)));
+    planner.addShipment(new Shipment().setId("order-2")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocationIndex(0))
+        .setPickup(new ShipmentStep().setDuration(120).setLocation(44.505007387303756, 40.1877687)));
 
 
     const result = await planner.plan();
@@ -93,7 +93,7 @@ describe('RoutePlanner', () => {
     expect(result.properties).toBeDefined();
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.agents, shipments: planner.shipments, locations: planner.locations}
+            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
         ));
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
@@ -102,23 +102,23 @@ describe('RoutePlanner', () => {
   });
 
   test('should return success for complex test 3 - "Pickup bulky items from different locations"', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     planner.setMode("drive");
 
-    planner.addAgent(new RouteAgent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setDeliveryCapacity(3000));
-    planner.addAgent(new RouteAgent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800).setDeliveryCapacity(3000));
-    planner.addAgent(new RouteAgent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setDeliveryCapacity(3000));
+    planner.addAgent(new Agent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setDeliveryCapacity(3000));
+    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800).setDeliveryCapacity(3000));
+    planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setDeliveryCapacity(3000));
 
-    planner.addLocation(new RouteLocation().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
-    planner.addShipment(new RouteShipment().setId("order-1")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocation(44.50932929564537, 40.18686625))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocationIndex(0)).setAmount(500));
+    planner.addShipment(new Shipment().setId("order-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50932929564537, 40.18686625))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)).setAmount(500));
 
-    planner.addShipment(new RouteShipment().setId("order-2")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocationIndex(0))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocation(44.505007387303756, 40.1877687)).setAmount(1000));
+    planner.addShipment(new Shipment().setId("order-2")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocationIndex(0))
+        .setPickup(new ShipmentStep().setDuration(120).setLocation(44.505007387303756, 40.1877687)).setAmount(1000));
 
 
     const result = await planner.plan();
@@ -128,7 +128,7 @@ describe('RoutePlanner', () => {
     expect(result.properties).toBeDefined();
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.agents, shipments: planner.shipments, locations: planner.locations}
+            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
         ));
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
@@ -137,25 +137,25 @@ describe('RoutePlanner', () => {
   });
 
   test('should return success for complex test 4 - "Delivery / pickup with constraints"', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     planner.setMode("drive");
 
-    planner.addAgent(new RouteAgent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800)
+    planner.addAgent(new Agent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800)
         .addCapability("Extra-long").addCapability("Fragile"));
-    planner.addAgent(new RouteAgent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
-    planner.addAgent(new RouteAgent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800)
+    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800)
         .addCapability("Extra-long").addCapability("Fragile"));
 
-    planner.addLocation(new RouteLocation().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
-    planner.addShipment(new RouteShipment().setId("order-1")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocation(44.50932929564537, 40.18686625))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocationIndex(0)).addRequirement('Extra-long').addRequirement('Fragile'));
+    planner.addShipment(new Shipment().setId("order-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50932929564537, 40.18686625))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)).addRequirement('Extra-long').addRequirement('Fragile'));
 
-    planner.addShipment(new RouteShipment().setId("order-2")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocationIndex(0))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocation(44.505007387303756, 40.1877687)).addRequirement('Bad-requirement'));
+    planner.addShipment(new Shipment().setId("order-2")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocationIndex(0))
+        .setPickup(new ShipmentStep().setDuration(120).setLocation(44.505007387303756, 40.1877687)).addRequirement('Bad-requirement'));
 
 
     const result = await planner.plan();
@@ -166,7 +166,7 @@ describe('RoutePlanner', () => {
     expect(result.properties).toBeDefined();
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.agents, shipments: planner.shipments, locations: planner.locations}
+            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
         ));
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
@@ -174,18 +174,18 @@ describe('RoutePlanner', () => {
   });
 
   test('should return success for complex test 5 - "Garbage collector truck routes"', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     planner.setMode("drive");
 
-    planner.addAgent(new RouteAgent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
-    planner.addAgent(new RouteAgent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
-    planner.addAgent(new RouteAgent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
 
-    planner.addJob(new RouteJob().setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new RouteJob().setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new RouteJob().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new RouteJob().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
 
     const result = await planner.plan();
     expect(result).toBeDefined();
@@ -195,31 +195,31 @@ describe('RoutePlanner', () => {
     expect(result.properties).toBeDefined();
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.agents, jobs: planner.jobs}
+            {mode: 'drive', agents: planner.getRaw().agents, jobs: planner.getRaw().jobs}
         ));
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
   });
 
   test('should return success test all not used fields"', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     planner.setMode("drive");
 
-    planner.addAgent(new RouteAgent().addTimeWindow(0, 10800).setStartLocationIndex(0).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
-    planner.addAgent(new RouteAgent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800).setEndLocationIndex(0).setDescription('My Vehicle').addBreak(new RouteBreak().setDuration(10).addTimeWindow(0, 10000)));
-    planner.addAgent(new RouteAgent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().addTimeWindow(0, 10800).setStartLocationIndex(0).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800).setEndLocationIndex(0).setDescription('My Vehicle').addBreak(new Break().setDuration(10).addTimeWindow(0, 10000)));
+    planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
 
-    planner.addLocation(new RouteLocation().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
-    planner.addJob(new RouteJob().setDuration(300).setLocationIndex(0).setPriority(1).setDeliveryAmount(100).addRequirement('Bad-requirement'));
-    planner.addJob(new RouteJob().setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625).addTimeWindow(0, 100).setDescription('My job'));
-    planner.addJob(new RouteJob().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new RouteJob().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setLocationIndex(0).setPriority(1).setDeliveryAmount(100).addRequirement('Bad-requirement'));
+    planner.addJob(new Job().setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625).addTimeWindow(0, 100).setDescription('My job'));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
 
-    planner.addShipment(new RouteShipment().setId("order-1")
-        .setDelivery(new RouteShipmentLocation().setDuration(120).setLocation(44.50932929564537, 40.18686625).addTimeWindow(0, 10))
-        .setPickup(new RouteShipmentLocation().setDuration(120).setLocationIndex(0)).setPriority(1).setDescription('Shipment'));
+    planner.addShipment(new Shipment().setId("order-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50932929564537, 40.18686625).addTimeWindow(0, 10))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)).setPriority(1).setDescription('Shipment'));
 
     const result = await planner.plan();
     expect(result).toBeDefined();
@@ -229,7 +229,7 @@ describe('RoutePlanner', () => {
     expect(result.properties).toBeDefined();
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.agents, jobs: planner.jobs, shipments: planner.shipments, locations: planner.locations}
+            {mode: 'drive', agents: planner.getRaw().agents, jobs: planner.getRaw().jobs, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
         ));
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
@@ -238,7 +238,7 @@ describe('RoutePlanner', () => {
 
 
   test('should return issue object for invalid request to Route Planner API', async () => {
-    const planner = new RoutePlanner(API_KEY);
+    const planner = new RoutePlanner({apiKey: API_KEY});
 
     try {
       await planner
@@ -299,7 +299,7 @@ describe('RoutePlanner', () => {
     expect(firstLeg.steps[0].distance).toBeDefined();
   }
 
-  function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResult) {
+  function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResultData) {
     expect(result.features).toBeDefined();
     expect(result.features[0].type).toBe("Feature");
     expect(result.features[0].geometry.type).toBe("MultiLineString");
