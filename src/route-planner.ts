@@ -22,6 +22,9 @@ export class RoutePlanner {
     constructor(options: RoutePlannerOptions,
                 raw?: RoutePlannerData) {
         this.options = options;
+        if(!this.options.baseUrl) {
+            this.options.baseUrl = 'https://api.geoapify.com';
+        }
         if(raw) {
             this.raw = raw;
         } else {
@@ -107,7 +110,7 @@ export class RoutePlanner {
             units: this.raw.units,
         };
 
-        const response = await universalFetch(`https://api.geoapify.com/v1/routeplanner?apiKey=${this.options.apiKey}`, {
+        const response = await universalFetch(`${this.options.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -122,5 +125,4 @@ export class RoutePlanner {
 
         return await response.json();
     }
-
 }
