@@ -1,16 +1,12 @@
-export class BaseSerializable {
-    public toJSON(): Record<string, any> {
-        return BaseSerializable.cleanObject(this);
-    }
-
-    private static cleanObject(obj: any): any {
+export class Utils {
+    public static cleanObject(obj: any): any {
         if (Array.isArray(obj)) {
             // Remove empty arrays, otherwise clean elements recursively
-            return obj.length > 0 ? obj.map(BaseSerializable.cleanObject) : undefined;
+            return obj.length > 0 ? obj.map(Utils.cleanObject) : undefined;
         } else if (obj !== null && typeof obj === "object") {
             // Remove empty objects and undefined values recursively
             const cleanedObj = Object.entries(obj).reduce((acc, [key, value]) => {
-                const cleanedValue = BaseSerializable.cleanObject(value);
+                const cleanedValue = Utils.cleanObject(value);
                 if (cleanedValue !== undefined) {
                     acc[key] = cleanedValue;
                 }

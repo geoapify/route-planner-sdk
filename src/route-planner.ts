@@ -14,6 +14,7 @@ import {
     RouteType
 } from "./models";
 import { RoutePlannerOptions } from "./models/interfaces/route-planner-options";
+import { Utils } from "./tools/utils";
 
 export class RoutePlanner {
     private raw: RoutePlannerData;
@@ -97,18 +98,7 @@ export class RoutePlanner {
     }
 
     public async plan(): Promise<RoutePlannerResultData> {
-        const requestBody = {
-            mode: this.raw.mode,
-            agents: this.raw.agents.length ? this.raw.agents : undefined,
-            jobs: this.raw.jobs.length ? this.raw.jobs : undefined,
-            shipments: this.raw.shipments.length ? this.raw.shipments : undefined,
-            locations: this.raw.locations.length ? this.raw.locations : undefined,
-            avoid: this.raw.avoid.length ? this.raw.avoid : undefined,
-            traffic: this.raw.traffic,
-            type: this.raw.type,
-            max_speed: this.raw.max_speed,
-            units: this.raw.units,
-        };
+        const requestBody = Utils.cleanObject(this.raw);
 
         const response = await universalFetch(`${this.options.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {
             method: 'POST',

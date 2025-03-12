@@ -1,12 +1,10 @@
 import { Break } from "./break";
-import { BaseSerializable } from "../../base-serializable";
 import { AgentData } from "../../interfaces";
 
-export class Agent extends BaseSerializable {
+export class Agent {
     private raw: AgentData;
 
     constructor(raw?: AgentData) {
-        super();
         if (raw) {
             this.raw = raw;
         } else {

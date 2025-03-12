@@ -7,6 +7,7 @@ import RoutePlanner, {
   RPWaypoint,
   RoutePlannerError, RoutePlannerResultData
 } from "../src";
+import { Utils } from "../src/tools/utils";
 
 const API_KEY = "TEST_API_KEY";
 
@@ -55,11 +56,7 @@ describe('RoutePlanner', () => {
     expect(result.features.length).toBe(1);
     expect(result.properties.issues.unassigned_agents.length).toBe(2);
     expect(result.properties).toBeDefined();
-    expect(JSON.stringify(result.properties.params))
-        .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations,
-              avoid: planner.getRaw().avoid, traffic: planner.getRaw().traffic, type: planner.getRaw().type, max_speed: planner.getRaw().max_speed, units: planner.getRaw().units}
-        ));
+    testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
     testAllActionFieldsArePopulated(result.features[0].properties.actions[1]);
@@ -91,10 +88,7 @@ describe('RoutePlanner', () => {
     expect(result.features.length).toBe(1);
     expect(result.properties.issues.unassigned_agents.length).toBe(2);
     expect(result.properties).toBeDefined();
-    expect(JSON.stringify(result.properties.params))
-        .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
-        ));
+    testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
     testAllActionFieldsArePopulated(result.features[0].properties.actions[2]);
@@ -126,10 +120,7 @@ describe('RoutePlanner', () => {
     expect(result.features.length).toBe(1);
     expect(result.properties.issues.unassigned_agents.length).toBe(2);
     expect(result.properties).toBeDefined();
-    expect(JSON.stringify(result.properties.params))
-        .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
-        ));
+    testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
     testAllActionFieldsArePopulated(result.features[0].properties.actions[2]);
@@ -164,10 +155,7 @@ describe('RoutePlanner', () => {
     expect(result.properties.issues.unassigned_agents.length).toBe(2);
     expect(result.properties.issues.unassigned_shipments.length).toBe(1);
     expect(result.properties).toBeDefined();
-    expect(JSON.stringify(result.properties.params))
-        .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.getRaw().agents, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
-        ));
+    testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
     testAllActionFieldsArePopulated(result.features[0].properties.actions[1]);
@@ -193,10 +181,7 @@ describe('RoutePlanner', () => {
     expect(result.properties.issues.unassigned_agents.length).toBe(2);
     expect(result.properties.issues.unassigned_jobs.length).toBe(1);
     expect(result.properties).toBeDefined();
-    expect(JSON.stringify(result.properties.params))
-        .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.getRaw().agents, jobs: planner.getRaw().jobs}
-        ));
+    testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
   });
@@ -227,10 +212,7 @@ describe('RoutePlanner', () => {
     expect(result.properties.issues.unassigned_agents.length).toBe(2);
     expect(result.properties.issues.unassigned_jobs.length).toBe(2);
     expect(result.properties).toBeDefined();
-    expect(JSON.stringify(result.properties.params))
-        .toBe(JSON.stringify(
-            {mode: 'drive', agents: planner.getRaw().agents, jobs: planner.getRaw().jobs, shipments: planner.getRaw().shipments, locations: planner.getRaw().locations}
-        ));
+    testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.features[0].properties.legs![0]);
     expect(result.features[0].properties.actions[2].job_index).toBeDefined()
@@ -309,5 +291,12 @@ describe('RoutePlanner', () => {
     expect(result.features[0].properties.start_time).toBeDefined();
     expect(result.features[0].properties.end_time).toBeDefined();
     expect(result.features[0].properties.distance).toBeDefined();
+  }
+
+  function testResponseParamsArePopulated(result: RoutePlannerResultData, planner: RoutePlanner) {
+    expect(JSON.stringify(result.properties.params))
+        .toBe(JSON.stringify(
+            Utils.cleanObject(planner.getRaw())
+        ));
   }
 });

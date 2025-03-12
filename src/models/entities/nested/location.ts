@@ -1,11 +1,9 @@
-import { BaseSerializable } from "../../base-serializable";
 import { LocationData } from "../../interfaces";
 
-export class Location extends BaseSerializable {
+export class Location {
     private raw: LocationData;
 
     constructor(raw?: LocationData) {
-        super();
         if(raw) {
             this.raw = raw;
         } else {

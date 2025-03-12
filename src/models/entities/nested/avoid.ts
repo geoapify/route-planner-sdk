@@ -1,13 +1,11 @@
-import { BaseSerializable } from "../../base-serializable";
 import { Coordinates } from "./coordinates";
 import { AvoidType } from "../../types";
 import { AvoidData } from "../../interfaces";
 
-export class Avoid extends BaseSerializable {
+export class Avoid {
     private raw: AvoidData;
 
     constructor(raw?: AvoidData) {
-        super();
         if(raw) {
             this.raw = raw;
         } else {

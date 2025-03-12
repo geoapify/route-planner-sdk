@@ -1,11 +1,9 @@
 import { BreakData } from "../../interfaces";
-import { BaseSerializable } from "../../base-serializable";
 
-export class Break extends BaseSerializable {
+export class Break {
     private raw: BreakData;
 
     constructor(raw?: BreakData) {
-        super();
         if(raw) {
             this.raw = raw;
         } else {

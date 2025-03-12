@@ -1,11 +1,9 @@
-import { BaseSerializable } from "../../base-serializable";
 import { CoordinatesData } from "../../interfaces";
 
-export class Coordinates extends BaseSerializable {
+export class Coordinates {
     private raw: CoordinatesData;
 
     constructor(raw?: CoordinatesData) {
-        super();
         if(raw) {
             this.raw = raw;
         } else {

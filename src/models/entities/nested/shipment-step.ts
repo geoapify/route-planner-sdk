@@ -1,11 +1,9 @@
-import { BaseSerializable } from "../../base-serializable";
 import { ShipmentStepData } from "../../interfaces";
 
-export class ShipmentStep extends BaseSerializable {
+export class ShipmentStep {
     private raw: ShipmentStepData;
 
     constructor(raw?: ShipmentStepData) {
-        super();
         if(raw) {
             this.raw = raw;
         } else {

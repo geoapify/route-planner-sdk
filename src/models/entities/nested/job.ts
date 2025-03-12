@@ -1,11 +1,9 @@
-import { BaseSerializable } from "../../base-serializable";
 import { JobData } from "../../interfaces";
 
-export class Job extends BaseSerializable{
+export class Job {
     private raw: JobData;
 
     constructor(raw?: JobData) {
-        super();
         if (raw) {
             this.raw = raw;
         } else {
