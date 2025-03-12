@@ -1,13 +1,13 @@
-import RoutePlanner, {RouteAgent, RouteJob} from "../../dist/route-planner-sdk.esm.js";
+import RoutePlanner, {Agent, Job} from "../../dist/route-planner-sdk.esm.js";
 
 const apiKey = "TEST_API_KEY"; // Replace with a real API key
 async function makeSimpleRoutePlannerRequest() {
-    const planner = new RoutePlanner(apiKey);
+    const planner = new RoutePlanner({apiKey: apiKey});
 
     const result = await planner
         .setMode("drive")
-        .addAgent(new RouteAgent().setId("agent-1").setStartLocation(13.38, 52.52))
-        .addJob(new RouteJob().setId("job-1").setLocation(13.39, 52.51))
+        .addAgent(new Agent().setId("agent-1").setStartLocation(13.38, 52.52))
+        .addJob(new Job().setId("job-1").setLocation(13.39, 52.51))
         .plan();
     console.log("Route Planner result:", result);
 }
