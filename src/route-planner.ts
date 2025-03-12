@@ -6,6 +6,9 @@ import { RouteLocation } from "./models";
 import { RouteAvoid } from "./models";
 import { RoutePlannerResult } from "./models";
 import { RoutePlannerError } from "./models";
+import { TrafficType } from "./models/types/traffic-type";
+import { RouteType } from "./models/types/route-type";
+import { DistanceUnitType } from "./models/types/distance-unit-type";
 
 export class RoutePlanner {
     public mode?: TravelMode;
@@ -14,10 +17,10 @@ export class RoutePlanner {
     public shipments: RouteShipment[] = [];
     public locations: RouteLocation[] = [];
     public avoid: RouteAvoid[] = [];
-    public traffic?: string;
-    public type?: string;
+    public traffic?: TrafficType;
+    public type?: RouteType;
     public max_speed?: number;
-    public units?: string;
+    public units?: DistanceUnitType;
 
     constructor(private apiKey: string) {}
 
@@ -51,12 +54,12 @@ export class RoutePlanner {
         return this;
     }
 
-    public setTraffic(traffic: string): this {
+    public setTraffic(traffic: TrafficType): this {
         this.traffic = traffic;
         return this;
     }
 
-    public setType(type: string): this {
+    public setType(type: RouteType): this {
         this.type = type;
         return this;
     }
@@ -66,7 +69,7 @@ export class RoutePlanner {
         return this;
     }
 
-    public setUnits(units: string): this {
+    public setUnits(units: DistanceUnitType): this {
         this.units = units;
         return this;
     }

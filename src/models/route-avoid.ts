@@ -1,11 +1,12 @@
 import { BaseSerializable } from "./base-serializable";
 import { RouteCoordinates } from "./route-coordinates";
+import { AvoidType } from "./types";
 
 export class RouteAvoid extends BaseSerializable {
-    public type?: string;
+    public type?: AvoidType;
     public values: RouteCoordinates[] = [];
 
-    public setType(type: string): this {
+    public setType(type: AvoidType): this {
         this.type = type;
         return this;
     }
