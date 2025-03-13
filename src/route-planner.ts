@@ -2,7 +2,7 @@ import { universalFetch } from './tools/fetch';
 import {
     Agent,
     RoutePlannerData,
-    RoutePlannerResultData,
+    RoutePlannerResultResponseData,
     TravelMode,
     Job,
     Shipment,
@@ -97,7 +97,7 @@ export class RoutePlanner {
         return this;
     }
 
-    public async plan(): Promise<RoutePlannerResultData> {
+    public async plan(): Promise<RoutePlannerResultResponseData> {
         const requestBody = Utils.cleanObject(this.raw);
 
         const response = await universalFetch(`${this.options.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {

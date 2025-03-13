@@ -3,9 +3,8 @@ import RoutePlanner, {
   Job,
   Location,
   Shipment,
-  ShipmentStep, RPAction, RPLeg,
-  RPWaypoint,
-  RoutePlannerError, RoutePlannerResultData
+  ShipmentStep,
+  RoutePlannerError, RoutePlannerResultResponseData, WaypointResponseData, ActionResponseData, LegResponseData
 } from "../src";
 import { Utils } from "../src/tools/utils";
 
@@ -238,7 +237,7 @@ describe('RoutePlanner', () => {
     }
   });
 
-  function testAllWaypointFieldsArePopulated(firstWaypoint: RPWaypoint) {
+  function testAllWaypointFieldsArePopulated(firstWaypoint: WaypointResponseData) {
     expect(firstWaypoint.original_location).toBeDefined();
     expect(firstWaypoint.location).toBeDefined();
     expect(firstWaypoint.start_time).toBeDefined();
@@ -258,7 +257,7 @@ describe('RoutePlanner', () => {
     expect(firstWaypoint.next_leg_index).toBeDefined();
   }
 
-  function testAllActionFieldsArePopulated(nextAction: RPAction) {
+  function testAllActionFieldsArePopulated(nextAction: ActionResponseData) {
     expect(nextAction.index).toBeDefined();
     expect(nextAction.type).toBeDefined();
     expect(nextAction.start_time).toBeDefined();
@@ -270,7 +269,7 @@ describe('RoutePlanner', () => {
     expect(nextAction.waypoint_index).toBeDefined();
   }
 
-  function testAllLegFieldsArePopulated(firstLeg: RPLeg) {
+  function testAllLegFieldsArePopulated(firstLeg: LegResponseData) {
     expect(firstLeg.time).toBeDefined();
     expect(firstLeg.distance).toBeDefined();
     expect(firstLeg.from_waypoint_index).toBeDefined();
@@ -281,7 +280,7 @@ describe('RoutePlanner', () => {
     expect(firstLeg.steps[0].distance).toBeDefined();
   }
 
-  function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResultData) {
+  function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResultResponseData) {
     expect(result.features).toBeDefined();
     expect(result.features[0].type).toBe("Feature");
     expect(result.features[0].geometry.type).toBe("MultiLineString");
@@ -293,7 +292,7 @@ describe('RoutePlanner', () => {
     expect(result.features[0].properties.distance).toBeDefined();
   }
 
-  function testResponseParamsArePopulated(result: RoutePlannerResultData, planner: RoutePlanner) {
+  function testResponseParamsArePopulated(result: RoutePlannerResultResponseData, planner: RoutePlanner) {
     expect(JSON.stringify(result.properties.params))
         .toBe(JSON.stringify(
             Utils.cleanObject(planner.getRaw())
