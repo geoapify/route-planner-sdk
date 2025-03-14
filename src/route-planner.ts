@@ -15,6 +15,8 @@ import {
 } from "./models";
 import { RoutePlannerOptions } from "./models/interfaces/route-planner-options";
 import { Utils } from "./tools/utils";
+import { RoutePlannerResultConverter } from "./tools/route-planner-result-converter";
+import { RoutePlannerResult } from "./models/entities/route-planner-result";
 
 export class RoutePlanner {
     private raw: RoutePlannerData;
@@ -97,7 +99,7 @@ export class RoutePlanner {
         return this;
     }
 
-    public async plan(): Promise<RoutePlannerResultResponseData> {
+    public async plan(): Promise<RoutePlannerResult> {
         const requestBody = Utils.cleanObject(this.raw);
 
         const response = await universalFetch(`${this.options.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {
@@ -113,6 +115,7 @@ export class RoutePlanner {
             throw new RoutePlannerError(errorResponse.error, errorResponse.message);
         }
 
-        return await response.json();
+        let responseData = await response.json();
+        return RoutePlannerResultConverter.convert(this.options, this.getRaw(), responseData);
     }
 }

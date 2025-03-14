@@ -14,6 +14,7 @@ export * from "./result/route-planner-result-data";
 export * from "./nested/result/agent-solution";
 export * from "./nested/result/route-action";
 export * from "./nested/result/route-leg";
+export * from "./nested/result/route-leg-step";
 export * from "./nested/result/waypoint";
 
 export * from "./nested/response/action-response-data";

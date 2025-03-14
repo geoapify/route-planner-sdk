@@ -3,7 +3,7 @@ export interface ActionResponseData {
     start_time: number;
     duration: number;
     shipment_index?: number;
-    shipment_id?: number;
+    shipment_id?: string;
     location_index?: number;
     location_id?: number;
     job_index?: number;
