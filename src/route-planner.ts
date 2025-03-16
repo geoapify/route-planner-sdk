@@ -1,7 +1,7 @@
 import { universalFetch } from './tools/fetch';
 import {
     Agent,
-    RoutePlannerData,
+    RoutePlannerInputData,
     RoutePlannerResultResponseData,
     TravelMode,
     Job,
@@ -19,11 +19,11 @@ import { RoutePlannerResultConverter } from "./tools/route-planner-result-conver
 import { RoutePlannerResult } from "./models/entities/route-planner-result";
 
 export class RoutePlanner {
-    private raw: RoutePlannerData;
+    private raw: RoutePlannerInputData;
     private options: RoutePlannerOptions;
 
     constructor(options: RoutePlannerOptions,
-                raw?: RoutePlannerData) {
+                raw?: RoutePlannerInputData) {
         this.options = options;
         if(!this.options.baseUrl) {
             this.options.baseUrl = 'https://api.geoapify.com';
@@ -41,11 +41,11 @@ export class RoutePlanner {
         }
     }
 
-    getRaw(): RoutePlannerData {
+    getRaw(): RoutePlannerInputData {
         return this.raw;
     }
 
-    setRaw(value: RoutePlannerData) {
+    setRaw(value: RoutePlannerInputData) {
         this.raw = value;
     }
 

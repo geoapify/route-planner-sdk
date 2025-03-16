@@ -1,4 +1,4 @@
-import { LocationData } from "../../interfaces";
+import { LocationData } from "../../../interfaces";
 
 export class Location {
     private raw: LocationData;

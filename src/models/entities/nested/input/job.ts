@@ -1,4 +1,4 @@
-import { JobData } from "../../interfaces";
+import { JobData } from "../../../interfaces";
 
 export class Job {
     private raw: JobData;

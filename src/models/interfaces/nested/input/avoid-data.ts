@@ -1,4 +1,4 @@
-import { AvoidType } from "../../types";
+import { AvoidType } from "../../../types";
 import { CoordinatesData } from "./coordinates-data";
 
 export interface AvoidData {

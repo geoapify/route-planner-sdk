@@ -1,8 +1,8 @@
-import { AgentData } from "../nested/agent-data";
-import { JobData } from "../nested/job-data";
-import { ShipmentData } from "../nested/shipment-data";
-import { LocationData } from "../nested/location-data";
-import { AvoidData } from "../nested/avoid-data";
+import { AgentData } from "../nested/input/agent-data";
+import { JobData } from "../nested/input/job-data";
+import { ShipmentData } from "../nested/input/shipment-data";
+import { LocationData } from "../nested/input/location-data";
+import { AvoidData } from "../nested/input/avoid-data";
 import { FeatureResponseData } from "../nested/response/feature-response-data";
 
 export interface RoutePlannerResultResponseData {

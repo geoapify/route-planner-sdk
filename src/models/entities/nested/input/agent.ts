@@ -1,5 +1,5 @@
 import { Break } from "./break";
-import { AgentData } from "../../interfaces";
+import { AgentData } from "../../../interfaces";
 
 export class Agent {
     private raw: AgentData;

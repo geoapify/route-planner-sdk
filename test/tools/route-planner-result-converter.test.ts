@@ -1,5 +1,5 @@
 import { RoutePlannerOptions } from "../../src/models/interfaces/route-planner-options";
-import { RoutePlannerData, RoutePlannerResultResponseData } from "../../src";
+import { RoutePlannerInputData, RoutePlannerResultResponseData } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
 import { RoutePlannerResultConverter } from "../../src/tools/route-planner-result-converter";
 
@@ -15,7 +15,7 @@ describe("RoutePlannerResultConverter", () => {
       },
     };
 
-    const routePlannerData: RoutePlannerData = {
+    const routePlannerData: RoutePlannerInputData = {
       mode: undefined,
       agents: [],
       jobs: [],

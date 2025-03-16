@@ -1,4 +1,4 @@
-import { BreakData } from "../../interfaces";
+import { BreakData } from "../../../interfaces";
 
 export class Break {
     private raw: BreakData;

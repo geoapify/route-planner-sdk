@@ -1,6 +1,6 @@
 import { Coordinates } from "./coordinates";
-import { AvoidType } from "../../types";
-import { AvoidData } from "../../interfaces";
+import { AvoidType } from "../../../types";
+import { AvoidData } from "../../../interfaces";
 
 export class Avoid {
     private raw: AvoidData;

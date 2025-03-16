@@ -1,9 +1,9 @@
-import { RoutePlannerData } from "../route-planner-data";
-import { AgentSolution } from "../nested/result/agent-solution";
+import { RoutePlannerInputData } from "../route-planner-input-data";
+import { AgentSolutionData } from "../nested/result/agent-solution-data";
 
 export interface RoutePlannerResultData {
-    agents: AgentSolution[];
-    inputData: RoutePlannerData;
+    agents: AgentSolutionData[];
+    inputData: RoutePlannerInputData;
     unassignedAgents: number[];
     unassignedJobs: number[];
     unassignedShipments: number[];

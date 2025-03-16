@@ -1,12 +1,12 @@
 import { DistanceUnitType, TrafficType, TravelMode } from "../types";
 import { RouteType } from "../types/route-type";
-import { JobData } from "./nested/job-data";
-import { AgentData } from "./nested/agent-data";
-import { ShipmentData } from "./nested/shipment-data";
-import { LocationData } from "./nested/location-data";
-import { AvoidData } from "./nested/avoid-data";
+import { JobData } from "./nested/input/job-data";
+import { AgentData } from "./nested/input/agent-data";
+import { ShipmentData } from "./nested/input/shipment-data";
+import { LocationData } from "./nested/input/location-data";
+import { AvoidData } from "./nested/input/avoid-data";
 
-export interface RoutePlannerData {
+export interface RoutePlannerInputData {
     mode?: TravelMode;
     agents: AgentData[];
     jobs: JobData[];

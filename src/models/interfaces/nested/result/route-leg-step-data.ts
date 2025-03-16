@@ -1,4 +1,4 @@
-export interface RouteLegStep {
+export interface RouteLegStepData {
     distance: number;
     time: number;
     from_index: number;

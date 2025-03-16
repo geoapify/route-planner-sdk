@@ -1,5 +1,9 @@
 import { RoutePlannerOptions } from "../interfaces/route-planner-options";
-import { AgentSolution, RouteAction, RouteLeg, RoutePlannerResultData, Waypoint } from "../interfaces";
+import { RoutePlannerResultData } from "../interfaces";
+import { AgentSolution } from "./nested/result/agent-solution";
+import { Waypoint } from "./nested/result/waypoint";
+import { RouteAction } from "./nested/result/route-action";
+import { RouteLeg } from "./nested/result/route-leg";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -24,14 +28,19 @@ export class RoutePlannerResult {
      * Returns a list of all assigned agent solutions.
      */
     getAgentSolutions(): AgentSolution[] {
-        return this.rawData.agents;
+        return this.rawData.agents.map(agent => new AgentSolution(agent));
     }
 
     /**
      * Finds an agent's solution by their ID.
      */
     getAgentSolution(agentId: string): AgentSolution | undefined {
-        return this.rawData.agents.find(agent => agent.agentId === agentId);
+        let agentFound = this.rawData.agents.find(agent => agent.agentId === agentId)
+        if(agentFound === undefined) {
+            return undefined;
+        } else {
+            return new AgentSolution(agentFound);
+        }
     }
 
     /**
@@ -39,7 +48,7 @@ export class RoutePlannerResult {
      */
     getAgentWaypoints(agentId: string): Waypoint[] {
         const agent = this.getAgentSolution(agentId);
-        return agent ? agent.waypoints : [];
+        return agent ? agent.getWaypoints() : [];
     }
 
     /**
@@ -47,7 +56,7 @@ export class RoutePlannerResult {
      */
     getAgentRouteActions(agentId: string): RouteAction[] {
         const agent = this.getAgentSolution(agentId);
-        return agent ? agent.actions : [];
+        return agent ? agent.getActions() : [];
     }
 
     /**
@@ -55,7 +64,7 @@ export class RoutePlannerResult {
      */
     getAgentRouteLegs(agentId: string): RouteLeg[] {
         const agent = this.getAgentSolution(agentId);
-        return agent ? agent.legs : [];
+        return agent ? agent.getLegs() : [];
     }
 
     /**
@@ -73,9 +82,9 @@ export class RoutePlannerResult {
         if(agent === undefined) {
             return [];
         }
-        return agent.actions
-            .filter(action => action.job_id !== undefined)
-            .map(action => action.job_id as string);
+        return agent.getActions()
+            .filter(action => action.getJobId() !== undefined)
+            .map(action => action.getJobId() as string);
     }
 
     /**
@@ -86,9 +95,9 @@ export class RoutePlannerResult {
         if(agent === undefined) {
             return [];
         }
-        return agent.actions
-            .filter(action => action.shipment_id !== undefined)
-            .map(action => action.shipment_id as string);
+        return agent.getActions()
+            .filter(action => action.getShipmentId() !== undefined)
+            .map(action => action.getShipmentId() as string);
     }
 
     /**
@@ -117,9 +126,9 @@ export class RoutePlannerResult {
      */
     getJobInfo(jobId: string): any {
         for (const agent of this.getAgentSolutions()) {
-            for (const action of agent.actions) {
-                if (action.job_id === jobId) {
-                    return { agentId: agent.agentId, action: action, agent: agent };
+            for (const action of agent.getActions()) {
+                if (action.getJobId() === jobId) {
+                    return { agentId: agent.getAgentId(), action: action, agent: agent };
                 }
             }
         }
@@ -131,9 +140,9 @@ export class RoutePlannerResult {
      */
     getShipmentInfo(shipmentId: string): any {
         for (const agent of this.getAgentSolutions()) {
-            for (const action of agent.actions) {
-                if (action.shipment_id === shipmentId) {
-                    return { agentId: agent.agentId, action: action, agent: agent };
+            for (const action of agent.getActions()) {
+                if (action.getShipmentId() === shipmentId) {
+                    return { agentId: agent.getAgentId(), action: action, agent: agent };
                 }
             }
         }

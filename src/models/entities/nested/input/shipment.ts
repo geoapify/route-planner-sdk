@@ -1,5 +1,5 @@
 import { ShipmentStep } from "./shipment-step";
-import { ShipmentData } from "../../interfaces";
+import { ShipmentData } from "../../../interfaces";
 
 export class Shipment {
     private raw: ShipmentData;

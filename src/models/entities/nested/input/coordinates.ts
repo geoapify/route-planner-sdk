@@ -1,4 +1,4 @@
-import { CoordinatesData } from "../../interfaces";
+import { CoordinatesData } from "../../../interfaces";
 
 export class Coordinates {
     private raw: CoordinatesData;

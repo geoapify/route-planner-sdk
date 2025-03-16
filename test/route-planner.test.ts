@@ -5,9 +5,7 @@ import RoutePlanner, {
   Shipment,
   ShipmentStep,
   RoutePlannerError,
-  WaypointResponseData,
-  ActionResponseData,
-  LegResponseData, RoutePlannerData
+  RoutePlannerInputData, RouteLeg, RouteAction, Waypoint
 } from "../src";
 import { RoutePlannerResult } from "../src/models/entities/route-planner-result";
 
@@ -60,9 +58,9 @@ describe('RoutePlanner', () => {
     expect(result.getRaw().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].legs![0]);
-    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].actions[1]);
-    testAllWaypointFieldsArePopulated(result.getAgentWaypoints(result.getAgentSolutions()[0].agentId)[1]);
+    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[1]);
+    testAllWaypointFieldsArePopulated(result.getAgentWaypoints(result.getAgentSolutions()[0].getAgentId())[1]);
     testGetAgentShipments(result);
     testGetShipmentInfo(result);
   });
@@ -94,9 +92,9 @@ describe('RoutePlanner', () => {
     expect(result.getRaw().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].legs![0]);
-    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].actions[2]);
-    testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].waypoints[1]);
+    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[2]);
+    testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].getWaypoints()[1]);
     testGetAgentJobs(result);
     testGetJobInfo(result);
   });
@@ -128,9 +126,9 @@ describe('RoutePlanner', () => {
     expect(result.getRaw().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].legs![0]);
-    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].actions[2]);
-    testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].waypoints[1]);
+    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[2]);
+    testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].getWaypoints()[1]);
   });
 
   test('should return success for complex test 4 - "Delivery / pickup with constraints"', async () => {
@@ -163,7 +161,7 @@ describe('RoutePlanner', () => {
     expect(result.getRaw().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].legs![0]);
+    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
     testAllActionFieldsArePopulated(result.getAgentRouteActions(result.getRaw().agents[0].agentId)[1]);
     expect(result.getOptions()).toBeDefined();
   });
@@ -221,8 +219,8 @@ describe('RoutePlanner', () => {
     expect(result.getRaw().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].legs![0]);
-    expect(result.getAgentSolutions()[0].actions[2].job_index).toBeDefined()
+    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
+    expect(result.getAgentSolutions()[0].getActions()[2].getJobIndex()).toBeDefined()
   });
 
 
@@ -246,7 +244,7 @@ describe('RoutePlanner', () => {
   });
 
   test('should create RoutePlannerData with rawData', async () => {
-    const routePlannerData: RoutePlannerData = {
+    const routePlannerData: RoutePlannerInputData = {
       mode: undefined,
       agents: [],
       jobs: [],
@@ -264,7 +262,7 @@ describe('RoutePlanner', () => {
   });
 
   test('should create RoutePlannerData and set raw data', async () => {
-    const routePlannerData: RoutePlannerData = {
+    const routePlannerData: RoutePlannerInputData = {
       mode: undefined,
       agents: [],
       jobs: [],
@@ -282,80 +280,80 @@ describe('RoutePlanner', () => {
     expect(planner.getRaw()).toEqual(routePlannerData);
   });
 
-  function testAllWaypointFieldsArePopulated(firstWaypoint: WaypointResponseData) {
-    expect(firstWaypoint.original_location).toBeDefined();
-    expect(firstWaypoint.location).toBeDefined();
-    expect(firstWaypoint.start_time).toBeDefined();
-    expect(firstWaypoint.duration).toBeDefined();
-    expect(firstWaypoint.actions[1].index).toBeDefined();
-    expect(firstWaypoint.actions[1].type).toBeDefined();
-    expect(firstWaypoint.actions[1].start_time).toBeDefined();
-    expect(firstWaypoint.actions[1].duration).toBeDefined();
-    expect(firstWaypoint.actions[1].shipment_index).toBeDefined();
-    expect(firstWaypoint.actions[1].shipment_id).toBeDefined();
-    expect(firstWaypoint.actions[1].location_index).toBeDefined();
-    expect(firstWaypoint.actions[1].location_id).toBeDefined();
-    expect(firstWaypoint.actions[1].waypoint_index).toBeDefined();
-    expect(firstWaypoint.original_location_index).toBeDefined();
-    expect(firstWaypoint.original_location_id).toBeDefined();
-    expect(firstWaypoint.prev_leg_index).toBeDefined();
-    expect(firstWaypoint.next_leg_index).toBeDefined();
+  function testAllWaypointFieldsArePopulated(firstWaypoint: Waypoint) {
+    expect(firstWaypoint.getOriginalLocation()).toBeDefined();
+    expect(firstWaypoint.getLocation()).toBeDefined();
+    expect(firstWaypoint.getStartTime()).toBeDefined();
+    expect(firstWaypoint.getDuration()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getIndex()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getType()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getStartTime()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getDuration()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getShipmentIndex()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getShipmentId()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getLocationIndex()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getLocationId()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getWaypointIndex()).toBeDefined();
+    expect(firstWaypoint.getOriginalLocationIndex()).toBeDefined();
+    expect(firstWaypoint.getOriginalLocationId()).toBeDefined();
+    expect(firstWaypoint.getPrevLegIndex()).toBeDefined();
+    expect(firstWaypoint.getNextLegIndex()).toBeDefined();
   }
 
-  function testAllActionFieldsArePopulated(nextAction: ActionResponseData) {
-    expect(nextAction.index).toBeDefined();
-    expect(nextAction.type).toBeDefined();
-    expect(nextAction.start_time).toBeDefined();
-    expect(nextAction.duration).toBeDefined();
-    expect(nextAction.shipment_index).toBeDefined();
-    expect(nextAction.shipment_id).toBeDefined();
-    expect(nextAction.location_index).toBeDefined();
-    expect(nextAction.location_id).toBeDefined();
-    expect(nextAction.waypoint_index).toBeDefined();
+  function testAllActionFieldsArePopulated(nextAction: RouteAction) {
+    expect(nextAction.getIndex()).toBeDefined();
+    expect(nextAction.getType()).toBeDefined();
+    expect(nextAction.getStartTime()).toBeDefined();
+    expect(nextAction.getDuration()).toBeDefined();
+    expect(nextAction.getShipmentIndex()).toBeDefined();
+    expect(nextAction.getShipmentId()).toBeDefined();
+    expect(nextAction.getLocationIndex()).toBeDefined();
+    expect(nextAction.getLocationId()).toBeDefined();
+    expect(nextAction.getWaypointIndex()).toBeDefined();
   }
 
-  function testAllLegFieldsArePopulated(firstLeg: LegResponseData) {
-    expect(firstLeg.time).toBeDefined();
-    expect(firstLeg.distance).toBeDefined();
-    expect(firstLeg.from_waypoint_index).toBeDefined();
-    expect(firstLeg.to_waypoint_index).toBeDefined();
-    expect(firstLeg.steps[0].from_index).toBeDefined();
-    expect(firstLeg.steps[0].to_index).toBeDefined();
-    expect(firstLeg.steps[0].time).toBeDefined();
-    expect(firstLeg.steps[0].distance).toBeDefined();
+  function testAllLegFieldsArePopulated(firstLeg: RouteLeg) {
+    expect(firstLeg.getTime()).toBeDefined();
+    expect(firstLeg.getDistance()).toBeDefined();
+    expect(firstLeg.getFromWaypointIndex()).toBeDefined();
+    expect(firstLeg.getToWaypointIndex()).toBeDefined();
+    expect(firstLeg.getSteps()[0].getFromIndex()).toBeDefined();
+    expect(firstLeg.getSteps()[0].getToIndex()).toBeDefined();
+    expect(firstLeg.getSteps()[0].getTime()).toBeDefined();
+    expect(firstLeg.getSteps()[0].getDistance()).toBeDefined();
   }
 
   function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResult) {
     expect(result.getAgentSolutions()).toBeDefined();
-    expect(result.getAgentSolutions()[0].agentIndex).toBeDefined();
-    expect(result.getAgentSolutions()[0].time).toBeDefined();
-    expect(result.getAgentSolutions()[0].start_time).toBeDefined();
-    expect(result.getAgentSolutions()[0].end_time).toBeDefined();
-    expect(result.getAgentSolutions()[0].distance).toBeDefined();
+    expect(result.getAgentSolutions()[0].getAgentIndex()).toBeDefined();
+    expect(result.getAgentSolutions()[0].getTime()).toBeDefined();
+    expect(result.getAgentSolutions()[0].getStartTime()).toBeDefined();
+    expect(result.getAgentSolutions()[0].getEndTime()).toBeDefined();
+    expect(result.getAgentSolutions()[0].getDistance()).toBeDefined();
   }
 
   function testGetAgentShipments(result: RoutePlannerResult) {
     let expectedResult = result.getRaw().agents[0].actions.filter(action => action.shipment_id !== undefined)
         .map(action => action.shipment_id);
-    expect(result.getAgentShipments(result.getAgentSolutions()[0].agentId)).toStrictEqual(expectedResult);
+    expect(result.getAgentShipments(result.getAgentSolutions()[0].getAgentId())).toStrictEqual(expectedResult);
   }
 
   function testGetAgentJobs(result: RoutePlannerResult) {
     let expectedResult = result.getRaw().agents[0].actions.filter(action => action.job_id !== undefined)
         .map(action => action.job_id);
-    expect(result.getAgentJobs(result.getAgentSolutions()[0].agentId)).toStrictEqual(expectedResult);
+    expect(result.getAgentJobs(result.getAgentSolutions()[0].getAgentId())).toStrictEqual(expectedResult);
   }
 
   function testGetShipmentInfo(result: RoutePlannerResult) {
     let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.agentId, action: agent.actions[0], agent: agent};
-    expect(result.getShipmentInfo(agent.actions[0].shipment_id!)).toStrictEqual(expectedResult);
+    let expectedResult = {agentId: agent.getAgentId(), action: agent.getActions()[0], agent: agent};
+    expect(result.getShipmentInfo(agent.getActions()[0].getShipmentId()!)).toStrictEqual(expectedResult);
   }
 
   function testGetJobInfo(result: RoutePlannerResult) {
     let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.agentId, action: agent.actions[0], agent: agent};
-    expect(result.getJobInfo(agent.actions[0].job_id!)).toStrictEqual(expectedResult);
+    let expectedResult = {agentId: agent.getAgentId(), action: agent.getActions()[0], agent: agent};
+    expect(result.getJobInfo(agent.getActions()[0].getJobId()!)).toStrictEqual(expectedResult);
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {

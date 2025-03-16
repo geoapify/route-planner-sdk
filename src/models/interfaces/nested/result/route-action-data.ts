@@ -1,4 +1,4 @@
-export interface RouteAction {
+export interface RouteActionData {
     type: string;
     start_time: number;
     duration: number;

@@ -1,9 +1,9 @@
-import { RoutePlannerData } from "../../src";
+import { RoutePlannerInputData } from "../../src";
 import { Utils } from "../../src/tools/utils";
 
 describe("Utils.cleanObject with RoutePlannerData", () => {
     test("should clean RoutePlannerData by removing empty arrays and undefined values", () => {
-        const routePlannerData: RoutePlannerData = {
+        const routePlannerData: RoutePlannerInputData = {
             mode: undefined,
             agents: [],
             jobs: [],
@@ -22,7 +22,7 @@ describe("Utils.cleanObject with RoutePlannerData", () => {
     });
 
     test("should retain non-empty properties in RoutePlannerData", () => {
-        const routePlannerData: RoutePlannerData = {
+        const routePlannerData: RoutePlannerInputData = {
             mode: "drive",
             agents: [
                 {
@@ -54,7 +54,7 @@ describe("Utils.cleanObject with RoutePlannerData", () => {
     });
 
     test("should clean deeply nested RoutePlannerData with empty values", () => {
-        const routePlannerData: RoutePlannerData = {
+        const routePlannerData: RoutePlannerInputData = {
             mode: "drive",
             agents: [
                 {
@@ -99,7 +99,7 @@ describe("Utils.cleanObject with RoutePlannerData", () => {
     });
 
     test("should return undefined when all properties are empty", () => {
-        const routePlannerData: RoutePlannerData = {
+        const routePlannerData: RoutePlannerInputData = {
             mode: undefined,
             agents: [],
             jobs: [],

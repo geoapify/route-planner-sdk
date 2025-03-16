@@ -1,4 +1,4 @@
-import { ShipmentStepData } from "../../interfaces";
+import { ShipmentStepData } from "../../../interfaces";
 
 export class ShipmentStep {
     private raw: ShipmentStepData;

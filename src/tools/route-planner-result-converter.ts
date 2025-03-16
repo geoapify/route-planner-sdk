@@ -1,24 +1,24 @@
 import { RoutePlannerResult } from "../models/entities/route-planner-result";
 import {
   ActionResponseData,
-  AgentSolution,
-  FeatureResponseData, LegResponseData, LegStepResponseData, RouteAction, RouteLeg, RouteLegStep,
-  RoutePlannerData,
+  AgentSolutionData,
+  FeatureResponseData, LegResponseData, LegStepResponseData, RouteActionData, RouteLegData, RouteLegStepData,
+  RoutePlannerInputData,
   RoutePlannerResultData,
-  RoutePlannerResultResponseData, Waypoint, WaypointResponseData
+  RoutePlannerResultResponseData, WaypointData, WaypointResponseData
 } from "../models";
 import { RoutePlannerOptions } from "../models/interfaces/route-planner-options";
 
 export class RoutePlannerResultConverter {
 
   public static convert(options: RoutePlannerOptions,
-                        inputData: RoutePlannerData,
+                        inputData: RoutePlannerInputData,
                         response: RoutePlannerResultResponseData): RoutePlannerResult {
     let routePlannerResultData = this.generateRoutePlannerResultData(inputData, response);
     return new RoutePlannerResult(options, routePlannerResultData);
   }
 
-  private static generateRoutePlannerResultData(inputData: RoutePlannerData,
+  private static generateRoutePlannerResultData(inputData: RoutePlannerInputData,
                                                response: RoutePlannerResultResponseData): RoutePlannerResultData {
     return {
       agents: this.generateAgents(response),
@@ -30,8 +30,8 @@ export class RoutePlannerResultConverter {
     }
   }
 
-  private static generateAgents(response: RoutePlannerResultResponseData): AgentSolution[] {
-    let result: AgentSolution[] = [];
+  private static generateAgents(response: RoutePlannerResultResponseData): AgentSolutionData[] {
+    let result: AgentSolutionData[] = [];
     response.features.forEach((feature: FeatureResponseData) => {
       let properties = feature.properties;
       result.push({
@@ -50,7 +50,7 @@ export class RoutePlannerResultConverter {
     return result;
   }
 
-  private static generateRouteLegs(response: LegResponseData[] | undefined): RouteLeg[] {
+  private static generateRouteLegs(response: LegResponseData[] | undefined): RouteLegData[] {
     if(response === undefined) {
       return [];
     } else {
@@ -66,7 +66,7 @@ export class RoutePlannerResultConverter {
     }
   }
 
-  private static generateRouteLegSteps(response: LegStepResponseData[]): RouteLegStep[] {
+  private static generateRouteLegSteps(response: LegStepResponseData[]): RouteLegStepData[] {
     return response.map((legStep: LegStepResponseData) => {
       return {
         distance: legStep.distance,
@@ -77,7 +77,7 @@ export class RoutePlannerResultConverter {
     });
   }
 
-  private static generateActions(response: ActionResponseData[]): RouteAction[] {
+  private static generateActions(response: ActionResponseData[]): RouteActionData[] {
     return response.map((action: ActionResponseData) => {
       return {
         type: action.type,
@@ -95,7 +95,7 @@ export class RoutePlannerResultConverter {
     });
   }
 
-  private static generateWaypoints(response: WaypointResponseData[]): Waypoint[] {
+  private static generateWaypoints(response: WaypointResponseData[]): WaypointData[] {
     return response.map((waypoint: WaypointResponseData) => {
       return {
         original_location: waypoint.original_location,
