@@ -1,4 +1,4 @@
-import { Avoid, AvoidData, AvoidType } from "../../../../src";
+import { Avoid, AvoidData, AvoidType } from "../../../../../src";
 
 describe("Avoid", () => {
     let avoid: Avoid;

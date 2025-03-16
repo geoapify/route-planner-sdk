@@ -1,5 +1,5 @@
 import { RoutePlannerOptions } from "../../../src/models/interfaces/route-planner-options";
-import { RoutePlannerResultData } from "../../../src";
+import { AgentSolution, RouteAction, RouteLeg, RoutePlannerResultData, Waypoint } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
 
 describe("RoutePlannerResult", () => {
@@ -85,11 +85,11 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return all agent solutions", () => {
-        expect(routePlannerResult.getAgentSolutions()).toEqual(rawData.agents);
+        expect(routePlannerResult.getAgentSolutions()).toEqual(rawData.agents.map(agent => new AgentSolution(agent)));
     });
 
     test("should return a specific agent solution", () => {
-        expect(routePlannerResult.getAgentSolution("A1")).toEqual(rawData.agents[0]);
+        expect(routePlannerResult.getAgentSolution("A1")).toEqual(new AgentSolution(rawData.agents[0]));
     });
 
     test("should return undefined for a non-existent agent solution", () => {
@@ -97,7 +97,7 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return waypoints for a specific agent", () => {
-        expect(routePlannerResult.getAgentWaypoints("A1")).toEqual(rawData.agents[0].waypoints);
+        expect(routePlannerResult.getAgentWaypoints("A1")).toEqual(rawData.agents[0].waypoints.map(waypoint => new Waypoint(waypoint)));
     });
 
     test("should return an empty array for waypoints of a non-existent agent", () => {
@@ -105,7 +105,7 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return route actions for a specific agent", () => {
-        expect(routePlannerResult.getAgentRouteActions("A1")).toEqual(rawData.agents[0].actions);
+        expect(routePlannerResult.getAgentRouteActions("A1")).toEqual(rawData.agents[0].actions.map(action => new RouteAction(action)));
     });
 
     test("should return an empty array for route actions of a non-existent agent", () => {
@@ -113,7 +113,7 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return route legs for a specific agent", () => {
-        expect(routePlannerResult.getAgentRouteLegs("A1")).toEqual(rawData.agents[0].legs);
+        expect(routePlannerResult.getAgentRouteLegs("A1")).toEqual(rawData.agents[0].legs.map(leg => new RouteLeg(leg)));
     });
 
     test("should return an empty array for route legs of a non-existent agent", () => {
@@ -151,8 +151,8 @@ describe("RoutePlannerResult", () => {
     test("should return job info when job exists", () => {
         expect(routePlannerResult.getJobInfo("J1")).toEqual({
             agentId: "A1",
-            action: rawData.agents[0].actions[0],
-            agent: rawData.agents[0],
+            action: new RouteAction(rawData.agents[0].actions[0]),
+            agent: new AgentSolution(rawData.agents[0]),
         });
     });
 
@@ -163,8 +163,8 @@ describe("RoutePlannerResult", () => {
     test("should return shipment info when shipment exists", () => {
         expect(routePlannerResult.getShipmentInfo("S1")).toEqual({
             agentId: "A1",
-            action: rawData.agents[0].actions[0],
-            agent: rawData.agents[0],
+            action: new RouteAction(rawData.agents[0].actions[0]),
+            agent: new AgentSolution(rawData.agents[0]),
         });
     });
 

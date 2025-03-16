@@ -1,4 +1,4 @@
-import { LocationData, Location } from "../../../../src";
+import { LocationData, Location } from "../../../../../src";
 
 describe("Location", () => {
     let location: Location;

@@ -1,4 +1,4 @@
-import { Coordinates, CoordinatesData } from "../../../../src";
+import { Coordinates, CoordinatesData } from "../../../../../src";
 
 describe("Coordinates", () => {
     let coordinates: Coordinates;

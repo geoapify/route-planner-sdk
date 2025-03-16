@@ -1,4 +1,4 @@
-import { Job, JobData } from "../../../../src";
+import { Job, JobData } from "../../../../../src";
 
 describe("Job", () => {
     let job: Job;

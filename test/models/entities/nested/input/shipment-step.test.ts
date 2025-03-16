@@ -1,4 +1,4 @@
-import { ShipmentStep, ShipmentStepData } from "../../../../src";
+import { ShipmentStep, ShipmentStepData } from "../../../../../src";
 
 describe("ShipmentStep", () => {
     let shipmentStep: ShipmentStep;

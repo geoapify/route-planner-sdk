@@ -1,4 +1,4 @@
-import { Agent, AgentData, Break } from "../../../../src";
+import { Agent, AgentData, Break } from "../../../../../src";
 
 describe("Agent", () => {
     let agent: Agent;

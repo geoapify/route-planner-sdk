@@ -1,4 +1,4 @@
-import { Break, BreakData } from "../../../../src";
+import { Break, BreakData } from "../../../../../src";
 
 describe("Break", () => {
     let breakInstance: Break;
