@@ -1,4 +1,4 @@
-import { universalFetch } from "../src/tools/fetch";
+import { universalFetch } from "../../src/tools/fetch";
 
 describe('universalFetch', () => {
   test('should fetch data from a real endpoint', async () => {

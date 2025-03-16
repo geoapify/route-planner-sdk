@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "test-coverage": "jest --coverage",
     "build-all": "npm run build && npm run build-minimized",
     "build-minimized": "rollup -c rollup-config.mjs",
     "start-server": "http-server -p 8080",

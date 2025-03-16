@@ -1,7 +1,7 @@
 import RoutePlanner, {
   RouteEditor,
   Location,
-} from "../src";
+} from "../../src";
 
 const API_KEY = "TEST_API_KEY";
 

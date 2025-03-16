@@ -18,7 +18,7 @@ export class RoutePlannerResultConverter {
     return new RoutePlannerResult(options, routePlannerResultData);
   }
 
-  public static generateRoutePlannerResultData(inputData: RoutePlannerData,
+  private static generateRoutePlannerResultData(inputData: RoutePlannerData,
                                                response: RoutePlannerResultResponseData): RoutePlannerResultData {
     return {
       agents: this.generateAgents(response),
@@ -30,7 +30,7 @@ export class RoutePlannerResultConverter {
     }
   }
 
-  public static generateAgents(response: RoutePlannerResultResponseData): AgentSolution[] {
+  private static generateAgents(response: RoutePlannerResultResponseData): AgentSolution[] {
     let result: AgentSolution[] = [];
     response.features.forEach((feature: FeatureResponseData) => {
       let properties = feature.properties;
@@ -50,7 +50,7 @@ export class RoutePlannerResultConverter {
     return result;
   }
 
-  public static generateRouteLegs(response: LegResponseData[] | undefined): RouteLeg[] {
+  private static generateRouteLegs(response: LegResponseData[] | undefined): RouteLeg[] {
     if(response === undefined) {
       return [];
     } else {
@@ -66,7 +66,7 @@ export class RoutePlannerResultConverter {
     }
   }
 
-  public static generateRouteLegSteps(response: LegStepResponseData[]): RouteLegStep[] {
+  private static generateRouteLegSteps(response: LegStepResponseData[]): RouteLegStep[] {
     return response.map((legStep: LegStepResponseData) => {
       return {
         distance: legStep.distance,
@@ -77,7 +77,7 @@ export class RoutePlannerResultConverter {
     });
   }
 
-  public static generateActions(response: ActionResponseData[]): RouteAction[] {
+  private static generateActions(response: ActionResponseData[]): RouteAction[] {
     return response.map((action: ActionResponseData) => {
       return {
         type: action.type,
@@ -95,7 +95,7 @@ export class RoutePlannerResultConverter {
     });
   }
 
-  public static generateWaypoints(response: WaypointResponseData[]): Waypoint[] {
+  private static generateWaypoints(response: WaypointResponseData[]): Waypoint[] {
     return response.map((waypoint: WaypointResponseData) => {
       return {
         original_location: waypoint.original_location,

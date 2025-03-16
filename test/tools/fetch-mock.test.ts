@@ -1,4 +1,4 @@
-import { universalFetch } from "../src/tools/fetch";
+import { universalFetch } from "../../src/tools/fetch";
 
 jest.mock('node-fetch', () => jest.fn(async (url, options) => ({
   json: async () => ({ status: 'mocked-node-fetch' }),
