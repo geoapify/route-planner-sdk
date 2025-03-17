@@ -4,6 +4,7 @@ import { AgentSolution } from "./nested/result/agent-solution";
 import { Waypoint } from "./nested/result/waypoint";
 import { RouteAction } from "./nested/result/route-action";
 import { RouteLeg } from "./nested/result/route-leg";
+import { TravelMode } from "../types";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -148,23 +149,20 @@ export class RoutePlannerResult {
         }
         return null; // Shipment not found
     }
-    //
-    //
-    // /**
-    //  * Retrieves the route for a specific agent.
-    //  * @param agentId - The ID of the agent.
-    //  * @param callRoutingAPI - If true, fetches the real route from the Routing API.
-    //  */
-    // async getAgentRoute(agentId: string, callRoutingAPI: boolean = false): Promise<GeoJSON.Feature> {
-    //     const agent = this.getAgentSolution(agentId);
-    //     if (!agent) return null;
-    //
-    //     if (callRoutingAPI) {
-    //         // Simulating an API call to fetch a real route
-    //         const response = await fetch(`https://api.geoapify.com/v1/routing?waypoints=${waypoints here}&apiKey=${API key from options}`);
-    //         return response.json();
-    //     }
-    //
-    //     return agent.waypoints.map(stop => stop.location);
-    // }
+
+
+    /**
+     * Retrieves the route for a specific agent.
+     * @param agentId - The ID of the agent.
+     * @param mode
+     */
+    async getAgentRoute(agentId: string, mode: TravelMode): Promise<any | undefined> {
+        const agent = this.getAgentSolution(agentId);
+        if (!agent) return undefined;
+        let waypoints = agent.getWaypoints().map(waypoint => waypoint.getLocation()).join('|');
+        if (waypoints.length == 0) return undefined;
+
+        const response = await fetch(`${this.getOptions().baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${this.getOptions().apiKey}&mode=${mode}`);
+        return await response.json();
+}
 }

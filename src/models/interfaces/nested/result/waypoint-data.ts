@@ -1,4 +1,3 @@
-import { ActionResponseData } from "../response/action-response-data";
 import { RouteActionData } from "./route-action-data";
 
 export interface WaypointData {

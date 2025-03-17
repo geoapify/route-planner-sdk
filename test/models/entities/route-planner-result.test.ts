@@ -63,7 +63,7 @@ describe("RoutePlannerResult", () => {
                             actions: [],
                             prev_leg_index: undefined,
                             next_leg_index: 0,
-                        },
+                        }
                     ],
                 },
             ],
@@ -170,5 +170,53 @@ describe("RoutePlannerResult", () => {
 
     test("should return null for a non-existent shipment", () => {
         expect(routePlannerResult.getShipmentInfo("S2")).toBeNull();
+    });
+
+    test("should getAgentRoute() call routing API agent not found", async () => {
+        routePlannerResult.getOptions().baseUrl = 'https://api.geoapify.com';
+        routePlannerResult.getOptions().apiKey = 'TEST_API_KEY';
+        let result = await routePlannerResult.getAgentRoute("TESTING1", 'drive');
+        expect(result).toBeUndefined();
+    });
+
+    test("should getAgentRoute() call routing API success without waypoint", async () => {
+        let rawData1 = JSON.parse(JSON.stringify(rawData));
+        rawData1.agents[0].waypoints = [];
+        let routePlannerResult1 = new RoutePlannerResult(options, rawData1);
+        routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
+        routePlannerResult1.getOptions().apiKey = 'TEST_API_KEY';
+        let result = await routePlannerResult1.getAgentRoute("A1", 'drive');
+        expect(result).toBeUndefined();
+    });
+
+    test("should getAgentRoute() call routing API success with 1 waypoint", async () => {
+        routePlannerResult.getOptions().baseUrl = 'https://api.geoapify.com';
+        routePlannerResult.getOptions().apiKey = 'TEST_API_KEY';
+        let result = await routePlannerResult.getAgentRoute("A1", 'drive');
+        expect(result.statusCode).toBe(400);
+        expect(result.error).toBe("Bad Request")
+        expect(result.message).toBe("Insufficient number of locations provided")
+    });
+
+    test("should getAgentRoute() call routing API success with 2 waypoints", async () => {
+        let rawData1 = JSON.parse(JSON.stringify(rawData));
+        rawData1.agents[0].waypoints.push(
+            {
+                original_location: [40.712776, -74.005974],
+                original_location_index: 0,
+                original_location_id: 1,
+                location: [34.052235, -118.243683],
+                start_time: 500,
+                duration: 30,
+                actions: [],
+                prev_leg_index: undefined,
+                next_leg_index: 0,
+            }
+        );
+        let routePlannerResult1 = new RoutePlannerResult(options, rawData1);
+        routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
+        routePlannerResult1.getOptions().apiKey = 'TEST_API_KEY';
+        let result = await routePlannerResult1.getAgentRoute("A1", 'drive');
+        expect(result.features.length).toBe(1);
     });
 });
