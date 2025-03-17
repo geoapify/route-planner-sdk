@@ -164,5 +164,5 @@ export class RoutePlannerResult {
 
         const response = await fetch(`${this.getOptions().baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${this.getOptions().apiKey}&mode=${mode}`);
         return await response.json();
-}
+    }
 }

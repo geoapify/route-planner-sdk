@@ -17,8 +17,9 @@ export class ShipmentStep {
         return this.raw;
     }
 
-    setRaw(value: ShipmentStepData) {
+    setRaw(value: ShipmentStepData): this {
         this.raw = value;
+        return this;
     }
 
     public setLocation(lon: number, lat: number): this {

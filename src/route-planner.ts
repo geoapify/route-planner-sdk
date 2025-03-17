@@ -45,8 +45,9 @@ export class RoutePlanner {
         return this.raw;
     }
 
-    setRaw(value: RoutePlannerInputData) {
+    setRaw(value: RoutePlannerInputData): this {
         this.raw = value;
+        return this;
     }
 
     public setMode(mode: TravelMode): this {

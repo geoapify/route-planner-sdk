@@ -15,8 +15,9 @@ export class Location {
         return this.raw;
     }
 
-    setRaw(value: LocationData) {
+    setRaw(value: LocationData): this {
         this.raw = value;
+        return this;
     }
     public setId(id: string): this {
         this.raw.id = id;

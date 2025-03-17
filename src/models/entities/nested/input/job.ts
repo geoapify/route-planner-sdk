@@ -18,8 +18,9 @@ export class Job {
         return this.raw;
     }
 
-    setRaw(value: JobData) {
+    setRaw(value: JobData): this {
         this.raw = value;
+        return this;
     }
 
     public setLocation(lon: number, lat: number): this {

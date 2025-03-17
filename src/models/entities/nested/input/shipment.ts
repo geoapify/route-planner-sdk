@@ -18,8 +18,9 @@ export class Shipment {
         return this.raw;
     }
 
-    setRaw(value: ShipmentData) {
+    setRaw(value: ShipmentData): this {
         this.raw = value;
+        return this;
     }
 
     public setId(id: string): this {

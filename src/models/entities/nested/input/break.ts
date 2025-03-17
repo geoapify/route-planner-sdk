@@ -17,8 +17,9 @@ export class Break {
         return this.raw;
     }
 
-    setRaw(value: BreakData) {
+    setRaw(value: BreakData): this {
         this.raw = value;
+        return this;
     }
 
     public addTimeWindow(start: number, end: number): this {

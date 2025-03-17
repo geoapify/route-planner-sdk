@@ -19,8 +19,9 @@ export class Avoid {
         return this.raw;
     }
 
-    setRaw(value: AvoidData) {
+    setRaw(value: AvoidData): this {
         this.raw = value;
+        return this;
     }
 
     public setType(type: AvoidType): this {

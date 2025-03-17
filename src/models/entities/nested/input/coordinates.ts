@@ -15,8 +15,9 @@ export class Coordinates {
         return this.raw;
     }
 
-    setRaw(value: CoordinatesData) {
+    setRaw(value: CoordinatesData): this {
         this.raw = value;
+        return this;
     }
 
     public setLat(lat: number): this {

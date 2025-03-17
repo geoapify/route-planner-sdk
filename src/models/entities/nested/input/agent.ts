@@ -20,8 +20,9 @@ export class Agent {
         return this.raw;
     }
 
-    setRaw(value: AgentData) {
+    setRaw(value: AgentData): this {
         this.raw = value;
+        return this;
     }
 
     public setStartLocation(lon: number, lat: number): this {
