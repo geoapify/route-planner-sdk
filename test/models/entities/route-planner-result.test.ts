@@ -54,10 +54,10 @@ describe("RoutePlannerResult", () => {
                     ],
                     waypoints: [
                         {
-                            original_location: [40.712776, -74.005974],
+                            original_location: [-74.005974, 40.712776],
                             original_location_index: 0,
                             original_location_id: 1,
-                            location: [34.052235, -118.243683],
+                            location: [-118.243683, 34.052235],
                             start_time: 500,
                             duration: 30,
                             actions: [],
@@ -202,10 +202,10 @@ describe("RoutePlannerResult", () => {
         let rawData1 = JSON.parse(JSON.stringify(rawData));
         rawData1.agents[0].waypoints.push(
             {
-                original_location: [40.712776, -74.005974],
+                original_location: [-74.005974, 40.712776],
                 original_location_index: 0,
                 original_location_id: 1,
-                location: [34.052235, -118.243683],
+                location: [-118.243683, 34.052235],
                 start_time: 500,
                 duration: 30,
                 actions: [],

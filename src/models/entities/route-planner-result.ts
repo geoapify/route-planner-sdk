@@ -159,7 +159,7 @@ export class RoutePlannerResult {
     async getAgentRoute(agentId: string, mode: TravelMode): Promise<any | undefined> {
         const agent = this.getAgentSolution(agentId);
         if (!agent) return undefined;
-        let waypoints = agent.getWaypoints().map(waypoint => waypoint.getLocation()).join('|');
+        let waypoints = agent.getWaypoints().map(waypoint => "lonlat:" + waypoint.getLocation()).join('|');
         if (waypoints.length == 0) return undefined;
 
         const response = await fetch(`${this.getOptions().baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${this.getOptions().apiKey}&mode=${mode}`);

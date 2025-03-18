@@ -20,6 +20,7 @@ const deliveryOptimizationInput = {
     "mode": "drive",
     "agents": [
         {
+            "id": "1",
             "start_location": [
                 9.184216439347189,
                 48.89244305
@@ -32,6 +33,7 @@ const deliveryOptimizationInput = {
             ]
         },
         {
+            "id": "2",
             "start_location": [
                 9.18674538469634,
                 48.89783585
@@ -44,6 +46,7 @@ const deliveryOptimizationInput = {
             ]
         },
         {
+            "id": "3",
             "start_location": [
                 9.1927926,
                 48.8967017
@@ -1216,7 +1219,7 @@ map.on('load', () => {
         .then(res => {
             notifyAboutIssues(res);
             res.getAgentSolutions().forEach((solution, index) => visualizeAgentWaypoints(solution, colors[index]));
-            res.getAgentSolutions().forEach((solution, index) => visualizeAgentRoute(solution, colors[index], index));
+            res.getAgentSolutions().forEach((solution, index) => visualizeAgentRoute(res, solution, colors[index], index));
         });
 });
 
@@ -1340,14 +1343,11 @@ function visualizeAgentWaypoints(solution, color) {
     });
 }
 
-function visualizeAgentRoute(solution, color, index) {
+function visualizeAgentRoute(res, solution, color, index) {
     const lineWidth = 7 - index;
     const shift = -2 + index * 2;
 
-    // generate a route and visualite it
-    const waypoints = solution.getWaypoints().map(waypoint => waypoint.getLocation()[1] + ',' + waypoint.getLocation()[0]).join('|');
-    fetch(`https://api.geoapify.com/v1/routing?waypoints=${waypoints}&mode=drive&apiKey=${myAPIKey}`)
-        .then(res => res.json())
+    res.getAgentRoute(solution.getAgentId(), 'drive')
         .then(res => {
             map.addSource(`agent-${solution.getAgentIndex()}-route`, {
                 type: 'geojson',
