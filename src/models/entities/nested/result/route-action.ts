@@ -33,7 +33,7 @@ export class RouteAction {
     getLocationIndex(): number | undefined {
         return this.raw.location_index;
     }
-    getLocationId(): number | undefined {
+    getLocationId(): string | undefined {
         return this.raw.location_id;
     }
     getJobIndex(): number | undefined {

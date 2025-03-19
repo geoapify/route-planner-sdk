@@ -1,5 +1,5 @@
 import { RoutePlannerOptions } from "../../../src/models/interfaces/route-planner-options";
-import { AgentSolution, RouteAction, RouteLeg, RoutePlannerResultData, Waypoint } from "../../../src";
+import { AgentSolution, RouteAction, RouteActionInfo, RouteLeg, RoutePlannerResultData, Waypoint } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
 
 describe("RoutePlannerResult", () => {
@@ -45,7 +45,7 @@ describe("RoutePlannerResult", () => {
                             shipment_index: 1,
                             shipment_id: "S1",
                             location_index: 0,
-                            location_id: 1,
+                            location_id: "1",
                             job_index: 0,
                             job_id: "J1",
                             index: 0,
@@ -149,27 +149,27 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return job info when job exists", () => {
-        expect(routePlannerResult.getJobInfo("J1")).toEqual({
+        expect(routePlannerResult.getJobInfo("J1")).toEqual(new RouteActionInfo({
             agentId: "A1",
             action: new RouteAction(rawData.agents[0].actions[0]),
             agent: new AgentSolution(rawData.agents[0]),
-        });
+        }));
     });
 
     test("should return null for a non-existent job", () => {
-        expect(routePlannerResult.getJobInfo("J2")).toBeNull();
+        expect(routePlannerResult.getJobInfo("J2")).toBeUndefined();
     });
 
     test("should return shipment info when shipment exists", () => {
-        expect(routePlannerResult.getShipmentInfo("S1")).toEqual({
+        expect(routePlannerResult.getShipmentInfo("S1")).toEqual(new RouteActionInfo({
             agentId: "A1",
             action: new RouteAction(rawData.agents[0].actions[0]),
             agent: new AgentSolution(rawData.agents[0]),
-        });
+        }));
     });
 
     test("should return null for a non-existent shipment", () => {
-        expect(routePlannerResult.getShipmentInfo("S2")).toBeNull();
+        expect(routePlannerResult.getShipmentInfo("S2")).toBeUndefined();
     });
 
     test("should getAgentRoute() call routing API agent not found", async () => {

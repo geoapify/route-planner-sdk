@@ -5,6 +5,7 @@ import { Waypoint } from "./nested/result/waypoint";
 import { RouteAction } from "./nested/result/route-action";
 import { RouteLeg } from "./nested/result/route-leg";
 import { TravelMode } from "../types";
+import { RouteActionInfo } from "./nested/result/route-action-info";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -125,29 +126,29 @@ export class RoutePlannerResult {
     /**
      * Retrieves detailed information about a specific job.
      */
-    getJobInfo(jobId: string): any {
+    getJobInfo(jobId: string): RouteActionInfo | undefined {
         for (const agent of this.getAgentSolutions()) {
             for (const action of agent.getActions()) {
                 if (action.getJobId() === jobId) {
-                    return { agentId: agent.getAgentId(), action: action, agent: agent };
+                    return new RouteActionInfo({ agentId: agent.getAgentId(), action: action, agent: agent });
                 }
             }
         }
-        return null; // Job not found
+        return undefined; // Job not found
     }
 
     /**
      * Retrieves detailed information about a specific shipment.
      */
-    getShipmentInfo(shipmentId: string): any {
+    getShipmentInfo(shipmentId: string): RouteActionInfo | undefined {
         for (const agent of this.getAgentSolutions()) {
             for (const action of agent.getActions()) {
                 if (action.getShipmentId() === shipmentId) {
-                    return { agentId: agent.getAgentId(), action: action, agent: agent };
+                    return new RouteActionInfo({ agentId: agent.getAgentId(), action: action, agent: agent });
                 }
             }
         }
-        return null; // Shipment not found
+        return undefined; // Shipment not found
     }
 
 

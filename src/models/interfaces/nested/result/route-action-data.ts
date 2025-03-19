@@ -5,9 +5,9 @@ export interface RouteActionData {
     shipment_index?: number;
     shipment_id?: string;
     location_index?: number;
-    location_id?: number;
+    location_id?: string;
     job_index?: number;
     job_id?: string;
     index?: number;
-    waypoint_index: number;
+    waypoint_index?: number;
 }

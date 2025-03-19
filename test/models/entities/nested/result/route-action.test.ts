@@ -12,7 +12,7 @@ describe("RouteAction", () => {
             shipment_index: 1,
             shipment_id: "S1",
             location_index: 2,
-            location_id: 10,
+            location_id: "10",
             job_index: 3,
             job_id: "J1",
             index: 5,
@@ -55,7 +55,7 @@ describe("RouteAction", () => {
     });
 
     test("should return location ID", () => {
-        expect(routeAction.getLocationId()).toBe(10);
+        expect(routeAction.getLocationId()).toBe("10");
     });
 
     test("should return job index", () => {

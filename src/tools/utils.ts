@@ -17,4 +17,8 @@ export class Utils {
         }
         return obj;
     }
+
+    public static cloneObject(obj: any): any {
+        return JSON.parse(JSON.stringify(obj));
+    }
 }

@@ -8,20 +8,20 @@ describe("RoutePlanner SDK UMD export", () => {
   });
 
   test("should export RoutePlanner and RouteEditor properly", async () => {
-    const { RoutePlanner, RouteEditor } = await import("../src/index");
+    const { RoutePlanner, RoutePlannerResultEditor } = await import("../src/index");
 
     expect(RoutePlanner).toBeDefined();
-    expect(RouteEditor).toBeDefined();
+    expect(RoutePlannerResultEditor).toBeDefined();
   });
 
   test("should not assign RoutePlannerSDK to window if window is undefined", async () => {
     delete (global as any).window;
 
-    const { RoutePlanner, RouteEditor } = await import("../src/index");
+    const { RoutePlanner, RoutePlannerResultEditor } = await import("../src/index");
 
     expect((global as any).window).toBeUndefined();
     expect(RoutePlanner).toBeDefined();
-    expect(RouteEditor).toBeDefined();
+    expect(RoutePlannerResultEditor).toBeDefined();
   });
 
   test("should assign RoutePlannerSDK to window if window is defined", async () => {

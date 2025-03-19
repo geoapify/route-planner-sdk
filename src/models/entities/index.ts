@@ -12,5 +12,6 @@ export * from "./nested/result/route-action";
 export * from "./nested/result/route-leg";
 export * from "./nested/result/route-leg-step";
 export * from "./nested/result/waypoint";
+export * from "./nested/result/route-action-info";
 
 export * from "./route-planner-error";

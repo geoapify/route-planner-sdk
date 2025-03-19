@@ -16,6 +16,7 @@ export * from "./nested/result/route-action-data";
 export * from "./nested/result/route-leg-data";
 export * from "./nested/result/route-leg-step-data";
 export * from "./nested/result/waypoint-data";
+export * from "./nested/result/route-action-info-data";
 
 export * from "./nested/response/action-response-data";
 export * from "./nested/response/feature-response-data";
