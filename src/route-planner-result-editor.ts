@@ -30,18 +30,24 @@ export class RoutePlannerResultEditor {
     this.validateJobs(jobIds);
     for (const jobId of jobIds) {
       let jobInfo = this.result.getJobInfo(jobId)!;
-      let currentAgent = this.result.getAgentSolution(jobInfo.getAgentId())!;
-      let newAgent = this.result.getAgentSolution(agentId)!;
 
-      let agentSolutionDataToOptimize1 = this.removeJobFromAgent(currentAgent, jobInfo);
-      let optimizedAgent1 = await this.optimizeRoute(agentSolutionDataToOptimize1);
+      let newAgent = this.result.getAgentSolution(agentId)!;
+      await this.removeJobFromAgentIfAssigned(jobInfo);
 
       let agentSolutionDataToOptimize2 =  this.addJobToAgent(newAgent, jobInfo);
       let optimizedAgent2 = await this.optimizeRoute(agentSolutionDataToOptimize2);
-      this.replaceAgent(currentAgent, optimizedAgent1);
       this.replaceAgent(newAgent, optimizedAgent2);
     }
     return true;
+  }
+
+  private async removeJobFromAgentIfAssigned(jobInfo: RouteActionInfo) {
+    if (jobInfo != undefined) {
+      let currentAgent = this.result.getAgentSolution(jobInfo.getAgentId())!;
+      let agentSolutionDataToOptimize1 = this.removeJobFromAgent(currentAgent, jobInfo);
+      let optimizedAgent1 = await this.optimizeRoute(agentSolutionDataToOptimize1);
+      this.replaceAgent(currentAgent, optimizedAgent1);
+    }
   }
 
   private addJobToAgent(newAgent: AgentSolution, jobInfo: RouteActionInfo) {

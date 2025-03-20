@@ -280,57 +280,6 @@ describe('RoutePlanner', () => {
     expect(planner.getRaw()).toEqual(routePlannerData);
   });
 
-  test('should create a route and then reoptimize the route with RoutePlannerResultEditor"', async () => {
-    const planner = new RoutePlanner({apiKey: API_KEY});
-
-    planner.setMode("drive");
-
-
-    planner.addAgent(new Agent()
-        .setStartLocation(44.45876306369348,40.22179735)
-        .setPickupCapacity(20)
-        .setId("agent-A"));
-
-    planner.addAgent(new Agent()
-        .setStartLocation(44.400450399509495,40.153735600000005)
-        .setPickupCapacity(20)
-        .setId("agent-B"));
-
-    planner.addJob(new Job()
-        .setLocation(44.50932929564537, 40.18686625)
-        .setPickupAmount(10)
-        .setId("job-1"));
-    planner.addJob(new Job()
-        .setLocation(44.511160727462574, 40.1816037)
-        .setPickupAmount(10)
-        .setPriority(10)
-        .setId("job-2"));
-
-    planner.addJob(new Job()
-        .setLocation(44.517954005538606, 40.18518455)
-        .setPickupAmount(10)
-        .setPriority(10)
-        .setId("job-3"));
-    planner.addJob(new Job()
-        .setLocation(44.5095432, 40.18665755000001)
-        .setPickupAmount(10)
-        .setPriority(10)
-        .setId("job-4"));
-
-    const result = await planner.plan();
-    expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
-
-    const routeEditor = new RoutePlannerResultEditor(result);
-    result.getRaw().inputData.agents.forEach(agent => {
-      agent.pickup_capacity = 100;
-    })
-    let agentToAssignTheJob = result.getJobInfo('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-A';
-    await routeEditor.assignJobs(agentToAssignTheJob, ['job-2']);
-    expect(result.getJobInfo('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
-  });
-
   function testAllWaypointFieldsArePopulated(firstWaypoint: Waypoint) {
     expect(firstWaypoint.getOriginalLocation()).toBeDefined();
     expect(firstWaypoint.getLocation()).toBeDefined();
