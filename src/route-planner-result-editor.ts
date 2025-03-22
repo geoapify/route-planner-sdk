@@ -27,39 +27,41 @@ export class RoutePlannerResultEditor {
    */
   async assignJobs(agentId: string, jobIds: string[]): Promise<boolean> {
     this.validateAgent(agentId);
-    this.validateJobs(jobIds);
+    this.validateJobs(agentId, jobIds);
     for (const jobId of jobIds) {
-      let jobInfo = this.result.getJobInfo(jobId)!;
-
-      let newAgent = this.result.getAgentSolution(agentId)!;
-      await this.removeJobFromAgentIfAssigned(jobInfo);
-
-      let agentSolutionDataToOptimize2 =  this.addJobToAgent(newAgent, jobInfo);
-      let optimizedAgent2 = await this.optimizeRoute(agentSolutionDataToOptimize2);
-      this.replaceAgent(newAgent, optimizedAgent2);
+      await this.assignJob(jobId, agentId);
     }
     return true;
   }
 
-  private async removeJobFromAgentIfAssigned(jobInfo: RouteActionInfo) {
-    if (jobInfo != undefined) {
-      let currentAgent = this.result.getAgentSolution(jobInfo.getAgentId())!;
-      let agentSolutionDataToOptimize1 = this.removeJobFromAgent(currentAgent, jobInfo);
-      let optimizedAgent1 = await this.optimizeRoute(agentSolutionDataToOptimize1);
-      this.replaceAgent(currentAgent, optimizedAgent1);
+  private async assignJob(jobId: string, agentId: string) {
+    let jobInfo = this.result.getJobInfo(jobId);
+    let newAgentSolution = this.result.getAgentSolution(agentId)!;
+    if(jobInfo && newAgentSolution) {
+      await this.removeJobFromAgent(jobInfo);
+      await this.addJobToExistingAgent(agentId, jobInfo);
     }
+  }
+
+  private async addJobToExistingAgent(agentId: string, jobInfo: RouteActionInfo) {
+    let newAgent = this.result.getAgentSolution(agentId)!;
+    let agentSolutionDataToOptimize2 = this.addJobToAgent(newAgent, jobInfo);
+    let optimizedAgent2 = await this.optimizeRoute(agentSolutionDataToOptimize2);
+    this.replaceAgent(newAgent, optimizedAgent2);
+  }
+
+  private async removeJobFromAgent(jobInfo: RouteActionInfo) {
+      let currentAgent = this.result.getAgentSolution(jobInfo.getAgentId())!;
+      let newAgentSolutionData: AgentSolutionData = Utils.cloneObject(currentAgent.getRaw());
+      newAgentSolutionData.actions =
+        newAgentSolutionData.actions.filter(action => action.job_id != jobInfo?.getRaw().action.getJobId());
+      let optimizedAgent1 = await this.optimizeRoute(newAgentSolutionData);
+      this.replaceAgent(currentAgent, optimizedAgent1);
   }
 
   private addJobToAgent(newAgent: AgentSolution, jobInfo: RouteActionInfo) {
     let newAgentSolutionData: AgentSolutionData = Utils.cloneObject(newAgent.getRaw());
     newAgentSolutionData.actions.push(jobInfo.getRaw().action.getRaw());
-    return newAgentSolutionData;
-  }
-
-  private removeJobFromAgent(currentAgent: AgentSolution, jobInfo: RouteActionInfo) {
-    let newAgentSolutionData: AgentSolutionData = Utils.cloneObject(currentAgent.getRaw());
-    newAgentSolutionData.actions =
-        newAgentSolutionData.actions.filter(action => action.job_id != jobInfo?.getRaw().action.getJobId());
     return newAgentSolutionData;
   }
 
@@ -101,16 +103,51 @@ export class RoutePlannerResultEditor {
   }
 
   validateAgent(agentId: string) {
-    if(this.result.getAgentSolution(agentId) == undefined) {
+    let agentIndex = this.getAgentIndex(agentId);
+    if(agentIndex == -1) {
       throw new Error(`Agent with id ${agentId} not found`);
     }
   }
 
-  validateJobs(jobIds: string[]) {
+  validateJobs(agentId: string, jobIds: string[]) {
+    if(jobIds.length == 0) {
+      throw new Error("No jobs provided");
+    }
+    if(!this.checkIfArrayIsUnique(jobIds)) {
+      throw new Error("Jobs are not unique");
+    }
     jobIds.forEach((jobId) => {
-      if(this.result.getJobInfo(jobId) == undefined) {
-        throw new Error(`Job with id ${jobId} not found`);
+      let jobInfo = this.result.getJobInfo(jobId);
+      if (jobInfo == undefined) {
+        this.validateJobExists(jobId);
+      }
+      if(jobInfo?.getAgentId() == agentId) {
+        throw new Error(`Job with id ${jobId} already assigned to agent ${agentId}`);
       }
     });
+  }
+
+  private validateJobExists(jobId: string) {
+      let jobIndex = this.getJobIndex(jobId);
+      if (jobIndex == -1) {
+        throw new Error(`Job with id ${jobId} not found`);
+      } else {
+        let isUnassignedJob = this.result.getRaw().unassignedJobs.includes(jobIndex);
+        if (!isUnassignedJob) {
+          throw new Error(`Job with id ${jobId} not found`);
+        }
+      }
+  }
+
+  getAgentIndex(agentId: string): number {
+    return this.result.getRaw().inputData.agents.findIndex(item => item.id == agentId);
+  }
+
+  getJobIndex(jobId: string): number {
+    return this.result.getRaw().inputData.jobs.findIndex(item => item.id == jobId);
+  }
+
+  checkIfArrayIsUnique(myArray: any[]) {
+    return myArray.length === new Set(myArray).size;
   }
 }

@@ -137,10 +137,10 @@ describe('RoutePlanner', () => {
     planner.setMode("drive");
 
     planner.addAgent(new Agent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800)
-        .addCapability("Extra-long").addCapability("Fragile"));
-    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+        .addCapability("Extra-long").addCapability("Fragile").setId('agent-1'));
+    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800).setId('agent-2'));
     planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800)
-        .addCapability("Extra-long").addCapability("Fragile"));
+        .addCapability("Extra-long").addCapability("Fragile").setId('agent-3'));
 
     planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
