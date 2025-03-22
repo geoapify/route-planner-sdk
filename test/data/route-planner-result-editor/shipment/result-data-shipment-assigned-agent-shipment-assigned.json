@@ -3,19 +3,19 @@
     {
       "agentIndex":0,
       "agentId":"agent-A",
-      "time":756,
+      "time":2204,
       "start_time":0,
-      "end_time":756,
-      "distance":10670,
+      "end_time":2204,
+      "distance":2607,
       "mode":"drive",
       "legs":[
         {
-          "time":660,
-          "distance":9770,
+          "time":87,
+          "distance":1031,
           "steps":[
             {
-              "distance":9770,
-              "time":9770,
+              "distance":1031,
+              "time":1031,
               "from_index":0,
               "to_index":1
             }
@@ -24,12 +24,12 @@
           "to_waypoint_index":1
         },
         {
-          "time":96,
-          "distance":900,
+          "time":117,
+          "distance":1576,
           "steps":[
             {
-              "distance":900,
-              "time":900,
+              "distance":1576,
+              "time":1576,
               "from_index":0,
               "to_index":1
             }
@@ -47,39 +47,57 @@
           "waypoint_index":0
         },
         {
-          "type":"job",
-          "start_time":660,
-          "duration":0,
-          "job_index":2,
-          "job_id":"job-3",
+          "type":"pickup",
+          "start_time":87,
+          "duration":1000,
+          "shipment_index":1,
+          "shipment_id":"shipment-2",
           "index":1,
           "waypoint_index":1
         },
         {
-          "type":"job",
-          "start_time":756,
+          "type":"delivery",
+          "start_time":1204,
           "duration":0,
-          "job_index":1,
-          "job_id":"job-2",
+          "shipment_index":1,
+          "shipment_id":"shipment-2",
           "index":2,
           "waypoint_index":2
         },
         {
-          "type":"end",
-          "start_time":756,
+          "type":"pickup",
+          "start_time":1204,
+          "duration":1000,
+          "shipment_index":0,
+          "shipment_id":"shipment-1",
+          "index":3,
+          "waypoint_index":2
+        },
+        {
+          "type":"delivery",
+          "start_time":2204,
           "duration":0,
-          "index":3
+          "shipment_index":0,
+          "shipment_id":"shipment-1",
+          "index":4,
+          "waypoint_index":2
+        },
+        {
+          "type":"end",
+          "start_time":2204,
+          "duration":0,
+          "index":5
         }
       ],
       "waypoints":[
         {
           "original_location":[
-            44.45876306369348,
-            40.22179735
+            44.50932929564537,
+            40.18686625
           ],
           "location":[
-            44.458719,
-            40.221766
+            44.509197,
+            40.187004
           ],
           "start_time":0,
           "duration":0,
@@ -96,22 +114,22 @@
         },
         {
           "original_location":[
-            44.517954005538606,
-            40.18518455
+            44.511160727462574,
+            40.1816037
           ],
           "location":[
-            44.517907,
-            40.185232
+            44.511045,
+            40.181683
           ],
-          "start_time":660,
-          "duration":0,
+          "start_time":87,
+          "duration":1000,
           "actions":[
             {
-              "type":"job",
-              "start_time":660,
-              "duration":0,
-              "job_index":2,
-              "job_id":"job-3",
+              "type":"pickup",
+              "start_time":87,
+              "duration":1000,
+              "shipment_index":1,
+              "shipment_id":"shipment-2",
               "index":1,
               "waypoint_index":1
             }
@@ -121,23 +139,41 @@
         },
         {
           "original_location":[
-            44.511160727462574,
-            40.1816037
+            44.50932929564537,
+            40.18686625
           ],
           "location":[
-            44.511045,
-            40.181683
+            44.509197,
+            40.187004
           ],
-          "start_time":756,
-          "duration":0,
+          "start_time":1204,
+          "duration":1000,
           "actions":[
             {
-              "type":"job",
-              "start_time":756,
+              "type":"delivery",
+              "start_time":1204,
               "duration":0,
-              "job_index":1,
-              "job_id":"job-2",
+              "shipment_index":1,
+              "shipment_id":"shipment-2",
               "index":2,
+              "waypoint_index":2
+            },
+            {
+              "type":"pickup",
+              "start_time":1204,
+              "duration":1000,
+              "shipment_index":0,
+              "shipment_id":"shipment-1",
+              "index":3,
+              "waypoint_index":2
+            },
+            {
+              "type":"delivery",
+              "start_time":2204,
+              "duration":0,
+              "shipment_index":0,
+              "shipment_id":"shipment-1",
+              "index":4,
               "waypoint_index":2
             }
           ],
@@ -148,19 +184,19 @@
     {
       "agentIndex":1,
       "agentId":"agent-B",
-      "time":867,
+      "time":3108,
       "start_time":0,
-      "end_time":867,
-      "distance":12897,
+      "end_time":3108,
+      "distance":15865,
       "mode":"drive",
       "legs":[
         {
-          "time":811,
-          "distance":12291,
+          "time":915,
+          "distance":13681,
           "steps":[
             {
-              "distance":12291,
-              "time":12291,
+              "distance":13681,
+              "time":13681,
               "from_index":0,
               "to_index":1
             }
@@ -169,18 +205,32 @@
           "to_waypoint_index":1
         },
         {
-          "time":56,
-          "distance":606,
+          "time":103,
+          "distance":1087,
           "steps":[
             {
-              "distance":606,
-              "time":606,
+              "distance":1087,
+              "time":1087,
               "from_index":0,
               "to_index":1
             }
           ],
           "from_waypoint_index":1,
           "to_waypoint_index":2
+        },
+        {
+          "time":90,
+          "distance":1097,
+          "steps":[
+            {
+              "distance":1097,
+              "time":1097,
+              "from_index":0,
+              "to_index":1
+            }
+          ],
+          "from_waypoint_index":2,
+          "to_waypoint_index":3
         }
       ],
       "actions":[
@@ -192,28 +242,46 @@
           "waypoint_index":0
         },
         {
-          "type":"job",
-          "start_time":811,
-          "duration":0,
-          "job_index":0,
-          "job_id":"job-1",
+          "type":"pickup",
+          "start_time":915,
+          "duration":1000,
+          "shipment_index":2,
+          "shipment_id":"shipment-3",
           "index":1,
           "waypoint_index":1
         },
         {
-          "type":"job",
-          "start_time":867,
-          "duration":0,
-          "job_index":3,
-          "job_id":"job-4",
+          "type":"pickup",
+          "start_time":2018,
+          "duration":1000,
+          "shipment_index":3,
+          "shipment_id":"shipment-4",
           "index":2,
           "waypoint_index":2
         },
         {
-          "type":"end",
-          "start_time":867,
+          "type":"delivery",
+          "start_time":3108,
           "duration":0,
-          "index":3
+          "shipment_index":2,
+          "shipment_id":"shipment-3",
+          "index":3,
+          "waypoint_index":3
+        },
+        {
+          "type":"delivery",
+          "start_time":3108,
+          "duration":0,
+          "shipment_index":3,
+          "shipment_id":"shipment-4",
+          "index":4,
+          "waypoint_index":3
+        },
+        {
+          "type":"end",
+          "start_time":3108,
+          "duration":0,
+          "index":5
         }
       ],
       "waypoints":[
@@ -241,22 +309,22 @@
         },
         {
           "original_location":[
-            44.50932929564537,
-            40.18686625
+            44.517954005538606,
+            40.18518455
           ],
           "location":[
-            44.509197,
-            40.187004
+            44.517907,
+            40.185232
           ],
-          "start_time":811,
-          "duration":0,
+          "start_time":915,
+          "duration":1000,
           "actions":[
             {
-              "type":"job",
-              "start_time":811,
-              "duration":0,
-              "job_index":0,
-              "job_id":"job-1",
+              "type":"pickup",
+              "start_time":915,
+              "duration":1000,
+              "shipment_index":2,
+              "shipment_id":"shipment-3",
               "index":1,
               "waypoint_index":1
             }
@@ -273,20 +341,54 @@
             44.509541,
             40.186528
           ],
-          "start_time":867,
-          "duration":0,
+          "start_time":2018,
+          "duration":1000,
           "actions":[
             {
-              "type":"job",
-              "start_time":867,
-              "duration":0,
-              "job_index":3,
-              "job_id":"job-4",
+              "type":"pickup",
+              "start_time":2018,
+              "duration":1000,
+              "shipment_index":3,
+              "shipment_id":"shipment-4",
               "index":2,
               "waypoint_index":2
             }
           ],
-          "prev_leg_index":1
+          "prev_leg_index":1,
+          "next_leg_index":2
+        },
+        {
+          "original_location":[
+            44.50932929564537,
+            40.18686625
+          ],
+          "location":[
+            44.509197,
+            40.187004
+          ],
+          "start_time":3108,
+          "duration":0,
+          "actions":[
+            {
+              "type":"delivery",
+              "start_time":3108,
+              "duration":0,
+              "shipment_index":2,
+              "shipment_id":"shipment-3",
+              "index":3,
+              "waypoint_index":3
+            },
+            {
+              "type":"delivery",
+              "start_time":3108,
+              "duration":0,
+              "shipment_index":3,
+              "shipment_id":"shipment-4",
+              "index":4,
+              "waypoint_index":3
+            }
+          ],
+          "prev_leg_index":2
         }
       ]
     }
@@ -295,7 +397,8 @@
     "agents":[
       {
         "capabilities":[
-
+          "heavy-items",
+          "small-items"
         ],
         "time_windows":[
 
@@ -304,15 +407,15 @@
 
         ],
         "start_location":[
-          44.45876306369348,
-          40.22179735
+          44.50932929564537,
+          40.18686625
         ],
-        "pickup_capacity":100,
         "id":"agent-A"
       },
       {
         "capabilities":[
-
+          "heavy-items",
+          "small-items"
         ],
         "time_windows":[
 
@@ -324,73 +427,113 @@
           44.400450399509495,
           40.153735600000005
         ],
-        "pickup_capacity":100,
         "id":"agent-B"
       }
     ],
     "jobs":[
-      {
-        "requirements":[
 
-        ],
-        "time_windows":[
-
-        ],
-        "location":[
-          44.50932929564537,
-          40.18686625
-        ],
-        "pickup_amount":10,
-        "id":"job-1"
-      },
-      {
-        "requirements":[
-
-        ],
-        "time_windows":[
-
-        ],
-        "location":[
-          44.511160727462574,
-          40.1816037
-        ],
-        "pickup_amount":10,
-        "priority":10,
-        "id":"job-2"
-      },
-      {
-        "requirements":[
-
-        ],
-        "time_windows":[
-
-        ],
-        "location":[
-          44.517954005538606,
-          40.18518455
-        ],
-        "pickup_amount":10,
-        "priority":10,
-        "id":"job-3"
-      },
-      {
-        "requirements":[
-
-        ],
-        "time_windows":[
-
-        ],
-        "location":[
-          44.5095432,
-          40.18665755000001
-        ],
-        "pickup_amount":10,
-        "priority":10,
-        "id":"job-4"
-      }
     ],
     "shipments":[
+      {
+        "requirements":[
+          "heavy-items"
+        ],
+        "pickup":{
+          "time_windows":[
 
+          ],
+          "location":[
+            44.50932929564537,
+            40.18686625
+          ],
+          "duration":1000
+        },
+        "delivery":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.50932929564537,
+            40.18686625
+          ]
+        },
+        "id":"shipment-1"
+      },
+      {
+        "requirements":[
+          "heavy-items"
+        ],
+        "pickup":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.511160727462574,
+            40.1816037
+          ],
+          "duration":1000
+        },
+        "delivery":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.50932929564537,
+            40.18686625
+          ]
+        },
+        "id":"shipment-2"
+      },
+      {
+        "requirements":[
+          "small-items"
+        ],
+        "pickup":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.517954005538606,
+            40.18518455
+          ],
+          "duration":1000
+        },
+        "delivery":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.50932929564537,
+            40.18686625
+          ]
+        },
+        "id":"shipment-3"
+      },
+      {
+        "requirements":[
+          "small-items"
+        ],
+        "pickup":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.5095432,
+            40.18665755000001
+          ],
+          "duration":1000
+        },
+        "delivery":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.50932929564537,
+            40.18686625
+          ]
+        },
+        "id":"shipment-4"
+      }
     ],
     "locations":[
 

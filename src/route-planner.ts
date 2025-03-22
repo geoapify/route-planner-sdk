@@ -2,7 +2,6 @@ import { universalFetch } from './tools/fetch';
 import {
     Agent,
     RoutePlannerInputData,
-    RoutePlannerResultResponseData,
     TravelMode,
     Job,
     Shipment,

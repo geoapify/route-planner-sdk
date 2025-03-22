@@ -116,17 +116,19 @@ export class RouteResultEditorBase {
                 this.result.getRaw().unassignedJobs.push(initialJobIndex);
             }
         });
-        let assignedJobs = newResult.getRaw().agents[0].actions.filter(action => action.job_id).map(action => action.job_id!);
-        assignedJobs.forEach(jobId => {
-            let initialJobIndex = this.getInitialJobIndex(jobId);
-            if (this.result.getUnassignedJobs().includes(initialJobIndex)) {
-                if(!this.result.getRaw().unassignedJobs) {
-                    this.result.getRaw().unassignedJobs = [];
+        if(newResult.getRaw().agents.length > 0) {
+            let assignedJobs = newResult.getRaw().agents[0].actions.filter(action => action.job_id).map(action => action.job_id!);
+            assignedJobs.forEach(jobId => {
+                let initialJobIndex = this.getInitialJobIndex(jobId);
+                if (this.result.getUnassignedJobs().includes(initialJobIndex)) {
+                    if(!this.result.getRaw().unassignedJobs) {
+                        this.result.getRaw().unassignedJobs = [];
+                    }
+                    this.result.getRaw().unassignedJobs =
+                        this.result.getRaw().unassignedJobs.filter(unassignedJobIndex => unassignedJobIndex != initialJobIndex);
                 }
-                this.result.getRaw().unassignedJobs =
-                    this.result.getRaw().unassignedJobs.filter(unassignedJobIndex => unassignedJobIndex != initialJobIndex);
-            }
-        });
+            });
+        }
     }
 
     private updateUnassignedShipments(newResult: RoutePlannerResult) {
@@ -140,17 +142,19 @@ export class RouteResultEditorBase {
                 this.result.getRaw().unassignedShipments.push(initialShipmentIndex);
             }
         });
-        let assignedShipments = newResult.getRaw().agents[0].actions.filter(action => action.shipment_id).map(action => action.shipment_id!);
-        assignedShipments.forEach(shipmentId => {
-            let initialShipmentIndex = this.getInitialShipmentIndex(shipmentId);
-            if (this.result.getUnassignedShipments().includes(initialShipmentIndex)) {
-                if(!this.result.getRaw().unassignedShipments) {
-                    this.result.getRaw().unassignedShipments = [];
+        if(newResult.getRaw().agents.length > 0) {
+            let assignedShipments = newResult.getRaw().agents[0].actions.filter(action => action.shipment_id).map(action => action.shipment_id!);
+            assignedShipments.forEach(shipmentId => {
+                let initialShipmentIndex = this.getInitialShipmentIndex(shipmentId);
+                if (this.result.getUnassignedShipments().includes(initialShipmentIndex)) {
+                    if(!this.result.getRaw().unassignedShipments) {
+                        this.result.getRaw().unassignedShipments = [];
+                    }
+                    this.result.getRaw().unassignedShipments =
+                        this.result.getRaw().unassignedShipments.filter(unassignedShipmentIndex => unassignedShipmentIndex != initialShipmentIndex);
                 }
-                this.result.getRaw().unassignedShipments =
-                    this.result.getRaw().unassignedShipments.filter(unassignedShipmentIndex => unassignedShipmentIndex != initialShipmentIndex);
-            }
-        });
+            });
+        }
     }
 
     private getUnassignedJobs(result: RoutePlannerResult): string[] {
