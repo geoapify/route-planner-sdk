@@ -73,6 +73,13 @@ export class RouteResultEditorBase {
         return this.result.getRaw().inputData.shipments.findIndex(item => item.id == shipmentId);
     }
 
+    protected validateAgent(agentId: string) {
+        let agentIndex = this.getInitialAgentIndex(agentId);
+        if (agentIndex == -1) {
+            throw new Error(`Agent with id ${agentId} not found`);
+        }
+    }
+
     private updateUnassignedItems(newResult: RoutePlannerResult) {
         this.updateUnassignedAgents(newResult);
         this.updateUnassignedJobs(newResult);

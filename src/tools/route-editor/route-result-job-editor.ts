@@ -13,13 +13,6 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         return true;
     }
 
-    validateAgent(agentId: string) {
-        let agentIndex = this.getInitialAgentIndex(agentId);
-        if (agentIndex == -1) {
-            throw new Error(`Agent with id ${agentId} not found`);
-        }
-    }
-
     private async assignJob(jobId: string, agentId: string) {
         let jobInfo = this.result.getJobInfo(jobId);
         let newAgentSolution = this.result.getAgentSolution(agentId)!;
@@ -71,7 +64,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         return optimizedAgentInput;
     }
 
-    validateJobs(agentId: string, jobIds: string[]) {
+    private validateJobs(agentId: string, jobIds: string[]) {
         if (jobIds.length == 0) {
             throw new Error("No jobs provided");
         }

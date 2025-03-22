@@ -61,7 +61,7 @@ describe('RoutePlannerResultEditor', () => {
 
 
   test('assignJobs should work "AgentSolution for provided agentId is found and the job is assigned to someone else."', async () => {
-    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-assigned-agent-job-assigned.json");
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
@@ -79,7 +79,7 @@ describe('RoutePlannerResultEditor', () => {
   });
 
   test('assignJobs should work "AgentSolution for provided agentId is found. But the job is not assigned to anyone."', async () => {
-    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-assigned-agent-job-unassigned.json");
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
     // Initially we have
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
@@ -100,7 +100,7 @@ describe('RoutePlannerResultEditor', () => {
 
 
   test('assignJobs should work "AgentSolution for provided agentId is not found and the job is assigned to someone."', async () => {
-    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-unassigned-agent-job-assigned.json");
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-unassigned-agent-job-assigned.json");
     // Initially we have
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
@@ -123,7 +123,7 @@ describe('RoutePlannerResultEditor', () => {
   });
 
   test('assignJobs should work "AgentSolution for provided agentId is not found and the job is not assigned to anyone."', async () => {
-    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-unassigned-agent-job-not-assigned.json");
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-unassigned-agent-job-not-assigned.json");
     // Initially we have
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
@@ -142,5 +142,89 @@ describe('RoutePlannerResultEditor', () => {
     expect(plannerResult.getUnassignedAgents().length).toBe(0);
     expect(plannerResult.getUnassignedJobs().length).toBe(1);
     expect(plannerResult.getUnassignedJobs()[0]).toBe(3);
+  });
+
+  test.skip('assignShipments should work "AgentSolution for provided agentId is found and the shipment is assigned to someone else."', async () => {
+    let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+    // Initially we have
+    // Shipment 1 -> Agent B, Shipment 2 -> Agent A
+    // Shipment 3 -> Agent A, Shipment 4 -> Agent B
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignShipments('agent-B', ['shipment-2']);
+    // After assignment we should have
+    // Shipment 1 -> Agent B, Shipment 2 -> Agent B
+    // Shipment 3 -> Agent A, Shipment 4 -> Agent B
+    expect(plannerResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getShipmentInfo('shipment-2')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
+  });
+
+  test.skip('assignShipments should work "AgentSolution for provided agentId is found. But the shipment is not assigned to anyone."', async () => {
+    let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+    // Initially we have
+    // Shipment 1 -> Agent B
+    // Shipment 3 -> Agent A, Shipment 4 -> Agent B
+    // Shipment 2 -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignShipments('agent-B', ['shipment-2']);
+    // After assignment we should have
+    // Shipment 1 -> Agent B, Shipment 2 -> Agent B
+    // Shipment 3 -> Agent A, Shipment 4 -> Agent B
+    expect(plannerResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getShipmentInfo('shipment-2')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getUnassignedShipments().length).toBe(0);
+  });
+
+
+  test.skip('assignShipments should work "AgentSolution for provided agentId is not found and the shipment is assigned to someone."', async () => {
+    let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+    // Initially we have
+    // Shipment 1 -> unassigned, Shipment 2 -> Agent A
+    // Shipment 3 -> Agent A, Shipment 4 -> unassigned
+    // Agent B -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignShipments('agent-B', ['shipment-2']);
+    // After assignment we should have
+    // Shipment 1 -> unassigned, Shipment 2 -> Agent B
+    // Shipment 3 -> Agent A, Shipment 4 -> unassigned
+    expect(plannerResult.getShipmentInfo('shipment-1')).toBeUndefined();
+    expect(plannerResult.getShipmentInfo('shipment-2')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getShipmentInfo('shipment-4')).toBeUndefined();
+    expect(plannerResult.getUnassignedAgents().length).toBe(0);
+    expect(plannerResult.getUnassignedShipments().length).toBe(2);
+    expect(plannerResult.getUnassignedShipments()[0]).toBe(0);
+    expect(plannerResult.getUnassignedShipments()[1]).toBe(3);
+  });
+
+  test.skip('assignShipments should work "AgentSolution for provided agentId is not found and the shipment is not assigned to anyone."', async () => {
+    let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
+    // Initially we have
+    // Shipment 1 -> unassigned, Shipment 2 -> Agent A
+    // Shipment 3 -> Agent A, Shipment 4 -> unassigned
+    // Agent B -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignShipments('agent-B', ['shipment-1']);
+    // After assignment we should have
+    // Shipment 1 -> Agent B, Shipment 2 -> Agent A
+    // Shipment 3 -> Agent A, Shipment 4 -> unassigned
+    expect(plannerResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getShipmentInfo('shipment-2')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getShipmentInfo('shipment-4')).toBeUndefined();
+    expect(plannerResult.getUnassignedAgents().length).toBe(0);
+    expect(plannerResult.getUnassignedShipments().length).toBe(1);
+    expect(plannerResult.getUnassignedShipments()[0]).toBe(3);
   });
 });
