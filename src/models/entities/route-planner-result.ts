@@ -106,21 +106,21 @@ export class RoutePlannerResult {
      * Retrieves unassigned agents.
      */
     getUnassignedAgents(): number[] {
-        return this.rawData.unassignedAgents;
+        return this.rawData.unassignedAgents ? this.rawData.unassignedAgents : [];
     }
 
     /**
      * Retrieves unassigned jobs.
      */
     getUnassignedJobs(): number[] {
-        return this.rawData.unassignedJobs;
+        return this.rawData.unassignedJobs ? this.rawData.unassignedJobs : [];
     }
 
     /**
      * Retrieves unassigned shipments.
      */
     getUnassignedShipments(): number[] {
-        return this.rawData.unassignedShipments;
+        return this.rawData.unassignedShipments ? this.rawData.unassignedShipments : [];
     }
 
     /**

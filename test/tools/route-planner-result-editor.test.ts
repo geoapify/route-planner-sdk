@@ -54,14 +54,14 @@ describe('RoutePlannerResultEditor', () => {
     result.getRaw().inputData.agents.forEach(agent => {
       agent.pickup_capacity = 100;
     })
-    let agentToAssignTheJob = result.getJobInfo('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-A';
+    let agentToAssignTheJob = result.getJobInfo('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
     await routeEditor.assignJobs(agentToAssignTheJob, ['job-2']);
     expect(result.getJobInfo('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
   });
 
 
-  test('assignJobs should work as expected for simple case (request data mocked)', async () => {
-    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-simple.json");
+  test('assignJobs should work "AgentSolution for provided agentId is found and the job is assigned to someone else."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-assigned-agent-job-assigned.json");
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
@@ -78,54 +78,69 @@ describe('RoutePlannerResultEditor', () => {
     expect(plannerResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
   });
 
-  // test('assignJobs should work as expected if as a result we have unassignedJobs"', async () => {
-  //   const planner = new RoutePlanner({apiKey: API_KEY});
-  //
-  //   planner.setMode("drive");
-  //
-  //   planner.addAgent(new Agent()
-  //       .setStartLocation(44.45876306369348,40.22179735)
-  //       .setPickupCapacity(100)
-  //       .setId("agent-A"));
-  //
-  //   planner.addAgent(new Agent()
-  //       .setStartLocation(44.400450399509495,40.153735600000005)
-  //       .setPickupCapacity(100)
-  //       .setId("agent-B"));
-  //
-  //   planner.addJob(new Job()
-  //       .setLocation(44.50932929564537, 40.18686625)
-  //       .setPickupAmount(10)
-  //       .setId("job-1"));
-  //   planner.addJob(new Job()
-  //       .setLocation(44.511160727462574, 40.1816037)
-  //       .setPickupAmount(10)
-  //       .setPriority(10)
-  //       .setId("job-2"));
-  //
-  //   planner.addJob(new Job()
-  //       .setLocation(44.517954005538606, 40.18518455)
-  //       .setPickupAmount(10)
-  //       .setPriority(10)
-  //       .setId("job-3"));
-  //   planner.addJob(new Job()
-  //       .setLocation(44.5095432, 40.18665755000001)
-  //       .setPickupAmount(10)
-  //       .setPriority(10)
-  //       .setId("job-4"));
-  //
-  //   const result = await planner.plan();
-  //   expect(result).toBeDefined();
-  //   expect(result.getAgentSolutions().length).toBe(1);
-  //   expect(result.getRaw().inputData).toBeDefined();
-  //
-  //   const routeEditor = new RoutePlannerResultEditor(result);
-  //   await routeEditor.assignJobs('agent-B', ['job-1']);
-  //   expect(result.getJobInfo('job-1')).toBeUndefined();
-  //   expect(result.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
-  //   expect(result.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-  //   expect(result.getJobInfo('job-4')!.getAgentId()).toBe('agent-A');
-  //   expect(result.getUnassignedJobs().length).toBe(1);
-  //   expect(result.getUnassignedJobs()[0]).toBe('1');
-  // });
+  test('assignJobs should work "AgentSolution for provided agentId is found. But the job is not assigned to anyone."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-assigned-agent-job-unassigned.json");
+    // Initially we have
+    // Job 1 -> Agent B
+    // Job 3 -> Agent A, Job 4 -> Agent B
+    // Job 2 -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignJobs('agent-B', ['job-2']);
+    // After assignment we should have
+    // Job 1 -> Agent B, Job 2 -> Agent B
+    // Job 3 -> Agent A, Job 4 -> Agent B
+    expect(plannerResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getUnassignedJobs().length).toBe(0);
+  });
+
+
+  test('assignJobs should work "AgentSolution for provided agentId is not found and the job is assigned to someone."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-unassigned-agent-job-assigned.json");
+    // Initially we have
+    // Job 1 -> unassigned, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> unassigned
+    // Agent B -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignJobs('agent-B', ['job-2']);
+    // After assignment we should have
+    // Job 1 -> unassigned, Job 2 -> Agent B
+    // Job 3 -> Agent A, Job 4 -> unassigned
+    expect(plannerResult.getJobInfo('job-1')).toBeUndefined();
+    expect(plannerResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getJobInfo('job-4')).toBeUndefined();
+    expect(plannerResult.getUnassignedAgents().length).toBe(0);
+    expect(plannerResult.getUnassignedJobs().length).toBe(2);
+    expect(plannerResult.getUnassignedJobs()[0]).toBe(0);
+    expect(plannerResult.getUnassignedJobs()[1]).toBe(3);
+  });
+
+  test('assignJobs should work "AgentSolution for provided agentId is not found and the job is not assigned to anyone."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/result-data-job-unassigned-agent-job-not-assigned.json");
+    // Initially we have
+    // Job 1 -> unassigned, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> unassigned
+    // Agent B -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignJobs('agent-B', ['job-1']);
+    // After assignment we should have
+    // Job 1 -> Agent B, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> unassigned
+    expect(plannerResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(plannerResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
+    expect(plannerResult.getJobInfo('job-4')).toBeUndefined();
+    expect(plannerResult.getUnassignedAgents().length).toBe(0);
+    expect(plannerResult.getUnassignedJobs().length).toBe(1);
+    expect(plannerResult.getUnassignedJobs()[0]).toBe(3);
+  });
 });
