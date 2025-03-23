@@ -423,7 +423,7 @@ describe('RoutePlannerResultEditor', () => {
         .setId("job-5");
     await routeEditor.addNewJobs('agent-A', [newJob]);
     let modifiedResult = routeEditor.getModifiedResult();
-    // After assignment we should have
+    // After adding we should have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 5 -> Agent A
@@ -449,7 +449,7 @@ describe('RoutePlannerResultEditor', () => {
         .setId("job-5");
     await routeEditor.addNewJobs('agent-B', [newJob]);
     let modifiedResult = routeEditor.getModifiedResult();
-    // After assignment we should have
+    // After adding we should have
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Job 5 -> Agent B
@@ -462,5 +462,62 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getUnassignedJobs().length).toBe(2);
     expect(modifiedResult.getUnassignedJobs()[0]).toBe(0);
     expect(modifiedResult.getUnassignedJobs()[1]).toBe(3);
+  });
+
+  test('addNewShipments should work "Shipment assigned to agent, that has existing AgentSolution."', async () => {
+    let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-add-shipment-success-assigned-agent.json");
+    // Initially we have
+    // Shipment 1 -> Agent A, Shipment 2 -> Agent A
+    // Shipment 3 -> Agent B, Shipment 4 -> Agent B
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newShipment = new Shipment()
+        .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
+        .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
+        .addRequirement('heavy-items')
+        .setId("shipment-5");
+    await routeEditor.addNewShipments('agent-A', [newShipment]);
+    let modifiedResult = routeEditor.getModifiedResult();
+    // After adding we should have
+    // Shipment 1 -> Agent A, Shipment 2 -> Agent A
+    // Shipment 3 -> Agent B, Shipment 4 -> Agent B
+    // Shipment 5 -> Agent A
+    expect(modifiedResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentInfo('shipment-2')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-A');
+  });
+
+  test('addNewShipments should work "Shipment assigned to agent without existing AgentSolution."', async () => {
+    let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+    // Initially we have
+    // Shipment 1 -> A, Shipment 2 -> Agent A
+    // Shipment 3 -> unassigned, Shipment 4 -> unassigned
+    // Agent B -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newShipment = new Shipment()
+        .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
+        .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
+        .addRequirement('heavy-items')
+        .setId("shipment-5");
+    await routeEditor.addNewShipments('agent-B', [newShipment]);
+    let modifiedResult = routeEditor.getModifiedResult();
+    // After adding we should have
+    // Shipment 1 -> A, Shipment 2 -> Agent A
+    // Shipment 3 -> unassigned, Shipment 4 -> unassigned
+    // Shipment 5 -> Agent B
+    expect(modifiedResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentInfo('shipment-2')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentInfo('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentInfo('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedAgents().length).toBe(0);
+    expect(modifiedResult.getUnassignedShipments().length).toBe(2);
+    expect(modifiedResult.getUnassignedShipments()[0]).toBe(2);
+    expect(modifiedResult.getUnassignedShipments()[1]).toBe(3);
   });
 });

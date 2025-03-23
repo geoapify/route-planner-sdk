@@ -1,6 +1,6 @@
 import { RouteResultEditorBase } from "./route-result-editor-base";
 import { OptimizeAgentInput } from "./optimize-agent-input";
-import { AgentSolution, RouteActionInfo } from "../../models";
+import { AgentSolution, RouteActionInfo, Shipment, ShipmentData } from "../../models";
 
 export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
@@ -18,6 +18,14 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         for (const shipmentId of shipmentIds) {
             await this.removeShipment(shipmentId);
         }
+        return true;
+    }
+
+    async addNewShipments(agentId: string, shipments: Shipment[]) {
+        let shipmentsRaw = shipments.map(shipment => shipment.getRaw());
+        this.validateAgent(agentId);
+        this.validateNewShipments(shipmentsRaw);
+        await this.addNewShipmentsToAgent(agentId, shipmentsRaw);
         return true;
     }
 
@@ -51,15 +59,23 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         }
     }
 
+    private async addNewShipmentsToAgent(agentId: string, shipments: ShipmentData[]) {
+        let existingAgentSolution = this.result.getAgentSolution(agentId);
+        this.result.getRaw().inputData.shipments.push(...shipments);
+        let newAgentInput = this.addShipmentsToAgent(agentId, shipments.map((shipment) => shipment.id!), existingAgentSolution);
+        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
+        this.updateAgent(optimizedRouterPlan);
+    }
+
     private async addShipmentToNonExistingAgent(agentId: string, shipmentId: string) {
-        let newAgentInput = this.addShipmentToAgent(agentId, shipmentId);
+        let newAgentInput = this.addShipmentsToAgent(agentId, [shipmentId]);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);
     }
 
     private async addShipmentToExistingAgent(agentId: string, shipmentId: string) {
         let existingAgentSolution = this.result.getAgentSolution(agentId)!;
-        let newAgentInput = this.addShipmentToAgent(agentId, shipmentId, existingAgentSolution);
+        let newAgentInput = this.addShipmentsToAgent(agentId, [shipmentId], existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);
     }
@@ -71,9 +87,11 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         this.updateAgent(optimizedRouterPlan);
     }
 
-    private addShipmentToAgent(agentId: string, shipmentId: string, existingAgent?: AgentSolution): OptimizeAgentInput {
+    private addShipmentsToAgent(agentId: string, shipmentIds: string[], existingAgent?: AgentSolution): OptimizeAgentInput {
         let optimizedAgentInput = this.generateOptimizeAgentInput(agentId, existingAgent);
-        optimizedAgentInput.agentShipmentIds.add(shipmentId);
+        shipmentIds.forEach(shipmentId => {
+            optimizedAgentInput.agentShipmentIds.add(shipmentId);
+        });
         return optimizedAgentInput;
     }
 
@@ -113,5 +131,19 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
                 throw new Error(`Shipment with id ${shipmentId} not found`);
             }
         }
+    }
+
+    private validateNewShipments(shipments: ShipmentData[]) {
+        if (shipments.length == 0) {
+            throw new Error("No shipments provided");
+        }
+        if (!this.checkIfArrayIsUnique(shipments)) {
+            throw new Error("Shipments are not unique");
+        }
+        shipments.forEach((job) => {
+            if(job.id == undefined) {
+                throw new Error("Shipment id is undefined");
+            }
+        });
     }
 }

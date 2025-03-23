@@ -2,7 +2,7 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { Utils } from "./tools/utils";
-import { Job } from "./models";
+import { Job, Shipment } from "./models";
 
 export class RoutePlannerResultEditor {
     private readonly result: RoutePlannerResult;
@@ -57,6 +57,16 @@ export class RoutePlannerResultEditor {
      */
     addNewJobs(agentId: string, jobs: Job[]): Promise<boolean> {
         return new RouteResultJobEditor(this.result).addNewJobs(agentId, jobs);
+    }
+
+    /**
+     * Adds new shipments to an agent's schedule.
+     * @param shipments - An array of shipment objects to be added.
+     * @param agentId - The ID of the agent.
+     * @returns {boolean} - Returns true if shipments were successfully added.
+     */
+    addNewShipments(agentId: string, shipments: Shipment[]): Promise<boolean> {
+        return new RouteResultShipmentEditor(this.result).addNewShipments(agentId, shipments);
     }
 
     /**
