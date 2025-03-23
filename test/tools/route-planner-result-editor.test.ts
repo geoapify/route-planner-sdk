@@ -410,7 +410,7 @@ describe('RoutePlannerResultEditor', () => {
   });
 
   test('addNewJobs should work "Job assigned to agent, that has existing AgentSolution."', async () => {
-    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-add-job-success-assigned-agent.json");
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
