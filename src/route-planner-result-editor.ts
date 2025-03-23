@@ -2,6 +2,7 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { Utils } from "./tools/utils";
+import { Job } from "./models";
 
 export class RoutePlannerResultEditor {
     private readonly result: RoutePlannerResult;
@@ -46,6 +47,16 @@ export class RoutePlannerResultEditor {
      */
     async removeShipments(shipmentIds: string[]): Promise<boolean> {
         return new RouteResultShipmentEditor(this.result).removeShipments(shipmentIds);
+    }
+
+    /**
+     * Adds new jobs to an agent's schedule.
+     * @param jobs - An array of job objects to be added.
+     * @param agentId - The ID of the agent.
+     * @returns {boolean} - Returns true if jobs were successfully added.
+     */
+    addNewJobs(agentId: string, jobs: Job[]): Promise<boolean> {
+        return new RouteResultJobEditor(this.result).addNewJobs(agentId, jobs);
     }
 
     /**

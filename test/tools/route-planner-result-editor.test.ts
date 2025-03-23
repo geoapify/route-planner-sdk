@@ -408,4 +408,59 @@ describe('RoutePlannerResultEditor', () => {
       expect(error.message).toBe('Shipment with id shipment-5 not found');
     }
   });
+
+  test('addNewJobs should work "Job assigned to agent, that has existing AgentSolution."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    // Initially we have
+    // Job 1 -> Agent B, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> Agent B
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newJob = new Job()
+        .setLocation(44.50932929564537, 40.18686625)
+        .setPickupAmount(10)
+        .setId("job-5");
+    await routeEditor.addNewJobs('agent-A', [newJob]);
+    let modifiedResult = routeEditor.getModifiedResult();
+    // After assignment we should have
+    // Job 1 -> Agent B, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> Agent B
+    // Job 5 -> Agent A
+    expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-A');
+  });
+
+  test('addNewJobs should work "Job assigned to agent without existing AgentSolution."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-add-job-success-unassigned-agent.json");
+    // Initially we have
+    // Job 1 -> unassigned, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> unassigned
+    // Agent B -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newJob = new Job()
+        .setLocation(44.50932929564537, 40.18686625)
+        .setPickupAmount(10)
+        .setId("job-5");
+    await routeEditor.addNewJobs('agent-B', [newJob]);
+    let modifiedResult = routeEditor.getModifiedResult();
+    // After assignment we should have
+    // Job 1 -> unassigned, Job 2 -> Agent A
+    // Job 3 -> Agent A, Job 4 -> unassigned
+    // Job 5 -> Agent B
+    expect(modifiedResult.getJobInfo('job-1')).toBeUndefined();
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
+    expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedAgents().length).toBe(0);
+    expect(modifiedResult.getUnassignedJobs().length).toBe(2);
+    expect(modifiedResult.getUnassignedJobs()[0]).toBe(0);
+    expect(modifiedResult.getUnassignedJobs()[1]).toBe(3);
+  });
 });

@@ -1,6 +1,6 @@
 import { RouteResultEditorBase } from "./route-result-editor-base";
 import { OptimizeAgentInput } from "./optimize-agent-input";
-import { AgentSolution, RouteActionInfo } from "../../models";
+import { AgentSolution, Job, JobData, RouteActionInfo } from "../../models";
 
 export class RouteResultJobEditor extends RouteResultEditorBase {
 
@@ -18,6 +18,14 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         for (const jobId of jobIds) {
             await this.removeJob(jobId);
         }
+        return true;
+    }
+
+    async addNewJobs(agentId: string, jobs: Job[]) {
+        let jobsRaw = jobs.map(job => job.getRaw());
+        this.validateAgent(agentId);
+        this.validateNewJobs(jobsRaw);
+        await this.addNewJobsToAgent(agentId, jobsRaw);
         return true;
     }
 
@@ -51,15 +59,23 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         }
     }
 
+    private async addNewJobsToAgent(agentId: string, jobs: JobData[]) {
+        let existingAgentSolution = this.result.getAgentSolution(agentId);
+        this.result.getRaw().inputData.jobs.push(...jobs);
+        let newAgentInput = this.addJobsToAgent(agentId, jobs.map((job) => job.id!), existingAgentSolution);
+        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
+        this.updateAgent(optimizedRouterPlan);
+    }
+
     private async addJobToNonExistingAgent(agentId: string, jobId: string) {
-        let newAgentInput = this.addJobToAgent(agentId, jobId);
+        let newAgentInput = this.addJobsToAgent(agentId, [jobId]);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);
     }
 
     private async addJobToExistingAgent(agentId: string, jobId: string) {
         let existingAgentSolution = this.result.getAgentSolution(agentId)!;
-        let newAgentInput = this.addJobToAgent(agentId, jobId, existingAgentSolution);
+        let newAgentInput = this.addJobsToAgent(agentId, [jobId], existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);
     }
@@ -71,9 +87,11 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         this.updateAgent(optimizedRouterPlan);
     }
 
-    private addJobToAgent(agentId: string, jobId: string, existingAgent?: AgentSolution): OptimizeAgentInput {
+    private addJobsToAgent(agentId: string, jobIds: string[], existingAgent?: AgentSolution): OptimizeAgentInput {
         let optimizedAgentInput = this.generateOptimizeAgentInput(agentId, existingAgent);
-        optimizedAgentInput.agentJobIds.add(jobId);
+        jobIds.forEach(jobId => {
+            optimizedAgentInput.agentJobIds.add(jobId);
+        })
         return optimizedAgentInput;
     }
 
@@ -113,5 +131,19 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
                 throw new Error(`Job with id ${jobId} not found`);
             }
         }
+    }
+
+    private validateNewJobs(jobs: JobData[]) {
+        if (jobs.length == 0) {
+            throw new Error("No jobs provided");
+        }
+        if (!this.checkIfArrayIsUnique(jobs)) {
+            throw new Error("Jobs are not unique");
+        }
+        jobs.forEach((job) => {
+            if(job.id == undefined) {
+                throw new Error("Job id is undefined");
+            }
+        });
     }
 }
