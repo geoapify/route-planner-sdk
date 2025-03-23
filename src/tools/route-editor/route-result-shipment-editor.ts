@@ -6,9 +6,17 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     async assignShipments(agentId: string, shipmentIds: string[]): Promise<boolean> {
         this.validateAgent(agentId);
-        this.validateShipments(agentId, shipmentIds);
+        this.validateShipments(shipmentIds, agentId);
         for (const shipmentId of shipmentIds) {
             await this.assignShipment(shipmentId, agentId);
+        }
+        return true;
+    }
+
+    async removeShipments(shipmentIds: string[]) {
+        this.validateShipments(shipmentIds);
+        for (const shipmentId of shipmentIds) {
+            await this.removeShipment(shipmentId);
         }
         return true;
     }
@@ -29,6 +37,17 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         }
         if(!newAgentSolution && !shipmentInfo) {
             await this.addShipmentToNonExistingAgent(agentId, shipmentId);
+        }
+    }
+
+    private async removeShipment(shipmentId: string) {
+        let shipmentInfo = this.result.getShipmentInfo(shipmentId);
+        if (shipmentInfo) {
+            await this.removeShipmentFromExistingAgent(shipmentInfo);
+        } else {
+            let shipmentInitialInfo = this.getInitialShipmentIndex(shipmentId);
+            this.result.getRaw().unassignedShipments =
+                this.result.getRaw().unassignedShipments.filter((shipmentIndex) => shipmentIndex !== shipmentInitialInfo);
         }
     }
 
@@ -64,7 +83,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         return optimizedAgentInput;
     }
 
-    private validateShipments(agentId: string, shipmentIds: string[]) {
+    private validateShipments(shipmentIds: string[], agentId?: string) {
         if (shipmentIds.length == 0) {
             throw new Error("No shipments provided");
         }
@@ -76,8 +95,10 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
             if (shipmentInfo == undefined) {
                 this.validateShipmentExists(shipmentId);
             }
-            if (shipmentInfo?.getAgentId() == agentId) {
-                throw new Error(`Shipment with id ${shipmentId} already assigned to agent ${agentId}`);
+            if(agentId) {
+                if (shipmentInfo?.getAgentId() == agentId) {
+                    throw new Error(`Shipment with id ${shipmentId} already assigned to agent ${agentId}`);
+                }
             }
         });
     }

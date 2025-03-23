@@ -6,9 +6,17 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     async assignJobs(agentId: string, jobIds: string[]): Promise<boolean> {
         this.validateAgent(agentId);
-        this.validateJobs(agentId, jobIds);
+        this.validateJobs(jobIds, agentId);
         for (const jobId of jobIds) {
             await this.assignJob(jobId, agentId);
+        }
+        return true;
+    }
+
+    async removeJobs(jobIds: string[]) {
+        this.validateJobs(jobIds);
+        for (const jobId of jobIds) {
+            await this.removeJob(jobId);
         }
         return true;
     }
@@ -29,6 +37,17 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         }
         if(!newAgentSolution && !jobInfo) {
             await this.addJobToNonExistingAgent(agentId, jobId);
+        }
+    }
+
+    private async removeJob(jobId: string) {
+        let jobInfo = this.result.getJobInfo(jobId);
+        if (jobInfo) {
+            await this.removeJobFromExistingAgent(jobInfo);
+        } else {
+            let jobInitialIndex = this.getInitialJobIndex(jobId);
+            this.result.getRaw().unassignedJobs =
+                this.result.getRaw().unassignedJobs.filter((jobIndex) => jobIndex !== jobInitialIndex);
         }
     }
 
@@ -64,7 +83,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         return optimizedAgentInput;
     }
 
-    private validateJobs(agentId: string, jobIds: string[]) {
+    private validateJobs(jobIds: string[], agentId?: string) {
         if (jobIds.length == 0) {
             throw new Error("No jobs provided");
         }
@@ -76,8 +95,10 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
             if (jobInfo == undefined) {
                 this.validateJobExists(jobId);
             }
-            if (jobInfo?.getAgentId() == agentId) {
-                throw new Error(`Job with id ${jobId} already assigned to agent ${agentId}`);
+            if(agentId) {
+                if (jobInfo?.getAgentId() == agentId) {
+                    throw new Error(`Job with id ${jobId} already assigned to agent ${agentId}`);
+                }
             }
         });
     }
