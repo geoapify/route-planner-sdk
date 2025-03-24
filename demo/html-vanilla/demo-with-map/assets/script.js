@@ -1,4 +1,6 @@
-const myAPIKey = "TEST_API_KEY";
+import TEST_API_KEY from "../../../../env-variables.mjs";
+
+const myAPIKey = TEST_API_KEY;
 
 async function makeRoutePlannerRequest(rawData) {
     const planner = new RoutePlannerSDK.RoutePlanner({ apiKey: myAPIKey });

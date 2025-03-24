@@ -7,3 +7,5 @@
 /demo/react-demo/node_modules/
 /demo/react-demo/src/dist/
 /coverage/
+/env-variables.mjs
+/demo/react-demo/src/env-variables.ts

@@ -13,7 +13,8 @@
 <p id="testSimpleRequest"></p>
 
 <script type="module">
-    const apiKey = "TEST_API_KEY";
+    import TEST_API_KEY from "../../env-variables.mjs";
+    const apiKey = TEST_API_KEY;
     async function makeSimpleRoutePlannerRequest() {
         const planner = new RoutePlannerSDK.RoutePlanner({apiKey: apiKey});
 

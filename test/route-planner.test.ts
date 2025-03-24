@@ -8,8 +8,9 @@ import RoutePlanner, {
   RoutePlannerInputData, RouteLeg, RouteAction, Waypoint, RoutePlannerResultEditor, RouteActionInfo
 } from "../src";
 import { RoutePlannerResult } from "../src/models/entities/route-planner-result";
+import TEST_API_KEY from "../env-variables";
 
-const API_KEY = "TEST_API_KEY";
+const API_KEY = TEST_API_KEY;
 
 describe('RoutePlanner', () => {
   test('should return success for basic request to Route Planner API', async () => {

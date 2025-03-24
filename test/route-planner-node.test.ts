@@ -1,8 +1,9 @@
 import RoutePlanner, { Location } from "../src";
+import TEST_API_KEY from "../env-variables";
 
 describe('RoutePlanner (Real API Calls in Node.js)', () => {
   const originalFetch = global.fetch;
-  const API_KEY = "TEST_API_KEY";
+  const API_KEY = TEST_API_KEY;
 
   afterEach(() => {
     global.fetch = originalFetch;

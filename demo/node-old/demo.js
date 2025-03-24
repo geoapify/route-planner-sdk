@@ -1,6 +1,7 @@
 import RoutePlanner, {Agent, Job} from "../../dist/route-planner-sdk.esm.js";
+import TEST_API_KEY from "../../env-variables.mjs";
 
-const apiKey = "TEST_API_KEY"; // Replace with a real API key
+const apiKey = TEST_API_KEY
 
 async function makeSimpleRoutePlannerRequest() {
     const planner = new RoutePlanner({apiKey: apiKey});

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import RoutePlanner, {Agent, Job} from '../../../../dist';
+import TEST_API_KEY from "../../../../env-variables";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoutePlannerService {
-  API_KEY = 'TEST_API_KEY'
+  API_KEY = TEST_API_KEY
 
   async makeSimpleRequest() {
     try {

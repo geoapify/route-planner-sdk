@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import RoutePlanner, { Agent, Job } from "./dist/route-planner-sdk.esm";
+import TEST_API_KEY from "./env-variables";
 
 const RoutePlannerComponent: React.FC = () => {
     const [simpleRequestResult, setSimpleRequestResult] = useState<string>("");
 
     const makeSimpleRequest = async () => {
         try {
-            const sdk = new RoutePlanner({apiKey: "TEST_API_KEY"});
+            const sdk = new RoutePlanner({apiKey: TEST_API_KEY});
             const response = await sdk
                 .setMode("drive")
                 .addAgent(new Agent().setId("agent-1").setStartLocation(13.38, 52.52))

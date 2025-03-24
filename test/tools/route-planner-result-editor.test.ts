@@ -4,8 +4,9 @@ import RoutePlanner, {
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
 import { loadJson } from "../utils.helper";
+import TEST_API_KEY from "../../env-variables";
 
-const API_KEY = "TEST_API_KEY";
+const API_KEY = TEST_API_KEY;
 
 describe('RoutePlannerResultEditor', () => {
 
