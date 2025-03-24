@@ -1,2 +1,4 @@
 test
 .vscode
+demo/angular-demo/package-lock.json
+demo/react-demo/package-lock.json
