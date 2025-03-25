@@ -2,3 +2,12 @@ test
 .vscode
 demo/angular-demo/package-lock.json
 demo/react-demo/package-lock.json
+demo
+src
+tsconfig.json
+rollup-config.mjs
+env-variables.ts
+demo-env-variables.mjs
+.idea
+coverage
+package

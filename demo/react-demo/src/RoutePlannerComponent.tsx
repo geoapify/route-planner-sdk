@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import RoutePlanner, { Agent, Job } from "./dist/route-planner-sdk.esm";
+import RoutePlanner, { Agent, Job } from "./dist";
 import TEST_API_KEY from "./env-variables";
 
 const RoutePlannerComponent: React.FC = () => {

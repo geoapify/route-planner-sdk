@@ -1,4 +1,4 @@
-import TEST_API_KEY from "../../../../env-variables.mjs";
+import TEST_API_KEY from "../../../../demo-env-variables.mjs";
 
 const myAPIKey = TEST_API_KEY;
 
@@ -1286,7 +1286,7 @@ function visualizeLocations(deliveryTask, map) {
 }
 
 function notifyAboutIssues(result) {
-    if (result.getUnassignedAgents() || result.getUnassignedJobs() || result.getUnassignedShipments()) {
+    if (result.getUnassignedAgents()?.length || result.getUnassignedJobs()?.length || result.getUnassignedShipments()?.length) {
         alert(`The solution has issues: ${Object.keys(result.properties.issues).join(', ')}`);
     }
 }

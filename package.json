@@ -2,10 +2,10 @@
   "name": "@geoapify/route-planner-sdk",
   "version": "0.1.0",
   "description": "A TypeScript SDK for the Geoapify Route Planner API that simplifies route optimization requests, and helps visualize and edit resulting routes.",
-  "main": "dist/route-planner-sdk.cjs.js",
-  "typings": "dist/route-planner-sdk.d.ts",
-  "minimized": "dist/route-planner-sdk.umd.js",
-  "module": "dist/route-planner-sdk.esm.js",
+  "main": "dist/index.cjs.js",
+  "typings": "dist/index.d.ts",
+  "minimized": "dist/index.min.js",
+  "module": "dist/index.min.esm.js",
   "author": "Geoapify <info@geoapify.com> (https://geoapify.com)",
   "license": "MIT",
   "homepage": "https://github.com/geoapify/route-planner-sdk",
@@ -29,7 +29,7 @@
     "demo-node-old": "npm run demo-prepare-env-mjs && node demo/node-old/demo.js",
     "demo-angular": "cd demo/angular-demo && npm run start",
     "demo-react": "rm -rf demo/react-demo/src/dist && cp -r dist demo/react-demo/src && cp -r env-variables.ts demo/react-demo/src && cd demo/react-demo && npm run start",
-    "demo-prepare-env-mjs": "cp env-variables.ts env-variables.mjs"
+    "demo-prepare-env-mjs": "cp env-variables.ts demo-env-variables.mjs"
   },
   "type": "module",
   "jest": {
