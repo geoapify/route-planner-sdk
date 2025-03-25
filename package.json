@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "description": "A TypeScript SDK for the Geoapify Route Planner API that simplifies route optimization requests, and helps visualize and edit resulting routes.",
   "main": "dist/index.cjs.js",
+  "module": "dist/index.min.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.min.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
   "typings": "dist/index.d.ts",
   "minimized": "dist/index.min.js",
-  "module": "dist/index.min.esm.js",
   "author": "Geoapify <info@geoapify.com> (https://geoapify.com)",
   "license": "MIT",
   "homepage": "https://github.com/geoapify/route-planner-sdk",

@@ -25,15 +25,24 @@ npm test
 
 ## Quick Start
 
-### Importing the SDK
-```ts
-import { RoutePlanner } from "@geoapify/route-planner-sdk";
-```
 
-### Creating a Route Planner Instance
-```ts
-const planner = new RoutePlanner("YOUR_API_KEY");
-```
+## Importing the SDK
+
+    import RoutePlanner, { Agent, Job } from "@geoapify/route-planner-sdk";
+
+## Creating a Route Planner Instance
+
+    const planner = new RoutePlanner({ apiKey: "YOUR_API_KEY" });
+
+## Usage in HTML
+
+Include the SDK via script tag:
+
+    <script src="./node_modules/@geoapify/route-planner-sdk/dist/index.min.js"></script>
+    <script>
+      const planner = new RoutePlannerSDK.RoutePlanner({ apiKey: "YOUR_API_KEY" });
+    </script>
+
 
 ### Building and Sending a Route Request
 ```ts
