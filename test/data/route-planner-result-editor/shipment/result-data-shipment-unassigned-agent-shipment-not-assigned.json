@@ -318,6 +318,30 @@
           ]
         },
         "id":"shipment-4"
+      },
+      {
+        "requirements":[
+          "small-items"
+        ],
+        "pickup":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.5095432,
+            40.18665755000001
+          ]
+        },
+        "delivery":{
+          "time_windows":[
+
+          ],
+          "location":[
+            44.50932929564537,
+            40.18686625
+          ]
+        },
+        "id":"shipment-5"
       }
     ],
     "locations":[
