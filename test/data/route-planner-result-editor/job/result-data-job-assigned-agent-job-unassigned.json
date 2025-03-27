@@ -44,7 +44,9 @@
           "start_time":0,
           "duration":0,
           "index":0,
-          "waypoint_index":0
+          "waypoint_index":0,
+          "location_index": 0,
+          "location_id": "warehouse-0"
         },
         {
           "type":"job",
@@ -376,7 +378,10 @@
 
     ],
     "locations":[
-
+      {
+        "id": "warehouse-0",
+        "location": [44.5130974, 40.1766863]
+      }
     ],
     "avoid":[
 

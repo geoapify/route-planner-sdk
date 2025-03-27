@@ -225,6 +225,19 @@ describe('RoutePlannerResultJobEditor', () => {
         }
     });
 
+    test('assignJobs should throw error when Agent with givenId is not found', async () => {
+        const assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, assignJobRawData);
+
+        const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        try {
+            await routeEditor.assignJobs('agent-unknown', ['job-2']);
+            fail();
+        } catch (error: any) {
+            expect(error.message).toBe('Agent with id agent-unknown not found');
+        }
+    });
+
     test('removeJobs should work "Job is assigned."', async () => {
         let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
         // Initially we have
@@ -423,9 +436,11 @@ describe('RoutePlannerResultJobEditor', () => {
         let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        let id: string;
         let newJob = new Job()
             .setLocation(44.50932929564537, 40.18686625)
-            .setPickupAmount(10);
+            .setPickupAmount(10)
+            .setId(id!);
         try {
             await routeEditor.addNewJobs('agent-B', [newJob]);
             fail();
@@ -433,6 +448,4 @@ describe('RoutePlannerResultJobEditor', () => {
             expect(error.message).toBe('Job id is undefined');
         }
     });
-  });
-
-
+});
