@@ -27,6 +27,7 @@ export class RoutePlannerResultConverter {
       unassignedAgents: response.properties.issues?.unassigned_agents,
       unassignedJobs: response.properties.issues?.unassigned_jobs,
       unassignedShipments: response.properties.issues?.unassigned_shipments,
+      rawResponse: response
     }
   }
 

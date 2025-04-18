@@ -72,6 +72,7 @@ describe("RoutePlannerResult", () => {
             unassignedJobs: [3],
             unassignedShipments: [4, 5],
             inputData: {} as any,
+            rawResponse: {} as any,
         };
 
         routePlannerResult = new RoutePlannerResult(options, rawData);

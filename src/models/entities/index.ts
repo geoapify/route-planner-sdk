@@ -15,3 +15,4 @@ export * from "./nested/result/waypoint";
 export * from "./nested/result/route-action-info";
 
 export * from "./route-planner-error";
+export * from "./route-planner-result";

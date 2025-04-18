@@ -112,7 +112,7 @@ export class RoutePlanner {
 
         if (!response.ok) {
             let errorResponse = await response.json();
-            throw new RoutePlannerError(errorResponse.error, errorResponse.message);
+            throw new RoutePlannerError(errorResponse.error, errorResponse.message, errorResponse);
         }
 
         let responseData = await response.json();
