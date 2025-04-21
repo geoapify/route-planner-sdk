@@ -55,8 +55,8 @@ describe('RoutePlanner', () => {
     const result = await planner.plan();
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(1);
-    expect(result.getRaw().unassignedAgents.length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().unassignedAgents.length).toBe(2);
+    expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
@@ -90,7 +90,7 @@ describe('RoutePlanner', () => {
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(1);
     expect(result.getUnassignedAgents().length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
@@ -123,8 +123,8 @@ describe('RoutePlanner', () => {
     const result = await planner.plan();
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(1);
-    expect(result.getRaw().unassignedAgents.length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().unassignedAgents.length).toBe(2);
+    expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
@@ -157,13 +157,13 @@ describe('RoutePlanner', () => {
     const result = await planner.plan();
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(1);
-    expect(result.getRaw().unassignedAgents.length).toBe(2);
+    expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getUnassignedShipments().length).toBe(1);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentRouteActions(result.getRaw().agents[0].agentId)[1]);
+    testAllActionFieldsArePopulated(result.getAgentRouteActions(result.getData().agents[0].agentId)[1]);
     expect(result.getOptions()).toBeDefined();
   });
 
@@ -186,10 +186,10 @@ describe('RoutePlanner', () => {
     expect(result.getAgentSolutions().length).toBe(1);
     expect(result.getUnassignedAgents().length).toBe(2);
     expect(result.getUnassignedJobs().length).toBe(1);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentRouteLegs(result.getRaw().agents[0].agentId)[0]);
+    testAllLegFieldsArePopulated(result.getAgentRouteLegs(result.getData().agents[0].agentId)[0]);
   });
 
   test('should return success test all not used fields"', async () => {
@@ -215,9 +215,9 @@ describe('RoutePlanner', () => {
     const result = await planner.plan();
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(1);
-    expect(result.getRaw().unassignedAgents.length).toBe(2);
-    expect(result.getRaw().unassignedJobs.length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().unassignedAgents.length).toBe(2);
+    expect(result.getData().unassignedJobs.length).toBe(2);
+    expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
@@ -334,13 +334,13 @@ describe('RoutePlanner', () => {
   }
 
   function testGetAgentShipments(result: RoutePlannerResult) {
-    let expectedResult = result.getRaw().agents[0].actions.filter(action => action.shipment_id !== undefined)
+    let expectedResult = result.getData().agents[0].actions.filter(action => action.shipment_id !== undefined)
         .map(action => action.shipment_id);
     expect(result.getAgentShipments(result.getAgentSolutions()[0].getAgentId())).toStrictEqual(expectedResult);
   }
 
   function testGetAgentJobs(result: RoutePlannerResult) {
-    let expectedResult = result.getRaw().agents[0].actions.filter(action => action.job_id !== undefined)
+    let expectedResult = result.getData().agents[0].actions.filter(action => action.job_id !== undefined)
         .map(action => action.job_id);
     expect(result.getAgentJobs(result.getAgentSolutions()[0].getAgentId())).toStrictEqual(expectedResult);
   }
@@ -358,7 +358,7 @@ describe('RoutePlanner', () => {
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {
-    expect(JSON.stringify(result.getRaw().inputData))
+    expect(JSON.stringify(result.getData().inputData))
         .toBe(JSON.stringify(
             planner.getRaw()
         ));

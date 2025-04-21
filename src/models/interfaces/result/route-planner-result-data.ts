@@ -8,5 +8,4 @@ export interface RoutePlannerResultData {
     unassignedAgents: number[];
     unassignedJobs: number[];
     unassignedShipments: number[];
-    rawResponse: RoutePlannerResultResponseData
 }

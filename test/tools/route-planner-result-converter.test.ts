@@ -124,23 +124,23 @@ describe("RoutePlannerResultConverter", () => {
 
     expect(result).toBeInstanceOf(RoutePlannerResult);
     expect(result.getOptions()).toEqual(options);
-    expect(result.getRaw().inputData).toEqual(routePlannerData);
-    expect(result.getRaw().unassignedAgents).toEqual([1, 2]);
-    expect(result.getRaw().unassignedJobs).toEqual([3]);
-    expect(result.getRaw().unassignedShipments).toEqual([4, 5]);
-    expect(result.getRaw().agents.length).toBe(1);
-    expect(result.getRaw().agents[0].agentIndex).toBe(1);
-    expect(result.getRaw().agents[0].agentId).toBe("A1");
-    expect(result.getRaw().agents[0].time).toBe(1000);
-    expect(result.getRaw().agents[0].legs.length).toBe(0);
-    expect(result.getRaw().agents[0].waypoints.length).toBe(1);
-    expect(result.getRaw().agents[0].waypoints[0].original_location).toEqual([
+    expect(result.getData().inputData).toEqual(routePlannerData);
+    expect(result.getData().unassignedAgents).toEqual([1, 2]);
+    expect(result.getData().unassignedJobs).toEqual([3]);
+    expect(result.getData().unassignedShipments).toEqual([4, 5]);
+    expect(result.getData().agents.length).toBe(1);
+    expect(result.getData().agents[0].agentIndex).toBe(1);
+    expect(result.getData().agents[0].agentId).toBe("A1");
+    expect(result.getData().agents[0].time).toBe(1000);
+    expect(result.getData().agents[0].legs.length).toBe(0);
+    expect(result.getData().agents[0].waypoints.length).toBe(1);
+    expect(result.getData().agents[0].waypoints[0].original_location).toEqual([
       40.712776, -74.005974,
     ]);
-    expect(result.getRaw().agents[0].waypoints[0].location).toEqual([
+    expect(result.getData().agents[0].waypoints[0].location).toEqual([
       34.052235, -118.243683,
     ]);
-    expect(result.getRaw().agents[0].waypoints[0].actions.length).toBe(1);
-    expect(result.getRaw().agents[0].waypoints[0].actions[0].type).toBe("dropoff");
+    expect(result.getData().agents[0].waypoints[0].actions.length).toBe(1);
+    expect(result.getData().agents[0].waypoints[0].actions[0].type).toBe("dropoff");
   });
 });

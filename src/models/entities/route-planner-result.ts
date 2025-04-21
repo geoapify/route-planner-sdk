@@ -1,5 +1,5 @@
 import { RoutePlannerOptions } from "../interfaces/route-planner-options";
-import { RoutePlannerResultData } from "../interfaces";
+import { RoutePlannerResultData, RoutePlannerResultResponseData } from "../interfaces";
 import { AgentSolution } from "./nested/result/agent-solution";
 import { Waypoint } from "./nested/result/waypoint";
 import { RouteAction } from "./nested/result/route-action";
@@ -11,18 +11,30 @@ import { RouteActionInfo } from "./nested/result/route-action-info";
  * Provides convenient methods for reading Route Planner API results.
  */
 export class RoutePlannerResult {
-    private readonly rawData: RoutePlannerResultData;
+    private readonly data: RoutePlannerResultData;
+    private readonly rawData: RoutePlannerResultResponseData
     private readonly options: RoutePlannerOptions;
 
-    constructor(options: RoutePlannerOptions, rawData: RoutePlannerResultData) {
+    constructor(options: RoutePlannerOptions,
+                data: RoutePlannerResultData,
+                rawData: RoutePlannerResultResponseData) {
+        this.data = data;
         this.rawData = rawData;
         this.options = options;
     }
 
     /**
-     * Returns the raw API response.
+     * Returns the data returned by the Route Planner API.
      */
-    getRaw(): RoutePlannerResultData {
+    getData(): RoutePlannerResultData {
+        return this.data;
+    }
+
+
+    /**
+     * Returns the raw data returned by the Route Planner API.
+     */
+    getRawData(): RoutePlannerResultResponseData {
         return this.rawData;
     }
 
@@ -30,14 +42,14 @@ export class RoutePlannerResult {
      * Returns a list of all assigned agent solutions.
      */
     getAgentSolutions(): AgentSolution[] {
-        return this.rawData.agents.map(agent => new AgentSolution(agent));
+        return this.data.agents.map(agent => new AgentSolution(agent));
     }
 
     /**
      * Finds an agent's solution by their ID.
      */
     getAgentSolution(agentId: string): AgentSolution | undefined {
-        let agentFound = this.rawData.agents.find(agent => agent.agentId === agentId)
+        let agentFound = this.data.agents.find(agent => agent.agentId === agentId)
         if(agentFound === undefined) {
             return undefined;
         } else {
@@ -106,21 +118,21 @@ export class RoutePlannerResult {
      * Retrieves unassigned agents.
      */
     getUnassignedAgents(): number[] {
-        return this.rawData.unassignedAgents ? this.rawData.unassignedAgents : [];
+        return this.data.unassignedAgents ? this.data.unassignedAgents : [];
     }
 
     /**
      * Retrieves unassigned jobs.
      */
     getUnassignedJobs(): number[] {
-        return this.rawData.unassignedJobs ? this.rawData.unassignedJobs : [];
+        return this.data.unassignedJobs ? this.data.unassignedJobs : [];
     }
 
     /**
      * Retrieves unassigned shipments.
      */
     getUnassignedShipments(): number[] {
-        return this.rawData.unassignedShipments ? this.rawData.unassignedShipments : [];
+        return this.data.unassignedShipments ? this.data.unassignedShipments : [];
     }
 
     /**

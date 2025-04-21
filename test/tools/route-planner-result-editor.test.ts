@@ -3,7 +3,7 @@ import RoutePlanner, {
   RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep,
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
-import { loadJson } from "../utils.helper";
+import { generateRawResponse, loadJson } from "../utils.helper";
 import TEST_API_KEY from "../../env-variables";
 
 const API_KEY = TEST_API_KEY;
@@ -49,11 +49,11 @@ describe('RoutePlannerResultEditor', () => {
     const result = await planner.plan();
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().inputData).toBeDefined();
 
     const routeEditor = new RoutePlannerResultEditor(result);
     let modifiedResult = routeEditor.getModifiedResult();
-    modifiedResult.getRaw().inputData.agents.forEach(agent => {
+    modifiedResult.getData().inputData.agents.forEach(agent => {
       agent.pickup_capacity = 100;
     })
     let agentToAssignTheJob = result.getJobInfo('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
@@ -100,11 +100,11 @@ describe('RoutePlannerResultEditor', () => {
     const result = await planner.plan();
     expect(result).toBeDefined();
     expect(result.getAgentSolutions().length).toBe(2);
-    expect(result.getRaw().inputData).toBeDefined();
+    expect(result.getData().inputData).toBeDefined();
 
     const routeEditor = new RoutePlannerResultEditor(result);
     let modifiedResult = routeEditor.getModifiedResult();
-    modifiedResult.getRaw().inputData.agents.forEach(agent => {
+    modifiedResult.getData().inputData.agents.forEach(agent => {
       agent.capabilities = ['heavy-items', 'small-items'];
     })
     let agentToAssignTheShipment = result.getShipmentInfo('shipment-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
@@ -118,7 +118,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -138,7 +138,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -160,7 +160,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -184,7 +184,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-1']);
@@ -206,7 +206,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Shipment 1 -> Agent A, Shipment 2 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-A', ['shipment-3']);
@@ -226,7 +226,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-A', ['shipment-2']);
@@ -248,7 +248,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> A, Shipment 2 -> Agent A
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-B', ['shipment-2']);
@@ -272,7 +272,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> A, Shipment 2 -> Agent A
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-B', ['shipment-3']);
@@ -294,7 +294,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeJobs(['job-4']);
@@ -317,7 +317,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeJobs(['job-2']);
@@ -338,7 +338,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     try {
@@ -355,7 +355,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeShipments(['shipment-4']);
@@ -378,7 +378,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeShipments(['shipment-2']);
@@ -399,7 +399,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     try {
@@ -415,7 +415,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newJob = new Job()
@@ -441,7 +441,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newJob = new Job()
@@ -470,7 +470,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Shipment 1 -> Agent A, Shipment 2 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newShipment = new Shipment()
@@ -497,7 +497,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> A, Shipment 2 -> Agent A
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData);
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newShipment = new Shipment()

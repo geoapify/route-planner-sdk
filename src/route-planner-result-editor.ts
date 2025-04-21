@@ -8,7 +8,8 @@ export class RoutePlannerResultEditor {
     private readonly result: RoutePlannerResult;
 
     constructor(result: RoutePlannerResult) {
-        this.result = new RoutePlannerResult(Utils.cloneObject(result.getOptions()), Utils.cloneObject(result.getRaw()));
+        this.result = new RoutePlannerResult(Utils.cloneObject(result.getOptions()),
+            Utils.cloneObject(result.getData()), Utils.cloneObject(result.getRawData()));
     }
 
     /**

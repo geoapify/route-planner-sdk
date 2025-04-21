@@ -15,7 +15,7 @@ export class RoutePlannerResultConverter {
                         inputData: RoutePlannerInputData,
                         response: RoutePlannerResultResponseData): RoutePlannerResult {
     let routePlannerResultData = this.generateRoutePlannerResultData(inputData, response);
-    return new RoutePlannerResult(options, routePlannerResultData);
+    return new RoutePlannerResult(options, routePlannerResultData, response);
   }
 
   private static generateRoutePlannerResultData(inputData: RoutePlannerInputData,
@@ -26,8 +26,7 @@ export class RoutePlannerResultConverter {
       inputData: inputData,
       unassignedAgents: response.properties.issues?.unassigned_agents,
       unassignedJobs: response.properties.issues?.unassigned_jobs,
-      unassignedShipments: response.properties.issues?.unassigned_shipments,
-      rawResponse: response
+      unassignedShipments: response.properties.issues?.unassigned_shipments
     }
   }
 
