@@ -1,11 +1,11 @@
-import {TimeframeOption} from "./timeframe-option";
-import {ProbableOption} from "./probable-option";
-import {ShipmentDurationOption} from "./shipment-duration-option";
-import {CapabilityOption} from "./capability-option";
+import { TimeframeOption } from "./timeframe-option";
+import { ProbableOption } from "./probable-option";
+import { ShipmentDurationOption } from "./shipment-duration-option";
+import { CapabilityOption } from "./capability-option";
 
 export interface Scenario {
     id: string;
-    mode: 'drive' | 'truck' | 'bicycle' | 'walk' ;
+    mode: 'drive' | 'truck' | 'bicycle' | 'walk';
     agentIcon?: string;
     label: string;
     description: string;
