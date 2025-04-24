@@ -1,7 +1,10 @@
-import { Utils } from "./tools/utils";
 import { Solution, Scenario, Task, AgentLine } from "./models";
 
-export class AgentTimeline {
+export class AgentTimelineGenerator {
+
+    private static colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
+        "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
+
     timelineTemplate = (timeline: any, index: number, timelineType: 'time' | 'distance', storageColor: string, agentIcon: string, solution: any, timeLabels: any[], distanceLabels: any[]) => `
    <div class="timeline-item flex-container items-center ${index % 2 === 0 ? 'even' : ''}">
       <div class="timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${timeline.hasLargeDescription ? 'wider' : ''}">
@@ -44,7 +47,7 @@ export class AgentTimeline {
 
         ${timelineType === 'distance' ? `
            ${(timeline.itemsByDistance || []).map((item: any) =>
-        `<div class="solution-item" style="left: ${item.position};" data-tooltip=="${item.description}"  matTooltipClass="solution-item-tooltip">
+        `<div class="solution-item" style="left: ${item.position};" data-tooltip="${item.description}"  matTooltipClass="solution-item-tooltip">
             <div class="solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>
           </div> `
     ).join('')}
@@ -70,12 +73,17 @@ export class AgentTimeline {
 `
 
     storageColor = '#ff9933';
+    container: HTMLElement;
 
-    constructor() {
+    constructor(container: HTMLElement) {
+        this.container = container;
     }
 
-    public generateAgentTimeline(container: HTMLElement,
-                                 timelineType: 'time' | 'distance',
+    public static getAgentColorByIndex(index: number): string {
+        return this.colors[(index % this.colors.length + this.colors.length) % this.colors.length]
+    }
+
+    public generateAgentTimeline(timelineType: 'time' | 'distance',
                                  hasLargeDescription: boolean,
                                  task: Task,
                                  solution: Solution,
@@ -96,7 +104,7 @@ export class AgentTimeline {
                 timelines.push({
                     label: `agent ${i + 1}`,
                     mode: solution.mode,
-                    color: Utils.getAgentColorByIndex(i),
+                    color: AgentTimelineGenerator.getAgentColorByIndex(i),
                     description: '',
                     routeVisible: true,
                     agentIndex: i
@@ -107,7 +115,7 @@ export class AgentTimeline {
                 hasLargeDescription: hasLargeDescription,
                 timelines: timelines
             };
-            this.drawTimelines(result, container, timelineType, solution, timeLabels, distanceLabels);
+            this.drawTimelines(result, timelineType, solution, timeLabels, distanceLabels);
             return result;
         } else {
             agentIcon = scenario.agentIcon || this.getAgentIconByMode(scenario.mode);
@@ -128,7 +136,7 @@ export class AgentTimeline {
                     routeVisible: true,
                     agentIndex: index
                 }
-                this.drawTimelines(result, container, timelineType, solution, timeLabels, distanceLabels);
+                this.drawTimelines(result, timelineType, solution, timeLabels, distanceLabels);
                 return result;
             });
             let result = {
@@ -136,25 +144,24 @@ export class AgentTimeline {
                 hasLargeDescription: hasLargeDescription,
                 timelines: timelines
             };
-            this.drawTimelines(result, container, timelineType, solution, timeLabels, distanceLabels);
+            this.drawTimelines(result, timelineType, solution, timeLabels, distanceLabels);
 
-            this.attachToggleRouteHandler(result.timelines, container, onToggleRoute);
+            this.attachToggleRouteHandler(result.timelines, this.container, onToggleRoute);
             return result;
         }
     }
 
     public drawTimelines(result: any,
-                         container: HTMLElement,
                          timelineType: 'time' | 'distance',
                          solution: Solution,
                          timeLabels: any[],
                          distanceLabels: any[]) {
-        container.innerHTML = ''; // clear
+        this.container.innerHTML = ''; // clear
         this.loadFontAwesome();
 
         result.timelines?.forEach((timeline: any, index: number) => {
             const html = this.timelineTemplate(timeline, index, timelineType, this.storageColor, result.agentIcon, solution, timeLabels, distanceLabels);
-            container.insertAdjacentHTML('beforeend', html);
+            this.container.insertAdjacentHTML('beforeend', html);
         });
 
         this.initializeGlobalTooltip();

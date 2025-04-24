@@ -1,7 +1,4 @@
 export class Utils {
-    private static colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
-        "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
-
     public static cleanObject(obj: any): any {
         if (Array.isArray(obj)) {
             // Remove empty arrays, otherwise clean elements recursively
@@ -23,9 +20,5 @@ export class Utils {
 
     public static cloneObject(obj: any): any {
         return JSON.parse(JSON.stringify(obj));
-    }
-
-    public static getAgentColorByIndex(index: number): string {
-        return this.colors[(index % this.colors.length + this.colors.length) % this.colors.length]
     }
 }
