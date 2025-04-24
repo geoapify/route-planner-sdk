@@ -280,6 +280,7 @@ export class AgentTimelineGenerator {
 
     attachToggleRouteHandler(timelines: any[], container: HTMLElement, onToggleRoute?: (timeline: any) => void) {
         this.injectHoverStyle();
+        if (container.dataset.clickListenerAttached === 'true') return;
         container.addEventListener('click', (e: MouseEvent) => {
             const button = (e.target as HTMLElement).closest('.toggle-route-btn') as HTMLElement;
             if (!button) return;
@@ -298,6 +299,7 @@ export class AgentTimelineGenerator {
                 onToggleRoute(timeline);
             }
         });
+        container.dataset.clickListenerAttached = 'true';
     }
 
     injectHoverStyle() {
