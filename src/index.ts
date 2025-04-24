@@ -12,8 +12,8 @@ export default RoutePlanner;
 if (typeof window !== "undefined") {
     (window as any).RoutePlannerSDK = {
         RoutePlanner: RoutePlanner,
-        AgentTimelineGenerator: AgentTimelineGenerator,
         RouteEditor: RoutePlannerResultEditor,
+        AgentTimelineGenerator: AgentTimelineGenerator,
         ...Models
     };
 }
