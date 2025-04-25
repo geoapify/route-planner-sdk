@@ -26,13 +26,6 @@ export * from "./nested/response/leg-step-response-data";
 export * from "./nested/response/properties-response-data";
 export * from "./nested/response/waypoint-response-data";
 
-export * from "./agent-timeline/agent-line";
-export * from "./agent-timeline/agent-plan";
-export * from "./agent-timeline/capability-option";
-export * from "./agent-timeline/geocoding-features-properties";
-export * from "./agent-timeline/probable-option";
 export * from "./agent-timeline/scenario";
-export * from "./agent-timeline/shipment-duration-option";
-export * from "./agent-timeline/solution";
-export * from "./agent-timeline/task";
-export * from "./agent-timeline/timeframe-option";
+export * from "./agent-timeline/solution-item";
+export * from "./agent-timeline/timeline";
