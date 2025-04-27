@@ -13,69 +13,69 @@ export class AgentTimelineGenerator {
     private static colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
 
-    timelineTemplate = (timelineData: TimelineData, timeline: TimelineItem, index: number, timelineType: 'time' | 'distance', storageColor: string, agentIcon: string, solution: RoutePlannerResultData, timeLabels: any[], distanceLabels: any[]) => `
-   <div class="timeline-item flex-container items-center ${index % 2 === 0 ? 'even' : ''}">
-      <div class="timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${timelineData.hasLargeDescription ? 'wider' : ''}">
+    timelineTemplate = (timelineData: TimelineData, timeline: TimelineItem, index: number, timelineType: 'time' | 'distance', storageColor: string, agentIcon: string, timeLabels: any[], distanceLabels: any[], solution?: RoutePlannerResultData) => `
+   <div class="geoapify-rp-sdk-timeline-item flex-container items-center ${index % 2 === 0 ? 'geoapify-rp-sdk-even' : ''}">
+      <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${timelineData.hasLargeDescription ? 'geoapify-rp-sdk-wider' : ''}">
         <div>
-          <button class="icon-button toggle-route-btn" data-agent-index="${timeline.agentIndex}" ${timeline.timelineLength ? '' : 'disabled'}>
-            ${timeline.routeVisible && timeline.timelineLength ? `<i class="visibility-icon fas fa-eye black-06"></i>` : ''}
-            ${!timeline.routeVisible && timeline.timelineLength ? `<i class="visibility-icon fas fa-eye-slash black-06"></i>` : ''}
-            ${solution && !timeline.timelineLength ? `<i class="visibility-icon fas fa-exclamation-triangle" style="color: #ff6666;" title="Unassigned agent"></i>` : ''}
+          <button class="geoapify-rp-sdk-icon-button geoapify-rp-sdk-toggle-route-btn" data-agent-index="${timeline.agentIndex}" ${timeline.timelineLength ? '' : 'disabled'}>
+            ${timeline.routeVisible && timeline.timelineLength ? `<i class="geoapify-rp-sdk-visibility-icon fas fa-eye black-06"></i>` : ''}
+            ${!timeline.routeVisible && timeline.timelineLength ? `<i class="geoapify-rp-sdk-visibility-icon fas fa-eye-slash black-06"></i>` : ''}
+            ${solution && !timeline.timelineLength ? `<i class="geoapify-rp-sdk-visibility-icon fas fa-exclamation-triangle" style="color: #ff6666;" title="Unassigned agent"></i>` : ''}
           </button>
         </div>
-        <div style="color: ${timeline.color}" class="flex-main agent-info margin-right-10 flex-container column">
-          <span class="mat-subtitle-2">${timeline.label}</span>
-          <span class="mat-caption description">${timeline.description}</span>
+        <div style="color: ${timeline.color}" class="flex-main geoapify-rp-sdk-agent-info margin-right-10 flex-container column">
+          <span class="geoapify-rp-sdk-mat-subtitle-2">${timeline.label}</span>
+          <span class="geoapify-rp-sdk-mat-caption description">${timeline.description}</span>
         </div>
-        <div style="color: ${timeline.color}" class="icon">
+        <div style="color: ${timeline.color}" class="geoapify-rp-sdk-icon">
           <i class="fas fa-${agentIcon}"></i>
         </div>
       </div>
-      <div class="timeline flex-main" style="margin-left: 10px; position: relative; height: 100%; min-height: 45px;">
-        <div class="line"></div>
-        ${timeline.timelineLength && timelineType === 'time' ? `<div class="value-line"
+      <div class="geoapify-rp-sdk-timeline flex-main" style="margin-left: 10px; position: relative; height: 100%; min-height: 45px;">
+        <div class="geoapify-rp-sdk-line"></div>
+        ${timeline.timelineLength && timelineType === 'time' ? `<div class="geoapify-rp-sdk-value-line"
             style="background-color: ${timeline.color}; width: ${timeline.timelineLength}; left: ${timeline.timelineLeft};"></div>
         ` : ''}
-        ${timeline.distanceLineLength && timelineType === 'distance' ? `<div class="value-line"
+        ${timeline.distanceLineLength && timelineType === 'distance' ? `<div class="geoapify-rp-sdk-value-line"
             style="background-color: ${timeline.color}; width: ${timeline.distanceLineLength};"></div>` : ''}
 
 
         ${timelineType === 'time' ? `
             ${(timeline.itemsByTime || []).map((item: any) =>
         `
-              <div class="solution-item"
+              <div class="geoapify-rp-sdk-solution-item"
               style="left: ${item.position}; width: ${item.minWidth || ''}"
               data-tooltip="${item.description}">
-            ${item.form === 'full' ? `<div class="solution-item-full" style="width: 100%; background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
-            ${item.form === 'standard' ? `<div class="solution-item-standard" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
-            ${item.form === 'minimal' ? `<div class="solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
+            ${item.form === 'full' ? `<div class="geoapify-rp-sdk-solution-item-full" style="width: 100%; background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
+            ${item.form === 'standard' ? `<div class="geoapify-rp-sdk-solution-item-standard" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
+            ${item.form === 'minimal' ? `<div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
           </div>`).join('')}
 
          ` : ''}
 
         ${timelineType === 'distance' ? `
            ${(timeline.itemsByDistance || []).map((item: any) =>
-        `<div class="solution-item" style="left: ${item.position};" data-tooltip="${item.description}">
-            <div class="solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>
+        `<div class="geoapify-rp-sdk-solution-item" style="left: ${item.position};" data-tooltip="${item.description}">
+            <div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>
           </div> `
     ).join('')}
           ` : ''}
         ${timeLabels && timelineType === 'time' ? `
-            <div class="label-vertical-lines">
+            <div class="geoapify-rp-sdk-label-vertical-lines">
             ${(timeLabels || []).map(label => `
-              <div class="label-vertical-line"  style="left: ${label.position};"></div>
+              <div class="geoapify-rp-sdk-label-vertical-line"  style="left: ${label.position};"></div>
               `).join('')}
             </div>
         ` : ''}
 
         ${distanceLabels && timelineType === 'distance' ? `
-          <div class="label-vertical-lines">
+          <div class="geoapify-rp-sdk-label-vertical-lines">
           ${(distanceLabels || []).map(label =>
-        `<div class="label-vertical-line"  style="left: ${label.position};"></div>`
+        `<div class="geoapify-rp-sdk-label-vertical-line"  style="left: ${label.position};"></div>`
     ).join('')}
           </div>
         ` : ''}
-        <div id="global-tooltip" class="custom-tooltip" style="display: none;"></div>
+        <div id="global-tooltip" class="geoapify-rp-sdk-custom-tooltip" style="display: none;"></div>
       </div>
     </div>
 `
@@ -94,11 +94,11 @@ export class AgentTimelineGenerator {
     public generateAgentTimeline(timelineType: 'time' | 'distance',
                                  hasLargeDescription: boolean,
                                  task: RoutePlannerInputData,
-                                 solution: RoutePlannerResultData,
                                  scenario: Scenario,
                                  timeLabels: SolutionLabel[],
                                  distanceLabels: SolutionLabel[],
-                                 onToggleRoute?: (timeline: any) => void) {
+                                 onToggleRoute?: (timeline: any) => void,
+                                 solution?: RoutePlannerResultData) {
         hasLargeDescription = false;
         let agentIcon: string;
         let timelines: TimelineItem[];
@@ -128,7 +128,7 @@ export class AgentTimelineGenerator {
                 hasLargeDescription: hasLargeDescription,
                 timelines: timelines
             };
-            this.drawTimelines(result, timelineType, solution, timeLabels, distanceLabels, scenario);
+            this.drawTimelines(result, timelineType, timeLabels, distanceLabels, scenario, solution);
             return result;
         } else {
             agentIcon = scenario.agentIcon || this.getAgentIconByMode(scenario.mode);
@@ -160,7 +160,7 @@ export class AgentTimelineGenerator {
                 hasLargeDescription: hasLargeDescription,
                 timelines: timelines
             };
-            this.drawTimelines(result, timelineType, solution, timeLabels, distanceLabels, scenario);
+            this.drawTimelines(result, timelineType, timeLabels, distanceLabels, scenario, solution);
 
             this.attachToggleRouteHandler(result.timelines, this.container, onToggleRoute);
             return result;
@@ -169,10 +169,10 @@ export class AgentTimelineGenerator {
 
     public drawTimelines(result: TimelineData,
                          timelineType: 'time' | 'distance',
-                         solution: RoutePlannerResultData,
                          timeLabels: any[],
                          distanceLabels: any[],
-                         scenario: Scenario) {
+                         scenario: Scenario,
+                         solution?: RoutePlannerResultData) {
         if(result && solution) {
             this.generateTimelinesData(result, solution, scenario);
         }
@@ -180,7 +180,7 @@ export class AgentTimelineGenerator {
         this.loadFontAwesome();
 
         result.timelines?.forEach((timeline: TimelineItem, index: number) => {
-            const html = this.timelineTemplate(result, timeline, index, timelineType, this.storageColor, result.agentIcon, solution, timeLabels, distanceLabels);
+            const html = this.timelineTemplate(result, timeline, index, timelineType, this.storageColor, result.agentIcon, timeLabels, distanceLabels, solution);
             this.container.insertAdjacentHTML('beforeend', html);
         });
 
@@ -410,14 +410,14 @@ export class AgentTimelineGenerator {
         // Create global tooltip
         const tooltip = document.createElement('div');
         tooltip.id = 'global-tooltip';
-        tooltip.className = 'custom-tooltip';
+        tooltip.className = 'geoapify-rp-sdk-custom-tooltip';
         tooltip.style.display = 'none';
         document.body.appendChild(tooltip);
 
         // Mouse over handler
         document.addEventListener('mouseover', (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            const tooltipText = target.closest('.solution-item')?.getAttribute('data-tooltip');
+            const tooltipText = target.closest('.geoapify-rp-sdk-solution-item')?.getAttribute('data-tooltip');
 
             if (tooltipText) {
                 const rect = target.getBoundingClientRect();
@@ -425,15 +425,15 @@ export class AgentTimelineGenerator {
                 tooltip.style.display = 'block';
                 tooltip.style.left = `${e.clientX}px`;
                 tooltip.style.top = `${rect.bottom + 6}px`;
-                tooltip.classList.add('show');
+                tooltip.classList.add('geoapify-rp-sdk-show');
             }
         });
 
         // Mouse out handler
         document.addEventListener('mouseout', (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            if (target.closest('.solution-item')) {
-                tooltip.classList.remove('show');
+            if (target.closest('.geoapify-rp-sdk-solution-item')) {
+                tooltip.classList.remove('geoapify-rp-sdk-show');
                 tooltip.style.display = 'none';
             }
         });
@@ -444,7 +444,7 @@ export class AgentTimelineGenerator {
         this.injectHoverStyle();
         if (container.dataset.clickListenerAttached === 'true') return;
         container.addEventListener('click', (e: MouseEvent) => {
-            const button = (e.target as HTMLElement).closest('.toggle-route-btn') as HTMLElement;
+            const button = (e.target as HTMLElement).closest('.geoapify-rp-sdk-toggle-route-btn') as HTMLElement;
             if (!button) return;
 
             const index = Number(button.getAttribute('data-agent-index'));
@@ -471,10 +471,10 @@ export class AgentTimelineGenerator {
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
-    .timeline-item-agent .toggle-route-btn:active {
+    .geoapify-rp-sdk-timeline-item-agent .toggle-route-btn:active {
       background-color: #e0e0e0;
     }
-    .timeline-item-agent .toggle-route-btn:hover {
+    .geoapify-rp-sdk-timeline-item-agent .toggle-route-btn:hover {
        background-color: buttonface;
     }
   `;

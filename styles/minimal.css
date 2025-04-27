@@ -1,12 +1,4 @@
-.timelines-container {
-    position: relative;
-    height: calc(100% - 70px);
-    margin-bottom: 20px;
-    padding-right: 20px;
-    overflow-y: auto;
-}
-
-.timeline-item {
+.geoapify-rp-sdk-timeline-item {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -14,11 +6,11 @@
     margin-right: -20px;
 }
 
-.timeline-item.even {
+.geoapify-rp-sdk-timeline-item.geoapify-rp-sdk-even {
     background-color: #fff;
 }
 
-.timeline-item-agent {
+.geoapify-rp-sdk-timeline-item-agent {
     padding-top: 5px;
     padding-bottom: 5px;
     display: flex;
@@ -27,62 +19,11 @@
     width: 140px;
 }
 
-.timeline-item-agent.wider {
+.geoapify-rp-sdk-timeline-item-agent.geoapify-rp-sdk-wider {
     width: 200px;
 }
 
-.show-hide-button {
-    -webkit-user-select: none;
-    user-select: none;
-    display: inline-block;
-    position: relative;
-    box-sizing: border-box;
-    border: none;
-    outline: none;
-    background-color: rgba(0, 0, 0, 0);
-    fill: currentColor;
-    text-decoration: none;
-    z-index: 0;
-    overflow: visible;
-    border-radius: 50%;
-    flex-shrink: 0;
-    text-align: center;
-    width: 48px;
-    height: 48px;
-    padding: 12px;
-    cursor: pointer;
-    color: #00000061;
-}
-
-.show-hide-button:hover {
-    background-color: #f5f5f5;
-}
-
-.button-persistent-ripple {
-    border-radius: 50%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    position: absolute;
-    pointer-events: none;
-}
-
-.button-persistent-ripple::before {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    position: absolute;
-    pointer-events: none;
-    border-radius: inherit;
-    content: "";
-    opacity: 0;
-    background-color: #000000;
-
-}
-
-.agent-info {
+.geoapify-rp-sdk-agent-info {
     margin-right: 10px;
     display: flex;
     flex: 1;
@@ -91,12 +32,12 @@
     flex-direction: column;
 }
 
-.mat-subtitle-2 {
+.geoapify-rp-sdk-mat-subtitle-2 {
     font: 500 14px / 22px Roboto, sans-serif;
     letter-spacing: .0071428571em;
 }
 
-.mat-caption {
+.geoapify-rp-sdk-mat-caption {
     font: 400 12px / 20px Roboto, sans-serif;
     letter-spacing: .0333333333em;
     white-space: nowrap;
@@ -104,7 +45,7 @@
     text-overflow: ellipsis;
 }
 
-.timeline {
+.geoapify-rp-sdk-timeline {
     margin-left: 10px;
     position: relative;
     height: 100%;
@@ -113,7 +54,7 @@
     min-width: 0;
 }
 
-.timeline .line {
+.geoapify-rp-sdk-timeline .geoapify-rp-sdk-line {
     position: absolute;
     top: 50%;
     right: 0;
@@ -122,7 +63,7 @@
     border-top: 1px solid rgba(0, 0, 0, .1);
 }
 
-.timeline .value-line {
+.geoapify-rp-sdk-timeline .geoapify-rp-sdk-value-line {
     position: absolute;
     top: 50%;
     left: 0;
@@ -132,14 +73,14 @@
     border-radius: 4px;
 }
 
-.solution-item {
+.geoapify-rp-sdk-solution-item {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 100;
 }
 
-.label-vertical-line {
+.geoapify-rp-sdk-label-vertical-line {
     position: absolute;
     border-left: 1px solid rgba(0, 0, 0, 0.05);
     width: 1px;
@@ -147,27 +88,27 @@
     bottom: 0;
 }
 
-.solution-item .solution-item-full {
+.geoapify-rp-sdk-solution-item .geoapify-rp-sdk-solution-item-full {
     height: 10px;
     border: 1px solid rgba(0, 0, 0, .3);
     border-radius: 5px;
 }
 
-.solution-item-standard {
+.geoapify-rp-sdk-solution-item-standard {
     height: 10px;
     width: 20px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     border-radius: 5px;
 }
 
-.solution-item .solution-item-minimal {
+.geoapify-rp-sdk-solution-item .geoapify-rp-sdk-solution-item-minimal {
     height: 10px;
     width: 10px;
     border-radius: 50%;
     border: 1px solid rgba(0, 0, 0, .3);
 }
 
-.timeline .label-vertical-line {
+.geoapify-rp-sdk-timeline .geoapify-rp-sdk-label-vertical-line {
     position: absolute;
     border-left: 1px solid rgba(0, 0, 0, .05);
     width: 1px;
@@ -175,7 +116,7 @@
     bottom: 0;
 }
 
-.custom-tooltip {
+.geoapify-rp-sdk-custom-tooltip {
     position: fixed;
     background: #616161;
     color: white;
@@ -196,11 +137,11 @@
     white-space: pre-line;
 }
 
-.custom-tooltip.show {
+.geoapify-rp-sdk-custom-tooltip.geoapify-rp-sdk-show {
     opacity: 1;
 }
 
-.icon-button {
+.geoapify-rp-sdk-icon-button {
     border: none;
     background: transparent;
     border-radius: 50%;
@@ -211,11 +152,11 @@
     padding: 12px;
 }
 
-.icon-button:disabled {
+.geoapify-rp-sdk-icon-button:disabled {
     opacity: 0.5;
     cursor: default;
 }
 
-.visibility-icon {
+.geoapify-rp-sdk-visibility-icon {
     font-size: 21px;
 }
