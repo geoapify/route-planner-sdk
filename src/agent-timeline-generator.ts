@@ -173,7 +173,9 @@ export class AgentTimelineGenerator {
                          timeLabels: any[],
                          distanceLabels: any[],
                          scenario: Scenario) {
-        this.generateTimelinesData(result, solution, scenario);
+        if(result && solution) {
+            this.generateTimelinesData(result, solution, scenario);
+        }
         this.container.innerHTML = ''; // clear
         this.loadFontAwesome();
 
