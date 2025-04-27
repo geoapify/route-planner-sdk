@@ -8,6 +8,9 @@
     ".": {
       "import": "./dist/index.min.esm.js",
       "require": "./dist/index.cjs.js"
+    },
+    "./styles/minimal.css": {
+      "default": "./styles/minimal.css"
     }
   },
   "typings": "dist/index.d.ts",
