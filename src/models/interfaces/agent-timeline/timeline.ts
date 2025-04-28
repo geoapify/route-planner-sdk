@@ -2,7 +2,6 @@ import { TravelMode } from "../../types";
 import { SolutionItem } from "./solution-item";
 
 export interface TimelineData {
-    agentIcon: string;
     hasLargeDescription: boolean;
     timelines: TimelineItem[];
 }

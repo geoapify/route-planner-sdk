@@ -140,23 +140,3 @@
 .geoapify-rp-sdk-custom-tooltip.geoapify-rp-sdk-show {
     opacity: 1;
 }
-
-.geoapify-rp-sdk-icon-button {
-    border: none;
-    background: transparent;
-    border-radius: 50%;
-    cursor: pointer;
-    outline: none;
-    width: 48px;
-    height: 48px;
-    padding: 12px;
-}
-
-.geoapify-rp-sdk-icon-button:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.geoapify-rp-sdk-visibility-icon {
-    font-size: 21px;
-}

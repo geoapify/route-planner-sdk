@@ -13,22 +13,12 @@ export class AgentTimelineGenerator {
     private static colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
 
-    timelineTemplate = (timelineData: TimelineData, timeline: TimelineItem, index: number, timelineType: 'time' | 'distance', storageColor: string, agentIcon: string, timeLabels: any[], distanceLabels: any[], solution?: RoutePlannerResultData) => `
+    timelineTemplate = (timelineData: TimelineData, timeline: TimelineItem, index: number, timelineType: 'time' | 'distance', storageColor: string, timeLabels: any[], distanceLabels: any[], solution?: RoutePlannerResultData) => `
    <div class="geoapify-rp-sdk-timeline-item flex-container items-center ${index % 2 === 0 ? 'geoapify-rp-sdk-even' : ''}">
       <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${timelineData.hasLargeDescription ? 'geoapify-rp-sdk-wider' : ''}">
-        <div>
-          <button class="geoapify-rp-sdk-icon-button geoapify-rp-sdk-toggle-route-btn" data-agent-index="${timeline.agentIndex}" ${timeline.timelineLength ? '' : 'disabled'}>
-            ${timeline.routeVisible && timeline.timelineLength ? `<i class="geoapify-rp-sdk-visibility-icon fas fa-eye black-06"></i>` : ''}
-            ${!timeline.routeVisible && timeline.timelineLength ? `<i class="geoapify-rp-sdk-visibility-icon fas fa-eye-slash black-06"></i>` : ''}
-            ${solution && !timeline.timelineLength ? `<i class="geoapify-rp-sdk-visibility-icon fas fa-exclamation-triangle" style="color: #ff6666;" title="Unassigned agent"></i>` : ''}
-          </button>
-        </div>
         <div style="color: ${timeline.color}" class="flex-main geoapify-rp-sdk-agent-info margin-right-10 flex-container column">
           <span class="geoapify-rp-sdk-mat-subtitle-2">${timeline.label}</span>
           <span class="geoapify-rp-sdk-mat-caption description">${timeline.description}</span>
-        </div>
-        <div style="color: ${timeline.color}" class="geoapify-rp-sdk-icon">
-          <i class="fas fa-${agentIcon}"></i>
         </div>
       </div>
       <div class="geoapify-rp-sdk-timeline flex-main" style="margin-left: 10px; position: relative; height: 100%; min-height: 45px;">
@@ -97,13 +87,10 @@ export class AgentTimelineGenerator {
                                  scenario: Scenario,
                                  timeLabels: SolutionLabel[],
                                  distanceLabels: SolutionLabel[],
-                                 onToggleRoute?: (timeline: any) => void,
                                  solution?: RoutePlannerResultData) {
         hasLargeDescription = false;
-        let agentIcon: string;
         let timelines: TimelineItem[];
         if (!task && solution) {
-            agentIcon = this.getAgentIconByMode(solution.inputData.mode as any);
             const maxIndex = Math.max(...(solution.unassignedAgents || []), ...solution.agents.map(agentPlan => agentPlan.agentIndex));
 
             // create timelines based on result
@@ -124,15 +111,12 @@ export class AgentTimelineGenerator {
                 })
             }
             let result = {
-                agentIcon: agentIcon,
                 hasLargeDescription: hasLargeDescription,
                 timelines: timelines
             };
             this.drawTimelines(result, timelineType, timeLabels, distanceLabels, scenario, solution);
             return result;
         } else {
-            agentIcon = scenario.agentIcon || this.getAgentIconByMode(scenario.mode);
-
             timelines = task.agents.map((agent: AgentData, index: number) => {
 
                 const label = `${scenario.agentLabel} ${index + 1}`;
@@ -156,13 +140,11 @@ export class AgentTimelineGenerator {
                 };
             });
             let result: TimelineData = {
-                agentIcon: agentIcon,
                 hasLargeDescription: hasLargeDescription,
                 timelines: timelines
             };
             this.drawTimelines(result, timelineType, timeLabels, distanceLabels, scenario, solution);
 
-            this.attachToggleRouteHandler(result.timelines, this.container, onToggleRoute);
             return result;
         }
     }
@@ -177,10 +159,9 @@ export class AgentTimelineGenerator {
             this.generateTimelinesData(result, solution, scenario);
         }
         this.container.innerHTML = ''; // clear
-        this.loadFontAwesome();
 
         result.timelines?.forEach((timeline: TimelineItem, index: number) => {
-            const html = this.timelineTemplate(result, timeline, index, timelineType, this.storageColor, result.agentIcon, timeLabels, distanceLabels, solution);
+            const html = this.timelineTemplate(result, timeline, index, timelineType, this.storageColor, timeLabels, distanceLabels, solution);
             this.container.insertAdjacentHTML('beforeend', html);
         });
 
@@ -330,17 +311,6 @@ export class AgentTimelineGenerator {
         });
     }
 
-    private getAgentIconByMode(mode: 'drive' | 'truck' | 'bicycle' | 'walk'): string {
-        const iconsMap = {
-            'drive': 'car',
-            'truck': 'truck',
-            'bicycle': 'biking',
-            'walk': 'walking'
-        }
-
-        return iconsMap[mode];
-    }
-
     generateAgentDescription(agent: AgentData, scenario: Scenario, hasLargeDescription: boolean) {
         const descriptionItems = [];
 
@@ -387,19 +357,6 @@ export class AgentTimelineGenerator {
         return hours + 'h ' + minutes + 'm';
     }
 
-    loadFontAwesome() {
-        const id = 'font-awesome-stylesheet';
-        if (document.getElementById(id)) return; // already added
-
-        const link = document.createElement('link');
-        link.id = id;
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css';
-        link.crossOrigin = 'anonymous';
-
-        document.head.appendChild(link);
-    }
-
     initializeGlobalTooltip() {
         if (document.getElementById('global-tooltip-listener')) return; // already added
 
@@ -437,48 +394,6 @@ export class AgentTimelineGenerator {
                 tooltip.style.display = 'none';
             }
         });
-    }
-
-
-    attachToggleRouteHandler(timelines: any[], container: HTMLElement, onToggleRoute?: (timeline: any) => void) {
-        this.injectHoverStyle();
-        if (container.dataset.clickListenerAttached === 'true') return;
-        container.addEventListener('click', (e: MouseEvent) => {
-            const button = (e.target as HTMLElement).closest('.geoapify-rp-sdk-toggle-route-btn') as HTMLElement;
-            if (!button) return;
-
-            const index = Number(button.getAttribute('data-agent-index'));
-            const timeline = timelines.find(t => t.agentIndex === index);
-            if (!timeline || !timeline.timelineLength) return;
-
-            const icon = button.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('fa-eye');
-                icon.classList.toggle('fa-eye-slash');
-            }
-
-            if (onToggleRoute) {
-                onToggleRoute(timeline);
-            }
-        });
-        container.dataset.clickListenerAttached = 'true';
-    }
-
-    injectHoverStyle() {
-        const styleId = 'eye-button-hover-style';
-        if (document.getElementById(styleId)) return; // avoid duplicates
-
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
-    .geoapify-rp-sdk-timeline-item-agent .toggle-route-btn:active {
-      background-color: #e0e0e0;
-    }
-    .geoapify-rp-sdk-timeline-item-agent .toggle-route-btn:hover {
-       background-color: buttonface;
-    }
-  `;
-        document.head.appendChild(style);
     }
 
     toPrettyDistance(meters: number): string {
