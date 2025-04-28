@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RoutePlannerService } from "../services/route-planner.service";
-import { AgentTimelineGenerator, Scenario, SolutionLabel } from "../../../../dist";
+import { RoutePlannerTimeline, Scenario, SolutionLabel } from "../../../../dist";
 
 @Component({
   selector: 'app-root',
@@ -42,7 +42,7 @@ export class AppComponent {
         capacityUnit: 'kg',
       };
       this.generateLabels(100, 10);
-      let generator = new AgentTimelineGenerator(this.timelinesContainer.nativeElement)
+      let generator = new RoutePlannerTimeline(this.timelinesContainer.nativeElement, result)
       generator.generateAgentTimeline('time', false, task, scenario, this.timeLabels, this.distanceLabels, result.getData());
     }
   }

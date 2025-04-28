@@ -1,14 +1,14 @@
 import {
     AgentData,
     AgentSolutionData,
-    RoutePlannerInputData,
+    RoutePlannerInputData, RoutePlannerResult,
     RoutePlannerResultData,
     Scenario, SolutionItem, SolutionLabel,
     WaypointData
 } from "./models";
-import { TimelineData, TimelineItem } from "./models/interfaces/agent-timeline/timeline";
+import { TimelineData, TimelineItem } from "./models/interfaces/timeline/timeline";
 
-export class AgentTimelineGenerator {
+export class RoutePlannerTimeline {
 
     private static colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
@@ -72,9 +72,13 @@ export class AgentTimelineGenerator {
 
     storageColor = '#ff9933';
     container: HTMLElement;
+    result: RoutePlannerResult;
+    options?: RoutePlannerTimeLineOptions;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, result: RoutePlannerResult, options?: RoutePlannerTimeLineOptions){
         this.container = container;
+        this.result = result;
+        this.options = options;
     }
 
     public static getAgentColorByIndex(index: number): string {
@@ -99,7 +103,7 @@ export class AgentTimelineGenerator {
                 timelines.push({
                     label: `agent ${i + 1}`,
                     mode: solution.inputData.mode,
-                    color: AgentTimelineGenerator.getAgentColorByIndex(i),
+                    color: RoutePlannerTimeline.getAgentColorByIndex(i),
                     description: '',
                     routeVisible: true,
                     agentIndex: i,
@@ -128,7 +132,7 @@ export class AgentTimelineGenerator {
                 return {
                     label: label,
                     mode: scenario.mode,
-                    color: AgentTimelineGenerator.getAgentColorByIndex(index),
+                    color: RoutePlannerTimeline.getAgentColorByIndex(index),
                     description: this.generateAgentDescription(agent, scenario, hasLargeDescription).description,
                     routeVisible: true,
                     agentIndex: index,

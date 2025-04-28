@@ -1,10 +1,10 @@
 import { RoutePlanner } from "./route-planner";
 import { RoutePlannerResultEditor } from "./route-planner-result-editor";
 import * as Models from "./models";
-import { AgentTimelineGenerator } from "./agent-timeline-generator";
+import { RoutePlannerTimeline } from "./route-planner-timeline";
 
 export * from "./models";
-export { RoutePlanner, RoutePlannerResultEditor, AgentTimelineGenerator };
+export { RoutePlanner, RoutePlannerResultEditor, RoutePlannerTimeline };
 
 export default RoutePlanner;
 
@@ -13,7 +13,7 @@ if (typeof window !== "undefined") {
     (window as any).RoutePlannerSDK = {
         RoutePlanner: RoutePlanner,
         RouteEditor: RoutePlannerResultEditor,
-        AgentTimelineGenerator: AgentTimelineGenerator,
+        AgentTimelineGenerator: RoutePlannerTimeline,
         ...Models
     };
 }
