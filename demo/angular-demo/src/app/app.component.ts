@@ -43,7 +43,7 @@ export class AppComponent {
       };
       this.generateLabels(100, 10);
       let generator = new AgentTimelineGenerator(this.timelinesContainer.nativeElement)
-      generator.generateAgentTimeline('time', false, task, scenario, this.timeLabels, this.distanceLabels, (timeline: any) => console.log(timeline), result.getData());
+      generator.generateAgentTimeline('time', false, task, scenario, this.timeLabels, this.distanceLabels, result.getData());
     }
   }
 
