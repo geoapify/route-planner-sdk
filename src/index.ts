@@ -13,7 +13,7 @@ if (typeof window !== "undefined") {
     (window as any).RoutePlannerSDK = {
         RoutePlanner: RoutePlanner,
         RouteEditor: RoutePlannerResultEditor,
-        AgentTimelineGenerator: RoutePlannerTimeline,
+        RoutePlannerTimeLine: RoutePlannerTimeline,
         ...Models
     };
 }

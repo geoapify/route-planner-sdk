@@ -26,6 +26,7 @@ export * from "./nested/response/leg-step-response-data";
 export * from "./nested/response/properties-response-data";
 export * from "./nested/response/waypoint-response-data";
 
-export * from "./timeline/scenario";
-export * from "./timeline/solution-item";
-export * from "./timeline/timeline";
+export * from "./route-planner-timeline/route-planner-timeline-label";
+export * from "./route-planner-timeline/timeline-item";
+export * from "./route-planner-timeline/timeline";
+export * from "./route-planner-timeline/route-planner-timeline-options";
