@@ -34,11 +34,11 @@ export class RoutePlannerTimeline {
             style="background-color: ${timeline.color}; width: ${timeline.distanceLineLength};"></div>` : ''}
 
         ${timelineType === 'time' ? `
-            ${(timeline.itemsByTime || []).map((item: any) =>
+            ${(timeline.itemsByTime || []).map((item: any, i: number) =>
         `
               <div class="geoapify-rp-sdk-solution-item"
-              style="left: ${item.position}; width: ${item.minWidth || ''}"
-              data-tooltip="${item.description}">
+              style="left: ${item.position}; width: ${item.minWidth || ''}" data-tooltip="${item.description}"
+              data-agent-index="${timeline.agentIndex}" data-waypoint-index="${i}">
             ${item.form === 'full' ? `<div class="geoapify-rp-sdk-solution-item-full" style="width: 100%; background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
             ${item.form === 'standard' ? `<div class="geoapify-rp-sdk-solution-item-standard" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
             ${item.form === 'minimal' ? `<div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
@@ -47,8 +47,9 @@ export class RoutePlannerTimeline {
          ` : ''}
 
         ${timelineType === 'distance' ? `
-           ${(timeline.itemsByDistance || []).map((item: any) =>
-        `<div class="geoapify-rp-sdk-solution-item" style="left: ${item.position};" data-tooltip="${item.description}">
+           ${(timeline.itemsByDistance || []).map((item: any, i: number) =>
+        `<div class="geoapify-rp-sdk-solution-item" style="left: ${item.position};" data-tooltip="${item.description}"
+              data-agent-index="${timeline.agentIndex}" data-waypoint-index="${i}">
             <div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>
           </div> `
     ).join('')}
@@ -76,6 +77,7 @@ export class RoutePlannerTimeline {
     container: HTMLElement;
     result: RoutePlannerResult;
     options: RoutePlannerTimelineOptions;
+    waypointPopupContainer: HTMLElement | null = null;
 
     constructor(container: HTMLElement,
                 result: RoutePlannerResult,
@@ -165,7 +167,13 @@ export class RoutePlannerTimeline {
             this.container.insertAdjacentHTML('beforeend', html);
         });
 
-        this.initializeGlobalTooltip();
+        if(this.options.showWaypointPopup) {
+            if(this.options.waypointPopupGenerator) {
+                this.initializeWaypointPopups();
+            } else {
+                this.initializeGlobalTooltip();
+            }
+        }
     }
 
     private generateTimelinesData(timelines: Timeline[],
@@ -393,6 +401,94 @@ export class RoutePlannerTimeline {
                 tooltip.style.display = 'none';
             }
         });
+    }
+    private createWaypointPopupContainer() {
+        if (this.waypointPopupContainer) return;
+
+        this.waypointPopupContainer = document.createElement('div');
+        this.waypointPopupContainer.id = 'geoapify-rp-sdk-waypoint-popup';
+        this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip';
+        this.waypointPopupContainer.style.opacity = '1';
+
+        document.body.appendChild(this.waypointPopupContainer);
+        document.addEventListener('mouseover', (e: MouseEvent) => {
+            if (!this.waypointPopupContainer || this.waypointPopupContainer.style.display === 'none') {
+                return;
+            }
+
+            const target = e.target as HTMLElement;
+
+            // Check if the hover was outside the popup container AND outside a trigger element
+            const hoverInsidePopup = this.waypointPopupContainer.contains(target);
+            const hoverOnTrigger = target.closest('.geoapify-rp-sdk-solution-item') !== null;
+
+            if (!hoverInsidePopup && !hoverOnTrigger) {
+                this.hideWaypointPopup();
+            }
+        });
+    }
+    private initializeWaypointPopups() {
+        this.createWaypointPopupContainer();
+
+        this.container.addEventListener('mouseover', (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const waypointElement = target.closest('.geoapify-rp-sdk-solution-item');
+
+            if (waypointElement) {
+                const agentIndex = waypointElement.getAttribute('data-agent-index');
+                const waypointIndex = waypointElement.getAttribute('data-waypoint-index');
+
+                if (agentIndex !== null && waypointIndex !== null) {
+                    const agentSolution = this.result.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex);
+
+                    if (agentSolution) {
+                        const waypoint = agentSolution.getWaypoints()[+waypointIndex];
+                        if (this.options.waypointPopupGenerator) {
+                            try {
+                                const popupContentElement = this.options.waypointPopupGenerator(waypoint);
+                                this.showWaypointPopup(waypointElement, popupContentElement);
+                            } catch (error) {
+                                console.error('Error generating waypoint popup content:', error);
+                            }
+                        } else {
+                            this.hideWaypointPopup();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private showWaypointPopup(triggerElement: Element, contentElement: HTMLElement) {
+        if (!this.waypointPopupContainer) {
+            console.error('Waypoint popup container not initialized.');
+            return;
+        }
+
+        this.waypointPopupContainer.innerHTML = '';
+        this.waypointPopupContainer.appendChild(contentElement);
+        const rect = triggerElement.getBoundingClientRect();
+        this.waypointPopupContainer.style.top = `${rect.bottom + window.scrollY + 10}px`;
+        let left = rect.left + window.scrollX + (rect.width / 2) - (this.waypointPopupContainer.offsetWidth / 2);
+
+        const viewportWidth = window.innerWidth;
+        const popupWidth = this.waypointPopupContainer.offsetWidth;
+
+        if (left + popupWidth > viewportWidth - 10) {
+            left = viewportWidth - popupWidth - 10;
+        }
+        if (left < 10) {
+            left = 10;
+        }
+
+        this.waypointPopupContainer.style.left = `${left}px`;
+        this.waypointPopupContainer.style.display = 'block';
+    }
+
+    private hideWaypointPopup() {
+        if (this.waypointPopupContainer) {
+            this.waypointPopupContainer.style.display = 'none';
+        }
     }
 
     toPrettyDistance(meters: number): string {

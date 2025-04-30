@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RoutePlannerService } from "../services/route-planner.service";
-import { RoutePlannerTimelineLabel , RoutePlannerTimeline} from "../../../../dist";
+import { RoutePlannerTimelineLabel, RoutePlannerTimeline, Waypoint } from "../../../../dist";
 
 @Component({
   selector: 'app-root',
@@ -31,6 +31,19 @@ export class AppComponent {
   async drawTimeline() {
     let result = await this.routePlannerService.planRoute(JSON.parse(this.rawDataForDrawingTimeline));
 
+      const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
+        const popupDiv = document.createElement('div');
+        popupDiv.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <h4 style="margin: 0">${[...new Set(waypoint.getActions().map(action => action.getType().charAt(0).toUpperCase() + action.getType().slice(1)))].join(' / ')}</h4>
+            <p style="margin: 0">Duration: ${this.toPrettyTime(waypoint.getDuration())|| 'N/A'}</p>
+            <p style="margin: 0">Time Before: ${this.toPrettyTime(waypoint.getStartTime()) || 'N/A'}</p>
+            <p style="margin: 0">Time after: ${this.toPrettyTime(waypoint.getStartTime() + waypoint.getDuration()) || 'N/A'}</p>
+          </div>
+          `;
+        return popupDiv;
+      };
+
     if(typeof result !== 'string') {
       this.generateLabels(100, 10);
       const generator = new RoutePlannerTimeline(this.timelinesContainer.nativeElement, result, {
@@ -42,6 +55,8 @@ export class AppComponent {
         description: "Deliver ordered items to customers within defined timeframe",
         timeLabels: this.timeLabels,
         distanceLabels: this.distanceLabels,
+        showWaypointPopup: true,
+        waypointPopupGenerator: customWaypointPopupGenerator,
         agentColors:["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
           "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"],
       });
