@@ -78,6 +78,7 @@ export class RoutePlannerTimeline {
     result: RoutePlannerResult;
     options: RoutePlannerTimelineOptions;
     waypointPopupContainer: HTMLElement | null = null;
+    eventListeners: { [key: string]: Function[] } = {};
 
     constructor(container: HTMLElement,
                 result: RoutePlannerResult,
@@ -95,6 +96,38 @@ export class RoutePlannerTimeline {
             };
         }
         this.generateAgentTimeline();
+    }
+
+    on(eventName: string, handler: Function): void {
+        if (!this.eventListeners[eventName]) {
+            this.eventListeners[eventName] = [];
+        }
+        if (!this.eventListeners[eventName].includes(handler)) {
+            this.eventListeners[eventName].push(handler);
+        }
+    }
+
+    off(eventName: string, handler: Function): void {
+        if (!this.eventListeners[eventName]) {
+            return;
+        }
+        const index = this.eventListeners[eventName].indexOf(handler);
+        if (index > -1) {
+            this.eventListeners[eventName].splice(index, 1);
+        }
+    }
+
+    private emit(eventName: string, data?: any): void {
+        if (!this.eventListeners[eventName]) {
+            return;
+        }
+        this.eventListeners[eventName].forEach(handler => {
+            try {
+                handler(data);
+            } catch (error) {
+                console.error(`Error in event handler for "${eventName}":`, error);
+            }
+        });
     }
 
     public getAgentColorByIndex(index: number): string {
@@ -165,6 +198,21 @@ export class RoutePlannerTimeline {
         timelines?.forEach((timeline: Timeline, index: number) => {
             const html = this.timelineTemplate(timeline, index, this.options.timelineType!, this.storageColor, this.options.timeLabels || [], this.options.distanceLabels || []);
             this.container.insertAdjacentHTML('beforeend', html);
+
+            const waypointElements = this.container.querySelectorAll('.geoapify-rp-sdk-solution-item');
+            waypointElements.forEach((el: Element) => {
+                const agentIndex = el.getAttribute('data-agent-index');
+                const waypointIndex = el.getAttribute('data-waypoint-index');
+
+                const agentSolution = this.result.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex!);
+
+                if(agentSolution && waypointIndex) {
+                    const waypoint = agentSolution.getWaypoints()[+waypointIndex];
+                    el.addEventListener('mouseover', () => {
+                        this.emit('onWaypointHover', waypoint);
+                    });
+                }
+            });
         });
 
         if(this.options.showWaypointPopup) {
@@ -407,8 +455,9 @@ export class RoutePlannerTimeline {
 
         this.waypointPopupContainer = document.createElement('div');
         this.waypointPopupContainer.id = 'geoapify-rp-sdk-waypoint-popup';
-        this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip';
+        this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip ';
         this.waypointPopupContainer.style.opacity = '1';
+        this.waypointPopupContainer.style.display = 'none';
 
         document.body.appendChild(this.waypointPopupContainer);
         document.addEventListener('mouseover', (e: MouseEvent) => {

@@ -60,6 +60,9 @@ export class AppComponent {
         agentColors:["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
           "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"],
       });
+      generator.on('onWaypointHover', (waypoint: Waypoint) => {
+        console.log('Waypoint hovered via event system:', waypoint);
+      });
     }
   }
   generateLabels(maxDistance: number, maxTime: number) {
