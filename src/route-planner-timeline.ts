@@ -8,6 +8,7 @@ import {
     TimelineItem,
     RoutePlannerTimelineLabel,
     Timeline,
+    TimelineMenuItem
 } from "./models";
 
 export class RoutePlannerTimeline {
@@ -16,10 +17,19 @@ export class RoutePlannerTimeline {
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
     storageColor = '#ff9933';
 
-    timelineTemplate = (timeline: Timeline, index: number, timelineType: 'time' | 'distance', storageColor: string, timeLabels: RoutePlannerTimelineLabel[], distanceLabels: RoutePlannerTimelineLabel[]) => `
+    timelineTemplate = (timeline: Timeline, index: number, timelineType: 'time' | 'distance', storageColor: string, timeLabels: RoutePlannerTimelineLabel[], distanceLabels: RoutePlannerTimelineLabel[], agentMenuItems?: TimelineMenuItem[]) => `
    <div class="geoapify-rp-sdk-timeline-item flex-container items-center ${index % 2 === 0 ? 'geoapify-rp-sdk-even' : ''}">
       <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${this.options.hasLargeDescription ? 'geoapify-rp-sdk-wider' : ''}">
-       
+       ${agentMenuItems && agentMenuItems.length > 0 ? `
+            <div class="geoapify-rp-sdk-three-dot-menu" data-agent-index="${timeline.agentIndex}">
+                <button class="geoapify-rp-sdk-three-dot-button">&#8230;</button>
+                <ul class="geoapify-rp-sdk-menu-list">
+                    ${agentMenuItems.map(item => `
+                        <li class="geoapify-rp-sdk-menu-item" data-key="${item.key}">${item.label}</li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
         <div style="color: ${timeline.color}" class="flex-main geoapify-rp-sdk-agent-info margin-right-10 flex-container column">
           <span class="geoapify-rp-sdk-mat-subtitle-2">${timeline.label}</span>
           <span class="geoapify-rp-sdk-mat-caption description">${timeline.description}</span>
@@ -96,6 +106,80 @@ export class RoutePlannerTimeline {
             };
         }
         this.generateAgentTimeline();
+        this.initializeThreeDotMenus();
+    }
+
+     public getHasLargeDescription(): boolean | undefined {
+        return this.options.hasLargeDescription;
+    }
+
+    public setHasLargeDescription(value: boolean | undefined) {
+        this.options.hasLargeDescription = value;
+        this.generateAgentTimeline();
+    }
+
+    public getTimelineType(): 'time' | 'distance' | undefined {
+        return this.options.timelineType;
+    }
+
+    public setTimelineType(value: 'time' | 'distance' | undefined) {
+        this.options.timelineType = value;
+        this.drawTimelines(this.generateAgentTimeline(), this.result);
+    }
+
+    public getAgentColors(): string[] | undefined {
+        return this.options.agentColors;
+    }
+
+    public setAgentColors(value: string[] | undefined) {
+        this.options.agentColors = value;
+        this.generateAgentTimeline();
+    }
+
+    public getCapacityUnit(): string | undefined {
+        return this.options.capacityUnit;
+    }
+
+    public setCapacityUnit(value: string | undefined) {
+        this.options.capacityUnit = value;
+        this.generateAgentTimeline();
+    }
+
+    public getTimeLabels(): RoutePlannerTimelineLabel[] | undefined {
+        return this.options.timeLabels;
+    }
+
+    public setTimeLabels(value: RoutePlannerTimelineLabel[] | undefined) {
+        this.options.timeLabels = value;
+        this.drawTimelines(this.generateAgentTimeline(), this.result);
+    }
+
+    public getDistanceLabels(): RoutePlannerTimelineLabel[] | undefined {
+        return this.options.distanceLabels;
+    }
+
+    public setDistanceLabels(value: RoutePlannerTimelineLabel[] | undefined) {
+        this.options.distanceLabels = value;
+        this.drawTimelines(this.generateAgentTimeline(), this.result);
+    }
+
+    public getAgentLabel(): string | undefined {
+        return this.options.agentLabel;
+    }
+
+    public setAgentLabel(value: string | undefined) {
+        this.options.agentLabel = value;
+        this.generateAgentTimeline();
+    }
+
+    public getAgentMenuItems(): TimelineMenuItem[] | undefined {
+        return this.options.agentMenuItems;
+    }
+
+    public setAgentMenuItems(value: TimelineMenuItem[] | undefined) {
+        this.options.agentMenuItems = value;
+        this.drawTimelines(this.generateAgentTimeline(), this.result);
+        this.initializeThreeDotMenus();
     }
 
     on(eventName: string, handler: Function): void {
@@ -115,19 +199,6 @@ export class RoutePlannerTimeline {
         if (index > -1) {
             this.eventListeners[eventName].splice(index, 1);
         }
-    }
-
-    private emit(eventName: string, data?: any): void {
-        if (!this.eventListeners[eventName]) {
-            return;
-        }
-        this.eventListeners[eventName].forEach(handler => {
-            try {
-                handler(data);
-            } catch (error) {
-                console.error(`Error in event handler for "${eventName}":`, error);
-            }
-        });
     }
 
     public getAgentColorByIndex(index: number): string {
@@ -196,7 +267,8 @@ export class RoutePlannerTimeline {
         this.container.innerHTML = ''; // clear
 
         timelines?.forEach((timeline: Timeline, index: number) => {
-            const html = this.timelineTemplate(timeline, index, this.options.timelineType!, this.storageColor, this.options.timeLabels || [], this.options.distanceLabels || []);
+            const html = this.timelineTemplate(timeline, index, this.options.timelineType!, this.storageColor,
+                this.options.timeLabels || [], this.options.distanceLabels || [], this.options.agentMenuItems || []);
             this.container.insertAdjacentHTML('beforeend', html);
 
             const waypointElements = this.container.querySelectorAll('.geoapify-rp-sdk-solution-item');
@@ -243,6 +315,19 @@ export class RoutePlannerTimeline {
 
             this.generateItemsByTime(timeline, agentPlan, maxTime, result, unit);
             this.generateItemsByDistance(timeline, agentPlan, maxDistance);
+        });
+    }
+
+    private emit(eventName: string, data?: any): void {
+        if (!this.eventListeners[eventName]) {
+            return;
+        }
+        this.eventListeners[eventName].forEach(handler => {
+            try {
+                handler(data);
+            } catch (error) {
+                console.error(`Error in event handler for "${eventName}":`, error);
+            }
         });
     }
 
@@ -455,7 +540,7 @@ export class RoutePlannerTimeline {
 
         this.waypointPopupContainer = document.createElement('div');
         this.waypointPopupContainer.id = 'geoapify-rp-sdk-waypoint-popup';
-        this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip ';
+        this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip';
         this.waypointPopupContainer.style.opacity = '1';
         this.waypointPopupContainer.style.display = 'none';
 
@@ -550,5 +635,65 @@ export class RoutePlannerTimeline {
         }
 
         return `${meters} m`
+    }
+
+    private initializeThreeDotMenus() {
+        this.container.addEventListener('click', (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const threeDotButton = target.closest('.geoapify-rp-sdk-three-dot-button');
+
+            if (threeDotButton) {
+                const threeDotMenu = threeDotButton.closest('.geoapify-rp-sdk-three-dot-menu');
+                if (threeDotMenu) {
+                    this.toggleThreeDotMenu(threeDotMenu as HTMLElement);
+                }
+            } else if (!target.closest('.geoapify-rp-sdk-menu-list')) {
+                this.closeAllThreeDotMenus();
+            }
+        });
+
+        this.container.addEventListener('click', (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const menuItem = target.closest('.geoapify-rp-sdk-menu-item');
+
+            if (menuItem) {
+                const threeDotMenu = menuItem.closest('.geoapify-rp-sdk-three-dot-menu');
+                const agentIndexAttr = threeDotMenu?.getAttribute('data-agent-index');
+                const agentIndex = agentIndexAttr ? +agentIndexAttr : -1;
+
+                const key = menuItem.getAttribute('data-key');
+
+                if (key && agentIndex !== -1 && this.options.agentMenuItems) {
+                    const selectedMenuItem = this.options.agentMenuItems.find(item => item.key === key);
+                    if (selectedMenuItem && selectedMenuItem.callback) {
+                        selectedMenuItem.callback(agentIndex);
+                    }
+                }
+
+                this.closeAllThreeDotMenus();
+            }
+        });
+    }
+
+    private toggleThreeDotMenu(threeDotMenuElement: HTMLElement) {
+        const menuList = threeDotMenuElement.querySelector('.geoapify-rp-sdk-menu-list') as HTMLElement;
+        if (menuList) {
+            this.closeAllThreeDotMenus(threeDotMenuElement);
+            menuList.style.display = menuList.style.display === 'block' ? 'none' : 'block';
+            if (menuList.style.display === 'block') {
+                const buttonRect = threeDotMenuElement.getBoundingClientRect();
+                menuList.style.left = `${buttonRect.left + window.scrollX}px`;
+            }
+        }
+    }
+
+    private closeAllThreeDotMenus(excludeMenuElement?: HTMLElement) {
+        const openMenus = this.container.querySelectorAll('.geoapify-rp-sdk-menu-list');
+        openMenus.forEach(menu => {
+            const menuElement = menu.closest('.geoapify-rp-sdk-three-dot-menu') as HTMLElement;
+            if (menuElement !== excludeMenuElement) {
+                (menu as HTMLElement).style.display = 'none';
+            }
+        });
     }
 }

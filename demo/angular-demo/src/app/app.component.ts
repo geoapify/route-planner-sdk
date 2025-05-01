@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RoutePlannerService } from "../services/route-planner.service";
-import { RoutePlannerTimelineLabel, RoutePlannerTimeline, Waypoint } from "../../../../dist";
+import { RoutePlannerTimelineLabel, RoutePlannerTimeline, Waypoint, TimelineMenuItem } from "../../../../dist";
 
 @Component({
   selector: 'app-root',
@@ -44,6 +44,30 @@ export class AppComponent {
         return popupDiv;
       };
 
+    const agentActions: TimelineMenuItem[] = [
+      {
+        key: 'show-hide-agent',
+        label: 'Change Visibility',
+        callback: (agentIndex: number) => {
+          console.log(`Agent : ${agentIndex} visibility changed`);
+        }
+      },
+      {
+        key: 'second-button',
+        label: 'Test Button',
+        callback: (agentIndex: number) => {
+          console.log(`Agent : ${agentIndex} test button clicked`);
+        }
+      },
+      {
+        key: 'very-long-button',
+        label: 'Very Very long Button',
+        callback: (agentIndex: number) => {
+          console.log(`Agent : ${agentIndex} long button clicked`);
+        }
+      }
+    ];
+
     if(typeof result !== 'string') {
       this.generateLabels(100, 10);
       const generator = new RoutePlannerTimeline(this.timelinesContainer.nativeElement, result, {
@@ -57,6 +81,7 @@ export class AppComponent {
         distanceLabels: this.distanceLabels,
         showWaypointPopup: true,
         waypointPopupGenerator: customWaypointPopupGenerator,
+        agentMenuItems: agentActions,
         agentColors:["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
           "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"],
       });

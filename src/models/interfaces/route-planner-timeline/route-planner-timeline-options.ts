@@ -1,5 +1,6 @@
 import { RoutePlannerTimelineLabel } from "./route-planner-timeline-label";
 import { Waypoint } from "../../entities";
+import { TimelineMenuItem } from "./timeline-menu-item";
 
 export interface RoutePlannerTimelineOptions {
     timelineType?: 'time' | 'distance';
@@ -14,4 +15,5 @@ export interface RoutePlannerTimelineOptions {
     storageColor?: string;
     showWaypointPopup?: boolean;
     waypointPopupGenerator?: (waypoint: Waypoint) => HTMLElement;
+    agentMenuItems?: TimelineMenuItem[];
 }

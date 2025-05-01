@@ -29,4 +29,5 @@ export * from "./nested/response/waypoint-response-data";
 export * from "./route-planner-timeline/route-planner-timeline-label";
 export * from "./route-planner-timeline/timeline-item";
 export * from "./route-planner-timeline/timeline";
+export * from "./route-planner-timeline/timeline-menu-item";
 export * from "./route-planner-timeline/route-planner-timeline-options";
