@@ -15,9 +15,8 @@ export class RoutePlannerTimeline {
 
     colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
-    storageColor = '#ff9933';
 
-    timelineTemplate = (timeline: Timeline, index: number, timelineType: 'time' | 'distance', storageColor: string, timeLabels: RoutePlannerTimelineLabel[], distanceLabels: RoutePlannerTimelineLabel[], agentMenuItems?: TimelineMenuItem[]) => `
+    timelineTemplate = (timeline: Timeline, index: number, timelineType: 'time' | 'distance', timeLabels: RoutePlannerTimelineLabel[], distanceLabels: RoutePlannerTimelineLabel[], agentMenuItems?: TimelineMenuItem[]) => `
    <div class="geoapify-rp-sdk-timeline-item flex-container items-center ${index % 2 === 0 ? 'geoapify-rp-sdk-even' : ''}">
       <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${this.options.hasLargeDescription ? 'geoapify-rp-sdk-wider' : ''}">
        ${agentMenuItems && agentMenuItems.length > 0 ? `
@@ -49,9 +48,9 @@ export class RoutePlannerTimeline {
               <div class="geoapify-rp-sdk-solution-item"
               style="left: ${item.position}; width: ${item.minWidth || ''}" data-tooltip="${item.description}"
               data-agent-index="${timeline.agentIndex}" data-waypoint-index="${i}">
-            ${item.form === 'full' ? `<div class="geoapify-rp-sdk-solution-item-full" style="width: 100%; background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
-            ${item.form === 'standard' ? `<div class="geoapify-rp-sdk-solution-item-standard" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
-            ${item.form === 'minimal' ? `<div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>` : ''}
+            ${item.form === 'full' ? `<div class="geoapify-rp-sdk-solution-item-full" style="width: 100%; background-color: ${timeline.color};"></div>` : ''}
+            ${item.form === 'standard' ? `<div class="geoapify-rp-sdk-solution-item-standard" style="background-color: ${timeline.color};"></div>` : ''}
+            ${item.form === 'minimal' ? `<div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${timeline.color};"></div>` : ''}
           </div>`).join('')}
 
          ` : ''}
@@ -60,7 +59,7 @@ export class RoutePlannerTimeline {
            ${(timeline.itemsByDistance || []).map((item: any, i: number) =>
         `<div class="geoapify-rp-sdk-solution-item" style="left: ${item.position};" data-tooltip="${item.description}"
               data-agent-index="${timeline.agentIndex}" data-waypoint-index="${i}">
-            <div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${item.type === 'storage' ? storageColor : timeline.color};"></div>
+            <div class="geoapify-rp-sdk-solution-item-minimal" style="background-color: ${timeline.color};"></div>
           </div> `
     ).join('')}
           ` : ''}
@@ -267,7 +266,7 @@ export class RoutePlannerTimeline {
         this.container.innerHTML = ''; // clear
 
         timelines?.forEach((timeline: Timeline, index: number) => {
-            const html = this.timelineTemplate(timeline, index, this.options.timelineType!, this.storageColor,
+            const html = this.timelineTemplate(timeline, index, this.options.timelineType!,
                 this.options.timeLabels || [], this.options.distanceLabels || [], this.options.agentMenuItems || []);
             this.container.insertAdjacentHTML('beforeend', html);
 
@@ -380,9 +379,8 @@ export class RoutePlannerTimeline {
                 descriptionItems.push(`Actions: ${actionsData}`);
             }
 
-            let isStorage = this.isWaypointStorage(waypoint);
             const timeItem: TimelineItem = {
-                type: isStorage ? 'storage' : 'job',
+                type: 'job',
                 actualWidth: 100 * actualWidth + '%',
                 position: (100 * (waypoint.getStartTime() + duration / 2) / maxTime) + '%',
                 form: 'full', // width > 30 ? 'full' : (width > 20 ? 'standard' : 'minimal'),
@@ -392,10 +390,6 @@ export class RoutePlannerTimeline {
 
             timeline.itemsByTime.push(timeItem);
         });
-    }
-
-    private isWaypointStorage(waypoint: Waypoint) {
-        return waypoint.getActions().some(action => action.getLocationIndex() && action.getLocationIndex()! >= 0);
     }
 
     private generateItemsByDistance(timeline: Timeline,
@@ -414,9 +408,8 @@ export class RoutePlannerTimeline {
 
                 descriptionItems.push('Distance traveled: 0');
 
-                let isFromStorage = this.isWaypointStorage(from);
                 const distanceItem: TimelineItem = {
-                    type: isFromStorage ? 'storage' : 'job',
+                    type: 'job',
                     actualWidth: "0",
                     position: "0",
                     form: 'minimal',
@@ -436,10 +429,8 @@ export class RoutePlannerTimeline {
 
             descriptionItems.push(`Distance traveled: ${this.toPrettyDistance(distance)}`);
 
-            let isToStorage = this.isWaypointStorage(from);
-
             const distanceItem: TimelineItem = {
-                type: isToStorage ? 'storage' : 'job',
+                type: 'job',
                 actualWidth: '0',
                 position: (distance / maxDistance * 100) + '%',
                 form: 'minimal',
@@ -647,8 +638,6 @@ export class RoutePlannerTimeline {
                 if (threeDotMenu) {
                     this.toggleThreeDotMenu(threeDotMenu as HTMLElement);
                 }
-            } else if (!target.closest('.geoapify-rp-sdk-menu-list')) {
-                this.closeAllThreeDotMenus();
             }
         });
 
@@ -673,6 +662,22 @@ export class RoutePlannerTimeline {
                 this.closeAllThreeDotMenus();
             }
         });
+
+        if (!document.getElementById('geoapify-rp-sdk-document-click-listener-flag')) {
+            const flag = document.createElement('div');
+            flag.id = 'geoapify-rp-sdk-document-click-listener-flag';
+            flag.style.display = 'none';
+            document.body.appendChild(flag);
+
+            document.addEventListener('click', (e: MouseEvent) => {
+                const target = e.target as HTMLElement;
+                const isClickInsideMenuOrButton = target.closest('.geoapify-rp-sdk-three-dot-menu') !== null || target.closest('.geoapify-rp-sdk-three-dot-button') !== null;
+
+                if (!isClickInsideMenuOrButton) {
+                    this.closeAllThreeDotMenus();
+                }
+            });
+        }
     }
 
     private toggleThreeDotMenu(threeDotMenuElement: HTMLElement) {

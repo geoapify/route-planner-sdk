@@ -3,6 +3,6 @@ export interface TimelineItem {
   actualWidth: string;
   minWidth: string;
   form: 'full' | 'standard' | 'minimal';
-  type: 'start' | 'storage' | 'job' | 'end';
+  type: 'start' | 'job' | 'end';
   description: string;
 }

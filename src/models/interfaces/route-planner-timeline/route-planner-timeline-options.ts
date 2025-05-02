@@ -12,7 +12,6 @@ export interface RoutePlannerTimelineOptions {
     timeLabels?: RoutePlannerTimelineLabel[];
     distanceLabels?: RoutePlannerTimelineLabel[];
     agentColors?: string[];
-    storageColor?: string;
     showWaypointPopup?: boolean;
     waypointPopupGenerator?: (waypoint: Waypoint) => HTMLElement;
     agentMenuItems?: TimelineMenuItem[];

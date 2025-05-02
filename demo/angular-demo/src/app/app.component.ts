@@ -69,7 +69,10 @@ export class AppComponent {
     ];
 
     if(typeof result !== 'string') {
-      this.generateLabels(100, 10);
+      let maxDistance = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => { return agentPlan.getDistance() }));
+      let maxTime = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => { return agentPlan.getTime() + agentPlan.getStartTime() }));
+
+      this.generateLabels(maxDistance, maxTime);
       const generator = new RoutePlannerTimeline(this.timelinesContainer.nativeElement, result, {
         timelineType: 'time',
         hasLargeDescription: false,
