@@ -13,6 +13,9 @@ import {
 
 export class RoutePlannerTimeline {
 
+    private readonly WAYPOINT_POPUP_INITIALIZED_ATTRIBUTE = 'data-rp-timeline-popup-listeners';
+    private readonly WAYPOINT_POPUP_CONTAINER_ID = 'geoapify-rp-sdk-waypoint-popup';
+
     colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
 
@@ -526,33 +529,44 @@ export class RoutePlannerTimeline {
             }
         });
     }
+
     private createWaypointPopupContainer() {
-        if (this.waypointPopupContainer) return;
+        const existingContainer = document.getElementById(this.WAYPOINT_POPUP_CONTAINER_ID);
 
-        this.waypointPopupContainer = document.createElement('div');
-        this.waypointPopupContainer.id = 'geoapify-rp-sdk-waypoint-popup';
-        this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip';
-        this.waypointPopupContainer.style.opacity = '1';
-        this.waypointPopupContainer.style.display = 'none';
+        if (existingContainer) {
+            this.waypointPopupContainer = existingContainer;
+        } else {
+            this.waypointPopupContainer = document.createElement('div');
+            this.waypointPopupContainer.id = 'geoapify-rp-sdk-waypoint-popup';
+            this.waypointPopupContainer.className = 'geoapify-rp-sdk-custom-tooltip';
+            this.waypointPopupContainer.style.opacity = '1';
+            this.waypointPopupContainer.style.display = 'none';
 
-        document.body.appendChild(this.waypointPopupContainer);
-        document.addEventListener('mouseover', (e: MouseEvent) => {
-            if (!this.waypointPopupContainer || this.waypointPopupContainer.style.display === 'none') {
-                return;
-            }
+            document.body.appendChild(this.waypointPopupContainer);
+            document.addEventListener('mouseover', (e: MouseEvent) => {
+                if (!this.waypointPopupContainer || this.waypointPopupContainer.style.display === 'none') {
+                    return;
+                }
 
-            const target = e.target as HTMLElement;
+                const target = e.target as HTMLElement;
 
-            // Check if the hover was outside the popup container AND outside a trigger element
-            const hoverInsidePopup = this.waypointPopupContainer.contains(target);
-            const hoverOnTrigger = target.closest('.geoapify-rp-sdk-solution-item') !== null;
+                // Check if the hover was outside the popup container AND outside a trigger element
+                const hoverInsidePopup = this.waypointPopupContainer.contains(target);
+                const hoverOnTrigger = target.closest('.geoapify-rp-sdk-solution-item') !== null;
 
-            if (!hoverInsidePopup && !hoverOnTrigger) {
-                this.hideWaypointPopup();
-            }
-        });
+                if (!hoverInsidePopup && !hoverOnTrigger) {
+                    this.hideWaypointPopup();
+                }
+            });
+        }
     }
+
     private initializeWaypointPopups() {
+        if (this.container.getAttribute(this.WAYPOINT_POPUP_INITIALIZED_ATTRIBUTE) === 'true') {
+            return;
+        }
+        this.container.setAttribute('data-rp-timeline-popup-listeners', 'true');
+
         this.createWaypointPopupContainer();
 
         this.container.addEventListener('mouseover', (e: MouseEvent) => {
@@ -629,6 +643,10 @@ export class RoutePlannerTimeline {
     }
 
     private initializeThreeDotMenus() {
+        if (this.container.getAttribute('data-rp-timeline-menu-listeners') === 'true') {
+            return;
+        }
+        this.container.setAttribute('data-rp-timeline-menu-listeners', 'true');
         this.container.addEventListener('click', (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             const threeDotButton = target.closest('.geoapify-rp-sdk-three-dot-button');
