@@ -2,8 +2,11 @@
 <button (click)="makeSimpleRequest()">Simple Request</button>
 <p>{{ simpleRequestResult }}</p>
 
-<button (click)="drawTimeline()">Draw timelines</button>
+<h2>Route Planner Timeline</h2>
+<button (click)="generateTask()" style="margin-right: 10px">Generate Task</button>
+<button (click)="solveTask()"  *ngIf="routePlannerTimeline" style="margin-right: 10px">Solve Task</button>
+<button (click)="generateAndSolveTask()" >Generate and Solve Task</button>
 
-<div #timelinesContainer>
+<div #timelinesContainer style="padding-top: 20px">
 
 </div>

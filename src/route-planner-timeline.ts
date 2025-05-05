@@ -8,8 +8,10 @@ import {
     TimelineItem,
     RoutePlannerTimelineLabel,
     Timeline,
-    TimelineMenuItem
+    TimelineMenuItem,
+    RoutePlannerInputData
 } from "./models";
+import { RoutePlannerFormatter } from "./helpers/route-planner-formatter";
 
 export class RoutePlannerTimeline {
 
@@ -87,16 +89,19 @@ export class RoutePlannerTimeline {
 `
 
     container: HTMLElement;
-    result: RoutePlannerResult;
+    inputData?: RoutePlannerInputData;
+    result?: RoutePlannerResult;
     options: RoutePlannerTimelineOptions;
     waypointPopupContainer: HTMLElement | null = null;
     eventListeners: { [key: string]: Function[] } = {};
 
     constructor(container: HTMLElement,
-                result: RoutePlannerResult,
+                inputData?: RoutePlannerInputData,
+                result?: RoutePlannerResult,
                 options?: RoutePlannerTimelineOptions) {
         this.container = container;
         this.result = result;
+        this.inputData = inputData;
         if(options) {
             this.options = options;
         } else {
@@ -115,7 +120,7 @@ export class RoutePlannerTimeline {
         return this.options.hasLargeDescription;
     }
 
-    public setHasLargeDescription(value: boolean | undefined) {
+    public setHasLargeDescription(value: boolean) {
         this.options.hasLargeDescription = value;
         this.generateAgentTimeline();
     }
@@ -124,16 +129,16 @@ export class RoutePlannerTimeline {
         return this.options.timelineType;
     }
 
-    public setTimelineType(value: 'time' | 'distance' | undefined) {
+    public setTimelineType(value: 'time' | 'distance') {
         this.options.timelineType = value;
-        this.drawTimelines(this.generateAgentTimeline(), this.result);
+        this.generateAgentTimeline();
     }
 
     public getAgentColors(): string[] | undefined {
         return this.options.agentColors;
     }
 
-    public setAgentColors(value: string[] | undefined) {
+    public setAgentColors(value: string[]) {
         this.options.agentColors = value;
         this.generateAgentTimeline();
     }
@@ -151,25 +156,25 @@ export class RoutePlannerTimeline {
         return this.options.timeLabels;
     }
 
-    public setTimeLabels(value: RoutePlannerTimelineLabel[] | undefined) {
+    public setTimeLabels(value: RoutePlannerTimelineLabel[]) {
         this.options.timeLabels = value;
-        this.drawTimelines(this.generateAgentTimeline(), this.result);
+        this.generateAgentTimeline();
     }
 
     public getDistanceLabels(): RoutePlannerTimelineLabel[] | undefined {
         return this.options.distanceLabels;
     }
 
-    public setDistanceLabels(value: RoutePlannerTimelineLabel[] | undefined) {
+    public setDistanceLabels(value: RoutePlannerTimelineLabel[]) {
         this.options.distanceLabels = value;
-        this.drawTimelines(this.generateAgentTimeline(), this.result);
+        this.generateAgentTimeline();
     }
 
     public getAgentLabel(): string | undefined {
         return this.options.agentLabel;
     }
 
-    public setAgentLabel(value: string | undefined) {
+    public setAgentLabel(value: string) {
         this.options.agentLabel = value;
         this.generateAgentTimeline();
     }
@@ -178,13 +183,23 @@ export class RoutePlannerTimeline {
         return this.options.agentMenuItems;
     }
 
-    public setAgentMenuItems(value: TimelineMenuItem[] | undefined) {
+    public setAgentMenuItems(value: TimelineMenuItem[]) {
         this.options.agentMenuItems = value;
-        this.drawTimelines(this.generateAgentTimeline(), this.result);
+        this.generateAgentTimeline();
         this.initializeThreeDotMenus();
     }
 
-    on(eventName: string, handler: Function): void {
+    public getResult(): RoutePlannerResult | undefined {
+        return this.result;
+    }
+
+    public setResult(value: RoutePlannerResult) {
+        this.result = value;
+        this.generateAgentTimeline();
+        this.initializeThreeDotMenus();
+    }
+
+    public on(eventName: string, handler: Function): void {
         if (!this.eventListeners[eventName]) {
             this.eventListeners[eventName] = [];
         }
@@ -193,7 +208,7 @@ export class RoutePlannerTimeline {
         }
     }
 
-    off(eventName: string, handler: Function): void {
+    public off(eventName: string, handler: Function): void {
         if (!this.eventListeners[eventName]) {
             return;
         }
@@ -207,7 +222,7 @@ export class RoutePlannerTimeline {
         return this.colors[(index % this.colors.length + this.colors.length) % this.colors.length]
     }
 
-    public generateAgentTimeline() {
+    private generateAgentTimeline() {
         let timelines: Timeline[];
         if (this.result && !this.result.getRawData()) {
             const maxIndex = Math.max(...(this.result.getUnassignedAgents() || []), ...this.result.getAgentSolutions().map(agentPlan => agentPlan.getAgentIndex()));
@@ -232,8 +247,8 @@ export class RoutePlannerTimeline {
 
             this.drawTimelines(timelines, this.result);
             return timelines;
-        } else {
-            timelines = this.result.getData().inputData.agents.map((agent: AgentData, index: number) => {
+        } else if(this.inputData) {
+            timelines = this.inputData.agents.map((agent: AgentData, index: number) => {
 
                 const label = `${this.options.agentLabel ? this.options.agentLabel : 'Agent'} ${index + 1}`;
 
@@ -243,7 +258,7 @@ export class RoutePlannerTimeline {
 
                 return {
                     label: label,
-                    mode: this.result.getRawData().properties.mode as TravelMode,
+                    mode: this.inputData?.mode as TravelMode,
                     color: this.getAgentColorByIndex(index),
                     description: this.generateAgentDescription(agent, this.options.hasLargeDescription!).description,
                     routeVisible: true,
@@ -261,10 +276,10 @@ export class RoutePlannerTimeline {
         }
     }
 
-    public drawTimelines(timelines: Timeline[],
+    private drawTimelines(timelines: Timeline[],
                          solution?: RoutePlannerResult) {
         if(timelines && solution) {
-            this.generateTimelinesData(timelines, this.result);
+            this.generateTimelinesData(timelines, solution);
         }
         this.container.innerHTML = ''; // clear
 
@@ -273,20 +288,22 @@ export class RoutePlannerTimeline {
                 this.options.timeLabels || [], this.options.distanceLabels || [], this.options.agentMenuItems || []);
             this.container.insertAdjacentHTML('beforeend', html);
 
-            const waypointElements = this.container.querySelectorAll('.geoapify-rp-sdk-solution-item');
-            waypointElements.forEach((el: Element) => {
-                const agentIndex = el.getAttribute('data-agent-index');
-                const waypointIndex = el.getAttribute('data-waypoint-index');
+            if (this.result) {
+                const waypointElements = this.container.querySelectorAll('.geoapify-rp-sdk-solution-item');
+                waypointElements.forEach((el: Element) => {
+                    const agentIndex = el.getAttribute('data-agent-index');
+                    const waypointIndex = el.getAttribute('data-waypoint-index');
 
-                const agentSolution = this.result.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex!);
+                    const agentSolution = this.result!.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex!);
 
-                if(agentSolution && waypointIndex) {
-                    const waypoint = agentSolution.getWaypoints()[+waypointIndex];
-                    el.addEventListener('mouseover', () => {
-                        this.emit('onWaypointHover', waypoint);
-                    });
-                }
-            });
+                    if (agentSolution && waypointIndex) {
+                        const waypoint = agentSolution.getWaypoints()[+waypointIndex];
+                        el.addEventListener('mouseover', () => {
+                            this.emit('onWaypointHover', waypoint);
+                        });
+                    }
+                });
+            }
         });
 
         if(this.options.showWaypointPopup) {
@@ -349,11 +366,11 @@ export class RoutePlannerTimeline {
             descriptionItems.push(`${index + 1}: ${title}`);
 
             if (duration) {
-                descriptionItems.push(`Duration: ${this.toPrettyTime(waypoint.getDuration())}`);
+                descriptionItems.push(`Duration: ${RoutePlannerFormatter.toPrettyTime(waypoint.getDuration())}`);
             }
 
-            descriptionItems.push(`Time before: ${this.toPrettyTime(waypoint.getStartTime())}`);
-            descriptionItems.push(`Time after: ${this.toPrettyTime(waypoint.getStartTime() + duration)}`);
+            descriptionItems.push(`Time before: ${RoutePlannerFormatter.toPrettyTime(waypoint.getStartTime())}`);
+            descriptionItems.push(`Time after: ${RoutePlannerFormatter.toPrettyTime(waypoint.getStartTime() + duration)}`);
 
             const actionsData = waypoint.getActions().map(action => {
                 const description = [];
@@ -430,7 +447,7 @@ export class RoutePlannerTimeline {
             const title = [...new Set(to.getActions().map(action => action.getType().charAt(0).toUpperCase() + action.getType().slice(1)))].join(' / ');
             descriptionItems.push(title);
 
-            descriptionItems.push(`Distance traveled: ${this.toPrettyDistance(distance)}`);
+            descriptionItems.push(`Distance traveled: ${RoutePlannerFormatter.toPrettyDistance(distance)}`);
 
             const distanceItem: TimelineItem = {
                 type: 'job',
@@ -445,7 +462,7 @@ export class RoutePlannerTimeline {
         });
     }
 
-    generateAgentDescription(agent: AgentData, hasLargeDescription: boolean) {
+    private generateAgentDescription(agent: AgentData, hasLargeDescription: boolean) {
         const descriptionItems = [];
 
         if (agent.pickup_capacity && agent.delivery_capacity) {
@@ -455,7 +472,7 @@ export class RoutePlannerTimeline {
         }
 
         if (agent.time_windows) {
-            descriptionItems.push(agent.time_windows.map((timeFrame) => `${this.toPrettyTime(timeFrame[0])}-${this.toPrettyTime(timeFrame[1])}`).join(', '));
+            descriptionItems.push(agent.time_windows.map((timeFrame) => `${RoutePlannerFormatter.toPrettyTime(timeFrame[0])}-${RoutePlannerFormatter.toPrettyTime(timeFrame[1])}`).join(', '));
         }
 
         if (agent.capabilities) {
@@ -472,26 +489,7 @@ export class RoutePlannerTimeline {
         };
     }
 
-    toPrettyTime(sec_num: number): string {
-        let hours: number | string = Math.floor(sec_num / 3600);
-        let minutes: number | string = Math.floor((sec_num - (hours * 3600)) / 60);
-
-        if (sec_num === 0) {
-            return '0'
-        }
-
-        if (!hours) {
-            return minutes + 'min';
-        }
-
-        if (!minutes) {
-            return hours + 'h';
-        }
-
-        return hours + 'h ' + minutes + 'm';
-    }
-
-    initializeGlobalTooltip() {
+    private initializeGlobalTooltip() {
         if (document.getElementById('global-tooltip-listener')) return; // already added
 
         const idMarker = document.createElement('div');
@@ -578,7 +576,7 @@ export class RoutePlannerTimeline {
                 const waypointIndex = waypointElement.getAttribute('data-waypoint-index');
 
                 if (agentIndex !== null && waypointIndex !== null) {
-                    const agentSolution = this.result.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex);
+                    const agentSolution = this.result!.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex);
 
                     if (agentSolution) {
                         const waypoint = agentSolution.getWaypoints()[+waypointIndex];
@@ -628,18 +626,6 @@ export class RoutePlannerTimeline {
         if (this.waypointPopupContainer) {
             this.waypointPopupContainer.style.display = 'none';
         }
-    }
-
-    toPrettyDistance(meters: number): string {
-        if (meters > 10000) {
-            return `${(meters / 1000).toFixed(1)} km`
-        }
-
-        if (meters > 5000) {
-            return `${(meters / 1000).toFixed(2)} km`
-        }
-
-        return `${meters} m`
     }
 
     private initializeThreeDotMenus() {
