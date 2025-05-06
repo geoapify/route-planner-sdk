@@ -190,6 +190,60 @@ let modifiedResult = routeEditor.getModifiedResult();
 
 ---
 
+## Timeline Generation
+
+`RoutePlannerTimeline` is a class that generates a visual timeline for delivery routes, agents, waypoints, and jobs. It can display either the planned input data or the computed solution, supporting both time-based and distance-based views.
+
+### Features
+- Visualizes agent timelines for delivery or pickup tasks
+- Supports "time" or "distance" modes
+- Customizable agent colors, labels, and capacity units
+- Optional waypoint popup details and three-dot agent menus
+
+### Generate a timeline without a solution
+
+This creates a timeline view only from the input data (no computed routing solution):
+
+```ts
+new RoutePlannerTimeline(this.timelinesContainer.nativeElement, inputData, undefined, {
+      timelineType: 'time',
+      hasLargeDescription: false,
+      capacityUnit: 'liters',
+      agentLabel: 'Truck',
+      label: "Simple delivery route planner",
+      description: "Deliver ordered items to customers within defined timeframe",
+      agentColors: ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
+        "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"],
+    }
+);
+```
+
+### Generate a timeline with the solution
+
+This displays the timeline along with the computed routing result and interactive waypoint popups:
+
+```ts
+new RoutePlannerTimeline(this.timelinesContainer.nativeElement, inputData, result, {
+        timelineType: 'time',
+        hasLargeDescription: false,
+        capacityUnit: 'liters',
+        agentLabel: 'Truck',
+        label: "Simple delivery route planner",
+        description: "Deliver ordered items to customers within defined timeframe",
+        showWaypointPopup: true,
+        agentColors: ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
+          "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"],
+      }
+);
+```
+
+### Setup Requirements
+- Include the necessary CSS styles provided by the package ("./node_modules/@geoapify/route-planner-sdk/styles/minimal.css",)
+- Ensure your HTML container (`this.timelinesContainer`) is ready to hold the timeline
+- Import required types like `RoutePlannerInputData` and `RoutePlannerResult`
+
+---
+
 ## Documentation
 
 ### RoutePlanner Class
@@ -226,7 +280,34 @@ let modifiedResult = routeEditor.getModifiedResult();
 | `addNewShipments(agentId, shipments)`                    | Adds new shipments to an agent's schedule.                                                                  | `agentId: string`<br>`shipments: Shipment[]`                    | `Promise<boolean>`                  |
 | `getModifiedResult()`                                    | Returns the modified route planner result after editing.                                                    | –                                                                | `RoutePlannerResult`                |
 
----
+
+### RoutePlannerTimeline Class
+
+| Method / Property                     | Description                                                                                           | Parameters / Types                                                                                  | Returns                          |
+|--------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------|
+| `constructor(container, inputData?, result?, options?)` | Creates a new `RoutePlannerTimeline` instance to visualize the timeline for agents and waypoints.     | `container: HTMLElement`<br>`inputData?: RoutePlannerInputData`<br>`result?: RoutePlannerResult`<br>`options?: RoutePlannerTimelineOptions` | `RoutePlannerTimeline` instance  |
+| `getHasLargeDescription()`           | Checks if large description layout is enabled.                                                        | –                                                                                                   | `boolean \| undefined`           |
+| `setHasLargeDescription(value)`      | Sets whether to use large description layout.                                                         | `value: boolean`                                                                                    | `void`                           |
+| `getTimelineType()`                  | Gets the current timeline type (time or distance).                                                     | –                                                                                                   | `'time' \| 'distance' \| undefined` |
+| `setTimelineType(value)`             | Sets the timeline type to `'time'` or `'distance'`.                                                   | `value: 'time' \| 'distance'`                                                                       | `void`                           |
+| `getAgentColors()`                   | Retrieves the list of agent colors.                                                                   | –                                                                                                   | `string[] \| undefined`          |
+| `setAgentColors(value)`              | Sets the color list for agents.                                                                       | `value: string[]`                                                                                   | `void`                           |
+| `getCapacityUnit()`                  | Gets the unit used for capacity display (e.g., items, kg).                                            | –                                                                                                   | `string \| undefined`            |
+| `setCapacityUnit(value)`             | Sets the capacity unit label.                                                                         | `value: string`                                                                                     | `void`                           |
+| `getTimeLabels()`                    | Retrieves the timeline time labels.                                                                   | –                                                                                                   | `RoutePlannerTimelineLabel[] \| undefined` |
+| `setTimeLabels(value)`               | Sets the timeline time labels.                                                                        | `value: RoutePlannerTimelineLabel[]`                                                                | `void`                           |
+| `getDistanceLabels()`                | Retrieves the timeline distance labels.                                                               | –                                                                                                   | `RoutePlannerTimelineLabel[] \| undefined` |
+| `setDistanceLabels(value)`           | Sets the timeline distance labels.                                                                    | `value: RoutePlannerTimelineLabel[]`                                                                | `void`                           |
+| `getAgentLabel()`                    | Gets the label used for agents (e.g., “Agent”, “Driver”).                                             | –                                                                                                   | `string \| undefined`            |
+| `setAgentLabel(value)`               | Sets the label for agents.                                                                            | `value: string`                                                                                     | `void`                           |
+| `getAgentMenuItems()`                | Gets the configured three-dot menu items for agents.                                                   | –                                                                                                   | `TimelineMenuItem[] \| undefined` |
+| `setAgentMenuItems(value)`           | Sets the menu items for the agent’s three-dot menu.                                                   | `value: TimelineMenuItem[]`                                                                         | `void`                           |
+| `getResult()`                        | Retrieves the current `RoutePlannerResult`.                                                           | –                                                                                                   | `RoutePlannerResult \| undefined` |
+| `setResult(value)`                   | Sets a new `RoutePlannerResult` and regenerates the timeline.                                         | `value: RoutePlannerResult`                                                                         | `void`                           |
+| `on(eventName, handler)`             | Registers an event listener (e.g., for `onWaypointHover`).                                            | `eventName: string`<br>`handler: Function`                                                          | `void`                           |
+| `off(eventName, handler)`            | Removes a previously registered event listener.                                                       | `eventName: string`<br>`handler: Function`                                                          | `void`                           |
+| `getAgentColorByIndex(index)`        | Retrieves the color assigned to a given agent index.                                                  | `index: number`                                                                                     | `string`                         |
+
 
 ## Useful Links
 
