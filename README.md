@@ -2,6 +2,9 @@
 
 The **Geoapify Route Optimization SDK** is a lightweight, dependency-free TypeScript library that simplifies building, executing requests, and modifying results for the [Geoapify Route Planner API](https://www.geoapify.com/route-planner-api/). It helps you easily implement advanced **route optimization** and delivery planning in both frontend (browser) and backend (Node.js) environments.
 
+
+![Delivery Routes Optimization](https://github.com/geoapify/route-planner-sdk/blob/main/img/delivery-routes-optimization.png?raw=true)
+
 ---
 
 ## Features
@@ -192,7 +195,9 @@ let modifiedResult = routeEditor.getModifiedResult();
 
 ## Timeline Generation
 
-`RoutePlannerTimeline` is a class that generates a visual timeline for delivery routes, agents, waypoints, and jobs. It can display either the planned input data or the computed solution, supporting both time-based and distance-based views.
+`RoutePlannerTimeline` generates a visual timeline for delivery routes, agents, waypoints, and jobs. It can display either the planned input data or the computed solution, supporting both time-based and distance-based views.
+
+![Timeline example](https://github.com/geoapify/route-planner-sdk/blob/main/img/timeline.png?raw=true)
 
 ### Features
 - Visualizes agent timelines for delivery or pickup tasks
@@ -200,12 +205,15 @@ let modifiedResult = routeEditor.getModifiedResult();
 - Customizable agent colors, labels, and capacity units
 - Optional waypoint popup details and three-dot agent menus
 
-### Generate a timeline without a solution
+###  Example: Generate Placeholder Timeline without Waypoints
 
-This creates a timeline view only from the input data (no computed routing solution):
+Creates an empty placeholder timeline based solely on the input data — no routing solution is computed, and no waypoints are included:
 
 ```ts
-new RoutePlannerTimeline(this.timelinesContainer.nativeElement, inputData, undefined, {
+
+const container = document.getElementById('timeline-container');
+
+new RoutePlannerTimeline(container, inputData, undefined, {
       timelineType: 'time',
       hasLargeDescription: false,
       capacityUnit: 'liters',
@@ -218,12 +226,18 @@ new RoutePlannerTimeline(this.timelinesContainer.nativeElement, inputData, undef
 );
 ```
 
-### Generate a timeline with the solution
+You can first generate an empty placeholder timeline and later initialize it using the `setResult()` function with the routing result data
 
-This displays the timeline along with the computed routing result and interactive waypoint popups:
+###  Example: Generate Timeline with Routing Solution
+
+Displays a complete timeline that includes the computed routing results, along with interactive waypoint popups for each stop.
+
+Let me know if you'd like to emphasize route optimization, travel times, or interactivity more explicitly.
 
 ```ts
-new RoutePlannerTimeline(this.timelinesContainer.nativeElement, inputData, result, {
+const container = document.getElementById('timeline-container');
+
+new RoutePlannerTimeline(container, inputData, result, {
         timelineType: 'time',
         hasLargeDescription: false,
         capacityUnit: 'liters',
@@ -237,10 +251,68 @@ new RoutePlannerTimeline(this.timelinesContainer.nativeElement, inputData, resul
 );
 ```
 
-### Setup Requirements
-- Include the necessary CSS styles provided by the package ("./node_modules/@geoapify/route-planner-sdk/styles/minimal.css",)
-- Ensure your HTML container (`this.timelinesContainer`) is ready to hold the timeline
-- Import required types like `RoutePlannerInputData` and `RoutePlannerResult`
+### Example: Timeline with Custom Popup and Agent Actions
+
+```ts
+const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
+  const popupDiv = document.createElement('div');
+  popupDiv.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+      <h4 style="margin: 0">${[...new Set(waypoint.getActions().map(
+        action => action.getType().charAt(0).toUpperCase() + action.getType().slice(1))
+      )].join(' / ')}</h4>
+      <p style="margin: 0">Duration: ${this.toPrettyTime(waypoint.getDuration()) || 'N/A'}</p>
+      <p style="margin: 0">Time Before: ${this.toPrettyTime(waypoint.getStartTime()) || 'N/A'}</p>
+      <p style="margin: 0">Time After: ${this.toPrettyTime(waypoint.getStartTime() + waypoint.getDuration()) || 'N/A'}</p>
+    </div>`;
+  return popupDiv;
+};
+
+const agentActions: TimelineMenuItem[] = [
+  {
+    key: 'show-hide-agent',
+    label: 'Change Visibility',
+    callback: (agentIndex: number) => {
+      console.log(`Agent ${agentIndex} visibility toggled`);
+    }
+  },
+  {
+    key: 'second-button',
+    label: 'Test Button',
+    callback: (agentIndex: number) => {
+      console.log(`Agent ${agentIndex} test button clicked`);
+    }
+  }
+];
+
+const container = document.getElementById('timeline-container');
+
+const timeline = new RoutePlannerTimeline(container, inputData, undefined, {
+  timelineType: 'time',
+  hasLargeDescription: false,
+  capacityUnit: 'liters',
+  agentLabel: 'Truck',
+  label: 'Simple delivery route planner',
+  description: 'Deliver ordered items to customers within defined timeframe',
+  timeLabels: this.timeLabels, // optional
+  showWaypointPopup: true,
+  waypointPopupGenerator: customWaypointPopupGenerator,
+  agentMenuItems: agentActions,
+  agentColors: ['#ff4d4d', '#1a8cff', '#00cc66', '#b300b3']
+});
+
+// Optional: Listen to hover events
+timeline.on('onWaypointHover', (waypoint: Waypoint) => {
+  console.log('Hovered waypoint:', waypoint);
+});
+```
+
+
+### Timeline Setup Requirements
+
+- Include the timeline-specific CSS: `./node_modules/@geoapify/route-planner-sdk/styles/minimal.css`
+- Ensure that your HTML container (`'timeline-container'`) is present and ready to render the timeline
+- Import the necessary types for the timeline feature, such as `RoutePlannerInputData` and `RoutePlannerResult`
 
 ---
 
