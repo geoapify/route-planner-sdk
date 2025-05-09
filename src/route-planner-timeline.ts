@@ -18,7 +18,7 @@ export class RoutePlannerTimeline {
     private readonly WAYPOINT_POPUP_INITIALIZED_ATTRIBUTE = 'data-rp-timeline-popup-listeners';
     private readonly WAYPOINT_POPUP_CONTAINER_ID = 'geoapify-rp-sdk-waypoint-popup';
 
-    colors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
+    defaultColors = ["#ff4d4d", "#1a8cff", "#00cc66", "#b300b3", "#e6b800", "#ff3385",
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
 
     timelineTemplate = (timeline: Timeline, index: number, timelineType: 'time' | 'distance', timeLabels: RoutePlannerTimelineLabel[], distanceLabels: RoutePlannerTimelineLabel[], agentMenuItems?: TimelineMenuItem[]) => `
@@ -108,7 +108,7 @@ export class RoutePlannerTimeline {
             this.options = {
                 hasLargeDescription: false,
                 timelineType: 'time',
-                agentColors: this.colors,
+                agentColors: this.defaultColors,
                 capacityUnit: 'items'
             };
         }
@@ -219,7 +219,7 @@ export class RoutePlannerTimeline {
     }
 
     public getAgentColorByIndex(index: number): string {
-        return this.colors[(index % this.colors.length + this.colors.length) % this.colors.length]
+        return this.options.agentColors![(index % this.options.agentColors!.length + this.options.agentColors!.length) % this.options.agentColors!.length]
     }
 
     private generateAgentTimeline() {
