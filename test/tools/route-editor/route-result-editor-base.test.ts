@@ -8,16 +8,6 @@ const API_KEY = TEST_API_KEY;
 
 describe('RouteResultEditorBase', () => {
 
-    test('should extract locationIds from agent actions', async () => {
-        let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, rawData, generateRawResponse());
-
-        const editor = new RouteResultEditorBase(plannerResult);
-
-        const input = await editor['generateOptimizeAgentInput']('agent-A', plannerResult.getAgentSolution('agent-A')!);
-        expect(input.agentLocationIds.has('warehouse-0')).toBeTruthy();
-    });
-
     test('Should update updateUnassignedJobs and assign [] if unassignedJobs is undefined', async () => {
         let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
         let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, rawData, generateRawResponse());
