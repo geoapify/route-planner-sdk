@@ -83,8 +83,12 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private async removeJobFromExistingAgent(jobInfo: RouteActionInfo) {
         let existingAgentSolution = jobInfo.getAgent();
         let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getAction().getJobId()!);
-        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan);
+        if(newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
+            this.removeAgent(existingAgentSolution.getAgentId());
+        } else {
+            let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
+            this.updateAgent(optimizedRouterPlan);
+        }
     }
 
     private addJobsToAgent(agentId: string, jobIds: string[], existingAgent?: AgentSolution): OptimizeAgentInput {

@@ -83,8 +83,12 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo) {
         let existingAgentSolution = shipmentInfo.getAgent();
         let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getAction().getShipmentId()!);
-        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan);
+        if (newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
+            this.removeAgent(existingAgentSolution.getAgentId());
+        } else {
+            let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
+            this.updateAgent(optimizedRouterPlan);
+        }
     }
 
     private addShipmentsToAgent(agentId: string, shipmentIds: string[], existingAgent?: AgentSolution): OptimizeAgentInput {

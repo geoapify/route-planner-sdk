@@ -17,10 +17,16 @@ export class RouteResultEditorBase {
         newRawData.agents = newRawData.agents.filter(nextAgent => nextAgent.id == optimizeAgentInput.agentId);
         newRawData.jobs = newRawData.jobs.filter(nextJob => optimizeAgentInput.agentJobIds.has(nextJob.id!));
         newRawData.shipments = newRawData.shipments.filter(nextShipment => optimizeAgentInput.agentShipmentIds.has(nextShipment.id!));
-        newRawData.locations = newRawData.locations.filter(nextLocation => optimizeAgentInput.agentLocationIds.has(nextLocation.id!));
 
         const planner = new RoutePlanner(this.result.getOptions(), newRawData);
         return await planner.plan();
+    }
+
+    protected removeAgent(agentId: string) {
+        let agentIndex = this.getInitialAgentIndex(agentId);
+        this.result.getData().agents = this.result.getData().agents.filter(agent => agent.agentId != agentId);
+        this.addUnassignedAgentIfNeeded(agentIndex);
+        // TODO: maybe we need to add shipments/locations in unassigned arrays
     }
 
     protected updateAgent(newResult: RoutePlannerResult) {
@@ -43,7 +49,7 @@ export class RouteResultEditorBase {
 
     protected generateOptimizeAgentInput(agentId: string, existingAgent?: AgentSolution): OptimizeAgentInput {
         if (!existingAgent) {
-            return new OptimizeAgentInput(agentId, [], [], []);
+            return new OptimizeAgentInput(agentId, [], []);
         }
         let agentJobs = existingAgent.getActions()
             .filter(action => action.getJobId() !== undefined)
@@ -51,10 +57,7 @@ export class RouteResultEditorBase {
         let agentShipments = existingAgent.getActions()
             .filter(action => action.getShipmentId() !== undefined)
             .map(action => action.getShipmentId()!);
-        let agentLocations = existingAgent.getActions()
-            .filter(action => action.getLocationId() !== undefined)
-            .map(action => action.getLocationId()!);
-        return new OptimizeAgentInput(existingAgent.getAgentId(), agentJobs, agentShipments, agentLocations);
+        return new OptimizeAgentInput(existingAgent.getAgentId(), agentJobs, agentShipments);
     }
 
     protected checkIfArrayIsUnique(myArray: any[]) {
@@ -90,12 +93,7 @@ export class RouteResultEditorBase {
         let agentId = newResult.getData().inputData.agents[0].id!;
         let agentIndex = this.getInitialAgentIndex(agentId);
         if (newResult.getUnassignedAgents().length > 0) {
-            if (!this.result.getUnassignedAgents().includes(agentIndex)) {
-                if(!this.result.getData().unassignedAgents) {
-                    this.result.getData().unassignedAgents = [];
-                }
-                this.result.getData().unassignedAgents.push(agentIndex);
-            }
+            this.addUnassignedAgentIfNeeded(agentIndex);
         } else {
             if(!this.result.getData().unassignedAgents) {
                 this.result.getData().unassignedAgents = [];
@@ -167,5 +165,14 @@ export class RouteResultEditorBase {
         return result.getUnassignedShipments().map((jobIndex) => {
             return this.result.getData().inputData.shipments[jobIndex].id!;
         });
+    }
+
+    private addUnassignedAgentIfNeeded(agentIndex: number) {
+        if (!this.result.getUnassignedAgents().includes(agentIndex)) {
+            if (!this.result.getData().unassignedAgents) {
+                this.result.getData().unassignedAgents = [];
+            }
+            this.result.getData().unassignedAgents.push(agentIndex);
+        }
     }
 }

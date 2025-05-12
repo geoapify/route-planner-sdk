@@ -1,6 +1,6 @@
 import RoutePlanner, {
   RoutePlannerResultEditor,
-  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep,
+  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
 import { generateRawResponse, loadJson } from "../utils.helper";
@@ -332,6 +332,27 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getUnassignedJobs().length).toBe(0);
   });
 
+  test('removeJobs should work "Agent is not assigned."', async () => {
+    let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
+    // Initially we have
+    // Job 1 -> Agent B
+    // Job 3 -> Agent A, Job 4 -> Agent B
+    // Job 2 -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.removeJobs(['job-3']);
+    let modifiedResult = routeEditor.getModifiedResult();
+    // After removal we should have
+    // Job 1 -> Agent B
+    // Job 4 -> Agent B
+    expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobInfo('job-3')).toBeUndefined();
+    expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedJobs().length).toBe(1);
+  });
+
   test('removeJobs should work "Job not found."', async () => {
     let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
     // Initially we have
@@ -391,6 +412,25 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedShipments().length).toBe(0);
+  });
+
+  test('removeShipments should work "Agent is not assigned."', async () => {
+    let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+    // Initially we have
+    // Shipment 1 -> Agent A
+    // Shipment 3 -> Agent B, Shipment 4 -> Agent B
+    // Shipment 2 -> unassigned
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.removeShipments(['shipment-1']);
+    let modifiedResult = routeEditor.getModifiedResult();
+    // Shipment 3 -> Agent B, Shipment 4 -> Agent B
+    expect(modifiedResult.getShipmentInfo('shipment-1')).toBeUndefined();
+    expect(modifiedResult.getShipmentInfo('shipment-2')).toBeUndefined();
+    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedShipments().length).toBe(1);
   });
 
   test('removeShipments should work "Shipment not found."', async () => {
@@ -520,5 +560,29 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getUnassignedShipments().length).toBe(2);
     expect(modifiedResult.getUnassignedShipments()[0]).toBe(2);
     expect(modifiedResult.getUnassignedShipments()[1]).toBe(3);
+  });
+
+  test('Complex scenario should not throw an exception', async () => {
+    const planner = new RoutePlanner({ apiKey: API_KEY });
+    planner.setMode("drive");
+    planner.addAgent(new Agent().setId('agent-a').setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setId('agent-b').setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setId('agent-c').setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.511160727462574, 40.1816037));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setId('job-2').setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addShipment(new Shipment().setId("shipment-1")
+    .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50129564537, 40.18686625))
+    .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
+    const result = await planner.plan();
+
+    console.log(result);
+
+    const routeEditor = new RoutePlannerResultEditor(result);
+    await routeEditor.assignShipments('agent-c', ['shipment-1']);
+
+    let modifiedResult = routeEditor.getModifiedResult();
   });
 });
