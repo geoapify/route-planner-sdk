@@ -4,22 +4,23 @@ import { ShipmentData } from "../nested/input/shipment-data";
 import { LocationData } from "../nested/input/location-data";
 import { AvoidData } from "../nested/input/avoid-data";
 import { FeatureResponseData } from "../nested/response/feature-response-data";
+import {DistanceUnitType, RouteType, TrafficType, TravelMode} from "../../types";
 
 export interface RoutePlannerResultResponseData {
     type: string;
     properties: {
         mode: string;
         params: {
-            mode?: string;
+            mode?: TravelMode;
             agents: AgentData[];
             jobs: JobData[];
             shipments: ShipmentData[];
             locations: LocationData[];
             avoid: AvoidData[];
-            traffic?: string;
-            type?: string;
+            traffic?: TrafficType;
+            type?: RouteType;
             max_speed?: number;
-            units?: string;
+            units?: DistanceUnitType;
         }
         issues: {
             unassigned_agents: number[];

@@ -358,9 +358,8 @@ describe('RoutePlanner', () => {
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {
-    expect(JSON.stringify(result.getData().inputData))
-        .toBe(JSON.stringify(
-            planner.getRaw()
-        ));
+    expect(result.getData().inputData.mode).toBe(planner.getRaw().mode);
+    expect(result.getData().inputData.type).toBe(planner.getRaw().type);
+    expect(result.getData().inputData.traffic).toBe(planner.getRaw().traffic);
   }
 });

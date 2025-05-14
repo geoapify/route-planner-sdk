@@ -54,14 +54,14 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
             await this.removeJobFromExistingAgent(jobInfo);
         } else {
             let jobInitialIndex = this.getInitialJobIndex(jobId);
-            this.result.getData().unassignedJobs =
-                this.result.getData().unassignedJobs.filter((jobIndex) => jobIndex !== jobInitialIndex);
+            this.result.getRawData().properties.issues.unassigned_jobs =
+                this.result.getRawData().properties.issues.unassigned_jobs.filter((jobIndex) => jobIndex !== jobInitialIndex);
         }
     }
 
     private async addNewJobsToAgent(agentId: string, jobs: JobData[]) {
         let existingAgentSolution = this.result.getAgentSolution(agentId);
-        this.result.getData().inputData.jobs.push(...jobs);
+        this.result.getRawData().properties.params.jobs.push(...jobs);
         let newAgentInput = this.addJobsToAgent(agentId, jobs.map((job) => job.id!), existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);

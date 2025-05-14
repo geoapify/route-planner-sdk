@@ -54,14 +54,14 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
             await this.removeShipmentFromExistingAgent(shipmentInfo);
         } else {
             let shipmentInitialInfo = this.getInitialShipmentIndex(shipmentId);
-            this.result.getData().unassignedShipments =
-                this.result.getData().unassignedShipments.filter((shipmentIndex) => shipmentIndex !== shipmentInitialInfo);
+            this.result.getRawData().properties.issues.unassigned_shipments =
+                this.result.getRawData().properties.issues.unassigned_shipments.filter((shipmentIndex) => shipmentIndex !== shipmentInitialInfo);
         }
     }
 
     private async addNewShipmentsToAgent(agentId: string, shipments: ShipmentData[]) {
         let existingAgentSolution = this.result.getAgentSolution(agentId);
-        this.result.getData().inputData.shipments.push(...shipments);
+        this.result.getRawData().properties.params.shipments.push(...shipments);
         let newAgentInput = this.addShipmentsToAgent(agentId, shipments.map((shipment) => shipment.id!), existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);

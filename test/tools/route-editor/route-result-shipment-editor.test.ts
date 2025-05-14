@@ -3,8 +3,9 @@ import RoutePlanner, {
     RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep,
 } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
-import { generateRawResponse, loadJson } from "../../utils.helper";
+import { loadJson } from "../../utils.helper";
 import TEST_API_KEY from "../../../env-variables";
+import {RoutePlannerResultReverseConverter} from "../../route-planner-result-reverse-converter";
 
 const API_KEY = TEST_API_KEY;
 
@@ -53,7 +54,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
 
         const routeEditor = new RoutePlannerResultEditor(result);
         let modifiedResult = routeEditor.getModifiedResult();
-        modifiedResult.getData().inputData.agents.forEach(agent => {
+        modifiedResult.getRawData().properties.params.agents.forEach(agent => {
             agent.capabilities = ['heavy-items', 'small-items'];
         })
         let agentToAssignTheShipment = result.getShipmentInfo('shipment-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
@@ -66,7 +67,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Initially we have
         // Shipment 1 -> Agent A, Shipment 2 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignShipments('agent-A', ['shipment-3']);
@@ -86,7 +87,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
         // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignShipments('agent-A', ['shipment-2']);
@@ -107,7 +108,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignShipments('agent-B', ['shipment-2']);
@@ -131,7 +132,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignShipments('agent-B', ['shipment-3']);
@@ -153,7 +154,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
@@ -171,7 +172,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
@@ -189,7 +190,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
         // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.removeShipments(['shipment-4']);
@@ -212,7 +213,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
         // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.removeShipments(['shipment-2']);
@@ -233,7 +234,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
         // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -250,7 +251,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
         // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -267,7 +268,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
         // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -283,7 +284,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Initially we have
         // Shipment 1 -> Agent A, Shipment 2 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newShipment = new Shipment()
@@ -310,7 +311,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newShipment = new Shipment()
@@ -341,7 +342,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
@@ -359,7 +360,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newShipment = new Shipment()
@@ -381,7 +382,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newShipment = new Shipment()

@@ -9,7 +9,7 @@ export class RoutePlannerResultEditor {
 
     constructor(result: RoutePlannerResult) {
         this.result = new RoutePlannerResult(Utils.cloneObject(result.getOptions()),
-            Utils.cloneObject(result.getData()), Utils.cloneObject(result.getRawData()));
+            Utils.cloneObject(result.getRawData()));
     }
 
     /**

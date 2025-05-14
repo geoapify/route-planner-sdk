@@ -12,11 +12,11 @@ export class RouteResultEditorBase {
     }
 
     protected async optimizeRoute(optimizeAgentInput: OptimizeAgentInput): Promise<RoutePlannerResult> {
-        let newRawData: RoutePlannerInputData = Utils.cloneObject(this.result.getData().inputData);
+        let newRawData: RoutePlannerInputData = Utils.cloneObject(this.result.getRawData().properties.params);
 
-        newRawData.agents = newRawData.agents.filter(nextAgent => nextAgent.id == optimizeAgentInput.agentId);
-        newRawData.jobs = newRawData.jobs.filter(nextJob => optimizeAgentInput.agentJobIds.has(nextJob.id!));
-        newRawData.shipments = newRawData.shipments.filter(nextShipment => optimizeAgentInput.agentShipmentIds.has(nextShipment.id!));
+        newRawData.agents = newRawData.agents?.filter(nextAgent => nextAgent.id == optimizeAgentInput.agentId);
+        newRawData.jobs = newRawData.jobs?.filter(nextJob => optimizeAgentInput.agentJobIds.has(nextJob.id!));
+        newRawData.shipments = newRawData.shipments?.filter(nextShipment => optimizeAgentInput.agentShipmentIds.has(nextShipment.id!));
 
         const planner = new RoutePlanner(this.result.getOptions(), newRawData);
         return await planner.plan();
@@ -24,25 +24,29 @@ export class RouteResultEditorBase {
 
     protected removeAgent(agentId: string) {
         let agentIndex = this.getInitialAgentIndex(agentId);
-        this.result.getData().agents = this.result.getData().agents.filter(agent => agent.agentId != agentId);
+        this.removeAgentWithId(agentId);
         this.addUnassignedAgentIfNeeded(agentIndex);
         // TODO: maybe we need to add shipments/locations in unassigned arrays
     }
 
+    private removeAgentWithId(agentId: string) {
+        this.result.getRawData().features = this.result.getRawData().features.filter(agent => agent.properties.agent_id != agentId);
+    }
+
     protected updateAgent(newResult: RoutePlannerResult) {
-        let agentId = newResult.getData().inputData.agents[0].id!;
+        let agentId = newResult.getRawData().properties.params.agents[0].id!;
         if (newResult.getUnassignedAgents().length > 0) {
             let agentIndex = this.getInitialAgentIndex(agentId);
             if (!this.result.getUnassignedAgents().includes(agentIndex)) {
-                this.result.getData().agents = this.result.getData().agents.filter(agent => agent.agentId != agentId);
+                this.removeAgentWithId(agentId);
             }
             this.updateUnassignedItems(newResult);
         } else {
             let existingAgentSolution = this.result.getAgentSolution(agentId);
             if (existingAgentSolution) {
-                this.result.getData().agents = this.result.getData().agents.filter(agent => agent.agentId != agentId);
+                this.removeAgentWithId(agentId);
             }
-            this.result.getData().agents.push(newResult.getData().agents[0]);
+            this.result.getRawData().features.push(newResult.getRawData().features[0]);
             this.updateUnassignedItems(newResult);
         }
     }
@@ -65,15 +69,15 @@ export class RouteResultEditorBase {
     }
 
     protected getInitialAgentIndex(agentId: string): number {
-        return this.result.getData().inputData.agents.findIndex(item => item.id == agentId);
+        return this.result.getRawData().properties.params.agents.findIndex(item => item.id == agentId);
     }
 
     protected getInitialJobIndex(jobId: string): number {
-        return this.result.getData().inputData.jobs.findIndex(item => item.id == jobId);
+        return this.result.getRawData().properties.params.jobs.findIndex(item => item.id == jobId);
     }
 
     protected getInitialShipmentIndex(shipmentId: string): number {
-        return this.result.getData().inputData.shipments.findIndex(item => item.id == shipmentId);
+        return this.result.getRawData().properties.params.shipments.findIndex(item => item.id == shipmentId);
     }
 
     protected validateAgent(agentId: string) {
@@ -90,16 +94,17 @@ export class RouteResultEditorBase {
     }
 
     private updateUnassignedAgents(newResult: RoutePlannerResult) {
-        let agentId = newResult.getData().inputData.agents[0].id!;
+        let agentId = newResult.getRawData().properties.params.agents[0].id!;
         let agentIndex = this.getInitialAgentIndex(agentId);
         if (newResult.getUnassignedAgents().length > 0) {
             this.addUnassignedAgentIfNeeded(agentIndex);
         } else {
-            if(!this.result.getData().unassignedAgents) {
-                this.result.getData().unassignedAgents = [];
+            this.addIssuesPropertiesIfMissing();
+            if(!this.result.getRawData().properties.issues.unassigned_agents) {
+                this.result.getRawData().properties.issues.unassigned_agents = [];
             }
-            this.result.getData().unassignedAgents =
-                this.result.getData().unassignedAgents.filter(unassignedAgentIndex => unassignedAgentIndex != agentIndex);
+            this.result.getRawData().properties.issues.unassigned_agents =
+                this.result.getRawData().properties.issues.unassigned_agents.filter(unassignedAgentIndex => unassignedAgentIndex != agentIndex);
         }
     }
 
@@ -108,22 +113,24 @@ export class RouteResultEditorBase {
         unassignedJobs.forEach(jobId => {
             let initialJobIndex = this.getInitialJobIndex(jobId);
             if (!this.result.getUnassignedJobs().includes(initialJobIndex)) {
-                if(!this.result.getData().unassignedJobs) {
-                    this.result.getData().unassignedJobs = [];
+                this.addIssuesPropertiesIfMissing();
+                if(!this.result.getRawData().properties.issues.unassigned_jobs) {
+                    this.result.getRawData().properties.issues.unassigned_jobs = [];
                 }
-                this.result.getData().unassignedJobs.push(initialJobIndex);
+                this.result.getRawData().properties.issues.unassigned_jobs.push(initialJobIndex);
             }
         });
-        if(newResult.getData().agents.length > 0) {
-            let assignedJobs = newResult.getData().agents[0].actions.filter(action => action.job_id).map(action => action.job_id!);
+        if(newResult.getRawData().features.length > 0) {
+            let assignedJobs = newResult.getRawData().features[0].properties.actions.filter(action => action.job_id).map(action => action.job_id!);
             assignedJobs.forEach(jobId => {
                 let initialJobIndex = this.getInitialJobIndex(jobId);
                 if (this.result.getUnassignedJobs().includes(initialJobIndex)) {
-                    if(!this.result.getData().unassignedJobs) {
-                        this.result.getData().unassignedJobs = [];
+                    this.addIssuesPropertiesIfMissing();
+                    if(!this.result.getRawData().properties.issues.unassigned_jobs) {
+                        this.result.getRawData().properties.issues.unassigned_jobs = [];
                     }
-                    this.result.getData().unassignedJobs =
-                        this.result.getData().unassignedJobs.filter(unassignedJobIndex => unassignedJobIndex != initialJobIndex);
+                    this.result.getRawData().properties.issues.unassigned_jobs =
+                        this.result.getRawData().properties.issues.unassigned_jobs.filter(unassignedJobIndex => unassignedJobIndex != initialJobIndex);
                 }
             });
         }
@@ -134,22 +141,24 @@ export class RouteResultEditorBase {
         unassignedShipments.forEach(shipmentId => {
             let initialShipmentIndex = this.getInitialShipmentIndex(shipmentId);
             if (!this.result.getUnassignedShipments().includes(initialShipmentIndex)) {
-                if(!this.result.getData().unassignedShipments) {
-                    this.result.getData().unassignedShipments = [];
+                this.addIssuesPropertiesIfMissing();
+                if(!this.result.getRawData().properties.issues.unassigned_shipments) {
+                    this.result.getRawData().properties.issues.unassigned_shipments = [];
                 }
-                this.result.getData().unassignedShipments.push(initialShipmentIndex);
+                this.result.getRawData().properties.issues.unassigned_shipments.push(initialShipmentIndex);
             }
         });
-        if(newResult.getData().agents.length > 0) {
-            let assignedShipments = newResult.getData().agents[0].actions.filter(action => action.shipment_id).map(action => action.shipment_id!);
+        if(newResult.getRawData().features.length > 0) {
+            let assignedShipments = newResult.getRawData().features[0].properties.actions.filter(action => action.shipment_id).map(action => action.shipment_id!);
             assignedShipments.forEach(shipmentId => {
                 let initialShipmentIndex = this.getInitialShipmentIndex(shipmentId);
                 if (this.result.getUnassignedShipments().includes(initialShipmentIndex)) {
-                    if(!this.result.getData().unassignedShipments) {
-                        this.result.getData().unassignedShipments = [];
+                    this.addIssuesPropertiesIfMissing();
+                    if(!this.result.getRawData().properties.issues.unassigned_shipments) {
+                        this.result.getRawData().properties.issues.unassigned_shipments = [];
                     }
-                    this.result.getData().unassignedShipments =
-                        this.result.getData().unassignedShipments.filter(unassignedShipmentIndex => unassignedShipmentIndex != initialShipmentIndex);
+                    this.result.getRawData().properties.issues.unassigned_shipments =
+                        this.result.getRawData().properties.issues.unassigned_shipments.filter(unassignedShipmentIndex => unassignedShipmentIndex != initialShipmentIndex);
                 }
             });
         }
@@ -157,22 +166,32 @@ export class RouteResultEditorBase {
 
     private getUnassignedJobs(result: RoutePlannerResult): string[] {
         return result.getUnassignedJobs().map((jobIndex) => {
-            return this.result.getData().inputData.jobs[jobIndex].id!;
+            return this.result.getRawData().properties.params.jobs[jobIndex].id!;
         });
     }
 
     private getUnassignedShipments(result: RoutePlannerResult): string[] {
         return result.getUnassignedShipments().map((jobIndex) => {
-            return this.result.getData().inputData.shipments[jobIndex].id!;
+            return this.result.getRawData().properties.params.shipments[jobIndex].id!;
         });
     }
 
     private addUnassignedAgentIfNeeded(agentIndex: number) {
         if (!this.result.getUnassignedAgents().includes(agentIndex)) {
-            if (!this.result.getData().unassignedAgents) {
-                this.result.getData().unassignedAgents = [];
+            if (!this.result.getRawData().properties.issues.unassigned_agents) {
+                this.result.getRawData().properties.issues.unassigned_agents = [];
             }
-            this.result.getData().unassignedAgents.push(agentIndex);
+            this.result.getRawData().properties.issues.unassigned_agents.push(agentIndex);
+        }
+    }
+
+     private addIssuesPropertiesIfMissing() {
+        if (!this.result.getRawData().properties.issues) {
+            this.result.getRawData().properties.issues = {
+                unassigned_shipments: [],
+                unassigned_jobs: [],
+                unassigned_agents: []
+            };
         }
     }
 }

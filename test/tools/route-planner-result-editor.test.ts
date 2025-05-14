@@ -3,8 +3,9 @@ import RoutePlanner, {
   RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
-import { generateRawResponse, loadJson } from "../utils.helper";
+import { loadJson } from "../utils.helper";
 import TEST_API_KEY from "../../env-variables";
+import {RoutePlannerResultReverseConverter} from "../route-planner-result-reverse-converter";
 
 const API_KEY = TEST_API_KEY;
 
@@ -104,7 +105,7 @@ describe('RoutePlannerResultEditor', () => {
 
     const routeEditor = new RoutePlannerResultEditor(result);
     let modifiedResult = routeEditor.getModifiedResult();
-    modifiedResult.getData().inputData.agents.forEach(agent => {
+    modifiedResult.getRawData().properties.params.agents.forEach(agent => {
       agent.capabilities = ['heavy-items', 'small-items'];
     })
     let agentToAssignTheShipment = result.getShipmentInfo('shipment-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
@@ -118,7 +119,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -138,7 +139,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -160,7 +161,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -184,7 +185,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignJobs('agent-B', ['job-1']);
@@ -206,7 +207,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Shipment 1 -> Agent A, Shipment 2 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-A', ['shipment-3']);
@@ -226,7 +227,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-A', ['shipment-2']);
@@ -248,7 +249,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> A, Shipment 2 -> Agent A
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-B', ['shipment-2']);
@@ -272,7 +273,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> A, Shipment 2 -> Agent A
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.assignShipments('agent-B', ['shipment-3']);
@@ -294,7 +295,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeJobs(['job-4']);
@@ -317,7 +318,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeJobs(['job-2']);
@@ -338,7 +339,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeJobs(['job-3']);
@@ -359,7 +360,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     try {
@@ -376,7 +377,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeShipments(['shipment-4']);
@@ -399,7 +400,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeShipments(['shipment-2']);
@@ -420,7 +421,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     await routeEditor.removeShipments(['shipment-1']);
@@ -439,7 +440,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     try {
@@ -455,7 +456,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Job 1 -> Agent B, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newJob = new Job()
@@ -481,7 +482,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newJob = new Job()
@@ -510,7 +511,7 @@ describe('RoutePlannerResultEditor', () => {
     // Initially we have
     // Shipment 1 -> Agent A, Shipment 2 -> Agent A
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newShipment = new Shipment()
@@ -537,7 +538,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> A, Shipment 2 -> Agent A
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     // Agent B -> unassigned
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignShipmentsRawData, generateRawResponse());
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     let newShipment = new Shipment()
@@ -562,7 +563,7 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getUnassignedShipments()[1]).toBe(3);
   });
 
-  test('Complex scenario should not throw an exception', async () => {
+  test('Complex scenario: should not throw an exception', async () => {
     const planner = new RoutePlanner({ apiKey: API_KEY });
     planner.setMode("drive");
     planner.addAgent(new Agent().setId('agent-a').setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
@@ -586,7 +587,7 @@ describe('RoutePlannerResultEditor', () => {
     let modifiedResult = routeEditor.getModifiedResult();
   });
 
-  test('Complex scenario should not throw an exception 2', async () => {
+  test('Complex scenario: should throw an error if not array is passed', async () => {
     const planner = new RoutePlanner({apiKey: API_KEY});
     planner.setMode("drive");
     planner.addAgent(new Agent().setId('agent-a').setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
@@ -610,5 +611,30 @@ describe('RoutePlannerResultEditor', () => {
     } catch (error: any) {
       expect(error.message).toBe('Type error: jobIds must be an array');
     }
+  });
+
+  test('Complex scenario: unassignedJobs in data and in rawData should return the same value', async () => {
+    const planner = new RoutePlanner({apiKey: API_KEY});
+    planner.setMode("drive");
+    planner.addAgent(new Agent().setId('agent-a').setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setId('agent-b').setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setId('agent-c').setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.511160727462574, 40.1816037));
+    planner.addJob(new Job().setId('job-1').setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setId('job-2').setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addShipment(new Shipment().setId("shipment-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50129564537, 40.18686625))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
+    const result = await planner.plan();
+
+    console.log(result);
+
+    const routeEditor = new RoutePlannerResultEditor(result);
+    await routeEditor.removeJobs(['job-2']);
+
+    let modifiedResult = routeEditor.getModifiedResult();
+    console.log(JSON.stringify(modifiedResult));
   });
 });

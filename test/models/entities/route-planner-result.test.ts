@@ -2,7 +2,7 @@ import { RoutePlannerOptions } from "../../../src/models/interfaces/route-planne
 import { AgentSolution, RouteAction, RouteActionInfo, RouteLeg, RoutePlannerResultData, Waypoint } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
 import TEST_API_KEY from "../../../env-variables";
-import { generateRawResponse } from "../../utils.helper";
+import {RoutePlannerResultReverseConverter} from "../../route-planner-result-reverse-converter";
 
 describe("RoutePlannerResult", () => {
     let options: RoutePlannerOptions;
@@ -75,7 +75,7 @@ describe("RoutePlannerResult", () => {
             inputData: {} as any
         };
 
-        routePlannerResult = new RoutePlannerResult(options, rawData, generateRawResponse());
+        routePlannerResult = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData));
     });
 
     test("should return raw data", () => {
@@ -184,7 +184,7 @@ describe("RoutePlannerResult", () => {
     test("should getAgentRoute() call routing API success without waypoint", async () => {
         let rawData1 = JSON.parse(JSON.stringify(rawData));
         rawData1.agents[0].waypoints = [];
-        let routePlannerResult1 = new RoutePlannerResult(options, rawData1, generateRawResponse());
+        let routePlannerResult1 = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData1));
         routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult1.getOptions().apiKey = TEST_API_KEY;
         let result = await routePlannerResult1.getAgentRoute("A1", 'drive');
@@ -215,7 +215,7 @@ describe("RoutePlannerResult", () => {
                 next_leg_index: 0,
             }
         );
-        let routePlannerResult1 = new RoutePlannerResult(options, rawData1, generateRawResponse());
+        let routePlannerResult1 = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData1));
         routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult1.getOptions().apiKey = TEST_API_KEY;
         let result = await routePlannerResult1.getAgentRoute("A1", 'drive');
