@@ -637,4 +637,25 @@ describe('RoutePlannerResultEditor', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     console.log(JSON.stringify(modifiedResult));
   });
+
+  test('If agent is not used, then AgentSolution array should contain an undefined item', async () => {
+    const planner = new RoutePlanner({apiKey: API_KEY});
+    planner.setMode("drive");
+    planner.addAgent(new Agent().setId('agent-a').setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setId('agent-b').setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setId('agent-c').setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addLocation(new Location().setId("warehouse-0").setLocation(44.511160727462574, 40.1816037));
+    planner.addJob(new Job().setId('job-1').setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setId('job-2').setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addShipment(new Shipment().setId("shipment-1")
+        .setDelivery(new ShipmentStep().setDuration(120).setLocation(44.50129564537, 40.18686625))
+        .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
+    const result = await planner.plan();
+    let allAgentSolution = result.getAgentSolutionsByIndex();
+    expect(allAgentSolution[0]).toBeDefined();
+    expect(allAgentSolution[1]).toBeUndefined();
+    expect(allAgentSolution[2]).toBeUndefined();
+  });
 });

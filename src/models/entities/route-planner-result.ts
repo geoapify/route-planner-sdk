@@ -43,6 +43,19 @@ export class RoutePlannerResult {
     }
 
     /**
+     * Returns a list of all agent solutions by index. (if it's not assigned, then it will be undefined)
+     */
+    getAgentSolutionsByIndex(): (AgentSolution | undefined)[] {
+        let data = this.getData();
+        let result = Array(data.inputData.agents.length);
+        this.getData().agents.forEach(agent => {
+            let agentSolution = new AgentSolution(agent)
+            result[agentSolution.getAgentIndex()] = agentSolution;
+        });
+        return result;
+    }
+
+    /**
      * Finds an agent's solution by their ID.
      */
     getAgentSolution(agentId: string): AgentSolution | undefined {
