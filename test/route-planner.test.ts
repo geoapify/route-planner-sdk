@@ -97,7 +97,6 @@ describe('RoutePlanner', () => {
     testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[2]);
     testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].getWaypoints()[1]);
     testGetAgentJobs(result);
-    testGetJobInfo(result);
   });
 
   test('should return success for complex test 3 - "Pickup bulky items from different locations"', async () => {
@@ -176,10 +175,10 @@ describe('RoutePlanner', () => {
     planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
     planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
 
-    planner.addJob(new Job().setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new Job().setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setId("1").setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(200).setId("2").setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setId("3").setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setId("4").setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
 
     const result = await planner.plan();
     expect(result).toBeDefined();
@@ -190,6 +189,7 @@ describe('RoutePlanner', () => {
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentRouteLegs(result.getData().agents[0].agentId)[0]);
+    testGetJobInfo(result);
   });
 
   test('should return success test all not used fields"', async () => {
@@ -347,14 +347,14 @@ describe('RoutePlanner', () => {
 
   function testGetShipmentInfo(result: RoutePlannerResult) {
     let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.getAgentId(), action: agent.getActions()[0], agent: agent};
-    expect(result.getShipmentInfo(agent.getActions()[0].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1], agent.getActions()[4]], agent: agent};
+    expect(result.getShipmentInfo(agent.getActions()[1].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
   }
 
   function testGetJobInfo(result: RoutePlannerResult) {
     let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.getAgentId(), action: agent.getActions()[0], agent: agent};
-    expect(result.getJobInfo(agent.getActions()[0].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1]], agent: agent};
+    expect(result.getJobInfo(agent.getActions()[1].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {

@@ -21,8 +21,8 @@ export class RouteActionInfo {
         return this.raw.agentId;
     }
 
-    getAction(): RouteAction {
-        return this.raw.action;
+    getActions(): RouteAction[] {
+        return this.raw.actions;
     }
     getAgent(): AgentSolution {
         return this.raw.agent;

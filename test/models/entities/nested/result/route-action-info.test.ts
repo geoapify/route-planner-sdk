@@ -47,7 +47,7 @@ describe("RouteActionInfo", () => {
     beforeEach(() => {
         initialData = {
             agentId: "agent-A",
-            action: new RouteAction(routeAction),
+            actions: [new RouteAction(routeAction)],
             agent: new AgentSolution(agentSolution)
 
         };
@@ -72,7 +72,7 @@ describe("RouteActionInfo", () => {
     });
 
     test("should return true if action is defined correctly", () => {
-        expect(routeActionInfo.getAction()).toBeDefined();
+        expect(routeActionInfo.getActions()).toBeDefined();
     });
 
     test("should return true if agent is defined correctly", () => {

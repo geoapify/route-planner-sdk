@@ -82,7 +82,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo) {
         let existingAgentSolution = shipmentInfo.getAgent();
-        let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getAction().getShipmentId()!);
+        let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getActions()[0].getShipmentId()!);
         if (newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
             this.removeAgent(existingAgentSolution.getAgentId());
         } else {
@@ -130,7 +130,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         if (shipmentIndex == -1) {
             throw new Error(`Shipment with id ${shipmentId} not found`);
         } else {
-            let isUnassignedShipment = this.result.getUnassignedShipments().includes(shipmentIndex);
+            let isUnassignedShipment = this.result.getRawData().properties.issues.unassigned_shipments.includes(shipmentIndex);
             if (!isUnassignedShipment) {
                 throw new Error(`Shipment with id ${shipmentId} not found`);
             }

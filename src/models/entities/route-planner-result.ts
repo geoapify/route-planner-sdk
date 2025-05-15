@@ -1,5 +1,5 @@
 import { RoutePlannerOptions } from "../interfaces/route-planner-options";
-import { RoutePlannerResultData, RoutePlannerResultResponseData } from "../interfaces";
+import { AgentData, JobData, RoutePlannerResultData, RoutePlannerResultResponseData, ShipmentData } from "../interfaces";
 import { AgentSolution } from "./nested/result/agent-solution";
 import { Waypoint } from "./nested/result/waypoint";
 import { RouteAction } from "./nested/result/route-action";
@@ -127,34 +127,64 @@ export class RoutePlannerResult {
     /**
      * Retrieves unassigned agents.
      */
-    getUnassignedAgents(): number[] {
-        return this.getData().unassignedAgents ? this.getData().unassignedAgents : [];
+    getUnassignedAgents(): AgentData[] {
+        let data = this.getData();
+        if(!data.unassignedAgents || data.unassignedAgents.length == 0) {
+            return [];
+        } else {
+            return data.unassignedAgents.map(index => {
+                return data.inputData.agents[index];
+            })
+        }
     }
 
     /**
      * Retrieves unassigned jobs.
      */
-    getUnassignedJobs(): number[] {
-        return this.getData().unassignedJobs ? this.getData().unassignedJobs : [];
+    getUnassignedJobs(): JobData[] {
+        let data = this.getData();
+        if(!data.unassignedJobs || data.unassignedJobs.length == 0) {
+            return [];
+        } else {
+            return data.unassignedJobs.map(index => {
+                return data.inputData.jobs[index];
+            })
+        }
     }
 
     /**
      * Retrieves unassigned shipments.
      */
-    getUnassignedShipments(): number[] {
-        return this.getData().unassignedShipments ? this.getData().unassignedShipments : [];
+    getUnassignedShipments(): ShipmentData[] {
+        let data = this.getData();
+        if(!data.unassignedShipments || data.unassignedShipments.length == 0) {
+            return [];
+        } else {
+            return data.unassignedShipments.map(index => {
+                return data.inputData.shipments[index];
+            })
+        }
     }
 
     /**
      * Retrieves detailed information about a specific job.
      */
     getJobInfo(jobId: string): RouteActionInfo | undefined {
+        if(!jobId) {
+            return undefined;
+        }
+        let actions = [];
+        let agentFound;
         for (const agent of this.getAgentSolutions()) {
             for (const action of agent.getActions()) {
                 if (action.getJobId() === jobId) {
-                    return new RouteActionInfo({ agentId: agent.getAgentId(), action: action, agent: agent });
+                     actions.push(action);
+                     agentFound = agent;
                 }
             }
+        }
+        if(actions.length !== 0 && agentFound) {
+            return new RouteActionInfo({ agentId: agentFound.getAgentId(), actions: actions, agent: agentFound });
         }
         return undefined; // Job not found
     }
@@ -163,12 +193,21 @@ export class RoutePlannerResult {
      * Retrieves detailed information about a specific shipment.
      */
     getShipmentInfo(shipmentId: string): RouteActionInfo | undefined {
+        if(!shipmentId) {
+            return undefined;
+        }
+        let actions = [];
+        let agentFound;
         for (const agent of this.getAgentSolutions()) {
             for (const action of agent.getActions()) {
                 if (action.getShipmentId() === shipmentId) {
-                    return new RouteActionInfo({ agentId: agent.getAgentId(), action: action, agent: agent });
+                    actions.push(action);
+                    agentFound = agent;
                 }
             }
+        }
+        if(actions.length !== 0 && agentFound) {
+            return new RouteActionInfo({ agentId: agentFound.getAgentId(), actions: actions, agent: agentFound });
         }
         return undefined; // Shipment not found
     }

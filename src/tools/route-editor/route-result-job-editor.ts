@@ -82,7 +82,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private async removeJobFromExistingAgent(jobInfo: RouteActionInfo) {
         let existingAgentSolution = jobInfo.getAgent();
-        let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getAction().getJobId()!);
+        let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getActions()[0].getJobId()!);
         if(newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
             this.removeAgent(existingAgentSolution.getAgentId());
         } else {
@@ -130,7 +130,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         if (jobIndex == -1) {
             throw new Error(`Job with id ${jobId} not found`);
         } else {
-            let isUnassignedJob = this.result.getUnassignedJobs().includes(jobIndex);
+            let isUnassignedJob = this.result.getRawData().properties.issues.unassigned_jobs.includes(jobIndex);
             if (!isUnassignedJob) {
                 throw new Error(`Job with id ${jobId} not found`);
             }

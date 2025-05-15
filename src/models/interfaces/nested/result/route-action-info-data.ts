@@ -2,6 +2,6 @@ import { AgentSolution, RouteAction } from "../../../entities";
 
 export interface RouteActionInfoData {
     agentId: string;
-    action: RouteAction;
+    actions: RouteAction[];
     agent: AgentSolution;
 }

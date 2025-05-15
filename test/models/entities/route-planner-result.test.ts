@@ -69,10 +69,145 @@ describe("RoutePlannerResult", () => {
                     ],
                 },
             ],
-            unassignedAgents: [2],
-            unassignedJobs: [3],
+            unassignedAgents: [1],
+            unassignedJobs: [],
             unassignedShipments: [4, 5],
-            inputData: {} as any
+            inputData: {
+                "agents": [
+                    {
+                        "capabilities": [
+                            "heavy-items",
+                            "small-items"
+                        ],
+                        "time_windows": [],
+                        "breaks": [],
+                        "start_location": [
+                            44.50932929564533,
+                            40.18686625
+                        ],
+                        "id": "agent-A"
+                    },
+                    {
+                        "capabilities": [
+                            "heavy-items",
+                            "small-items"
+                        ],
+                        "time_windows": [],
+                        "breaks": [],
+                        "start_location": [
+                            44.400450399509495,
+                            40.153735600000005
+                        ],
+                        "id": "agent-B"
+                    }
+                ],
+                "jobs": [],
+                "shipments": [
+                    {
+                        "requirements": [
+                            "heavy-items"
+                        ],
+                        "pickup": {
+                            "time_windows": [],
+                            "location": [
+                                44.50932929564531,
+                                40.18686625
+                            ]
+                        },
+                        "delivery": {
+                            "time_windows": [],
+                            "location": [
+                                44.50932929564532,
+                                40.18686625
+                            ]
+                        },
+                        "id": "shipment-1"
+                    },
+                    {
+                        "requirements": [
+                            "heavy-items"
+                        ],
+                        "pickup": {
+                            "time_windows": [],
+                            "location": [
+                                44.511160727462574,
+                                40.1816037
+                            ]
+                        },
+                        "delivery": {
+                            "time_windows": [],
+                            "location": [
+                                44.50932929564534,
+                                40.18686625
+                            ]
+                        },
+                        "id": "shipment-2"
+                    },
+                    {
+                        "requirements": [
+                            "small-items"
+                        ],
+                        "pickup": {
+                            "time_windows": [],
+                            "location": [
+                                44.517954005538606,
+                                40.18518455
+                            ]
+                        },
+                        "delivery": {
+                            "time_windows": [],
+                            "location": [
+                                44.50932929564537,
+                                40.18686625
+                            ]
+                        },
+                        "id": "shipment-3"
+                    },
+                    {
+                        "requirements": [
+                            "small-items"
+                        ],
+                        "pickup": {
+                            "time_windows": [],
+                            "location": [
+                                44.5095432,
+                                40.18665755000001
+                            ]
+                        },
+                        "delivery": {
+                            "time_windows": [],
+                            "location": [
+                                44.50932929564537,
+                                40.18686625
+                            ]
+                        },
+                        "id": "shipment-4"
+                    },
+                    {
+                        "requirements": [
+                            "small-items"
+                        ],
+                        "pickup": {
+                            "time_windows": [],
+                            "location": [
+                                44.5095432,
+                                40.18665755000001
+                            ]
+                        },
+                        "delivery": {
+                            "time_windows": [],
+                            "location": [
+                                44.50932929564537,
+                                40.18686625
+                            ]
+                        },
+                        "id": "shipment-5"
+                    }
+                ],
+                "locations": [],
+                "avoid": [],
+                "mode": "drive"
+            },
         };
 
         routePlannerResult = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData));
@@ -139,21 +274,24 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return unassigned agents", () => {
-        expect(routePlannerResult.getUnassignedAgents()).toEqual([2]);
+        let unassignedAgents = routePlannerResult.getUnassignedAgents();
+        expect(unassignedAgents.length).toBe(1);
+        expect(unassignedAgents[1]).toBe(routePlannerResult.getData().inputData.agents[2])
     });
 
     test("should return unassigned jobs", () => {
-        expect(routePlannerResult.getUnassignedJobs()).toEqual([3]);
+        expect(routePlannerResult.getUnassignedJobs()).toEqual([routePlannerResult.getRawData().properties.params.jobs[3]]);
     });
 
     test("should return unassigned shipments", () => {
-        expect(routePlannerResult.getUnassignedShipments()).toEqual([4, 5]);
+        expect(routePlannerResult.getUnassignedShipments()).toEqual([routePlannerResult.getRawData().properties.params.shipments[4],
+            routePlannerResult.getRawData().properties.params.shipments[5]]);
     });
 
     test("should return job info when job exists", () => {
         expect(routePlannerResult.getJobInfo("J1")).toEqual(new RouteActionInfo({
             agentId: "A1",
-            action: new RouteAction(rawData.agents[0].actions[0]),
+            actions: [new RouteAction(rawData.agents[0].actions[0])],
             agent: new AgentSolution(rawData.agents[0]),
         }));
     });
@@ -165,7 +303,7 @@ describe("RoutePlannerResult", () => {
     test("should return shipment info when shipment exists", () => {
         expect(routePlannerResult.getShipmentInfo("S1")).toEqual(new RouteActionInfo({
             agentId: "A1",
-            action: new RouteAction(rawData.agents[0].actions[0]),
+            actions: [new RouteAction(rawData.agents[0].actions[0])],
             agent: new AgentSolution(rawData.agents[0]),
         }));
     });
