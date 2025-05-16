@@ -258,7 +258,7 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return assigned jobs for a specific agent", () => {
-        expect(routePlannerResult.getAgentJobs("A1")).toEqual(["J1"]);
+        expect(routePlannerResult.getAgentJobs("A1")).toEqual([0]);
     });
 
     test("should return an empty array for assigned jobs of a non-existent agent", () => {
@@ -266,7 +266,7 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return assigned shipments for a specific agent", () => {
-        expect(routePlannerResult.getAgentShipments("A1")).toEqual(["S1"]);
+        expect(routePlannerResult.getAgentShipments("A1")).toEqual([1]);
     });
 
     test("should return an empty array for assigned shipments of a non-existent agent", () => {

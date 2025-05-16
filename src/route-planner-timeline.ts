@@ -225,7 +225,7 @@ export class RoutePlannerTimeline {
     private generateAgentTimeline() {
         let timelines: Timeline[];
         if (this.result && !this.result.getRawData()) {
-            const maxIndex = Math.max(...(this.result.getUnassignedAgents() || []), ...this.result.getAgentSolutions().map(agentPlan => agentPlan.getAgentIndex()));
+            const maxIndex = this.result.getRawData().properties.params.agents.length;
 
             // create timelines based on result
             timelines = [];
