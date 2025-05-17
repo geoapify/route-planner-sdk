@@ -1,32 +1,22 @@
-import { RoutePlannerResult } from "../models/entities/route-planner-result";
 import {
   ActionResponseData,
   AgentSolutionData,
   FeatureResponseData, LegResponseData, LegStepResponseData, RouteActionData, RouteLegData, RouteLegStepData,
-  RoutePlannerInputData,
   RoutePlannerResultData,
   RoutePlannerResultResponseData, WaypointData, WaypointResponseData
 } from "../models";
-import { RoutePlannerOptions } from "../models/interfaces/route-planner-options";
+import {Utils} from "./utils";
 
 export class RoutePlannerResultConverter {
 
-  public static convert(options: RoutePlannerOptions,
-                        inputData: RoutePlannerInputData,
-                        response: RoutePlannerResultResponseData): RoutePlannerResult {
-    let routePlannerResultData = this.generateRoutePlannerResultData(inputData, response);
-    return new RoutePlannerResult(options, routePlannerResultData, response);
-  }
-
-  private static generateRoutePlannerResultData(inputData: RoutePlannerInputData,
-                                               response: RoutePlannerResultResponseData): RoutePlannerResultData {
+  public static generateRoutePlannerResultData(response: RoutePlannerResultResponseData): RoutePlannerResultData {
+    let clonedResponse = Utils.cloneObject(response);
     return {
-      agents: this.generateAgents(response),
-      // NOTE: we can generate the inputData according to RoutePlannerResultResponseData, but it will be the same object
-      inputData: inputData,
-      unassignedAgents: response.properties.issues?.unassigned_agents,
-      unassignedJobs: response.properties.issues?.unassigned_jobs,
-      unassignedShipments: response.properties.issues?.unassigned_shipments
+      agents: this.generateAgents(clonedResponse),
+      inputData: clonedResponse.properties.params,
+      unassignedAgents: clonedResponse.properties.issues?.unassigned_agents,
+      unassignedJobs: clonedResponse.properties.issues?.unassigned_jobs,
+      unassignedShipments: clonedResponse.properties.issues?.unassigned_shipments
     }
   }
 

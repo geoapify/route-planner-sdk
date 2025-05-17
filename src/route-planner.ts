@@ -14,7 +14,6 @@ import {
 } from "./models";
 import { RoutePlannerOptions } from "./models/interfaces/route-planner-options";
 import { Utils } from "./tools/utils";
-import { RoutePlannerResultConverter } from "./tools/route-planner-result-converter";
 import { RoutePlannerResult } from "./models/entities/route-planner-result";
 
 export class RoutePlanner {
@@ -116,6 +115,6 @@ export class RoutePlanner {
         }
 
         let responseData = await response.json();
-        return RoutePlannerResultConverter.convert(this.options, this.getRaw(), responseData);
+        return new RoutePlannerResult(this.options, responseData)
     }
 }

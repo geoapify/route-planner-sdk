@@ -3,8 +3,9 @@ import RoutePlanner, {
     RoutePlannerResultData, Agent, Job
 } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
-import { generateRawResponse, loadJson } from "../../utils.helper";
+import { loadJson } from "../../utils.helper";
 import TEST_API_KEY from "../../../env-variables";
+import {RoutePlannerResultReverseConverter} from "../../route-planner-result-reverse-converter";
 
 const API_KEY = TEST_API_KEY;
 
@@ -66,7 +67,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Initially we have
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -86,7 +87,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -107,7 +108,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -121,8 +122,8 @@ describe('RoutePlannerResultJobEditor', () => {
         expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
         expect(modifiedResult.getUnassignedAgents().length).toBe(0);
         expect(modifiedResult.getUnassignedJobs().length).toBe(2);
-        expect(modifiedResult.getUnassignedJobs()[0]).toBe(0);
-        expect(modifiedResult.getUnassignedJobs()[1]).toBe(3);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[0]);
+        expect(modifiedResult.getUnassignedJobs()[1]).toEqual(modifiedResult.getRawData().properties.params.jobs[3]);
     });
 
     test('assignJobs should work "AgentSolution for provided agentId is not found and the job is not assigned to anyone."', async () => {
@@ -131,7 +132,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignJobs('agent-B', ['job-1']);
@@ -145,7 +146,7 @@ describe('RoutePlannerResultJobEditor', () => {
         expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
         expect(modifiedResult.getUnassignedAgents().length).toBe(0);
         expect(modifiedResult.getUnassignedJobs().length).toBe(1);
-        expect(modifiedResult.getUnassignedJobs()[0]).toBe(3);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[3]);
     });
 
     test('assignJobs should work "Job with provided jobId already assigned to provided agentId."', async () => {
@@ -153,7 +154,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Initially we have
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -169,7 +170,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Initially we have
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
@@ -186,7 +187,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Initially we have
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
@@ -200,7 +201,7 @@ describe('RoutePlannerResultJobEditor', () => {
 
     test('assignJobs should assign to Agent B when AgentSolution is found and job is unassigned', async () => {
         const assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
-        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.assignJobs('agent-B', ['job-2']);
@@ -214,7 +215,7 @@ describe('RoutePlannerResultJobEditor', () => {
 
     test('assignJobs should throw error when job is already assigned to a different agent', async () => {
         const assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
-        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -227,7 +228,7 @@ describe('RoutePlannerResultJobEditor', () => {
 
     test('assignJobs should throw error when Agent with givenId is not found', async () => {
         const assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
-        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -244,7 +245,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.removeJobs(['job-4']);
@@ -258,7 +259,7 @@ describe('RoutePlannerResultJobEditor', () => {
         expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
         expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
         expect(modifiedResult.getUnassignedJobs().length).toBe(1);
-        expect(modifiedResult.getUnassignedJobs()[0]).toBe(1);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[1]);
     });
 
     test('removeJobs should work "Job is not assigned."', async () => {
@@ -267,7 +268,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         await routeEditor.removeJobs(['job-2']);
@@ -288,7 +289,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -305,7 +306,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -322,7 +323,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
@@ -338,7 +339,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Initially we have
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newJob = new Job()
@@ -364,7 +365,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newJob = new Job()
@@ -384,8 +385,8 @@ describe('RoutePlannerResultJobEditor', () => {
         expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getUnassignedAgents().length).toBe(0);
         expect(modifiedResult.getUnassignedJobs().length).toBe(2);
-        expect(modifiedResult.getUnassignedJobs()[0]).toBe(0);
-        expect(modifiedResult.getUnassignedJobs()[1]).toBe(3);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[0]);
+        expect(modifiedResult.getUnassignedJobs()[1]).toEqual(modifiedResult.getRawData().properties.params.jobs[3]);
     });
 
     test('addNewJobs should work "No jobs provided"', async () => {
@@ -394,7 +395,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
@@ -412,7 +413,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let newJob = new Job()
@@ -433,7 +434,7 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData, generateRawResponse());
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         let id: string;

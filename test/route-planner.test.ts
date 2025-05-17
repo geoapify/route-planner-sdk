@@ -5,7 +5,7 @@ import RoutePlanner, {
   Shipment,
   ShipmentStep,
   RoutePlannerError,
-  RoutePlannerInputData, RouteLeg, RouteAction, Waypoint, RoutePlannerResultEditor, RouteActionInfo
+  RoutePlannerInputData, RouteLeg, RouteAction, Waypoint, RouteActionInfo
 } from "../src";
 import { RoutePlannerResult } from "../src/models/entities/route-planner-result";
 import TEST_API_KEY from "../env-variables";
@@ -30,9 +30,9 @@ describe('RoutePlanner', () => {
 
     planner.setMode("drive");
 
-    planner.addAgent(new Agent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
-    planner.addAgent(new Agent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
-    planner.addAgent(new Agent().setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
+    planner.addAgent(new Agent().setId('agent-A').setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
+    planner.addAgent(new Agent().setId('agent-B').setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
+    planner.addAgent(new Agent().setId('agent-C').setStartLocation(44.50485912329202, 40.177547000000004).addTimeWindow(0, 7200));
 
     planner.addLocation(new Location().setId("warehouse-0").setLocation(44.5130974, 40.1766863));
 
@@ -64,6 +64,9 @@ describe('RoutePlanner', () => {
     testAllWaypointFieldsArePopulated(result.getAgentWaypoints(result.getAgentSolutions()[0].getAgentId())[1]);
     testGetAgentShipments(result);
     testGetShipmentInfo(result);
+    testGetShipmentSolutions(result);
+    testGetShipmentSolution(result);
+    expect(result.getJobSolutions().length).toBe(0);
   });
 
   test('should return success for complex test 2 - "Deliver shipments and pickup returns"', async () => {
@@ -97,7 +100,6 @@ describe('RoutePlanner', () => {
     testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[2]);
     testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].getWaypoints()[1]);
     testGetAgentJobs(result);
-    testGetJobInfo(result);
   });
 
   test('should return success for complex test 3 - "Pickup bulky items from different locations"', async () => {
@@ -172,14 +174,14 @@ describe('RoutePlanner', () => {
 
     planner.setMode("drive");
 
-    planner.addAgent(new Agent().setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
-    planner.addAgent(new Agent().setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
-    planner.addAgent(new Agent().setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setId('agent-A').setStartLocation(44.52566026661482, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
+    planner.addAgent(new Agent().setId('agent-B').setStartLocation(44.52244306971864, 40.1877687).addTimeWindow(0, 10800));
+    planner.addAgent(new Agent().setId('agent-C').setStartLocation(44.505007387303756, 40.1877687).addTimeWindow(0, 10800).setEndLocation(44.486653350000005, 40.18298485).setPickupCapacity(10000));
 
-    planner.addJob(new Job().setDuration(300).setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new Job().setDuration(200).setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new Job().setDuration(300).setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
-    planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setId("1").setPickupAmount(60).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(200).setId("2").setPickupAmount(20000).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setId("3").setPickupAmount(10).setLocation(44.50932929564537, 40.18686625));
+    planner.addJob(new Job().setDuration(300).setId("4").setPickupAmount(0).setLocation(44.50932929564537, 40.18686625));
 
     const result = await planner.plan();
     expect(result).toBeDefined();
@@ -190,6 +192,10 @@ describe('RoutePlanner', () => {
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentRouteLegs(result.getData().agents[0].agentId)[0]);
+    testGetJobInfo(result);
+    testGetJobSolutions(result);
+    testGetJobSolution(result);
+    expect(result.getShipmentSolutions().length).toBe(0);
   });
 
   test('should return success test all not used fields"', async () => {
@@ -334,9 +340,7 @@ describe('RoutePlanner', () => {
   }
 
   function testGetAgentShipments(result: RoutePlannerResult) {
-    let expectedResult = result.getData().agents[0].actions.filter(action => action.shipment_id !== undefined)
-        .map(action => action.shipment_id);
-    expect(result.getAgentShipments(result.getAgentSolutions()[0].getAgentId())).toStrictEqual(expectedResult);
+    expect(result.getAgentShipments(result.getAgentSolutions()[0].getAgentId())).toStrictEqual([0, 1]);
   }
 
   function testGetAgentJobs(result: RoutePlannerResult) {
@@ -347,20 +351,59 @@ describe('RoutePlanner', () => {
 
   function testGetShipmentInfo(result: RoutePlannerResult) {
     let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.getAgentId(), action: agent.getActions()[0], agent: agent};
-    expect(result.getShipmentInfo(agent.getActions()[0].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1], agent.getActions()[4]], agent: agent};
+    expect(result.getShipmentInfo(agent.getActions()[1].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
   }
 
   function testGetJobInfo(result: RoutePlannerResult) {
     let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.getAgentId(), action: agent.getActions()[0], agent: agent};
-    expect(result.getJobInfo(agent.getActions()[0].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1]], agent: agent};
+    expect(result.getJobInfo(agent.getActions()[1].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {
-    expect(JSON.stringify(result.getData().inputData))
-        .toBe(JSON.stringify(
-            planner.getRaw()
-        ));
+    expect(result.getData().inputData.mode).toBe(planner.getRaw().mode);
+    expect(result.getData().inputData.type).toBe(planner.getRaw().type);
+    expect(result.getData().inputData.traffic).toBe(planner.getRaw().traffic);
+  }
+
+  function testGetShipmentSolutions(result: RoutePlannerResult) {
+    let shipmentSolutions = result.getShipmentSolutions();
+    expect(shipmentSolutions.length).toBe(2);
+    expect(shipmentSolutions[0].getAgentId()).toBe('agent-A');
+    expect(shipmentSolutions[0].getActions().length).toBe(2);
+    expect(shipmentSolutions[0].getAgent().getAgentId()).toBe('agent-A');
+    expect(shipmentSolutions[0].getShipment().getRaw().id).toBe('order-1');
+  }
+
+  function testGetJobSolutions(result: RoutePlannerResult) {
+    let jobSolutions = result.getJobSolutions();
+    expect(jobSolutions.length).toBe(3);
+    expect(jobSolutions[0].getAgentId()).toBe('agent-A');
+    expect(jobSolutions[0].getActions().length).toBe(1);
+    expect(jobSolutions[0].getAgent().getAgentId()).toBe('agent-A');
+    expect(jobSolutions[0].getJob().getRaw().id).toBe('1');
+  }
+
+  function testGetShipmentSolution(result: RoutePlannerResult) {
+    let shipmentSolution = result.getShipmentSolution('order-1');
+    expect(shipmentSolution).toBeDefined();
+    expect(shipmentSolution!.getAgentId()).toBe('agent-A');
+    expect(shipmentSolution!.getActions().length).toBe(2);
+    expect(shipmentSolution!.getAgent().getAgentId()).toBe('agent-A');
+    expect(shipmentSolution!.getShipment().getRaw().id).toBe('order-1');
+
+    expect(result.getShipmentSolution('unknown')).toBeUndefined()
+  }
+
+  function testGetJobSolution(result: RoutePlannerResult) {
+    let jobSolution = result.getJobSolution('1');
+    expect(jobSolution).toBeDefined();
+    expect(jobSolution!.getAgentId()).toBe('agent-A');
+    expect(jobSolution!.getActions().length).toBe(1);
+    expect(jobSolution!.getAgent().getAgentId()).toBe('agent-A');
+    expect(jobSolution!.getJob().getRaw().id).toBe('1');
+
+    expect(result.getJobSolution('unknown')).toBeUndefined()
   }
 });

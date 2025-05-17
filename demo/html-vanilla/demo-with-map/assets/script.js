@@ -1349,7 +1349,7 @@ function visualizeAgentRoute(res, solution, color, index) {
     const lineWidth = 7 - index;
     const shift = -2 + index * 2;
 
-    res.getAgentRoute(solution.getAgentId(), 'drive')
+    res.getAgentRoute(solution.getAgentId(), {mode: 'drive'})
         .then(res => {
             map.addSource(`agent-${solution.getAgentIndex()}-route`, {
                 type: 'geojson',

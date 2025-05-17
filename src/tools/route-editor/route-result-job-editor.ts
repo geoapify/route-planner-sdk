@@ -54,14 +54,14 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
             await this.removeJobFromExistingAgent(jobInfo);
         } else {
             let jobInitialIndex = this.getInitialJobIndex(jobId);
-            this.result.getData().unassignedJobs =
-                this.result.getData().unassignedJobs.filter((jobIndex) => jobIndex !== jobInitialIndex);
+            this.result.getRawData().properties.issues.unassigned_jobs =
+                this.result.getRawData().properties.issues.unassigned_jobs.filter((jobIndex) => jobIndex !== jobInitialIndex);
         }
     }
 
     private async addNewJobsToAgent(agentId: string, jobs: JobData[]) {
         let existingAgentSolution = this.result.getAgentSolution(agentId);
-        this.result.getData().inputData.jobs.push(...jobs);
+        this.result.getRawData().properties.params.jobs.push(...jobs);
         let newAgentInput = this.addJobsToAgent(agentId, jobs.map((job) => job.id!), existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
         this.updateAgent(optimizedRouterPlan);
@@ -82,9 +82,13 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private async removeJobFromExistingAgent(jobInfo: RouteActionInfo) {
         let existingAgentSolution = jobInfo.getAgent();
-        let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getAction().getJobId()!);
-        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan);
+        let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getActions()[0].getJobId()!);
+        if(newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
+            this.removeAgent(existingAgentSolution.getAgentId());
+        } else {
+            let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
+            this.updateAgent(optimizedRouterPlan);
+        }
     }
 
     private addJobsToAgent(agentId: string, jobIds: string[], existingAgent?: AgentSolution): OptimizeAgentInput {
@@ -126,7 +130,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         if (jobIndex == -1) {
             throw new Error(`Job with id ${jobId} not found`);
         } else {
-            let isUnassignedJob = this.result.getUnassignedJobs().includes(jobIndex);
+            let isUnassignedJob = this.result.getRawData().properties.issues.unassigned_jobs.includes(jobIndex);
             if (!isUnassignedJob) {
                 throw new Error(`Job with id ${jobId} not found`);
             }
