@@ -11,11 +11,11 @@ import { AgentSolution } from "./nested/result/agent-solution";
 import { Waypoint } from "./nested/result/waypoint";
 import { RouteAction } from "./nested/result/route-action";
 import { RouteLeg } from "./nested/result/route-leg";
-import { TravelMode } from "../types";
 import { RouteActionInfo } from "./nested/result/route-action-info";
 import { RoutePlannerResultConverter } from "../../tools/route-planner-result-converter";
 import {JobSolution} from "./nested/result/job-solution";
 import {ShipmentSolution} from "./nested/result/shipment-solution";
+import {RoutingOptions} from "../interfaces/routing-options";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -319,15 +319,44 @@ export class RoutePlannerResult {
     /**
      * Retrieves the route for a specific agent.
      * @param agentId - The ID of the agent.
-     * @param mode
+     * @param options - The routing options.
      */
-    async getAgentRoute(agentId: string, mode: TravelMode): Promise<any | undefined> {
+    async getAgentRoute(agentId: string, options: RoutingOptions): Promise<any | undefined> {
         const agent = this.getAgentSolution(agentId);
         if (!agent) return undefined;
         let waypoints = agent.getWaypoints().map(waypoint => "lonlat:" + waypoint.getLocation()).join('|');
         if (waypoints.length == 0) return undefined;
 
-        const response = await fetch(`${this.getOptions().baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${this.getOptions().apiKey}&mode=${mode}`);
+        const response = await fetch(this.constructRoutingRequest(waypoints, options));
         return await response.json();
+    }
+
+    private constructRoutingRequest(waypoints: string, options: RoutingOptions) {
+        let url = `${this.getOptions().baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${this.getOptions().apiKey}`;
+        if(options.mode) {
+            url += `&mode=${options.mode}`;
+        }
+        if(options.type) {
+            url += `&type=${options.type}`;
+        }
+        if(options.units) {
+            url += `&units=${options.units}`;
+        }
+        if(options.lang) {
+            url += `&lang=${options.lang}`;
+        }
+        if(options.avoid && options.avoid.length > 0) {
+            url += `&avoid=${options.avoid.join('|')}`;
+        }
+        if(options.details && options.details.length > 0) {
+            url += `&details=${options.details.join(',')}`;
+        }
+        if(options.traffic) {
+            url += `&traffic=${options.traffic}`;
+        }
+        if(options.max_speed) {
+            url += `&max_speed=${options.max_speed}`;
+        }
+        return url;
     }
 }

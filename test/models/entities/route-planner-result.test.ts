@@ -1,8 +1,16 @@
 import { RoutePlannerOptions } from "../../../src/models/interfaces/route-planner-options";
-import { AgentSolution, RouteAction, RouteActionInfo, RouteLeg, RoutePlannerResultData, Waypoint } from "../../../src";
+import {
+    AgentSolution,
+    RouteAction,
+    RouteActionInfo,
+    RouteLeg,
+    RoutePlannerResultData,
+    Waypoint
+} from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
 import TEST_API_KEY from "../../../env-variables";
 import {RoutePlannerResultReverseConverter} from "../../route-planner-result-reverse-converter";
+import {RoutingOptions} from "../../../src/models/interfaces/routing-options";
 
 describe("RoutePlannerResult", () => {
     let options: RoutePlannerOptions;
@@ -315,7 +323,7 @@ describe("RoutePlannerResult", () => {
     test("should getAgentRoute() call routing API agent not found", async () => {
         routePlannerResult.getOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult.getOptions().apiKey = TEST_API_KEY;
-        let result = await routePlannerResult.getAgentRoute("TESTING1", 'drive');
+        let result = await routePlannerResult.getAgentRoute("TESTING1", {mode: 'drive'});
         expect(result).toBeUndefined();
     });
 
@@ -325,14 +333,14 @@ describe("RoutePlannerResult", () => {
         let routePlannerResult1 = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData1));
         routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult1.getOptions().apiKey = TEST_API_KEY;
-        let result = await routePlannerResult1.getAgentRoute("A1", 'drive');
+        let result = await routePlannerResult1.getAgentRoute("A1", {mode: 'drive'});
         expect(result).toBeUndefined();
     });
 
     test("should getAgentRoute() call routing API success with 1 waypoint", async () => {
         routePlannerResult.getOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult.getOptions().apiKey = TEST_API_KEY;
-        let result = await routePlannerResult.getAgentRoute("A1", 'drive');
+        let result = await routePlannerResult.getAgentRoute("A1", {mode: 'drive'});
         expect(result.statusCode).toBe(400);
         expect(result.error).toBe("Bad Request")
         expect(result.message).toBe("Insufficient number of locations provided")
@@ -356,7 +364,39 @@ describe("RoutePlannerResult", () => {
         let routePlannerResult1 = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData1));
         routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult1.getOptions().apiKey = TEST_API_KEY;
-        let result = await routePlannerResult1.getAgentRoute("A1", 'drive');
+        let result = await routePlannerResult1.getAgentRoute("A1", {mode: 'drive'});
+        expect(result.features.length).toBe(1);
+    });
+
+    test("should getAgentRoute() call routing API success with all options", async () => {
+        let rawData1 = JSON.parse(JSON.stringify(rawData));
+        rawData1.agents[0].waypoints.push(
+            {
+                original_location: [-74.005974, 40.712776],
+                original_location_index: 0,
+                original_location_id: 1,
+                location: [-118.243683, 34.052235],
+                start_time: 500,
+                duration: 30,
+                actions: [],
+                prev_leg_index: undefined,
+                next_leg_index: 0,
+            }
+        );
+        let routePlannerResult1 = new RoutePlannerResult(options, RoutePlannerResultReverseConverter.convert(rawData1));
+        routePlannerResult1.getOptions().baseUrl = 'https://api.geoapify.com';
+        routePlannerResult1.getOptions().apiKey = TEST_API_KEY;
+        let routingOptions: RoutingOptions = {
+            mode: "drive",
+            type: 'balanced',
+            units: 'imperial',
+            lang: 'es',
+            avoid: ['tolls', 'highways'],
+            details: ['instruction_details', 'route_details'],
+            traffic: 'free_flow',
+            max_speed: 100
+        }
+        let result = await routePlannerResult1.getAgentRoute("A1", routingOptions);
         expect(result.features.length).toBe(1);
     });
 });
