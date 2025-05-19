@@ -1,0 +1,58 @@
+site_name: Geoapify Route Optimization SDK
+
+theme:
+  name: material
+  logo: assets/geoapify-white-logo-only.png
+  favicon: assets/favicon.ico
+  features:
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Installation: installation-and-import.md
+  - Core Concepts & Entities: entities.md
+  - Understanding Results & Output Structure: results.md
+  - API Reference: 
+    - API Overview: api/index.md
+    - RoutePlanner: api/route-planner.md
+    - RoutePlannerResult: api/route-planner-result.md
+    - RoutePlannerResultEditor: api/route-planner-result-editor.md
+    - RoutePlannerTimeline: api/route-planner-timeline.md
+    - Entities:
+      - Agent: api/agent.md
+      - Job: api/job.md
+      - Shipment: api/shipment.md
+      - Avoid: api/avoid.md
+      - Break: api/break.md
+      - Coordinates: api/coordinates.md
+      - Location: api/location.md
+      - ShipmentStep: api/shipment-step.md
+    - Result Types:
+      - AgentSolution: api/agent-solution.md
+      - JobSolution: api/job-solution.md
+      - ShipmentSolution: api/shipment-solution.md
+      - RouteAction: api/route-action.md
+      - RouteActionInfo: api/route-action-info.md
+      - RouteLeg: api/route-leg.md
+      - RouteLegStep: api/route-leg-step.md
+      - Waypoint: api/waypoint.md
+    - Other Types and Interfaces: api/types.md
+  - Examples: 
+    - Optimizing Delivery Routes with Two Agents: examples/optimizing-two-agents.md
+    - Planning 20 Shipments with 3 Agents: examples/optimizing-shipments-3-agents.md
+    - Editing Planned Result After Optimization: examples/editing-planned-result.md
+
+repo_url: https://github.com/geoapify/route-planner-sdk
+repo_name: GitHub

@@ -2,19 +2,31 @@
 
 The **Geoapify Route Optimization SDK** is a lightweight, dependency-free TypeScript library that simplifies building, executing requests, and modifying results for the [Geoapify Route Planner API](https://www.geoapify.com/route-planner-api/). It helps you easily implement advanced **route optimization** and delivery planning in both frontend (browser) and backend (Node.js) environments.
 
-
 ![Delivery Routes Optimization](https://github.com/geoapify/route-planner-sdk/blob/main/img/delivery-routes-optimization.png?raw=true)
-
----
 
 ## Features
 
-- Easy-to-use route optimization and delivery planning.
-- Works in browser and Node.js environments.
-- No dependencies and minimal package size.
-- Modify and edit route results after planning.
+The Geoapify Route Optimization SDK provides a modern, dependency-free way to interact with the [Geoapify Route Planner API](https://apidocs.geoapify.com/docs/route-planner/), making it easy to implement complex logistics workflows in both browser and backend environments.
 
----
+**Supported Use Cases**:
+
+- Route optimization
+- Delivery planning
+- Pickup/drop-off scheduling
+- Time-constrained and multi-agent logistics
+
+**Developer Convenience**:
+
+- Build and send optimization requests
+- Interpret results (e.g., agent timelines, task sequences)
+- Reassign jobs or shipments between agents
+- Modify planned routes dynamically
+
+
+**Visualization Support**:
+
+- Extract structured timeline and status data for each agent
+- Analyze and display routes and schedules using charts or maps
 
 ## Installation
 
