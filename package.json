@@ -1,7 +1,7 @@
 {
   "name": "@geoapify/route-planner-sdk",
-  "version": "0.2.0",
-  "description": "A TypeScript SDK for the Geoapify Route Planner API that simplifies route optimization requests, and helps visualize and edit resulting routes.",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for the Geoapify Route Planner API. Supports route optimization, delivery planning, and timeline visualization in browser and Node.js",
   "main": "dist/index.cjs.js",
   "module": "dist/index.min.esm.js",
   "exports": {
@@ -17,9 +17,9 @@
   "minimized": "dist/index.min.js",
   "author": "Geoapify <info@geoapify.com> (https://geoapify.com)",
   "license": "MIT",
-  "homepage": "https://github.com/geoapify/route-planner-sdk",
+  "homepage": "https://geoapify.github.io/route-planner-sdk/",
   "bugs": {
-    "url": "https://github.com/geoapify/request-rate-limiter/issues"
+    "url": "https://github.com/geoapify/route-planner-sdk/issues"
   },
   "repository": {
     "type": "git",
@@ -71,16 +71,21 @@
     "geoapify",
     "route planner",
     "route optimization",
-    "route optimization sdk",
-    "logistics",
-    "delivery optimization",
-    "route editing",
-    "route analysis",
-    "api client",
-    "geo",
-    "geospatial",
-    "traveling salesman",
+    "delivery route optimization",
+    "logistics planning",
+    "last mile delivery",
     "vehicle routing problem",
-    "vrp"
+    "vrp",
+    "traveling salesman problem",
+    "tsp",
+    "tsp route planner",
+    "delivery scheduling",
+    "multi-agent routing",
+    "route optimization sdk",
+    "route planning sdk",
+    "route visualization",
+    "route editor",
+    "fleet management",
+    "map routing"
   ]
 }

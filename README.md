@@ -1,8 +1,38 @@
 # Geoapify Route Optimization SDK
 
+[![Docs](https://img.shields.io/badge/Docs-View%20Documentation-blue)](https://geoapify.github.io/route-planner-sdk/)
+[![npm version](https://img.shields.io/npm/v/@geoapify/route-planner-sdk)](https://www.npmjs.com/package/@geoapify/route-planner-sdk)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+
 The **Geoapify Route Optimization SDK** is a lightweight, dependency-free TypeScript library that simplifies building, executing requests, and modifying results for the [Geoapify Route Planner API](https://www.geoapify.com/route-planner-api/). It helps you easily implement advanced **route optimization** and delivery planning in both frontend (browser) and backend (Node.js) environments.
 
 ![Delivery Routes Optimization](https://github.com/geoapify/route-planner-sdk/blob/main/img/delivery-routes-optimization.png?raw=true)
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+  - [Getting API Key](#getting-api-key)
+  - [Import the SDK](#import-the-sdk)
+  - [Example: Create Shipment / Delivery Task](#example-create-shipment--delivery-task)
+  - [Example: Create Job Optimization Task](#example-create-job-optimization-task)
+- [Full Documentation](#full-documentation)
+- [Modifying Route Results](#modifying-route-results)
+  - [Example: Assign Jobs to the Agent](#example-assign-jobs-to-the-agent)
+  - [Example: Assign Shipments to the Agent](#example-assign-shipments-to-the-agent)
+  - [Example: Remove Jobs](#example-remove-jobs)
+  - [Example: Remove Shipments](#example-remove-shipments)
+  - [Example: Add New Jobs](#example-add-new-jobs)
+  - [Example: Add New Shipments](#example-add-new-shipments)
+- [Timeline Generation](#timeline-generation)
+  - [Example: Generate Placeholder Timeline without Waypoints](#example-generate-placeholder-timeline-without-waypoints)
+  - [Example: Generate Timeline with Optimized Routes](#example-generate-timeline-with-optimized-routes)
+  - [Example: Timeline with Custom Popup and Agent Actions](#example-timeline-with-custom-popup-and-agent-actions)
+  - [Timeline Setup Requirements](#timeline-setup-requirements)
+- [Useful Links](#useful-links)
+- [When to Use](#when-to-use)
 
 ## Features
 
@@ -36,8 +66,6 @@ Install the SDK from NPM:
 npm install @geoapify/route-planner-sdk
 ```
 
----
-
 ## Quick Start
 
 ### Getting API Key
@@ -67,31 +95,7 @@ Or use in HTML:
 </script>
 ```
 
-### Basic Route Optimization Example
-
-```ts
-await planner
-    .setMode("drive")
-    .addAgent(new Agent().setId("agent-1").setStartLocation(13.38, 52.52))
-    .addJob(new Job().setId("job-1").setLocation(13.39, 52.51))
-    .plan();
-```
-or
-
-```ts
-const routePlannerData: RoutePlannerInputData = {
-    agents: [...],
-    jobs: [...],
-    max_speed: 100
-};
-const planner = new RoutePlanner({apiKey: API_KEY}, routePlannerData);
-
-```
----
-
-## Advanced Usage
-
-### Create Shipment / Delivery task
+### Example: Create Shipment / Delivery Task
 
 ```ts
 const planner = new RoutePlanner({apiKey: API_KEY});
@@ -123,7 +127,7 @@ planner.setMaxSpeed(10)
 const result = await planner.plan();
 ```
 
-### Create job optimization task
+### Example: Create Job Optimization Task
 
 ```js
 const planner = new RoutePlanner({apiKey: API_KEY});
@@ -142,13 +146,18 @@ planner.addJob(new Job().setDuration(300).setPickupAmount(0).setLocation(44.5093
 const result = await planner.plan();
 ```
 
----
+## Full Documentation
+
+Looking for full API references, usage examples, and SDK architecture details?
+
+👉 **Explore the full documentation here:**  
+[https://geoapify.github.io/route-planner-sdk/](https://geoapify.github.io/route-planner-sdk/)
 
 ## Modifying Route Results
 
 You can edit planned routes easily using `RoutePlannerResultEditor`.
 
-### Assign jobs to the agent
+### Example: Assign jobs to the agent
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(result);
@@ -156,7 +165,7 @@ await routeEditor.assignJobs('agent-a', ['job-2']);
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
-### Assign shipments to the agent
+### Example: Assign shipments to the agent
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(result);
@@ -164,7 +173,7 @@ await routeEditor.assignShipments('agent-b', ['shipment-2']);
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
-### Remove jobs
+### Example: Remove jobs
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(plannerResult);
@@ -172,7 +181,7 @@ await routeEditor.removeJobs(['job-2']);
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
-### Remove shipments
+### Example: Remove shipments
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(plannerResult);
@@ -180,7 +189,7 @@ await routeEditor.removeShipments(['shipment-4']);
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
-### Add new jobs
+### Example: Add new jobs
 
 ```ts
 let newJob = new Job()
@@ -191,7 +200,7 @@ await routeEditor.addNewJobs('agent-A', [newJob]);
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
-### Add new shipments
+### Example: Add new shipments
 
 ```ts
 let newShipment = new Shipment()
@@ -202,8 +211,6 @@ let newShipment = new Shipment()
 await routeEditor.addNewShipments('agent-A', [newShipment]);
 let modifiedResult = routeEditor.getModifiedResult();
 ```
-
----
 
 ## Timeline Generation
 
@@ -240,7 +247,7 @@ new RoutePlannerTimeline(container, inputData, undefined, {
 
 You can first generate an empty placeholder timeline and later initialize it using the `setResult()` function with the routing result data
 
-###  Example: Generate Timeline with Routing Solution
+###  Example: Generate Timeline with Optimized Routes
 
 Displays a complete timeline that includes the computed routing results, along with interactive waypoint popups for each stop.
 
@@ -319,78 +326,11 @@ timeline.on('onWaypointHover', (waypoint: Waypoint) => {
 });
 ```
 
-
 ### Timeline Setup Requirements
 
 - Include the timeline-specific CSS: `./node_modules/@geoapify/route-planner-sdk/styles/minimal.css`
 - Ensure that your HTML container (`'timeline-container'`) is present and ready to render the timeline
 - Import the necessary types for the timeline feature, such as `RoutePlannerInputData` and `RoutePlannerResult`
-
----
-
-## Documentation
-
-### RoutePlanner Class
-
-| Method / Property                         | Description                                                                                                 | Parameters / Types                                      | Returns                              |
-|------------------------------------------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|--------------------------------------|
-| `constructor(options, raw?)`             | Creates a new `RoutePlanner` instance with provided options and optional input data.                        | `options: RoutePlannerOptions`<br>`raw?: RoutePlannerInputData` | `RoutePlanner` instance             |
-| `getRaw()`                               | Returns the current raw input data.                                                                         | –                                                      | `RoutePlannerInputData`             |
-| `setRaw(value)`                          | Sets or replaces the raw input data.                                                                        | `value: RoutePlannerInputData`                         | `this`                               |
-| `setMode(mode)`                          | Sets the travel mode used for route optimization.                                                           | `mode: TravelMode`                                     | `this`                               |
-| `addAgent(agent)`                        | Adds an agent (e.g. vehicle, driver) to the route planner.                                                  | `agent: Agent`                                         | `this`                               |
-| `addJob(job)`                            | Adds a job (task) to be assigned to an agent.                                                               | `job: Job`                                             | `this`                               |
-| `addLocation(location)`                  | Adds a location reference.                                                                                  | `location: Location`                                   | `this`                               |
-| `addShipment(shipment)`                  | Adds a shipment task with pickup and delivery steps.                                                        | `shipment: Shipment`                                   | `this`                               |
-| `addAvoid(avoid)`                        | Adds an area or rule to avoid during routing.                                                               | `avoid: Avoid`                                         | `this`                               |
-| `setTraffic(traffic)`                    | Sets the traffic model used for optimization.                                                               | `traffic: TrafficType`                                 | `this`                               |
-| `setType(type)`                          | Sets the route optimization strategy (e.g., shortest, balanced).                                            | `type: RouteType`                                      | `this`                               |
-| `setMaxSpeed(max_speed)`                 | Defines maximum allowed speed for agents.                                                                   | `max_speed: number`                                    | `this`                               |
-| `setUnits(units)`                        | Sets measurement units (metric, imperial).                                                                  | `units: DistanceUnitType`                              | `this`                               |
-| `plan()`                                 | Sends the route planning request and returns the optimized result.                                           | –                                                      | `Promise<RoutePlannerResult>`       |
-
----
-
-### RoutePlannerResultEditor Class
-
-| Method / Property                                         | Description                                                                                                  | Parameters / Types                                              | Returns                              |
-|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|--------------------------------------|
-| `constructor(result)`                                    | Creates a new `RoutePlannerResultEditor` instance from an existing route planner result.                    | `result: RoutePlannerResult`                                    | `RoutePlannerResultEditor` instance |
-| `assignJobs(agentId, jobIds)`                            | Assigns one or more jobs to an agent. Removes the job if it was previously assigned to another agent.        | `agentId: string`<br>`jobIds: string[]`                          | `Promise<boolean>`                  |
-| `assignShipments(agentId, shipmentIds)`                  | Assigns one or more shipments to an agent. Removes them from other agents if previously assigned.            | `agentId: string`<br>`shipmentIds: string[]`                    | `Promise<boolean>`                  |
-| `removeJobs(jobIds)`                                     | Removes specified jobs from the plan.                                                                       | `jobIds: string[]`                                              | `Promise<boolean>`                  |
-| `removeShipments(shipmentIds)`                           | Removes specified shipments from the plan.                                                                  | `shipmentIds: string[]`                                        | `Promise<boolean>`                  |
-| `addNewJobs(agentId, jobs)`                              | Adds new jobs to an agent's schedule.                                                                       | `agentId: string`<br>`jobs: Job[]`                               | `Promise<boolean>`                  |
-| `addNewShipments(agentId, shipments)`                    | Adds new shipments to an agent's schedule.                                                                  | `agentId: string`<br>`shipments: Shipment[]`                    | `Promise<boolean>`                  |
-| `getModifiedResult()`                                    | Returns the modified route planner result after editing.                                                    | –                                                                | `RoutePlannerResult`                |
-
-
-### RoutePlannerTimeline Class
-
-| Method / Property                     | Description                                                                                           | Parameters / Types                                                                                  | Returns                          |
-|--------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------|
-| `constructor(container, inputData?, result?, options?)` | Creates a new `RoutePlannerTimeline` instance to visualize the timeline for agents and waypoints.     | `container: HTMLElement`<br>`inputData?: RoutePlannerInputData`<br>`result?: RoutePlannerResult`<br>`options?: RoutePlannerTimelineOptions` | `RoutePlannerTimeline` instance  |
-| `getHasLargeDescription()`           | Checks if large description layout is enabled.                                                        | –                                                                                                   | `boolean \| undefined`           |
-| `setHasLargeDescription(value)`      | Sets whether to use large description layout.                                                         | `value: boolean`                                                                                    | `void`                           |
-| `getTimelineType()`                  | Gets the current timeline type (time or distance).                                                     | –                                                                                                   | `'time' \| 'distance' \| undefined` |
-| `setTimelineType(value)`             | Sets the timeline type to `'time'` or `'distance'`.                                                   | `value: 'time' \| 'distance'`                                                                       | `void`                           |
-| `getAgentColors()`                   | Retrieves the list of agent colors.                                                                   | –                                                                                                   | `string[] \| undefined`          |
-| `setAgentColors(value)`              | Sets the color list for agents.                                                                       | `value: string[]`                                                                                   | `void`                           |
-| `getCapacityUnit()`                  | Gets the unit used for capacity display (e.g., items, kg).                                            | –                                                                                                   | `string \| undefined`            |
-| `setCapacityUnit(value)`             | Sets the capacity unit label.                                                                         | `value: string`                                                                                     | `void`                           |
-| `getTimeLabels()`                    | Retrieves the timeline time labels.                                                                   | –                                                                                                   | `RoutePlannerTimelineLabel[] \| undefined` |
-| `setTimeLabels(value)`               | Sets the timeline time labels.                                                                        | `value: RoutePlannerTimelineLabel[]`                                                                | `void`                           |
-| `getDistanceLabels()`                | Retrieves the timeline distance labels.                                                               | –                                                                                                   | `RoutePlannerTimelineLabel[] \| undefined` |
-| `setDistanceLabels(value)`           | Sets the timeline distance labels.                                                                    | `value: RoutePlannerTimelineLabel[]`                                                                | `void`                           |
-| `getAgentLabel()`                    | Gets the label used for agents (e.g., “Agent”, “Driver”).                                             | –                                                                                                   | `string \| undefined`            |
-| `setAgentLabel(value)`               | Sets the label for agents.                                                                            | `value: string`                                                                                     | `void`                           |
-| `getAgentMenuItems()`                | Gets the configured three-dot menu items for agents.                                                   | –                                                                                                   | `TimelineMenuItem[] \| undefined` |
-| `setAgentMenuItems(value)`           | Sets the menu items for the agent’s three-dot menu.                                                   | `value: TimelineMenuItem[]`                                                                         | `void`                           |
-| `getResult()`                        | Retrieves the current `RoutePlannerResult`.                                                           | –                                                                                                   | `RoutePlannerResult \| undefined` |
-| `setResult(value)`                   | Sets a new `RoutePlannerResult` and regenerates the timeline.                                         | `value: RoutePlannerResult`                                                                         | `void`                           |
-| `on(eventName, handler)`             | Registers an event listener (e.g., for `onWaypointHover`).                                            | `eventName: string`<br>`handler: Function`                                                          | `void`                           |
-| `off(eventName, handler)`            | Removes a previously registered event listener.                                                       | `eventName: string`<br>`handler: Function`                                                          | `void`                           |
-| `getAgentColorByIndex(index)`        | Retrieves the color assigned to a given agent index.                                                  | `index: number`                                                                                     | `string`                         |
 
 
 ## Useful Links
@@ -398,8 +338,6 @@ timeline.on('onWaypointHover', (waypoint: Waypoint) => {
 - [Geoapify Route Planner API Overview](https://www.geoapify.com/route-planner-api/)
 - [API Playground](https://apidocs.geoapify.com/playground/route-planner/)
 - [API Documentation](https://apidocs.geoapify.com/docs/route-planner/)
-
----
 
 ## When to Use
 
