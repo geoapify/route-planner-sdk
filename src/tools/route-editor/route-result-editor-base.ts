@@ -57,6 +57,7 @@ export class RouteResultEditorBase {
         let newFeatureResponse = newResult.getRawData().features[0];
         this.fixAgentIndex(agentId, newFeatureResponse);
         this.fixShipmentJobIndexes(newFeatureResponse);
+        this.fixWaypointIndexes(newFeatureResponse);
         this.result.getRawData().features.push(newFeatureResponse);
     }
 
@@ -227,6 +228,19 @@ export class RouteResultEditorBase {
             if(action.job_id) {
                 action.job_index = this.getInitialJobIndex(action.job_id);
             }
+        })
+    }
+
+   private fixWaypointIndexes(agentData: FeatureResponseData) {
+        agentData.properties.waypoints.forEach(waypoint => {
+            waypoint.actions.forEach(action => {
+                if(action.shipment_id) {
+                    action.shipment_index = this.getInitialShipmentIndex(action.shipment_id);
+                }
+                if(action.job_id) {
+                    action.job_index = this.getInitialJobIndex(action.job_id);
+                }
+            })
         })
     }
 }
