@@ -199,11 +199,12 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B
         // Shipment 2 -> unassigned
+        // Shipment 4 -> unassigned
         expect(modifiedResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-A');
         expect(modifiedResult.getShipmentInfo('shipment-2')).toBeUndefined();
         expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getShipmentInfo('shipment-4')).toBeUndefined();
-        expect(modifiedResult.getUnassignedShipments().length).toBe(1);
+        expect(modifiedResult.getUnassignedShipments().length).toBe(2);
         expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRawData().properties.params.shipments[1]);
     });
 

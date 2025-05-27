@@ -254,11 +254,12 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A
         // Job 2 -> unassigned
+        // Job 4 -> unassigned
         expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
         expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
         expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
-        expect(modifiedResult.getUnassignedJobs().length).toBe(1);
+        expect(modifiedResult.getUnassignedJobs().length).toBe(2);
         expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[1]);
     });
 

@@ -304,11 +304,12 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> Agent B
     // Job 3 -> Agent A
     // Job 2 -> unassigned
+    // Job 4 -> unassigned
     expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
     expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
-    expect(modifiedResult.getUnassignedJobs().length).toBe(1);
+    expect(modifiedResult.getUnassignedJobs().length).toBe(2);
     expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[1]);
   });
 
@@ -346,12 +347,14 @@ describe('RoutePlannerResultEditor', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     // After removal we should have
     // Job 1 -> Agent B
+    // Job 3 -> unassigned
     // Job 4 -> Agent B
+    // Job 2 -> unassigned
     expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
     expect(modifiedResult.getJobInfo('job-3')).toBeUndefined();
     expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getUnassignedJobs().length).toBe(1);
+    expect(modifiedResult.getUnassignedJobs().length).toBe(2);
   });
 
   test('removeJobs should work "Job not found."', async () => {
@@ -386,11 +389,12 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 1 -> Agent A
     // Shipment 3 -> Agent B
     // Shipment 2 -> unassigned
+    // Shipment 4 -> unassigned
     expect(modifiedResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getShipmentInfo('shipment-2')).toBeUndefined();
     expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getShipmentInfo('shipment-4')).toBeUndefined();
-    expect(modifiedResult.getUnassignedShipments().length).toBe(1);
+    expect(modifiedResult.getUnassignedShipments().length).toBe(2);
     expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRawData().properties.params.shipments[1]);
   });
 
@@ -431,7 +435,7 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getShipmentInfo('shipment-2')).toBeUndefined();
     expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getUnassignedShipments().length).toBe(1);
+    expect(modifiedResult.getUnassignedShipments().length).toBe(2);
   });
 
   test('removeShipments should work "Shipment not found."', async () => {
