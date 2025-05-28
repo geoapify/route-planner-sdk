@@ -40,8 +40,8 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
             await this.addShipmentToExistingAgent(agentId, shipmentId);
         }
         if(!newAgentSolution && shipmentInfo) {
-            await this.addShipmentToNonExistingAgent(agentId, shipmentId);
             await this.removeShipmentFromExistingAgent(shipmentInfo);
+            await this.addShipmentToNonExistingAgent(agentId, shipmentId);
         }
         if(!newAgentSolution && !shipmentInfo) {
             await this.addShipmentToNonExistingAgent(agentId, shipmentId);
@@ -83,6 +83,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo) {
         let existingAgentSolution = shipmentInfo.getAgent();
         let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getActions()[0].getShipmentId()!);
+        this.addUnassignedShipment(shipmentInfo);
         if (newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
             this.removeAgent(existingAgentSolution.getAgentId());
         } else {
@@ -149,5 +150,13 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
                 throw new Error("Shipment id is undefined");
             }
         });
+    }
+
+    private addUnassignedShipment(shipmentInfo: RouteActionInfo) {
+        let shipmentIndex = this.getInitialShipmentIndex(shipmentInfo.getActions()[0].getShipmentId()!);
+        if(!this.result.getRawData().properties.issues.unassigned_shipments) {
+            this.result.getRawData().properties.issues.unassigned_shipments = [];
+        }
+        this.result.getRawData().properties.issues.unassigned_shipments.push(shipmentIndex);
     }
 }

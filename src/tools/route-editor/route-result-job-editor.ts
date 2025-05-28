@@ -40,8 +40,8 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
             await this.addJobToExistingAgent(agentId, jobId);
         }
         if(!newAgentSolution && jobInfo) {
-            await this.addJobToNonExistingAgent(agentId, jobId);
             await this.removeJobFromExistingAgent(jobInfo);
+            await this.addJobToNonExistingAgent(agentId, jobId);
         }
         if(!newAgentSolution && !jobInfo) {
             await this.addJobToNonExistingAgent(agentId, jobId);
@@ -83,6 +83,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private async removeJobFromExistingAgent(jobInfo: RouteActionInfo) {
         let existingAgentSolution = jobInfo.getAgent();
         let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getActions()[0].getJobId()!);
+        this.addUnassignedJob(jobInfo);
         if(newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
             this.removeAgent(existingAgentSolution.getAgentId());
         } else {
@@ -149,5 +150,13 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
                 throw new Error("Job id is undefined");
             }
         });
+    }
+
+    private addUnassignedJob(shipmentInfo: RouteActionInfo) {
+        let jobIndex = this.getInitialJobIndex(shipmentInfo.getActions()[0].getJobId()!);
+        if (!this.result.getRawData().properties.issues.unassigned_jobs) {
+            this.result.getRawData().properties.issues.unassigned_jobs = [];
+        }
+        this.result.getRawData().properties.issues.unassigned_jobs.push(jobIndex);
     }
 }
