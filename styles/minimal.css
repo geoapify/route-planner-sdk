@@ -151,13 +151,28 @@
     border: none;
     font-size: 20px;
     cursor: pointer;
-    transform: rotate(90deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px 15px;
+    margin-right: 6px;
+    border-radius: 50%;
+    padding: 7px 15px;
+    transition: background-color 0.5s;
+}
+
+.geoapify-rp-sdk-three-dot-button:hover {
+    background: #80808024;
+}
+
+.geoapify-rp-sdk-three-dot-button svg {
+    height: 1.2rem;
 }
 
 .geoapify-rp-sdk-menu-list {
     display: none;
     position: absolute;
-    right: 0;
+    left: 26px;
     top: 0;
     background-color: white;
     border: 1px solid #ccc;
