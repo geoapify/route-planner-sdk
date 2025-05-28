@@ -9,8 +9,11 @@
       "import": "./dist/index.min.esm.js",
       "require": "./dist/index.cjs.js"
     },
-    "./styles/minimal.css": {
-      "default": "./styles/minimal.css"
+    "./styles/timeline-minimal.css": {
+      "default": "./styles/timeline-minimal.css"
+    },
+    "./styles/timeline-dark.css": {
+      "default": "./styles/timeline-dark.css"
     }
   },
   "typings": "dist/index.d.ts",
