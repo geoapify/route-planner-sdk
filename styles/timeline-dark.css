@@ -7,7 +7,7 @@
 }
 
 .geoapify-rp-sdk-timeline-item.geoapify-rp-sdk-even {
-    background-color: black;
+    background-color: #333;
 }
 
 .geoapify-rp-sdk-timeline-item-agent {
@@ -60,7 +60,7 @@
     right: 0;
     left: 0;
     height: 1px;
-    border-top: 1px solid rgba(0, 0, 0, .1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .geoapify-rp-sdk-timeline .geoapify-rp-sdk-value-line {
@@ -90,14 +90,14 @@
 
 .geoapify-rp-sdk-solution-item .geoapify-rp-sdk-solution-item-full {
     height: 10px;
-    border: 1px solid lightgrey;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 5px;
 }
 
 .geoapify-rp-sdk-solution-item-standard {
     height: 10px;
     width: 20px;
-    border: 1px solid lightgrey;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 5px;
 }
 
@@ -105,12 +105,12 @@
     height: 10px;
     width: 10px;
     border-radius: 50%;
-    border: 1px solid lightgrey;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .geoapify-rp-sdk-timeline .geoapify-rp-sdk-label-vertical-line {
     position: absolute;
-    border-left: 1px solid rgba(0, 0, 0, .05);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     width: 1px;
     top: 0;
     bottom: 0;
@@ -118,8 +118,8 @@
 
 .geoapify-rp-sdk-custom-tooltip {
     position: fixed;
-    background: dimgrey;
-    color: black;
+    background: #424242;
+    color: #fff;
     padding: 6px 8px;
     font-size: 12px;
     border-radius: 4px;
@@ -162,7 +162,7 @@
 }
 
 .geoapify-rp-sdk-three-dot-button:hover {
-    background: #80808024;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .geoapify-rp-sdk-three-dot-button svg {
@@ -174,9 +174,9 @@
     position: absolute;
     left: 26px;
     top: 0;
-    background-color: black;
-    border: 1px solid black;
-    box-shadow: 0px 8px 16px 0px lightgrey;
+    background-color: #2d2d2d;
+    border: 1px solid #555;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.4);
     z-index: 1000;
     list-style: none;
     padding: 5px 0;
@@ -188,8 +188,9 @@
 .geoapify-rp-sdk-menu-item {
     padding: 8px 12px;
     cursor: pointer;
+    color: #fff;
 }
 
 .geoapify-rp-sdk-menu-item:hover {
-    background-color: black;
+      background-color: rgba(255, 255, 255, 0.08);
 }
