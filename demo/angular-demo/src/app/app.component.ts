@@ -33,6 +33,7 @@ export class AppComponent {
 
   generateTask() {
     let inputData = JSON.parse(this.rawDataForDrawingTimeline);
+    this.lightTheme();
 
     const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
       const popupDiv = document.createElement('div');
@@ -246,5 +247,26 @@ export class AppComponent {
             return `${(meters / 1000).toFixed(2)} km`;
         }
         return `${meters} m`;
+    }
+
+    lightTheme() {
+      this.loadCssFile('assets/styles/timeline-minimal.css');
+    }
+    darkTheme() {
+      this.loadCssFile('assets/styles/timeline-dark.css');
+    }
+
+    loadCssFile(path: string, id: string = 'theme-style') {
+      let linkEl = document.getElementById(id) as HTMLLinkElement;
+
+      if (linkEl) {
+        linkEl.href = path;
+      } else {
+        linkEl = document.createElement('link');
+        linkEl.rel = 'stylesheet';
+        linkEl.id = id;
+        linkEl.href = path;
+        document.head.appendChild(linkEl);
+      }
     }
 }

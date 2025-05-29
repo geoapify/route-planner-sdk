@@ -154,9 +154,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private addUnassignedShipment(shipmentInfo: RouteActionInfo) {
         let shipmentIndex = this.getInitialShipmentIndex(shipmentInfo.getActions()[0].getShipmentId()!);
-        if(!this.result.getRawData().properties.issues.unassigned_shipments) {
-            this.result.getRawData().properties.issues.unassigned_shipments = [];
-        }
+        this.generateEmptyUnassignedShipmentsIfNeeded();
         this.result.getRawData().properties.issues.unassigned_shipments.push(shipmentIndex);
     }
 }

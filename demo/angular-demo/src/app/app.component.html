@@ -7,6 +7,11 @@
 <button (click)="solveTask()"  *ngIf="routePlannerTimeline" style="margin-right: 10px">Solve Task</button>
 <button (click)="generateAndSolveTask()" >Generate and Solve Task</button>
 
+<div *ngIf="routePlannerTimeline" style="padding-top: 10px">
+    <button (click)="lightTheme()">Light Theme</button>
+    <button (click)="darkTheme()">Dark Theme</button>
+</div>
+
 <div #timelinesContainer style="padding-top: 20px">
 
 </div>
