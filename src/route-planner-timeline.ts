@@ -26,7 +26,11 @@ export class RoutePlannerTimeline {
       <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${this.options.hasLargeDescription ? 'geoapify-rp-sdk-wider' : ''}">
        ${agentMenuItems && agentMenuItems.length > 0 ? `
             <div class="geoapify-rp-sdk-three-dot-menu" data-agent-index="${timeline.agentIndex}">
-                <button class="geoapify-rp-sdk-three-dot-button">&#8230;</button>
+                <button class="geoapify-rp-sdk-three-dot-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512">
+                        <path d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"/>
+                    </svg>
+                </button>
                 <ul class="geoapify-rp-sdk-menu-list">
                     ${agentMenuItems.map(item => `
                         <li class="geoapify-rp-sdk-menu-item" data-key="${item.key}">${item.label}</li>
@@ -689,10 +693,6 @@ export class RoutePlannerTimeline {
         if (menuList) {
             this.closeAllThreeDotMenus(threeDotMenuElement);
             menuList.style.display = menuList.style.display === 'block' ? 'none' : 'block';
-            if (menuList.style.display === 'block') {
-                const buttonRect = threeDotMenuElement.getBoundingClientRect();
-                menuList.style.left = `${buttonRect.left + window.scrollX}px`;
-            }
         }
     }
 

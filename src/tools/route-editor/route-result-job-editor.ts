@@ -154,9 +154,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private addUnassignedJob(shipmentInfo: RouteActionInfo) {
         let jobIndex = this.getInitialJobIndex(shipmentInfo.getActions()[0].getJobId()!);
-        if (!this.result.getRawData().properties.issues.unassigned_jobs) {
-            this.result.getRawData().properties.issues.unassigned_jobs = [];
-        }
+        this.generateEmptyUnassignedJobsIfNeeded();
         this.result.getRawData().properties.issues.unassigned_jobs.push(jobIndex);
     }
 }

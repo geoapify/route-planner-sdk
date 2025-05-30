@@ -1,6 +1,6 @@
 import RoutePlanner, {
     RoutePlannerResultEditor,
-    RoutePlannerResultData, Agent, Job
+    RoutePlannerResultData, Agent, Job, RoutePlannerResultResponseData
 } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
 import { loadJson } from "../../utils.helper";
@@ -449,5 +449,16 @@ describe('RoutePlannerResultJobEditor', () => {
         } catch (error: any) {
             expect(error.message).toBe('Job id is undefined');
         }
+    });
+
+    test('removeJobs should work "No issues found."', async () => {
+        let assignJobRawData: RoutePlannerResultResponseData = loadJson("data/route-planner-result-editor/job/raw-result-has-no-issues.json");
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, assignJobRawData);
+
+        const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        await routeEditor.removeJobs(['11']);
+        let modifiedResult = routeEditor.getModifiedResult();
+
+        expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     });
 });

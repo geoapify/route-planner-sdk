@@ -1,0 +1,197 @@
+.geoapify-rp-sdk-timeline-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 20px;
+    margin-right: -20px;
+}
+
+.geoapify-rp-sdk-timeline-item.geoapify-rp-sdk-even {
+    background-color: #333;
+}
+
+.geoapify-rp-sdk-timeline-item-agent {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 140px;
+}
+
+.geoapify-rp-sdk-timeline-item-agent.geoapify-rp-sdk-wider {
+    width: 200px;
+}
+
+.geoapify-rp-sdk-agent-info {
+    margin-right: 10px;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.geoapify-rp-sdk-mat-subtitle-2 {
+    font: 500 14px / 22px Roboto, sans-serif;
+    letter-spacing: .0071428571em;
+}
+
+.geoapify-rp-sdk-mat-caption {
+    font: 400 12px / 20px Roboto, sans-serif;
+    letter-spacing: .0333333333em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.geoapify-rp-sdk-timeline {
+    margin-left: 10px;
+    position: relative;
+    height: 100%;
+    min-height: 45px;
+    flex: 1;
+    min-width: 0;
+}
+
+.geoapify-rp-sdk-timeline .geoapify-rp-sdk-line {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 1px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.geoapify-rp-sdk-timeline .geoapify-rp-sdk-value-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 8px;
+    margin-top: -4px;
+    z-index: 10;
+    border-radius: 4px;
+}
+
+.geoapify-rp-sdk-solution-item {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+.geoapify-rp-sdk-label-vertical-line {
+    position: absolute;
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    width: 1px;
+    top: 0;
+    bottom: 0;
+}
+
+.geoapify-rp-sdk-solution-item .geoapify-rp-sdk-solution-item-full {
+    height: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+}
+
+.geoapify-rp-sdk-solution-item-standard {
+    height: 10px;
+    width: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+}
+
+.geoapify-rp-sdk-solution-item .geoapify-rp-sdk-solution-item-minimal {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.geoapify-rp-sdk-timeline .geoapify-rp-sdk-label-vertical-line {
+    position: absolute;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    width: 1px;
+    top: 0;
+    bottom: 0;
+}
+
+.geoapify-rp-sdk-custom-tooltip {
+    position: fixed;
+    background: #424242;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 99999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    max-width: 200px;
+    min-width: 80px;
+    min-height: 24px;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    white-space: pre-line;
+}
+
+.geoapify-rp-sdk-custom-tooltip.geoapify-rp-sdk-show {
+    opacity: 1;
+}
+
+.geoapify-rp-sdk-three-dot-menu {
+    position: relative;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.geoapify-rp-sdk-three-dot-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px 15px;
+    margin-right: 6px;
+    border-radius: 50%;
+    padding: 7px 15px;
+    transition: background-color 0.5s;
+    fill: white;
+}
+
+.geoapify-rp-sdk-three-dot-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.geoapify-rp-sdk-three-dot-button svg {
+    height: 1.2rem;
+}
+
+.geoapify-rp-sdk-menu-list {
+    display: none;
+    position: absolute;
+    left: 26px;
+    top: 0;
+    background-color: #2d2d2d;
+    border: 1px solid #555;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.4);
+    z-index: 1000;
+    list-style: none;
+    padding: 5px 0;
+    margin: 0;
+    min-width: 150px;
+    border-radius: 5px;
+}
+
+.geoapify-rp-sdk-menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.geoapify-rp-sdk-menu-item:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+}
