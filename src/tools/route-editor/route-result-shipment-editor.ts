@@ -4,136 +4,136 @@ import { AgentSolution, RouteActionInfo, Shipment, ShipmentData } from "../../mo
 
 export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
-    async assignShipments(agentId: string, shipmentIds: string[]): Promise<boolean> {
-        this.validateAgent(agentId);
-        this.validateShipments(shipmentIds, agentId);
-        for (const shipmentId of shipmentIds) {
-            await this.assignShipment(shipmentId, agentId);
+    async assignShipments(agentIndex: number, shipmentIndexes: number[]): Promise<boolean> {
+        this.validateAgent(agentIndex);
+        this.validateShipments(shipmentIndexes, agentIndex);
+        for (const shipmentIndex of shipmentIndexes) {
+            await this.assignShipment(shipmentIndex, agentIndex);
         }
         return true;
     }
 
-    async removeShipments(shipmentIds: string[]) {
-        this.validateShipments(shipmentIds);
-        for (const shipmentId of shipmentIds) {
-            await this.removeShipment(shipmentId);
+    async removeShipments(shipmentIndexes: number[]) {
+        this.validateShipments(shipmentIndexes);
+        for (const shipmentIndex of shipmentIndexes) {
+            await this.removeShipment(shipmentIndex);
         }
         return true;
     }
 
-    async addNewShipments(agentId: string, shipments: Shipment[]) {
+    async addNewShipments(agentIndex: number, shipments: Shipment[]) {
         let shipmentsRaw = shipments.map(shipment => shipment.getRaw());
-        this.validateAgent(agentId);
+        this.validateAgent(agentIndex);
         this.validateNewShipments(shipmentsRaw);
-        await this.addNewShipmentsToAgent(agentId, shipmentsRaw);
+        await this.addNewShipmentsToAgent(agentIndex, shipmentsRaw);
         return true;
     }
 
-    private async assignShipment(shipmentId: string, agentId: string) {
-        let shipmentInfo = this.result.getShipmentInfo(shipmentId);
-        let newAgentSolution = this.result.getAgentSolution(agentId)!;
+    private async assignShipment(shipmentIndex: number, agentIndex: number) {
+        let shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
+        let newAgentSolution = this.result.getAgentSolutionByIndex(agentIndex)!;
         if (newAgentSolution && shipmentInfo) {
-            await this.addShipmentToExistingAgent(agentId, shipmentId);
-            await this.removeShipmentFromExistingAgent(shipmentInfo);
+            await this.addShipmentToExistingAgent(agentIndex, shipmentIndex);
+            await this.removeShipmentFromExistingAgent(shipmentInfo, agentIndex);
         }
         if (newAgentSolution && !shipmentInfo) {
-            await this.addShipmentToExistingAgent(agentId, shipmentId);
+            await this.addShipmentToExistingAgent(agentIndex, shipmentIndex);
         }
         if(!newAgentSolution && shipmentInfo) {
-            await this.removeShipmentFromExistingAgent(shipmentInfo);
-            await this.addShipmentToNonExistingAgent(agentId, shipmentId);
+            await this.removeShipmentFromExistingAgent(shipmentInfo, agentIndex);
+            await this.addShipmentToNonExistingAgent(agentIndex, shipmentIndex);
         }
         if(!newAgentSolution && !shipmentInfo) {
-            await this.addShipmentToNonExistingAgent(agentId, shipmentId);
+            await this.addShipmentToNonExistingAgent(agentIndex, shipmentIndex);
         }
     }
 
-    private async removeShipment(shipmentId: string) {
-        let shipmentInfo = this.result.getShipmentInfo(shipmentId);
+    private async removeShipment(shipmentIndex: number) {
+        let shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
         if (shipmentInfo) {
-            await this.removeShipmentFromExistingAgent(shipmentInfo);
+            await this.removeShipmentFromExistingAgent(shipmentInfo, shipmentIndex);
         } else {
-            let shipmentInitialInfo = this.getInitialShipmentIndex(shipmentId);
             this.result.getRawData().properties.issues.unassigned_shipments =
-                this.result.getRawData().properties.issues.unassigned_shipments.filter((shipmentIndex) => shipmentIndex !== shipmentInitialInfo);
+                this.result.getRawData().properties.issues.unassigned_shipments.filter((shipmentIndex) => shipmentIndex !== shipmentIndex);
         }
     }
 
-    private async addNewShipmentsToAgent(agentId: string, shipments: ShipmentData[]) {
-        let existingAgentSolution = this.result.getAgentSolution(agentId);
+    private async addNewShipmentsToAgent(agentIndex: number, shipments: ShipmentData[]) {
+        let existingAgentSolution = this.result.getAgentSolutionByIndex(agentIndex);
+        let initialShipmentsCount = this.result.getRawData().properties.params.shipments.length;
         this.result.getRawData().properties.params.shipments.push(...shipments);
-        let newAgentInput = this.addShipmentsToAgent(agentId, shipments.map((shipment) => shipment.id!), existingAgentSolution);
+        let newAgentInput = this.addShipmentsToAgent(agentIndex, shipments.map((shipment, index) => initialShipmentsCount + index), existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan);
+        this.updateAgent(optimizedRouterPlan, agentIndex);
     }
 
-    private async addShipmentToNonExistingAgent(agentId: string, shipmentId: string) {
-        let newAgentInput = this.addShipmentsToAgent(agentId, [shipmentId]);
+    private async addShipmentToNonExistingAgent(agentIndex: number, shipmentIndex: number) {
+        let newAgentInput = this.addShipmentsToAgent(agentIndex, [shipmentIndex]);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan);
+        this.updateAgent(optimizedRouterPlan, agentIndex);
     }
 
-    private async addShipmentToExistingAgent(agentId: string, shipmentId: string) {
-        let existingAgentSolution = this.result.getAgentSolution(agentId)!;
-        let newAgentInput = this.addShipmentsToAgent(agentId, [shipmentId], existingAgentSolution);
+    private async addShipmentToExistingAgent(agentIndex: number, shipmentIndex: number) {
+        let existingAgentSolution = this.result.getAgentSolutionByIndex(agentIndex)!;
+        let newAgentInput = this.addShipmentsToAgent(agentIndex, [shipmentIndex], existingAgentSolution);
         let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan);
+        this.updateAgent(optimizedRouterPlan, agentIndex);
     }
 
-    private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo) {
+    private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo, originalAgentIndex: number) {
         let existingAgentSolution = shipmentInfo.getAgent();
-        let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getActions()[0].getShipmentId()!);
+        let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getActions()[0].getShipmentIndex()!);
         this.addUnassignedShipment(shipmentInfo);
-        if (newAgentInput.agentShipmentIds.size == 0 && newAgentInput.agentJobIds.size == 0) {
-            this.removeAgent(existingAgentSolution.getAgentId());
+        if (newAgentInput.agentShipmentIndexes.size == 0 && newAgentInput.agentJobIndexes.size == 0) {
+            this.removeAgent(existingAgentSolution.getAgentIndex());
         } else {
             let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-            this.updateAgent(optimizedRouterPlan);
+            this.updateAgent(optimizedRouterPlan, originalAgentIndex);
         }
     }
 
-    private addShipmentsToAgent(agentId: string, shipmentIds: string[], existingAgent?: AgentSolution): OptimizeAgentInput {
-        let optimizedAgentInput = this.generateOptimizeAgentInput(agentId, existingAgent);
-        shipmentIds.forEach(shipmentId => {
-            optimizedAgentInput.agentShipmentIds.add(shipmentId);
+    private addShipmentsToAgent(agentIndex: number, shipmentIndexes: number[], existingAgent?: AgentSolution): OptimizeAgentInput {
+        let optimizedAgentInput = this.generateOptimizeAgentInput(agentIndex, existingAgent);
+        shipmentIndexes.forEach(shipmentIndex => {
+            optimizedAgentInput.agentShipmentIndexes.add(shipmentIndex);
         });
         return optimizedAgentInput;
     }
 
-    private removeShipmentFromAgent(existingAgent: AgentSolution, shipmentId: string): OptimizeAgentInput {
-        let optimizedAgentInput = this.generateOptimizeAgentInput(existingAgent.getAgentId(), existingAgent);
-        optimizedAgentInput.agentShipmentIds.delete(shipmentId);
+    private removeShipmentFromAgent(existingAgent: AgentSolution, shipmentIndex: number): OptimizeAgentInput {
+        let optimizedAgentInput = this.generateOptimizeAgentInput(existingAgent.getAgentIndex(), existingAgent);
+        optimizedAgentInput.agentShipmentIndexes.delete(shipmentIndex);
         return optimizedAgentInput;
     }
 
-    private validateShipments(shipmentIds: string[], agentId?: string) {
-        if (shipmentIds.length == 0) {
+    private validateShipments(shipmentIndexes: number[], agentIndex?: number) {
+        if (shipmentIndexes.length == 0) {
             throw new Error("No shipments provided");
         }
-        if (!this.checkIfArrayIsUnique(shipmentIds)) {
+        if (!this.checkIfArrayIsUnique(shipmentIndexes)) {
             throw new Error("Shipments are not unique");
         }
-        shipmentIds.forEach((shipmentId) => {
-            let shipmentInfo = this.result.getShipmentInfo(shipmentId);
+        shipmentIndexes.forEach((shipmentIndex) => {
+            let shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
             if (shipmentInfo == undefined) {
-                this.validateShipmentExists(shipmentId);
+                this.validateShipmentExists(shipmentIndex);
             }
-            if(agentId) {
-                if (shipmentInfo?.getAgentId() == agentId) {
-                    throw new Error(`Shipment with id ${shipmentId} already assigned to agent ${agentId}`);
+            if(agentIndex) {
+                if (shipmentInfo?.getAgent().getAgentIndex() == agentIndex) {
+                    throw new Error(`Shipment with id ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
                 }
             }
         });
     }
 
-    private validateShipmentExists(shipmentId: string) {
-        let shipmentIndex = this.getInitialShipmentIndex(shipmentId);
-        if (shipmentIndex == -1) {
-            throw new Error(`Shipment with id ${shipmentId} not found`);
+    private validateShipmentExists(shipmentIndex: number) {
+        let shipmentFound = this.getShipmentByIndex(shipmentIndex);
+        if (!shipmentFound) {
+            throw new Error(`Shipment with index ${shipmentIndex} not found`);
         } else {
             let isUnassignedShipment = this.result.getRawData().properties.issues.unassigned_shipments.includes(shipmentIndex);
             if (!isUnassignedShipment) {
-                throw new Error(`Shipment with id ${shipmentId} not found`);
+                throw new Error(`Shipment with id ${shipmentIndex} not found`);
             }
         }
     }

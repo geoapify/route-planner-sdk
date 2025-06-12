@@ -1,5 +1,12 @@
 import { RoutePlannerResult } from "../../models/entities/route-planner-result";
-import { AgentSolution, FeatureResponseData, RoutePlannerInputData } from "../../models";
+import {
+    AgentData,
+    AgentSolution,
+    FeatureResponseData,
+    JobData,
+    RoutePlannerInputData,
+    ShipmentData
+} from "../../models";
 import { Utils } from "../utils";
 import { RoutePlanner } from "../../route-planner";
 import { OptimizeAgentInput } from "./optimize-agent-input";
@@ -14,68 +21,77 @@ export class RouteResultEditorBase {
     protected async optimizeRoute(optimizeAgentInput: OptimizeAgentInput): Promise<RoutePlannerResult> {
         let newRawData: RoutePlannerInputData = Utils.cloneObject(this.result.getRawData().properties.params);
 
-        newRawData.agents = newRawData.agents?.filter(nextAgent => nextAgent.id == optimizeAgentInput.agentId);
-        newRawData.jobs = newRawData.jobs?.filter(nextJob => optimizeAgentInput.agentJobIds.has(nextJob.id!));
-        newRawData.shipments = newRawData.shipments?.filter(nextShipment => optimizeAgentInput.agentShipmentIds.has(nextShipment.id!));
+        newRawData.agents = newRawData.agents?.filter((nextAgent, index) => index == optimizeAgentInput.agentIndex);
+        newRawData.jobs = newRawData.jobs?.filter(((nextJob, index) => optimizeAgentInput.agentJobIndexes.has(index)));
+        newRawData.shipments = newRawData.shipments?.filter(((nextShipment, index) => optimizeAgentInput.agentShipmentIndexes.has(index)));
 
         const planner = new RoutePlanner(this.result.getOptions(), newRawData);
         return await planner.plan();
     }
 
-    protected removeAgent(agentId: string) {
-        let agentIndex = this.getInitialAgentIndex(agentId);
-        this.removeAgentWithId(agentId);
+    protected removeAgent(agentIndex: number) {
+        this.removeAgentWithIndex(agentIndex);
         this.addUnassignedAgentIfNeeded(agentIndex);
         // TODO: maybe we need to add shipments/locations in unassigned arrays
     }
 
-    private removeAgentWithId(agentId: string) {
-        this.result.getRawData().features = this.result.getRawData().features.filter(agent => agent.properties.agent_id != agentId);
+    private removeAgentWithIndex(agentIndex: number) {
+        this.result.getRawData().features = this.result.getRawData().features.filter(agent => agent.properties.agent_index != agentIndex);
     }
 
-    protected updateAgent(newResult: RoutePlannerResult) {
-        let agentId = newResult.getRawData().properties.params.agents[0].id!;
+    protected updateAgent(newResult: RoutePlannerResult, originalAgentIndex: number) {
         if (newResult.getUnassignedAgents().length > 0) {
-            let agentIndex = this.getInitialAgentIndex(agentId);
-            if (!this.result.getRawData().properties.issues.unassigned_agents.includes(agentIndex)) {
-                this.removeAgentWithId(agentId);
+            if (!this.result.getRawData().properties.issues.unassigned_agents.includes(originalAgentIndex)) {
+                this.removeAgentWithIndex(originalAgentIndex);
             } else {
-                this.updateResultWithUpdatedAgent(newResult, agentId);
+                this.updateResultWithUpdatedAgent(newResult, originalAgentIndex);
             }
             this.updateUnassignedItems(newResult);
         } else {
-            let existingAgentSolution = this.result.getAgentSolution(agentId);
+            let existingAgentSolution = this.result.getAgentSolutionByIndex(originalAgentIndex);
             if (existingAgentSolution) {
-                this.removeAgentWithId(agentId);
+                this.removeAgentWithIndex(originalAgentIndex);
             }
-            this.updateResultWithUpdatedAgent(newResult, agentId);
+            this.updateResultWithUpdatedAgent(newResult, originalAgentIndex);
             this.updateUnassignedItems(newResult);
         }
     }
 
-    private updateResultWithUpdatedAgent(newResult: RoutePlannerResult, agentId: string) {
+    private updateResultWithUpdatedAgent(newResult: RoutePlannerResult, originalAgentIndex: number) {
         let newFeatureResponse = newResult.getRawData().features[0];
-        this.fixAgentIndex(agentId, newFeatureResponse);
+        this.fixAgentIndex(originalAgentIndex, newFeatureResponse);
         this.fixShipmentJobIndexes(newFeatureResponse);
         this.fixWaypointIndexes(newFeatureResponse);
         this.result.getRawData().features.push(newFeatureResponse);
     }
 
-    protected generateOptimizeAgentInput(agentId: string, existingAgent?: AgentSolution): OptimizeAgentInput {
+    protected generateOptimizeAgentInput(agentIndex: number, existingAgent?: AgentSolution): OptimizeAgentInput {
         if (!existingAgent) {
-            return new OptimizeAgentInput(agentId, [], []);
+            return new OptimizeAgentInput(agentIndex, [], []);
         }
         let agentJobs = existingAgent.getActions()
-            .filter(action => action.getJobId() !== undefined)
-            .map(action => action.getJobId()!);
+            .filter(action => action.getJobIndex() !== undefined)
+            .map(action => action.getJobIndex()!);
         let agentShipments = existingAgent.getActions()
-            .filter(action => action.getShipmentId() !== undefined)
-            .map(action => action.getShipmentId()!);
-        return new OptimizeAgentInput(existingAgent.getAgentId(), agentJobs, agentShipments);
+            .filter(action => action.getShipmentIndex() !== undefined)
+            .map(action => action.getShipmentIndex()!);
+        return new OptimizeAgentInput(existingAgent.getAgentIndex(), agentJobs, agentShipments);
     }
 
     protected checkIfArrayIsUnique(myArray: any[]) {
         return myArray.length === new Set(myArray).size;
+    }
+
+    protected getAgentByIndex(agentIndex: number): AgentData {
+        return this.result.getRawData().properties.params.agents[agentIndex];
+    }
+
+    protected getJobByIndex(jobIndex: number): JobData {
+        return this.result.getRawData().properties.params.jobs[jobIndex];
+    }
+
+    protected getShipmentByIndex(shipmentIndex: number): ShipmentData {
+        return this.result.getRawData().properties.params.shipments[shipmentIndex];
     }
 
     protected getInitialAgentIndex(agentId: string): number {
@@ -90,9 +106,9 @@ export class RouteResultEditorBase {
         return this.result.getRawData().properties.params.shipments.findIndex(item => item.id == shipmentId);
     }
 
-    protected validateAgent(agentId: string) {
-        let agentIndex = this.getInitialAgentIndex(agentId);
-        if (agentIndex == -1) {
+    protected validateAgent(agentId: number) {
+        let agentFound = this.getAgentByIndex(agentId);
+        if (!agentFound) {
             throw new Error(`Agent with id ${agentId} not found`);
         }
     }
@@ -203,12 +219,11 @@ export class RouteResultEditorBase {
         }
     }
 
-    private fixAgentIndex(agentId: string, agentData: FeatureResponseData) {
-        let agentIndexFound = this.getInitialAgentIndex(agentId);
-        if(agentIndexFound != -1) {
-            agentData.properties.agent_index = agentIndexFound;
+    private fixAgentIndex(originalAgentIndex: number, agentData: FeatureResponseData) {
+        if(originalAgentIndex != -1) {
+            agentData.properties.agent_index = originalAgentIndex;
         } else {
-            console.log(`Agent with id ${agentId} not found in the result`);
+            console.log(`Agent with index ${originalAgentIndex} not found in the result`);
         }
     }
 

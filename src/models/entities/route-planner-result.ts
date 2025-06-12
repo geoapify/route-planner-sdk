@@ -77,6 +77,18 @@ export class RoutePlannerResult {
     }
 
     /**
+     * Finds an agent's solution by their index.
+     */
+    getAgentSolutionByIndex(agentIndex: number): AgentSolution | undefined {
+        let agentFound = this.getData().agents.find(agent => agent.agentIndex === agentIndex)
+        if(agentFound === undefined) {
+            return undefined;
+        } else {
+            return new AgentSolution(agentFound);
+        }
+    }
+
+    /**
      * Retrieves all waypoints of a specific agent.
      */
     getAgentWaypoints(agentId: string): Waypoint[] {
@@ -304,6 +316,52 @@ export class RoutePlannerResult {
         for (const agent of this.getAgentSolutions()) {
             for (const action of agent.getActions()) {
                 if (action.getShipmentId() === shipmentId) {
+                    actions.push(action);
+                    agentFound = agent;
+                }
+            }
+        }
+        if(actions.length !== 0 && agentFound) {
+            return new RouteActionInfo({ agentId: agentFound.getAgentId(), actions: actions, agent: agentFound });
+        }
+        return undefined; // Shipment not found
+    }
+
+    /**
+     * Retrieves detailed information about a specific job.
+     */
+    getJobInfoByIndex(jobIndex: number): RouteActionInfo | undefined {
+        if(!jobIndex) {
+            return undefined;
+        }
+        let actions = [];
+        let agentFound;
+        for (const agent of this.getAgentSolutions()) {
+            for (const action of agent.getActions()) {
+                if (action.getJobIndex() === jobIndex) {
+                     actions.push(action);
+                     agentFound = agent;
+                }
+            }
+        }
+        if(actions.length !== 0 && agentFound) {
+            return new RouteActionInfo({ agentId: agentFound.getAgentId(), actions: actions, agent: agentFound });
+        }
+        return undefined; // Job not found
+    }
+
+    /**
+     * Retrieves detailed information about a specific shipment.
+     */
+    getShipmentInfoByIndex(shipmentIndex: number): RouteActionInfo | undefined {
+        if(!shipmentIndex) {
+            return undefined;
+        }
+        let actions = [];
+        let agentFound;
+        for (const agent of this.getAgentSolutions()) {
+            for (const action of agent.getActions()) {
+                if (action.getShipmentIndex() === shipmentIndex) {
                     actions.push(action);
                     agentFound = agent;
                 }
