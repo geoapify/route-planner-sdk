@@ -132,10 +132,10 @@ export class RouteResultEditorBase {
         return this.result.getRawData().properties.params.shipments[shipmentIndex];
     }
 
-    protected validateAgent(agentId: number) {
-        let agentFound = this.getAgentByIndex(agentId);
+    protected validateAgent(agentIndex: number) {
+        let agentFound = this.getAgentByIndex(agentIndex);
         if (!agentFound) {
-            throw new Error(`Agent with id ${agentId} not found`);
+            throw new Error(`Agent with index ${agentIndex} not found`);
         }
     }
 
