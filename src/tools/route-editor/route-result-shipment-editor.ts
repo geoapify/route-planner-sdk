@@ -33,14 +33,14 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         let shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
         let newAgentSolution = this.result.getAgentSolutionByIndex(agentIndex)!;
         if (newAgentSolution && shipmentInfo) {
+            await this.removeShipmentFromExistingAgent(shipmentInfo);
             await this.addShipmentToExistingAgent(agentIndex, shipmentIndex);
-            await this.removeShipmentFromExistingAgent(shipmentInfo, agentIndex);
         }
         if (newAgentSolution && !shipmentInfo) {
             await this.addShipmentToExistingAgent(agentIndex, shipmentIndex);
         }
         if(!newAgentSolution && shipmentInfo) {
-            await this.removeShipmentFromExistingAgent(shipmentInfo, agentIndex);
+            await this.removeShipmentFromExistingAgent(shipmentInfo);
             await this.addShipmentToNonExistingAgent(agentIndex, shipmentIndex);
         }
         if(!newAgentSolution && !shipmentInfo) {
@@ -51,7 +51,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private async removeShipment(shipmentIndex: number) {
         let shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
         if (shipmentInfo) {
-            await this.removeShipmentFromExistingAgent(shipmentInfo, shipmentIndex);
+            await this.removeShipmentFromExistingAgent(shipmentInfo);
         } else {
             this.result.getRawData().properties.issues.unassigned_shipments =
                 this.result.getRawData().properties.issues.unassigned_shipments.filter((shipmentIndex) => shipmentIndex !== shipmentIndex);
@@ -80,7 +80,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         this.updateAgent(optimizedRouterPlan, agentIndex);
     }
 
-    private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo, originalAgentIndex: number) {
+    private async removeShipmentFromExistingAgent(shipmentInfo: RouteActionInfo) {
         let existingAgentSolution = shipmentInfo.getAgent();
         let newAgentInput = this.removeShipmentFromAgent(existingAgentSolution, shipmentInfo.getActions()[0].getShipmentIndex()!);
         this.addUnassignedShipment(shipmentInfo);
@@ -88,7 +88,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
             this.removeAgent(existingAgentSolution.getAgentIndex());
         } else {
             let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-            this.updateAgent(optimizedRouterPlan, originalAgentIndex);
+            this.updateAgent(optimizedRouterPlan, shipmentInfo.getAgent().getAgentIndex());
         }
     }
 
@@ -118,9 +118,9 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
             if (shipmentInfo == undefined) {
                 this.validateShipmentExists(shipmentIndex);
             }
-            if(agentIndex) {
+            if(agentIndex != undefined) {
                 if (shipmentInfo?.getAgent().getAgentIndex() == agentIndex) {
-                    throw new Error(`Shipment with id ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
+                    throw new Error(`Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
                 }
             }
         });
@@ -133,7 +133,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         } else {
             let isUnassignedShipment = this.result.getRawData().properties.issues.unassigned_shipments.includes(shipmentIndex);
             if (!isUnassignedShipment) {
-                throw new Error(`Shipment with id ${shipmentIndex} not found`);
+                throw new Error(`Shipment with index ${shipmentIndex} is invalid`);
             }
         }
     }
@@ -153,8 +153,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     }
 
     private addUnassignedShipment(shipmentInfo: RouteActionInfo) {
-        let shipmentIndex = this.getInitialShipmentIndex(shipmentInfo.getActions()[0].getShipmentId()!);
         this.generateEmptyUnassignedShipmentsIfNeeded();
-        this.result.getRawData().properties.issues.unassigned_shipments.push(shipmentIndex);
+        this.result.getRawData().properties.issues.unassigned_shipments.push(shipmentInfo.getActions()[0].getShipmentIndex()!);
     }
 }

@@ -162,7 +162,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
             await routeEditor.assignShipments('agent-A', ['shipment-1']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Shipment with id shipment-1 already assigned to agent agent-A');
+            expect(error.message).toBe('Shipment with index 0 already assigned to agent with index 0');
         }
     });
 
@@ -180,7 +180,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
             await routeEditor.assignShipments('agent-A', ['shipment-5']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Shipment with id shipment-5 not found');
+            expect(error.message).toBe('Shipment with index 4 is invalid');
         }
     });
 
@@ -273,7 +273,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
-            await routeEditor.removeShipments(['shipment-5', 'shipment-5']);
+            await routeEditor.removeShipments(['shipment-3', 'shipment-3']);
             fail();
         } catch (error: any) {
             expect(error.message).toBe('Shipments are not unique');

@@ -104,11 +104,11 @@ export class RoutePlannerResultEditor {
         }
         let jobIndexes: number[] = [];
         jobIndexesOrIds.forEach(jobId => {
-            let jobFound = this.result.getData().inputData.jobs.findIndex(job => job.id === jobId);
-            if (!jobFound) {
+            let jobIndex = this.result.getData().inputData.jobs.findIndex(job => job.id === jobId);
+            if (jobIndex < 0) {
                 throw new Error(`Job with id ${jobId} not found`);
             } else {
-                jobIndexes.push(jobFound);
+                jobIndexes.push(jobIndex);
             }
         })
         return jobIndexes;
@@ -120,11 +120,11 @@ export class RoutePlannerResultEditor {
         }
         let shipmentIndexes: number[] = [];
         shipmentIds.forEach(shipmentId => {
-            let shipmentFound = this.result.getData().inputData.shipments.findIndex(shipment => shipment.id === shipmentId);
-            if (!shipmentFound) {
+            let shipmentIndex = this.result.getData().inputData.shipments.findIndex(shipment => shipment.id === shipmentId);
+            if (shipmentIndex < 0) {
                 throw new Error(`Shipment with id ${shipmentId} not found`);
             } else {
-                shipmentIndexes.push(shipmentFound);
+                shipmentIndexes.push(shipmentIndex);
             }
         })
         return shipmentIndexes;

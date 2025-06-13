@@ -331,7 +331,7 @@ export class RoutePlannerResult {
      * Retrieves detailed information about a specific job.
      */
     getJobInfoByIndex(jobIndex: number): RouteActionInfo | undefined {
-        if(!jobIndex) {
+        if(jobIndex < 0) {
             return undefined;
         }
         let actions = [];
@@ -354,7 +354,7 @@ export class RoutePlannerResult {
      * Retrieves detailed information about a specific shipment.
      */
     getShipmentInfoByIndex(shipmentIndex: number): RouteActionInfo | undefined {
-        if(!shipmentIndex) {
+        if(shipmentIndex < 0) {
             return undefined;
         }
         let actions = [];

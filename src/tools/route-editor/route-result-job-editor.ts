@@ -33,14 +33,14 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         let jobInfo = this.result.getJobInfoByIndex(jobIndex);
         let newAgentSolution = this.result.getAgentSolutionByIndex(agentIndex)!;
         if (newAgentSolution && jobInfo) {
+            await this.removeJobFromExistingAgent(jobInfo);
             await this.addJobToExistingAgent(agentIndex, jobIndex);
-            await this.removeJobFromExistingAgent(jobInfo, jobIndex);
         }
         if (newAgentSolution && !jobInfo) {
             await this.addJobToExistingAgent(agentIndex, jobIndex);
         }
         if(!newAgentSolution && jobInfo) {
-            await this.removeJobFromExistingAgent(jobInfo, jobIndex);
+            await this.removeJobFromExistingAgent(jobInfo);
             await this.addJobToNonExistingAgent(agentIndex, jobIndex);
         }
         if(!newAgentSolution && !jobInfo) {
@@ -51,7 +51,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private async removeJob(jobIndex: number) {
         let jobInfo = this.result.getJobInfoByIndex(jobIndex);
         if (jobInfo) {
-            await this.removeJobFromExistingAgent(jobInfo, jobIndex);
+            await this.removeJobFromExistingAgent(jobInfo);
         } else {
             this.result.getRawData().properties.issues.unassigned_jobs =
                 this.result.getRawData().properties.issues.unassigned_jobs.filter((nextJobIndex) => nextJobIndex !== jobIndex);
@@ -80,10 +80,10 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         this.updateAgent(optimizedRouterPlan, agentIndex);
     }
 
-    private async removeJobFromExistingAgent(jobInfo: RouteActionInfo, initialJobIndex: number) {
+    private async removeJobFromExistingAgent(jobInfo: RouteActionInfo) {
         let existingAgentSolution = jobInfo.getAgent();
         let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getActions()[0].getJobIndex()!);
-        this.addUnassignedJob(initialJobIndex);
+        this.addUnassignedJob(jobInfo);
         if(newAgentInput.agentShipmentIndexes.size == 0 && newAgentInput.agentJobIndexes.size == 0) {
             this.removeAgent(existingAgentSolution.getAgentIndex());
         } else {
@@ -118,7 +118,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
             if (jobInfo == undefined) {
                 this.validateJobExists(jobIndex);
             }
-            if(agentIndex) {
+            if(agentIndex != undefined) {
                 if (jobInfo?.getAgent().getAgentIndex() == agentIndex) {
                     throw new Error(`Job with index ${jobIndex} already assigned to agent with index ${agentIndex}`);
                 }
@@ -133,7 +133,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         } else {
             let isUnassignedJob = this.result.getRawData().properties.issues.unassigned_jobs.includes(jobIndex);
             if (!isUnassignedJob) {
-                throw new Error(`Job with id ${jobFound} not found`);
+                throw new Error(`Job with id ${jobIndex} is invalid`);
             }
         }
     }
@@ -152,8 +152,8 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         });
     }
 
-    private addUnassignedJob(initialJobIndex: number) {
+    private addUnassignedJob(jobInfo: RouteActionInfo) {
         this.generateEmptyUnassignedJobsIfNeeded();
-        this.result.getRawData().properties.issues.unassigned_jobs.push(initialJobIndex);
+        this.result.getRawData().properties.issues.unassigned_jobs.push(jobInfo.getActions()[0].getJobIndex()!);
     }
 }

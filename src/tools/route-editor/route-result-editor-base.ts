@@ -21,12 +21,44 @@ export class RouteResultEditorBase {
     protected async optimizeRoute(optimizeAgentInput: OptimizeAgentInput): Promise<RoutePlannerResult> {
         let newRawData: RoutePlannerInputData = Utils.cloneObject(this.result.getRawData().properties.params);
 
+        let originalIndexes = {
+            originalAgentIndex: optimizeAgentInput.agentIndex,
+            originalJobsIndexes: {} as Record<number, number>,
+            originalShipmentsIndexes: {} as Record<number, number>,
+        }
         newRawData.agents = newRawData.agents?.filter((nextAgent, index) => index == optimizeAgentInput.agentIndex);
-        newRawData.jobs = newRawData.jobs?.filter(((nextJob, index) => optimizeAgentInput.agentJobIndexes.has(index)));
-        newRawData.shipments = newRawData.shipments?.filter(((nextShipment, index) => optimizeAgentInput.agentShipmentIndexes.has(index)));
+        let newJobIndex = 0;
+        let newJobs: JobData[] = [];
+        newRawData.jobs?.forEach(((nextJob, index) => {
+            if(optimizeAgentInput.agentJobIndexes.has(index)) {
+                newJobs[newJobIndex] = nextJob;
+                originalIndexes.originalJobsIndexes[newJobIndex] = index;
+                newJobIndex++;
+            }
+        }));
+        newRawData.jobs = newJobs;
+
+        let newShipmentIndex = 0;
+        let newShipments: ShipmentData[] = [];
+        newRawData.shipments?.forEach(((nextShipment, index) => {
+            if(optimizeAgentInput.agentShipmentIndexes.has(index)) {
+                newShipments[newShipmentIndex] = nextShipment;
+                originalIndexes.originalShipmentsIndexes[newShipmentIndex] = index;
+                newShipmentIndex++;
+            }
+        }));
+        newRawData.shipments = newShipments;
 
         const planner = new RoutePlanner(this.result.getOptions(), newRawData);
-        return await planner.plan();
+        let result =  await planner.plan();
+
+        let newFeatureResponse = result.getRawData().features[0];
+        if(newFeatureResponse) {
+            this.fixAgentIndex(optimizeAgentInput.agentIndex, newFeatureResponse);
+            this.fixShipmentJobIndexes(newFeatureResponse, originalIndexes);
+            this.fixWaypointIndexes(newFeatureResponse, originalIndexes);
+        }
+        return result;
     }
 
     protected removeAgent(agentIndex: number) {
@@ -59,9 +91,6 @@ export class RouteResultEditorBase {
 
     private updateResultWithUpdatedAgent(newResult: RoutePlannerResult, originalAgentIndex: number) {
         let newFeatureResponse = newResult.getRawData().features[0];
-        this.fixAgentIndex(originalAgentIndex, newFeatureResponse);
-        this.fixShipmentJobIndexes(newFeatureResponse);
-        this.fixWaypointIndexes(newFeatureResponse);
         this.result.getRawData().features.push(newFeatureResponse);
     }
 
@@ -227,25 +256,25 @@ export class RouteResultEditorBase {
         }
     }
 
-    private fixShipmentJobIndexes(agentData: FeatureResponseData) {
+    private fixShipmentJobIndexes(agentData: FeatureResponseData, originalIndexes: any) {
         agentData.properties.actions.forEach(action => {
-            if(action.shipment_id) {
-                action.shipment_index = this.getInitialShipmentIndex(action.shipment_id);
+            if(action.shipment_index != undefined) {
+                action.shipment_index = originalIndexes.originalShipmentsIndexes[action.shipment_index!];
             }
-            if(action.job_id) {
-                action.job_index = this.getInitialJobIndex(action.job_id);
+            if(action.job_index != undefined) {
+                action.job_index = originalIndexes.originalJobsIndexes[action.job_index!];
             }
         })
     }
 
-   private fixWaypointIndexes(agentData: FeatureResponseData) {
+   private fixWaypointIndexes(agentData: FeatureResponseData, originalIndexes: any) {
         agentData.properties.waypoints.forEach(waypoint => {
             waypoint.actions.forEach(action => {
-                if(action.shipment_id) {
-                    action.shipment_index = this.getInitialShipmentIndex(action.shipment_id);
+                if(action.shipment_id != undefined) {
+                    action.shipment_index = originalIndexes.originalShipmentsIndexes[action.shipment_index!];
                 }
-                if(action.job_id) {
-                    action.job_index = this.getInitialJobIndex(action.job_id);
+                if(action.job_id != undefined) {
+                    action.job_index = originalIndexes.originalJobsIndexes[action.job_index!];
                 }
             })
         })
