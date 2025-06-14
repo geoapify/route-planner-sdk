@@ -4,10 +4,11 @@ import { AgentSolution, RouteActionInfo, Shipment, ShipmentData } from "../../mo
 
 export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
-    async assignShipments(agentIndex: number, shipmentIndexes: number[]): Promise<boolean> {
+    async assignShipments(agentIndex: number, shipmentIndexes: number[], newPriority?: number): Promise<boolean> {
         this.validateAgent(agentIndex);
         this.validateShipments(shipmentIndexes, agentIndex);
         for (const shipmentIndex of shipmentIndexes) {
+            this.setShipmentPriority(shipmentIndex, newPriority);
             await this.assignShipment(shipmentIndex, agentIndex);
         }
         return true;
@@ -155,5 +156,11 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private addUnassignedShipment(shipmentInfo: RouteActionInfo) {
         this.generateEmptyUnassignedShipmentsIfNeeded();
         this.result.getRawData().properties.issues.unassigned_shipments.push(shipmentInfo.getActions()[0].getShipmentIndex()!);
+    }
+
+    private setShipmentPriority(jobIndex: number, newPriority?: number) {
+        if (newPriority != undefined) {
+            this.result.getRawData().properties.params.shipments[jobIndex].priority = newPriority;
+        }
     }
 }

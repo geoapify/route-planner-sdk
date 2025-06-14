@@ -81,6 +81,20 @@ describe('RoutePlannerResultShipmentEditor', () => {
         expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
     });
 
+     test('assignShipments should change priority if its passed', async () => {
+        let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
+
+        const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        await routeEditor.assignShipments('agent-A', ['shipment-3'], 100);
+        let modifiedResult = routeEditor.getModifiedResult();
+
+        expect(modifiedResult.getRawData().properties.params.shipments[0].priority).toBeUndefined();
+        expect(modifiedResult.getRawData().properties.params.shipments[1].priority).toBeUndefined();
+        expect(modifiedResult.getRawData().properties.params.shipments[2].priority).toBe(100);
+        expect(modifiedResult.getRawData().properties.params.shipments[3].priority).toBeUndefined();
+    });
+
     test('assignShipments should work "AgentSolution for provided agentId is found. But the shipment is not assigned to anyone."', async () => {
         let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have

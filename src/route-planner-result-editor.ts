@@ -16,26 +16,28 @@ export class RoutePlannerResultEditor {
      * Assigns a job to an agent. Removes the job if it's currently assigned to another agent
      * @param agentIdOrIndex - The index/id of the agent.
      * @param jobIndexesOrIds - Indexes/ids of the jobs.
+     * @param newPriority - The new priority of the job.
      * @returns {boolean} - Returns true if the job was successfully assigned.
      */
-    async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[]): Promise<boolean> {
+    async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[], newPriority?: number): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
         let agentIndex = this.convertAgentToIndex(agentIdOrIndex);
         let jobIndexes = this.convertJobsToIndexes(jobIndexesOrIds);
-        return new RouteResultJobEditor(this.result).assignJobs(agentIndex, jobIndexes);
+        return new RouteResultJobEditor(this.result).assignJobs(agentIndex, jobIndexes, newPriority);
     }
 
     /**
      * Assigns a shipment to an agent. Removes the shipment if it's currently assigned to another agent
      * @param shipmentIndexesOrIds - The indexes/ids of the shipments.
      * @param agentIdOrIndex - The index/id of the agent.
+     * @param newPriority - The new priority of the shipment.
      * @returns {boolean} - Returns true if the shipment was successfully assigned.
      */
-    async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[]): Promise<boolean> {
+    async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], newPriority?: number): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexesOrIds");
         let shipmentIndexes = this.convertShipmentsToIndexes(shipmentIndexesOrIds);
         let agentIndex = this.convertAgentToIndex(agentIdOrIndex);
-        return new RouteResultShipmentEditor(this.result).assignShipments(agentIndex, shipmentIndexes);
+        return new RouteResultShipmentEditor(this.result).assignShipments(agentIndex, shipmentIndexes, newPriority);
     }
 
     /**

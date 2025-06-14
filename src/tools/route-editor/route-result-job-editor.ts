@@ -4,10 +4,11 @@ import { AgentSolution, Job, JobData, RouteActionInfo } from "../../models";
 
 export class RouteResultJobEditor extends RouteResultEditorBase {
 
-    async assignJobs(agentIndex: number, jobIndexes: number[]): Promise<boolean> {
+    async assignJobs(agentIndex: number, jobIndexes: number[], newPriority?: number): Promise<boolean> {
         this.validateAgent(agentIndex);
         this.validateJobs(jobIndexes, agentIndex);
         for (const jobIndex of jobIndexes) {
+            this.setJobPriority(jobIndex, newPriority);
             await this.assignJob(jobIndex, agentIndex);
         }
         return true;
@@ -155,5 +156,11 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private addUnassignedJob(jobInfo: RouteActionInfo) {
         this.generateEmptyUnassignedJobsIfNeeded();
         this.result.getRawData().properties.issues.unassigned_jobs.push(jobInfo.getActions()[0].getJobIndex()!);
+    }
+
+    private setJobPriority(jobIndex: number, newPriority?: number) {
+        if(newPriority != undefined) {
+            this.result.getRawData().properties.params.jobs[jobIndex].priority = newPriority;
+        }
     }
 }
