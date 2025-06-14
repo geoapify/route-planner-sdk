@@ -81,6 +81,20 @@ describe('RoutePlannerResultJobEditor', () => {
         expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
     });
 
+    test('assignJobs should change priority if its passed', async () => {
+        let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
+
+        const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        await routeEditor.assignJobs('agent-B', ['job-2'], 100);
+        let modifiedResult = routeEditor.getModifiedResult();
+
+        expect(modifiedResult.getRawData().properties.params.jobs[0].priority).toBeUndefined();
+        expect(modifiedResult.getRawData().properties.params.jobs[1].priority).toBe(100);
+        expect(modifiedResult.getRawData().properties.params.jobs[2].priority).toBe(10);
+        expect(modifiedResult.getRawData().properties.params.jobs[3].priority).toBe(10);
+    });
+
     test('assignJobs should work "AgentSolution for provided agentId is found. But the job is not assigned to anyone."', async () => {
         let assignJobRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
         // Initially we have
@@ -161,7 +175,7 @@ describe('RoutePlannerResultJobEditor', () => {
             await routeEditor.assignJobs('agent-A', ['job-2']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with id job-2 already assigned to agent agent-A');
+            expect(error.message).toBe('Job with index 1 already assigned to agent with index 0');
         }
     });
 
@@ -178,7 +192,7 @@ describe('RoutePlannerResultJobEditor', () => {
             await routeEditor.assignJobs('agent-A', ['job-5']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with id job-5 not found');
+            expect(error.message).toBe('Job with id 4 is invalid');
         }
     });
 
@@ -195,7 +209,7 @@ describe('RoutePlannerResultJobEditor', () => {
             await routeEditor.assignJobs('agent-B', ['job-5']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with id job-5 not found');
+            expect(error.message).toBe('Job with id 4 is invalid');
         }
     });
 
@@ -222,7 +236,7 @@ describe('RoutePlannerResultJobEditor', () => {
             await routeEditor.assignJobs('agent-A', ['job-2']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with id job-2 already assigned to agent agent-A');
+            expect(error.message).toBe('Job with index 1 already assigned to agent with index 0');
         }
     });
 
@@ -328,7 +342,7 @@ describe('RoutePlannerResultJobEditor', () => {
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
-            await routeEditor.removeJobs(['job-5', 'job-5']);
+            await routeEditor.removeJobs(['job-3', 'job-3']);
             fail();
         } catch (error: any) {
             expect(error.message).toBe('Jobs are not unique');

@@ -1,11 +1,11 @@
 export class OptimizeAgentInput {
-    agentJobIds: Set<string>;
-    agentShipmentIds: Set<string>;
-    agentId: string;
+    agentJobIndexes: Set<number>;
+    agentShipmentIndexes: Set<number>;
+    agentIndex: number;
 
-    constructor(agentId: string, agentJobIds: string[], agentShipmentIds: string[]) {
-        this.agentId = agentId;
-        this.agentJobIds = new Set(agentJobIds);
-        this.agentShipmentIds = new Set(agentShipmentIds);
+    constructor(agentIndex: number, agentJobIndexes: number[], agentShipmentIndexes: number[]) {
+        this.agentIndex = agentIndex;
+        this.agentJobIndexes = new Set(agentJobIndexes);
+        this.agentShipmentIndexes = new Set(agentShipmentIndexes);
     }
 }

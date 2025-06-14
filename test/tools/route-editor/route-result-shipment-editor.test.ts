@@ -81,6 +81,20 @@ describe('RoutePlannerResultShipmentEditor', () => {
         expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
     });
 
+     test('assignShipments should change priority if its passed', async () => {
+        let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
+
+        const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        await routeEditor.assignShipments('agent-A', ['shipment-3'], 100);
+        let modifiedResult = routeEditor.getModifiedResult();
+
+        expect(modifiedResult.getRawData().properties.params.shipments[0].priority).toBeUndefined();
+        expect(modifiedResult.getRawData().properties.params.shipments[1].priority).toBeUndefined();
+        expect(modifiedResult.getRawData().properties.params.shipments[2].priority).toBe(100);
+        expect(modifiedResult.getRawData().properties.params.shipments[3].priority).toBeUndefined();
+    });
+
     test('assignShipments should work "AgentSolution for provided agentId is found. But the shipment is not assigned to anyone."', async () => {
         let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
@@ -162,7 +176,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
             await routeEditor.assignShipments('agent-A', ['shipment-1']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Shipment with id shipment-1 already assigned to agent agent-A');
+            expect(error.message).toBe('Shipment with index 0 already assigned to agent with index 0');
         }
     });
 
@@ -180,7 +194,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
             await routeEditor.assignShipments('agent-A', ['shipment-5']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Shipment with id shipment-5 not found');
+            expect(error.message).toBe('Shipment with index 4 is invalid');
         }
     });
 
@@ -273,7 +287,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
         try {
-            await routeEditor.removeShipments(['shipment-5', 'shipment-5']);
+            await routeEditor.removeShipments(['shipment-3', 'shipment-3']);
             fail();
         } catch (error: any) {
             expect(error.message).toBe('Shipments are not unique');

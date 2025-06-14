@@ -613,7 +613,7 @@ describe('RoutePlannerResultEditor', () => {
     try {
       await routeEditor.removeJobs('job-2' as any);
     } catch (error: any) {
-      expect(error.message).toBe('Type error: jobIds must be an array');
+      expect(error.message).toBe('Type error: jobIndexesOrIds must be an array');
     }
   });
 
