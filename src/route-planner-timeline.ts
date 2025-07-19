@@ -33,7 +33,7 @@ export class RoutePlannerTimeline {
                 </button>
                 <ul class="geoapify-rp-sdk-menu-list">
                     ${agentMenuItems.map(item => `
-                        <li class="geoapify-rp-sdk-menu-item" data-key="${item.key}">${item.label}</li>
+                        <li class="geoapify-rp-sdk-menu-item" data-key="${item.key}">${item.labelFunction ? item.labelFunction(timeline) : item.label}</li>
                     `).join('')}
                 </ul>
             </div>
@@ -118,6 +118,10 @@ export class RoutePlannerTimeline {
         }
         this.generateAgentTimeline();
         this.initializeThreeDotMenus();
+    }
+
+    public refreshTimelines() {
+        this.generateAgentTimeline();
     }
 
      public getHasLargeDescription(): boolean | undefined {
