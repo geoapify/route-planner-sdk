@@ -290,7 +290,7 @@ const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
 const agentActions: TimelineMenuItem[] = [
   {
     key: 'show-hide-agent',
-    label: 'Change Visibility',
+    labelFunction: (timeline: Timeline) => timeline.routeVisible ? 'Hide Route' : 'Show Route',
     callback: (agentIndex: number) => {
       console.log(`Agent ${agentIndex} visibility toggled`);
     }
