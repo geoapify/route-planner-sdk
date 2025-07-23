@@ -290,7 +290,7 @@ const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
 const agentActions: TimelineMenuItem[] = [
   {
     key: 'show-hide-agent',
-    labelFunction: (timeline: Timeline) => timeline.routeVisible ? 'Hide Route' : 'Show Route',
+    label: 'Hide Route',
     callback: (agentIndex: number) => {
       console.log(`Agent ${agentIndex} visibility toggled`);
     }
@@ -298,6 +298,8 @@ const agentActions: TimelineMenuItem[] = [
   {
     key: 'second-button',
     label: 'Test Button',
+    disabled: false,
+    hidden: false,
     callback: (agentIndex: number) => {
       console.log(`Agent ${agentIndex} test button clicked`);
     }
@@ -323,6 +325,19 @@ const timeline = new RoutePlannerTimeline(container, inputData, undefined, {
 // Optional: Listen to hover events
 timeline.on('onWaypointHover', (waypoint: Waypoint) => {
   console.log('Hovered waypoint:', waypoint);
+});
+
+// Optional: Modify menu items dynamically before they are shown
+timeline.on('beforeAgentMenuShow', (agentIndex: number, actions: TimelineMenuItem[]) => {
+  return actions.map(action => {
+    if (action.key === 'show-hide-agent') {
+      return {
+        ...action,
+        label: this.agentVisibilityState[agentIndex] ? 'Show Route' : 'Hide Route'
+      };
+    }
+    return action;
+  });
 });
 ```
 

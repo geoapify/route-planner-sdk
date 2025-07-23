@@ -32,8 +32,8 @@ export class RoutePlannerTimeline {
                     </svg>
                 </button>
                 <ul class="geoapify-rp-sdk-menu-list">
-                    ${agentMenuItems.map(item => `
-                        <li class="geoapify-rp-sdk-menu-item" data-key="${item.key}">${item.labelFunction ? item.labelFunction(timeline) : item.label}</li>
+                    ${agentMenuItems.filter(item => !item.hidden).map(item => `
+                        <li class="geoapify-rp-sdk-menu-item ${item.disabled ? 'geoapify-rp-sdk-menu-item-disabled' : ''}" data-key="${item.key}">${item.label}</li>
                     `).join('')}
                 </ul>
             </div>
@@ -282,6 +282,7 @@ export class RoutePlannerTimeline {
             this.drawTimelines(timelines, this.result);
             return timelines;
         }
+        return [];
     }
 
     private drawTimelines(timelines: Timeline[],
@@ -648,6 +649,8 @@ export class RoutePlannerTimeline {
             if (threeDotButton) {
                 const threeDotMenu = threeDotButton.closest('.geoapify-rp-sdk-three-dot-menu');
                 if (threeDotMenu) {
+                    this.generateAgentMenuItemsOnThreeDotClick(threeDotMenu);
+
                     this.toggleThreeDotMenu(threeDotMenu as HTMLElement);
                 }
             }
@@ -658,6 +661,9 @@ export class RoutePlannerTimeline {
             const menuItem = target.closest('.geoapify-rp-sdk-menu-item');
 
             if (menuItem) {
+                if (menuItem.classList.contains('geoapify-rp-sdk-menu-item-disabled')) {
+                    return; // Don't process clicks on disabled items
+                }
                 const threeDotMenu = menuItem.closest('.geoapify-rp-sdk-three-dot-menu');
                 const agentIndexAttr = threeDotMenu?.getAttribute('data-agent-index');
                 const agentIndex = agentIndexAttr ? +agentIndexAttr : -1;
@@ -689,6 +695,46 @@ export class RoutePlannerTimeline {
                     this.closeAllThreeDotMenus();
                 }
             });
+        }
+    }
+
+    private generateAgentMenuItemsOnThreeDotClick(threeDotMenu: Element) {
+        const agentIndexAttr = threeDotMenu.getAttribute('data-agent-index');
+        const agentIndex = agentIndexAttr ? +agentIndexAttr : -1;
+
+        if (agentIndex !== -1) {
+            const processedMenuItems = this.generateMenuItemsForAgent(agentIndex);
+
+            this.updateMenuItems(threeDotMenu as HTMLElement, processedMenuItems);
+        }
+    }
+
+    private generateMenuItemsForAgent(agentIndex: number): TimelineMenuItem[] {
+        let menuItems = [...(this.options.agentMenuItems || [])];
+
+        if (this.eventListeners['beforeAgentMenuShow'] && this.eventListeners['beforeAgentMenuShow'].length > 0) {
+            const handler = this.eventListeners['beforeAgentMenuShow'][0]; // Only use the first (and should be only) handler
+            try {
+                const result = handler(agentIndex, menuItems);
+                if (result !== undefined) {
+                    menuItems = result;
+                }
+            } catch (error) {
+                console.error(`Error in beforeAgentMenuShow event handler:`, error);
+            }
+        }
+
+        return menuItems;
+    }
+
+    private updateMenuItems(threeDotMenu: HTMLElement, menuItems: TimelineMenuItem[]): void {
+        const menuList = threeDotMenu.querySelector('.geoapify-rp-sdk-menu-list');
+        if (menuList) {
+            const menuItemsHtml = menuItems.filter(item => !item.hidden).map(item => `
+                <li class="geoapify-rp-sdk-menu-item ${item.disabled ? 'geoapify-rp-sdk-menu-item-disabled' : ''}" data-key="${item.key}">${item.label}</li>
+            `).join('');
+
+            menuList.innerHTML = menuItemsHtml;
         }
     }
 

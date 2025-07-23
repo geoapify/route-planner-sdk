@@ -6,7 +6,8 @@
 export interface TimelineMenuItem {
   key: string;
   label?: string;
-  labelFunction?: (timeline: Timeline) => string;
+  disabled?: boolean;
+  hidden?: boolean;
   callback: (agentIndex: number) => void;
 }
 ```

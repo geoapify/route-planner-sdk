@@ -193,3 +193,15 @@
 .geoapify-rp-sdk-menu-item:hover {
     background-color: #f1f1f1;
 }
+
+.geoapify-rp-sdk-menu-item-disabled {
+    opacity: 0.5;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    pointer-events: auto;
+}
+
+.geoapify-rp-sdk-menu-item-disabled:hover {
+    background-color: transparent !important;
+    color: #999 !important;
+}
