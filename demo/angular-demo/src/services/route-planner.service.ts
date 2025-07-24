@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import RoutePlanner, { Agent, Job, RoutePlannerInputData } from '../../../..';
+import RoutePlanner, { Agent, Job, RoutePlannerInputData } from '../../../../src';
 import TEST_API_KEY from "../../../../env-variables";
 // import RoutePlanner, { Agent, Job } from "@geoapify/route-planner-sdk";
 
