@@ -236,11 +236,12 @@ describe('RoutePlannerResultShipmentEditor', () => {
         // After removal we should have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
+        // Shipment 2 -> unassigned
         expect(modifiedResult.getShipmentInfo('shipment-1')!.getAgentId()).toBe('agent-A');
         expect(modifiedResult.getShipmentInfo('shipment-2')).toBeUndefined();
         expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getUnassignedShipments().length).toBe(0);
+        expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     });
 
     test('removeShipments should work "Shipment not found."', async () => {
@@ -411,4 +412,17 @@ describe('RoutePlannerResultShipmentEditor', () => {
             expect(error.message).toBe('Shipment id is undefined');
         }
     });
+
+    test('removeShipments should work "API Docs scenario where we want to unassign all"', async () => {
+        let plannerResultData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-api-docs-simple-delivery-sample.json");
+        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(plannerResultData));
+        // All 73 shipments are assigned
+        const routeEditor = new RoutePlannerResultEditor(plannerResult);
+        const shipmentsToRemove = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72];
+        await routeEditor.removeShipments(shipmentsToRemove);
+        let modifiedResult = routeEditor.getModifiedResult();
+        // After assignment we should have
+        expect(modifiedResult.getUnassignedAgents().length).toBe(3);
+        expect(modifiedResult.getUnassignedShipments().length).toBe(73);
+    }, 1000000);
 });

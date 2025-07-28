@@ -192,7 +192,7 @@ describe('RoutePlannerResultJobEditor', () => {
             await routeEditor.assignJobs('agent-A', ['job-5']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with id 4 is invalid');
+            expect(error.message).toBe('Job with index 4 is invalid');
         }
     });
 
@@ -209,7 +209,7 @@ describe('RoutePlannerResultJobEditor', () => {
             await routeEditor.assignJobs('agent-B', ['job-5']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with id 4 is invalid');
+            expect(error.message).toBe('Job with index 4 is invalid');
         }
     });
 
@@ -291,11 +291,12 @@ describe('RoutePlannerResultJobEditor', () => {
         // After removal we should have
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
+        // Job 2 -> unassigned
         expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
         expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
         expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getUnassignedJobs().length).toBe(0);
+        expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     });
 
     test('removeJobs should work "Job not found."', async () => {
