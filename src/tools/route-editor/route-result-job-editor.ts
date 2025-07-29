@@ -87,12 +87,11 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private markJobsUnassigned(jobs: JobData[], jobIndexes: number[]) {
         jobIndexes.forEach(jobIndex => {
             if (jobs[jobIndex]) {
-                const unassignedReq = "unassigned";
                 if (!jobs[jobIndex].requirements) {
                     jobs[jobIndex].requirements = [];
                 }
-                if (!jobs[jobIndex].requirements.includes(unassignedReq)) {
-                    jobs[jobIndex].requirements.push(unassignedReq);
+                if (!jobs[jobIndex].requirements.includes(this.unassignedReq)) {
+                    jobs[jobIndex].requirements.push(this.unassignedReq);
                 }
             }
         });
@@ -105,7 +104,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
                 const jobInfo = this.result.getJobInfoByIndex(i);
                 if (jobInfo) {
                     const agentIndex = jobInfo.getAgent().getAgentIndex();
-                    const assignAgentReq = `assign-agent-${agentIndex}`;
+                    const assignAgentReq = `${this.assignAgentReqStart}${agentIndex}`;
                     if (!jobs[i].requirements) {
                         jobs[i].requirements = [];
                     }

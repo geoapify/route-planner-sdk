@@ -53,12 +53,11 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private markShipmentsUnassigned(shipments: ShipmentData[], shipmentIndexes: number[]) {
         shipmentIndexes.forEach(shipmentIndex => {
             if (shipments[shipmentIndex]) {
-                const unassignedReq = "unassigned";
                 if (!shipments[shipmentIndex].requirements) {
                     shipments[shipmentIndex].requirements = [];
                 }
-                if (!shipments[shipmentIndex].requirements.includes(unassignedReq)) {
-                    shipments[shipmentIndex].requirements.push(unassignedReq);
+                if (!shipments[shipmentIndex].requirements.includes(this.unassignedReq)) {
+                    shipments[shipmentIndex].requirements.push(this.unassignedReq);
                 }
             }
         });
@@ -71,7 +70,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
                 const shipmentInfo = this.result.getShipmentInfoByIndex(i);
                 if (shipmentInfo) {
                     const agentIndex = shipmentInfo.getAgent().getAgentIndex();
-                    const assignAgentReq = `assign-agent-${agentIndex}`;
+                    const assignAgentReq = `${this.assignAgentReqStart}${agentIndex}`;
                     if (!shipments[i].requirements) {
                         shipments[i].requirements = [];
                     }

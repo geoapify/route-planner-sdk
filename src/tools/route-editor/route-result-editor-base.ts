@@ -7,6 +7,8 @@ import {
 
 export class RouteResultEditorBase {
     protected readonly result: RoutePlannerResult;
+    protected readonly unassignedReq = "unassigned";
+    protected readonly assignAgentReqStart = "assign-agent-";
 
     constructor(result: RoutePlannerResult) {
         this.result = result;
