@@ -22,7 +22,7 @@ export class RoutePlannerTimeline {
         "#0039e6", "#408000", "#ffa31a", "#990073", "#cccc00", "#cc5200", "#6666ff", "#009999"];
 
     timelineTemplate = (timeline: Timeline, index: number, timelineType: 'time' | 'distance', timeLabels: RoutePlannerTimelineLabel[], distanceLabels: RoutePlannerTimelineLabel[], agentMenuItems?: TimelineMenuItem[]) => `
-   <div class="geoapify-rp-sdk-timeline-item flex-container items-center ${index % 2 === 0 ? 'geoapify-rp-sdk-even' : ''}">
+   <div class="geoapify-rp-sdk-timeline-item flex-container items-center ${index % 2 === 0 ? 'geoapify-rp-sdk-even' : ''} agent-${index}">
       <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${this.options.hasLargeDescription ? 'geoapify-rp-sdk-wider' : ''}">
        ${agentMenuItems && agentMenuItems.length > 0 ? `
             <div class="geoapify-rp-sdk-three-dot-menu" data-agent-index="${timeline.agentIndex}">
