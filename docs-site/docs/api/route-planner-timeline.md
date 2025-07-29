@@ -56,7 +56,6 @@ new RoutePlannerTimeline(container: HTMLElement, inputData?: RoutePlannerInputDa
 | `setTimelineType(type)`    | Switch between `'time'` and `'distance'` views |
 | `setResult(result)`        | Re-render timeline using new result            |
 | `setAgentMenuItems(items)` | Update agent-specific menu dropdowns           |
-| `refreshTimelines()`       | Re-render the timeline (useful after data changes) |
 | `on(event, handler)`       | Listen to events like `onWaypointHover`        |
 | `off(event, handler)`      | Unbind timeline events                         |
 

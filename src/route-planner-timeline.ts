@@ -120,11 +120,7 @@ export class RoutePlannerTimeline {
         this.initializeThreeDotMenus();
     }
 
-    public refreshTimelines() {
-        this.generateAgentTimeline();
-    }
-
-     public getHasLargeDescription(): boolean | undefined {
+    public getHasLargeDescription(): boolean | undefined {
         return this.options.hasLargeDescription;
     }
 
