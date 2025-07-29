@@ -1,24 +1,55 @@
 import { RouteResultEditorBase } from "./route-result-editor-base";
-import { OptimizeAgentInput } from "./optimize-agent-input";
-import { AgentSolution, Job, JobData, RouteActionInfo } from "../../models";
+import { Job, JobData } from "../../models";
+import { RoutePlanner } from "../../route-planner";
+import { Utils } from "../utils";
 
 export class RouteResultJobEditor extends RouteResultEditorBase {
 
     async assignJobs(agentIndex: number, jobIndexes: number[], newPriority?: number): Promise<boolean> {
         this.validateAgent(agentIndex);
         this.validateJobs(jobIndexes, agentIndex);
+        
+        // Set job priorities in the original data (permanent change)
         for (const jobIndex of jobIndexes) {
             this.setJobPriority(jobIndex, newPriority);
-            await this.assignJob(jobIndex, agentIndex);
         }
+        
+        // Clone the input data for planning
+        const inputDataCopy = Utils.cloneObject(this.result.getRawData().properties.params);
+        
+        // Apply temporary requirements and capabilities for planning
+        if(this.result.getRawData().properties.issues?.unassigned_jobs) {
+            this.markJobsUnassigned(inputDataCopy.jobs, this.result.getRawData().properties.issues.unassigned_jobs);
+        }
+        this.markJobsForAgent(inputDataCopy.jobs, jobIndexes, agentIndex);
+        this.markRemainingJobsWithAgentRequirement(inputDataCopy.jobs, jobIndexes);
+        this.addAgentCapabilities(inputDataCopy.agents);
+
+        const planner = new RoutePlanner(this.result.getOptions(), inputDataCopy);
+        const newResult = await planner.plan();
+        
+        this.updateResult(newResult);
+
         return true;
     }
 
     async removeJobs(jobIndexes: number[]) {
         this.validateJobs(jobIndexes);
-        for (const jobIndex of jobIndexes) {
-            await this.removeJob(jobIndex);
+
+        const inputDataCopy = Utils.cloneObject(this.result.getRawData().properties.params);
+        
+        this.markJobsUnassigned(inputDataCopy.jobs, jobIndexes);
+        if(this.result.getRawData().properties.issues?.unassigned_jobs) {
+            this.markJobsUnassigned(inputDataCopy.jobs, this.result.getRawData().properties.issues.unassigned_jobs);
         }
+        this.markRemainingJobsWithAgentRequirement(inputDataCopy.jobs, jobIndexes);
+        this.addAgentCapabilities(inputDataCopy.agents);
+
+        const planner = new RoutePlanner(this.result.getOptions(), inputDataCopy);
+        const newResult = await planner.plan();
+        
+        this.updateResult(newResult);
+
         return true;
     }
 
@@ -26,85 +57,83 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         let jobsRaw = jobs.map(job => job.getRaw());
         this.validateAgent(agentIndex);
         this.validateNewJobs(jobsRaw);
-        await this.addNewJobsToAgent(agentIndex, jobsRaw);
+        
+        // Add new jobs to the original data (permanent change)
+        const initialJobsCount = this.result.getRawData().properties.params.jobs.length;
+        this.result.getRawData().properties.params.jobs.push(...jobsRaw);
+        
+        // Get the indexes of the newly added jobs
+        const newJobIndexes = jobsRaw.map((_, index) => initialJobsCount + index);
+        
+        // Clone the input data for planning
+        const inputDataCopy = Utils.cloneObject(this.result.getRawData().properties.params);
+        
+        // Apply temporary requirements and capabilities for planning
+        if(this.result.getRawData().properties.issues?.unassigned_jobs) {
+            this.markJobsUnassigned(inputDataCopy.jobs, this.result.getRawData().properties.issues.unassigned_jobs);
+        }
+        this.markJobsForAgent(inputDataCopy.jobs, newJobIndexes, agentIndex);
+        this.markRemainingJobsWithAgentRequirement(inputDataCopy.jobs, newJobIndexes);
+        this.addAgentCapabilities(inputDataCopy.agents);
+
+        const planner = new RoutePlanner(this.result.getOptions(), inputDataCopy);
+        const newResult = await planner.plan();
+        
+        this.updateResult(newResult);
+        
         return true;
     }
 
-    private async assignJob(jobIndex: number, agentIndex: number) {
-        let jobInfo = this.result.getJobInfoByIndex(jobIndex);
-        let newAgentSolution = this.result.getAgentSolutionByIndex(agentIndex)!;
-        if (newAgentSolution && jobInfo) {
-            await this.removeJobFromExistingAgent(jobInfo);
-            await this.addJobToExistingAgent(agentIndex, jobIndex);
-        }
-        if (newAgentSolution && !jobInfo) {
-            await this.addJobToExistingAgent(agentIndex, jobIndex);
-        }
-        if(!newAgentSolution && jobInfo) {
-            await this.removeJobFromExistingAgent(jobInfo);
-            await this.addJobToNonExistingAgent(agentIndex, jobIndex);
-        }
-        if(!newAgentSolution && !jobInfo) {
-            await this.addJobToNonExistingAgent(agentIndex, jobIndex);
-        }
-    }
-
-    private async removeJob(jobIndex: number) {
-        let jobInfo = this.result.getJobInfoByIndex(jobIndex);
-        if (jobInfo) {
-            await this.removeJobFromExistingAgent(jobInfo);
-        } else {
-            this.result.getRawData().properties.issues.unassigned_jobs =
-                this.result.getRawData().properties.issues.unassigned_jobs.filter((nextJobIndex) => nextJobIndex !== jobIndex);
-        }
-    }
-
-    private async addNewJobsToAgent(agentIndex: number, jobs: JobData[]) {
-        let existingAgentSolution = this.result.getAgentSolutionByIndex(agentIndex);
-        let initialJobsCount = this.result.getRawData().properties.params.jobs.length;
-        this.result.getRawData().properties.params.jobs.push(...jobs);
-        let newAgentInput = this.addJobsToAgent(agentIndex, jobs.map((job, index) => initialJobsCount + index), existingAgentSolution);
-        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan, agentIndex);
-    }
-
-    private async addJobToNonExistingAgent(agentIndex: number, jobIndex: number) {
-        let newAgentInput = this.addJobsToAgent(agentIndex, [jobIndex]);
-        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan, agentIndex);
-    }
-
-    private async addJobToExistingAgent(agentIndex: number, jobIndex: number) {
-        let existingAgentSolution = this.result.getAgentSolutionByIndex(agentIndex)!;
-        let newAgentInput = this.addJobsToAgent(agentIndex, [jobIndex], existingAgentSolution);
-        let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-        this.updateAgent(optimizedRouterPlan, agentIndex);
-    }
-
-    private async removeJobFromExistingAgent(jobInfo: RouteActionInfo) {
-        let existingAgentSolution = jobInfo.getAgent();
-        let newAgentInput = this.removeJobFromAgent(existingAgentSolution, jobInfo.getActions()[0].getJobIndex()!);
-        this.addUnassignedJob(jobInfo);
-        if(newAgentInput.agentShipmentIndexes.size == 0 && newAgentInput.agentJobIndexes.size == 0) {
-            this.removeAgent(existingAgentSolution.getAgentIndex());
-        } else {
-            let optimizedRouterPlan = await this.optimizeRoute(newAgentInput);
-            this.updateAgent(optimizedRouterPlan, existingAgentSolution.getAgentIndex());
-        }
-    }
-
-    private addJobsToAgent(agentIndex: number, jobIndexes: number[], existingAgent?: AgentSolution): OptimizeAgentInput {
-        let optimizedAgentInput = this.generateOptimizeAgentInput(agentIndex, existingAgent);
+    private markJobsUnassigned(jobs: JobData[], jobIndexes: number[]) {
         jobIndexes.forEach(jobIndex => {
-            optimizedAgentInput.agentJobIndexes.add(jobIndex);
-        })
-        return optimizedAgentInput;
+            if (jobs[jobIndex]) {
+                if (!jobs[jobIndex].requirements) {
+                    jobs[jobIndex].requirements = [];
+                }
+                if (!jobs[jobIndex].requirements.includes(this.unassignedReq)) {
+                    jobs[jobIndex].requirements.push(this.unassignedReq);
+                }
+            }
+        });
     }
 
-    private removeJobFromAgent(existingAgent: AgentSolution, jobIndex: number): OptimizeAgentInput {
-        let optimizedAgentInput = this.generateOptimizeAgentInput(existingAgent.getAgentIndex(), existingAgent);
-        optimizedAgentInput.agentJobIndexes.delete(jobIndex);
-        return optimizedAgentInput;
+    private markRemainingJobsWithAgentRequirement(jobs: JobData[], jobIndexes: number[]) {
+        for (let i = 0; i < jobs.length; i++) {
+            if (!jobIndexes.includes(i)) {
+                // This is a remaining job, find which agent it belongs to
+                const jobInfo = this.result.getJobInfoByIndex(i);
+                if (jobInfo) {
+                    const agentIndex = jobInfo.getAgent().getAgentIndex();
+                    const assignAgentReq = `${this.assignAgentReqStart}${agentIndex}`;
+                    if (!jobs[i].requirements) {
+                        jobs[i].requirements = [];
+                    }
+                    if(jobs[i].requirements.includes('unassigned')) {
+                        jobs[i].requirements.splice(jobs[i].requirements.indexOf('unassigned'), 1);
+                    }
+                    if (!jobs[i].requirements.includes(assignAgentReq)) {
+                        jobs[i].requirements.push(assignAgentReq);
+                    }
+                }
+            }
+        }
+    }
+
+    private markJobsForAgent(jobs: JobData[], jobIndexes: number[], agentIndex: number) {
+        jobIndexes.forEach(jobIndex => {
+            if (jobs[jobIndex]) {
+                const assignAgentReq = `assign-agent-${agentIndex}`;
+                if (!jobs[jobIndex].requirements) {
+                    jobs[jobIndex].requirements = [];
+                }
+                if(jobs[jobIndex].requirements.includes('unassigned')) {
+                    jobs[jobIndex].requirements.splice(jobs[jobIndex].requirements.indexOf('unassigned'), 1);
+                }
+                if (!jobs[jobIndex].requirements.includes(assignAgentReq)) {
+                    jobs[jobIndex].requirements.push(assignAgentReq);
+                }
+            }
+        });
     }
 
     private validateJobs(jobIndexes: number[], agentIndex?: number) {
@@ -130,11 +159,11 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private validateJobExists(jobIndex: number) {
         let jobFound = this.getJobByIndex(jobIndex);
         if (!jobFound) {
-            throw new Error(`Job with index ${jobFound} not found`);
+            throw new Error(`Job with index ${jobIndex} not found`);
         } else {
             let isUnassignedJob = this.result.getRawData().properties.issues.unassigned_jobs.includes(jobIndex);
             if (!isUnassignedJob) {
-                throw new Error(`Job with id ${jobIndex} is invalid`);
+                throw new Error(`Job with index ${jobIndex} is invalid`);
             }
         }
     }
@@ -151,11 +180,6 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
                 throw new Error("Job id is undefined");
             }
         });
-    }
-
-    private addUnassignedJob(jobInfo: RouteActionInfo) {
-        this.generateEmptyUnassignedJobsIfNeeded();
-        this.result.getRawData().properties.issues.unassigned_jobs.push(jobInfo.getActions()[0].getJobIndex()!);
     }
 
     private setJobPriority(jobIndex: number, newPriority?: number) {
