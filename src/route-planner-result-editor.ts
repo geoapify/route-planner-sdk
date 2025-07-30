@@ -3,6 +3,7 @@ import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-edit
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { Utils } from "./tools/utils";
 import { Job, Shipment } from "./models";
+import { IndexConverter } from "./helpers/index-converter";
 
 export class RoutePlannerResultEditor {
     private readonly result: RoutePlannerResult;
@@ -21,8 +22,8 @@ export class RoutePlannerResultEditor {
      */
     async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[], newPriority?: number): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
-        let agentIndex = this.convertAgentToIndex(agentIdOrIndex);
-        let jobIndexes = this.convertJobsToIndexes(jobIndexesOrIds);
+        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
+        let jobIndexes = IndexConverter.convertJobsToIndexes(this.result.getData(), jobIndexesOrIds);
         return new RouteResultJobEditor(this.result).assignJobs(agentIndex, jobIndexes, newPriority);
     }
 
@@ -35,8 +36,8 @@ export class RoutePlannerResultEditor {
      */
     async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], newPriority?: number): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexesOrIds");
-        let shipmentIndexes = this.convertShipmentsToIndexes(shipmentIndexesOrIds);
-        let agentIndex = this.convertAgentToIndex(agentIdOrIndex);
+        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.result.getData(), shipmentIndexesOrIds);
+        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
         return new RouteResultShipmentEditor(this.result).assignShipments(agentIndex, shipmentIndexes, newPriority);
     }
 
@@ -47,7 +48,7 @@ export class RoutePlannerResultEditor {
      */
     async removeJobs(jobIndexesOrIds: number[] | string[]): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
-        let jobIndexes = this.convertJobsToIndexes(jobIndexesOrIds);
+        let jobIndexes = IndexConverter.convertJobsToIndexes(this.result.getData(), jobIndexesOrIds);
         return new RouteResultJobEditor(this.result).removeJobs(jobIndexes);
     }
 
@@ -58,7 +59,7 @@ export class RoutePlannerResultEditor {
      */
     async removeShipments(shipmentIndexesOrIds: number[] | string[]): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexes");
-        let shipmentIndexes = this.convertShipmentsToIndexes(shipmentIndexesOrIds);
+        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.result.getData(), shipmentIndexesOrIds);
         return new RouteResultShipmentEditor(this.result).removeShipments(shipmentIndexes);
     }
 
@@ -70,7 +71,7 @@ export class RoutePlannerResultEditor {
      */
     addNewJobs(agentIdOrIndex: string | number, jobs: Job[]): Promise<boolean> {
         this.assertArray(jobs, "jobs");
-        let agentIndex = this.convertAgentToIndex(agentIdOrIndex);
+        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
         return new RouteResultJobEditor(this.result).addNewJobs(agentIndex, jobs);
     }
 
@@ -82,7 +83,7 @@ export class RoutePlannerResultEditor {
      */
     addNewShipments(agentIdOrIndex: string | number, shipments: Shipment[]): Promise<boolean> {
         this.assertArray(shipments, "shipments");
-        let agentIndex = this.convertAgentToIndex(agentIdOrIndex);
+        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
         return new RouteResultShipmentEditor(this.result).addNewShipments(agentIndex, shipments);
     }
 
@@ -97,50 +98,6 @@ export class RoutePlannerResultEditor {
     private assertArray(array: any[], name: string): void {
         if (!Array.isArray(array)) {
             throw new Error("Type error: " + name + " must be an array");
-        }
-    }
-
-    private convertJobsToIndexes(jobIndexesOrIds: number[] | string[]) {
-        if(typeof jobIndexesOrIds[0] === "number") {
-            return jobIndexesOrIds as number[];
-        }
-        let jobIndexes: number[] = [];
-        jobIndexesOrIds.forEach(jobId => {
-            let jobIndex = this.result.getData().inputData.jobs.findIndex(job => job.id === jobId);
-            if (jobIndex < 0) {
-                throw new Error(`Job with id ${jobId} not found`);
-            } else {
-                jobIndexes.push(jobIndex);
-            }
-        })
-        return jobIndexes;
-    }
-
-    private convertShipmentsToIndexes(shipmentIds: number[] | string[]) {
-        if (typeof shipmentIds[0] === "number") {
-            return shipmentIds as number[];
-        }
-        let shipmentIndexes: number[] = [];
-        shipmentIds.forEach(shipmentId => {
-            let shipmentIndex = this.result.getData().inputData.shipments.findIndex(shipment => shipment.id === shipmentId);
-            if (shipmentIndex < 0) {
-                throw new Error(`Shipment with id ${shipmentId} not found`);
-            } else {
-                shipmentIndexes.push(shipmentIndex);
-            }
-        })
-        return shipmentIndexes;
-    }
-
-    private convertAgentToIndex(agentIdOrIndex: string | number): number {
-        if(typeof agentIdOrIndex === "number") {
-            return agentIdOrIndex as number;
-        }
-        let index = this.result.getData().inputData.agents.findIndex(agent => agent.id === agentIdOrIndex);
-        if(index === -1) {
-            throw new Error(`Agent with id ${agentIdOrIndex} not found`);
-        } else {
-            return index;
         }
     }
 }

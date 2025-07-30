@@ -31,7 +31,7 @@ describe("RoutePlannerResult", () => {
         rawData = {
             agents: [
                 {
-                    agentIndex: 1,
+                    agentIndex: 0,
                     agentId: "A1",
                     time: 1000,
                     start_time: 500,
@@ -52,7 +52,7 @@ describe("RoutePlannerResult", () => {
                             type: "pickup",
                             start_time: 600,
                             duration: 30,
-                            shipment_index: 1,
+                            shipment_index: 0,
                             shipment_id: "S1",
                             location_index: 0,
                             location_id: "1",
@@ -93,7 +93,7 @@ describe("RoutePlannerResult", () => {
                             44.50932929564533,
                             40.18686625
                         ],
-                        "id": "agent-A"
+                        "id": "A1"
                     },
                     {
                         "capabilities": [
@@ -106,10 +106,21 @@ describe("RoutePlannerResult", () => {
                             44.400450399509495,
                             40.153735600000005
                         ],
-                        "id": "agent-B"
+                        "id": "A2"
                     }
                 ],
-                "jobs": [],
+                "jobs": [
+                    {
+                        "requirements": [],
+                        "time_windows": [],
+                        "location": [
+                            44.50932929564537,
+                            40.18686625
+                        ],
+                        "pickup_amount": 10,
+                        "id": "J1"
+                    }
+                ],
                 "shipments": [
                     {
                         "requirements": [
@@ -129,7 +140,7 @@ describe("RoutePlannerResult", () => {
                                 40.18686625
                             ]
                         },
-                        "id": "shipment-1"
+                        "id": "S1"
                     },
                     {
                         "requirements": [
@@ -235,6 +246,7 @@ describe("RoutePlannerResult", () => {
 
     test("should return a specific agent solution", () => {
         expect(routePlannerResult.getAgentSolution("A1")).toEqual(new AgentSolution(rawData.agents[0]));
+        expect(routePlannerResult.getAgentSolution(0)).toEqual(new AgentSolution(rawData.agents[0]));
     });
 
     test("should return undefined for a non-existent agent solution", () => {
@@ -243,42 +255,52 @@ describe("RoutePlannerResult", () => {
 
     test("should return waypoints for a specific agent", () => {
         expect(routePlannerResult.getAgentWaypoints("A1")).toEqual(rawData.agents[0].waypoints.map(waypoint => new Waypoint(waypoint)));
+        expect(routePlannerResult.getAgentWaypoints(0)).toEqual(rawData.agents[0].waypoints.map(waypoint => new Waypoint(waypoint)));
     });
 
     test("should return an empty array for waypoints of a non-existent agent", () => {
         expect(routePlannerResult.getAgentWaypoints("A2")).toEqual([]);
+        expect(routePlannerResult.getAgentWaypoints(1)).toEqual([]);
     });
 
     test("should return route actions for a specific agent", () => {
         expect(routePlannerResult.getAgentRouteActions("A1")).toEqual(rawData.agents[0].actions.map(action => new RouteAction(action)));
+        expect(routePlannerResult.getAgentRouteActions(0)).toEqual(rawData.agents[0].actions.map(action => new RouteAction(action)));
     });
 
     test("should return an empty array for route actions of a non-existent agent", () => {
         expect(routePlannerResult.getAgentRouteActions("A2")).toEqual([]);
+        expect(routePlannerResult.getAgentRouteActions(1)).toEqual([]);
     });
 
     test("should return route legs for a specific agent", () => {
         expect(routePlannerResult.getAgentRouteLegs("A1")).toEqual(rawData.agents[0].legs.map(leg => new RouteLeg(leg)));
+        expect(routePlannerResult.getAgentRouteLegs(0)).toEqual(rawData.agents[0].legs.map(leg => new RouteLeg(leg)));
     });
 
     test("should return an empty array for route legs of a non-existent agent", () => {
         expect(routePlannerResult.getAgentRouteLegs("A2")).toEqual([]);
+        expect(routePlannerResult.getAgentRouteLegs(1)).toEqual([]);
     });
 
     test("should return assigned jobs for a specific agent", () => {
         expect(routePlannerResult.getAgentJobs("A1")).toEqual([0]);
+        expect(routePlannerResult.getAgentJobs(0)).toEqual([0]);
     });
 
     test("should return an empty array for assigned jobs of a non-existent agent", () => {
         expect(routePlannerResult.getAgentJobs("A2")).toEqual([]);
+        expect(routePlannerResult.getAgentJobs(1)).toEqual([]);
     });
 
     test("should return assigned shipments for a specific agent", () => {
-        expect(routePlannerResult.getAgentShipments("A1")).toEqual([1]);
+        expect(routePlannerResult.getAgentShipments("A1")).toEqual([0]);
+        expect(routePlannerResult.getAgentShipments(0)).toEqual([0]);
     });
 
     test("should return an empty array for assigned shipments of a non-existent agent", () => {
         expect(routePlannerResult.getAgentShipments("A2")).toEqual([]);
+        expect(routePlannerResult.getAgentShipments(1)).toEqual([]);
     });
 
     test("should return unassigned agents", () => {
@@ -302,10 +324,16 @@ describe("RoutePlannerResult", () => {
             actions: [new RouteAction(rawData.agents[0].actions[0])],
             agent: new AgentSolution(rawData.agents[0]),
         }));
+        expect(routePlannerResult.getJobInfo(0)).toEqual(new RouteActionInfo({
+            agentId: "A1",
+            actions: [new RouteAction(rawData.agents[0].actions[0])],
+            agent: new AgentSolution(rawData.agents[0]),
+        }));
     });
 
     test("should return null for a non-existent job", () => {
         expect(routePlannerResult.getJobInfo("J2")).toBeUndefined();
+        expect(routePlannerResult.getJobInfo(1)).toBeUndefined();
     });
 
     test("should return shipment info when shipment exists", () => {
@@ -314,10 +342,16 @@ describe("RoutePlannerResult", () => {
             actions: [new RouteAction(rawData.agents[0].actions[0])],
             agent: new AgentSolution(rawData.agents[0]),
         }));
+        expect(routePlannerResult.getShipmentInfo(0)).toEqual(new RouteActionInfo({
+            agentId: "A1",
+            actions: [new RouteAction(rawData.agents[0].actions[0])],
+            agent: new AgentSolution(rawData.agents[0]),
+        }));
     });
 
     test("should return null for a non-existent shipment", () => {
         expect(routePlannerResult.getShipmentInfo("S2")).toBeUndefined();
+        expect(routePlannerResult.getShipmentInfo(1)).toBeUndefined();
     });
 
     test("should getAgentRoute() call routing API agent not found", async () => {

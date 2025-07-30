@@ -40,27 +40,27 @@ Initializes the result handler with routing options and the raw API response.
 
 ## Agent Routes
 
-| Method                          | Description                                                                      |
-| ------------------------------- | -------------------------------------------------------------------------------- |
-| `getAgentSolutions()`           | Returns a list of [`AgentSolution`](./agent-solution.md) for all assigned agents |
-| `getAgentSolutionsByIndex()`    | Returns agent solutions in array indexed by input agent list                     |
-| `getAgentSolution(agentId)`     | Retrieves a specific agent’s solution                                            |
-| `getAgentWaypoints(agentId)`    | Returns that agent’s [`Waypoint`](./waypoint.md)s                                |
-| `getAgentRouteActions(agentId)` | Returns that agent’s [`RouteAction`](./route-action.md)s                         |
-| `getAgentRouteLegs(agentId)`    | Returns that agent’s [`RouteLeg`](./route-leg.md)s                               |
+| Method                                    | Description                                                                      |
+| ----------------------------------------- | -------------------------------------------------------------------------------- |
+| `getAgentSolutions()`                     | Returns a list of [`AgentSolution`](./agent-solution.md) for all assigned agents |
+| `getAgentSolutionsByIndex()`              | Returns agent solutions in array indexed by input agent list                     |
+| `getAgentSolution(agentIdOrIndex)`        | Retrieves a specific agent's solution                                            |
+| `getAgentWaypoints(agentIdOrIndex)`       | Returns that agent's [`Waypoint`](./waypoint.md)s                                |
+| `getAgentRouteActions(agentIdOrIndex)`    | Returns that agent's [`RouteAction`](./route-action.md)s                         |
+| `getAgentRouteLegs(agentIdOrIndex)`       | Returns that agent's [`RouteLeg`](./route-leg.md)s                               |
 
 ---
 
 ## Assignments
 
-| Method                            | Description                                                                 |
-| --------------------------------- | --------------------------------------------------------------------------- |
-| `getJobSolutions()`               | Returns a list of [`JobSolution`](./job-solution.md)s for all assigned jobs |
-| `getJobSolution(jobId)`           | Finds a job solution by its ID                                              |
-| `getAgentJobs(agentId)`           | Returns indexes of jobs assigned to an agent                                |
-| `getShipmentSolutions()`          | Returns a list of [`ShipmentSolution`](./shipment-solution.md)s             |
-| `getShipmentSolution(shipmentId)` | Finds a shipment solution by ID                                             |
-| `getAgentShipments(agentId)`      | Returns shipment indexes assigned to the agent                              |
+| Method                                      | Description                                                                 |
+| ------------------------------------------- | --------------------------------------------------------------------------- |
+| `getJobSolutions()`                         | Returns a list of [`JobSolution`](./job-solution.md)s for all assigned jobs |
+| `getJobSolution(jobIdOrIndex)`              | Finds a job solution by its ID or index                                    |
+| `getAgentJobs(agentIdOrIndex)`              | Returns indexes of jobs assigned to an agent                                |
+| `getShipmentSolutions()`                    | Returns a list of [`ShipmentSolution`](./shipment-solution.md)s             |
+| `getShipmentSolution(shipmentIdOrIndex)`    | Finds a shipment solution by ID or index                                   |
+| `getAgentShipments(agentIdOrIndex)`         | Returns shipment indexes assigned to the agent                              |
 
 ---
 
@@ -76,18 +76,18 @@ Initializes the result handler with routing options and the raw API response.
 
 ## Job & Shipment Info
 
-| Method                        | Description                                                                              |
-| ----------------------------- | ---------------------------------------------------------------------------------------- |
-| `getJobInfo(jobId)`           | Returns [`RouteActionInfo`](./route-action-info.md) for a job (agent, actions, timeline) |
-| `getShipmentInfo(shipmentId)` | Returns [`RouteActionInfo`](./route-action-info.md) for a shipment                       |
+| Method                              | Description                                                                              |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| `getJobInfo(jobIdOrIndex)`          | Returns [`RouteActionInfo`](./route-action-info.md) for a job (agent, actions, timeline) |
+| `getShipmentInfo(shipmentIdOrIndex)`| Returns [`RouteActionInfo`](./route-action-info.md) for a shipment                       |
 
 ---
 
 ## External Routing Fetch
 
-| Method                            | Description                                                                 |
-| --------------------------------- | --------------------------------------------------------------------------- |
-| `getAgentRoute(agentId, options)` | Fetches enriched routing details using agent waypoints and `RoutingOptions` |
+| Method                                     | Description                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| `getAgentRoute(agentIdOrIndex, options)`   | Fetches enriched routing details using agent waypoints and `RoutingOptions` |
 
 
 
@@ -100,8 +100,13 @@ Initializes the result handler with routing options and the raw API response.
 ```ts
 const result = new RoutePlannerResult(options, rawResponse);
 
+// Use ID
 const agent = result.getAgentSolution("agent-1");
 const waypoints = result.getAgentWaypoints("agent-1");
+
+// Or use index
+const agentByIndex = result.getAgentSolution(0);
+const waypointsByIndex = result.getAgentWaypoints(0);
 
 const unassignedJobs = result.getUnassignedJobs();
 ```
