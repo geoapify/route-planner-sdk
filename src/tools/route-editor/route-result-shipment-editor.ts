@@ -152,11 +152,6 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         if (!this.checkIfArrayIsUnique(shipments)) {
             throw new Error("Shipments are not unique");
         }
-        shipments.forEach((job) => {
-            if(job.id == undefined) {
-                throw new Error("Shipment id is undefined");
-            }
-        });
     }
 
     private setShipmentPriority(jobIndex: number, newPriority?: number) {

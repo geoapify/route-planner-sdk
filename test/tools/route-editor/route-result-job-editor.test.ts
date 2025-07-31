@@ -453,16 +453,13 @@ describe('RoutePlannerResultJobEditor', () => {
         let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignJobRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        let id: string;
         let newJob = new Job()
             .setLocation(44.50932929564537, 40.18686625)
-            .setPickupAmount(10)
-            .setId(id!);
+            .setPickupAmount(10);
         try {
             await routeEditor.addNewJobs('agent-B', [newJob]);
-            fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job id is undefined');
+            fail();
         }
     });
 
