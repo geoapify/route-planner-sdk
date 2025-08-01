@@ -13,9 +13,10 @@ import { RouteAction } from "./nested/result/route-action";
 import { RouteLeg } from "./nested/result/route-leg";
 import { RouteActionInfo } from "./nested/result/route-action-info";
 import { RoutePlannerResultConverter } from "../../tools/route-planner-result-converter";
-import {JobSolution} from "./nested/result/job-solution";
-import {ShipmentSolution} from "./nested/result/shipment-solution";
-import {RoutingOptions} from "../interfaces/routing-options";
+import { JobSolution } from "./nested/result/job-solution";
+import { ShipmentSolution } from "./nested/result/shipment-solution";
+import { RoutingOptions } from "../interfaces/routing-options";
+import { IndexConverter } from "../../helpers/index-converter";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -67,13 +68,9 @@ export class RoutePlannerResult {
     /**
      * Finds an agent's solution by their ID.
      */
-    getAgentSolution(agentId: string): AgentSolution | undefined {
-        let agentFound = this.getData().agents.find(agent => agent.agentId === agentId)
-        if(agentFound === undefined) {
-            return undefined;
-        } else {
-            return new AgentSolution(agentFound);
-        }
+    getAgentSolution(agentIdOrIndex: string | number): AgentSolution | undefined {
+        const agentIndex = IndexConverter.convertAgentToIndex(this.getData(), agentIdOrIndex);
+        return this.getAgentSolutionByIndex(agentIndex);
     }
 
     /**
@@ -91,24 +88,24 @@ export class RoutePlannerResult {
     /**
      * Retrieves all waypoints of a specific agent.
      */
-    getAgentWaypoints(agentId: string): Waypoint[] {
-        const agent = this.getAgentSolution(agentId);
+    getAgentWaypoints(agentIdOrIndex: string | number): Waypoint[] {
+        const agent = this.getAgentSolution(agentIdOrIndex);
         return agent ? agent.getWaypoints() : [];
     }
 
     /**
      * Retrieves all route actions of a specific agent.
      */
-    getAgentRouteActions(agentId: string): RouteAction[] {
-        const agent = this.getAgentSolution(agentId);
+    getAgentRouteActions(agentIdOrIndex: string | number): RouteAction[] {
+        const agent = this.getAgentSolution(agentIdOrIndex);
         return agent ? agent.getActions() : [];
     }
 
     /**
      * Retrieves all route legs of a specific agent.
      */
-    getAgentRouteLegs(agentId: string): RouteLeg[] {
-        const agent = this.getAgentSolution(agentId);
+    getAgentRouteLegs(agentIdOrIndex: string | number): RouteLeg[] {
+        const agent = this.getAgentSolution(agentIdOrIndex);
         return agent ? agent.getLegs() : [];
     }
 
@@ -122,8 +119,8 @@ export class RoutePlannerResult {
      /**
      * Retrieves all jobs assigned to a specific agent.
      */
-    getAgentJobs(agentId: string): number[] {
-        const agent = this.getAgentSolution(agentId);
+    getAgentJobs(agentIdOrIndex: string | number): number[] {
+        const agent = this.getAgentSolution(agentIdOrIndex);
         if(agent === undefined) {
             return [];
         }
@@ -135,8 +132,8 @@ export class RoutePlannerResult {
     /**
      * Retrieves all shipments assigned to a specific agent.
      */
-    getAgentShipments(agentId: string): number[] {
-        const agent = this.getAgentSolution(agentId);
+    getAgentShipments(agentIdOrIndex: string | number): number[] {
+        const agent = this.getAgentSolution(agentIdOrIndex);
         if(agent === undefined) {
             return [];
         }
@@ -223,11 +220,13 @@ export class RoutePlannerResult {
     }
 
     /**
-     * Finds job solution by their ID.
+     * Finds job solution by their ID or index.
      */
-    getJobSolution(jobId: string): JobSolution | undefined {
+    getJobSolution(jobIdOrIndex: string | number): JobSolution | undefined {
+        const jobIndex = IndexConverter.convertJobToIndex(this.getData(), jobIdOrIndex);
         for (let jobSolution of this.getJobSolutions()) {
-            if (jobSolution.getJob().getRaw().id === jobId) {
+            const actions = jobSolution.getActions();
+            if (actions.length > 0 && actions[0].getJobIndex() === jobIndex) {
                 return jobSolution;
             }
         }
@@ -270,11 +269,13 @@ export class RoutePlannerResult {
     }
 
     /**
-     * Finds shipment solution by their ID.
+     * Finds shipment solution by their ID or index.
      */
-    getShipmentSolution(jobId: string): ShipmentSolution | undefined {
+    getShipmentSolution(shipmentIdOrIndex: string | number): ShipmentSolution | undefined {
+        const shipmentIndex = IndexConverter.convertShipmentToIndex(this.getData(), shipmentIdOrIndex);
         for (let shipmentSolution of this.getShipmentSolutions()) {
-            if (shipmentSolution.getShipment().getRaw().id === jobId) {
+            const actions = shipmentSolution.getActions();
+            if (actions.length > 0 && actions[0].getShipmentIndex() === shipmentIndex) {
                 return shipmentSolution;
             }
         }
@@ -284,47 +285,17 @@ export class RoutePlannerResult {
     /**
      * Retrieves detailed information about a specific job.
      */
-    getJobInfo(jobId: string): RouteActionInfo | undefined {
-        if(!jobId) {
-            return undefined;
-        }
-        let actions = [];
-        let agentFound;
-        for (const agent of this.getAgentSolutions()) {
-            for (const action of agent.getActions()) {
-                if (action.getJobId() === jobId) {
-                     actions.push(action);
-                     agentFound = agent;
-                }
-            }
-        }
-        if(actions.length !== 0 && agentFound) {
-            return new RouteActionInfo({ agentId: agentFound.getAgentId(), actions: actions, agent: agentFound });
-        }
-        return undefined; // Job not found
+    getJobInfo(jobIdOrIndex: string | number): RouteActionInfo | undefined {
+        const jobIndex = IndexConverter.convertJobToIndex(this.getData(), jobIdOrIndex);
+        return this.getJobInfoByIndex(jobIndex);
     }
 
     /**
      * Retrieves detailed information about a specific shipment.
      */
-    getShipmentInfo(shipmentId: string): RouteActionInfo | undefined {
-        if(!shipmentId) {
-            return undefined;
-        }
-        let actions = [];
-        let agentFound;
-        for (const agent of this.getAgentSolutions()) {
-            for (const action of agent.getActions()) {
-                if (action.getShipmentId() === shipmentId) {
-                    actions.push(action);
-                    agentFound = agent;
-                }
-            }
-        }
-        if(actions.length !== 0 && agentFound) {
-            return new RouteActionInfo({ agentId: agentFound.getAgentId(), actions: actions, agent: agentFound });
-        }
-        return undefined; // Shipment not found
+    getShipmentInfo(shipmentIdOrIndex: string | number): RouteActionInfo | undefined {
+        const shipmentIndex = IndexConverter.convertShipmentToIndex(this.getData(), shipmentIdOrIndex);
+        return this.getShipmentInfoByIndex(shipmentIndex);
     }
 
     /**
@@ -376,11 +347,11 @@ export class RoutePlannerResult {
 
     /**
      * Retrieves the route for a specific agent.
-     * @param agentId - The ID of the agent.
+     * @param agentIdOrIndex - The ID or index of the agent.
      * @param options - The routing options.
      */
-    async getAgentRoute(agentId: string, options: RoutingOptions): Promise<any | undefined> {
-        const agent = this.getAgentSolution(agentId);
+    async getAgentRoute(agentIdOrIndex: string | number, options: RoutingOptions): Promise<any | undefined> {
+        const agent = this.getAgentSolution(agentIdOrIndex);
         if (!agent) return undefined;
         let waypoints = agent.getWaypoints().map(waypoint => "lonlat:" + waypoint.getLocation()).join('|');
         if (waypoints.length == 0) return undefined;

@@ -175,11 +175,6 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         if (!this.checkIfArrayIsUnique(jobs)) {
             throw new Error("Jobs are not unique");
         }
-        jobs.forEach((job) => {
-            if(job.id == undefined) {
-                throw new Error("Job id is undefined");
-            }
-        });
     }
 
     private setJobPriority(jobIndex: number, newPriority?: number) {

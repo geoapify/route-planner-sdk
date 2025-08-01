@@ -407,9 +407,8 @@ describe('RoutePlannerResultShipmentEditor', () => {
             .addRequirement('heavy-items');
         try {
             await routeEditor.addNewShipments('agent-B', [newShipment]);
-            fail();
         } catch (error: any) {
-            expect(error.message).toBe('Shipment id is undefined');
+            fail();
         }
     });
 
