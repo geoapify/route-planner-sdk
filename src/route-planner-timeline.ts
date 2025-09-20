@@ -306,6 +306,9 @@ export class RoutePlannerTimeline {
                         el.addEventListener('mouseover', () => {
                             this.emit('onWaypointHover', waypoint);
                         });
+                        el.addEventListener('click', () => {
+                            this.emit('onWaypointClick', waypoint);
+                        });
                     }
                 });
             }

@@ -82,6 +82,7 @@ new RoutePlannerTimeline(container: HTMLElement, inputData?: RoutePlannerInputDa
 | Event             | Trigger                                          |
 | ----------------- | ------------------------------------------------ |
 | `onWaypointHover` | Mouse hovers over a job/waypoint item            |
+| `onWaypointClick` | Mouse clicks on a job/waypoint item             |
 | `beforeAgentMenuShow`  | Before displaying the agent's context menu (modify items when needed) |
 
 ---
@@ -100,6 +101,10 @@ const timeline = new RoutePlannerTimeline(container, inputData, result, {
 
 timeline.on("onWaypointHover", (waypoint) => {
   console.log("Hovered over:", waypoint.getLocation());
+});
+
+timeline.on("onWaypointClick", (waypoint) => {
+  console.log("Clicked on:", waypoint.getLocation());
 });
 
 // Optional: Modify menu items dynamically before they are shown

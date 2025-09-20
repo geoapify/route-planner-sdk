@@ -95,6 +95,10 @@ export class AppComponent {
     this.routePlannerTimeline.on('onWaypointHover', (waypoint: Waypoint) => {
       console.log('Waypoint hovered via event system:', waypoint);
     });
+    
+    this.routePlannerTimeline.on('onWaypointClick', (waypoint: Waypoint) => {
+      console.log('Waypoint clicked via event system:', waypoint);
+    });
   }
 
   private createBeforeAgentMenuShowEventListener() {

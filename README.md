@@ -327,6 +327,11 @@ timeline.on('onWaypointHover', (waypoint: Waypoint) => {
   console.log('Hovered waypoint:', waypoint);
 });
 
+// Optional: Listen to click events
+timeline.on('onWaypointClick', (waypoint: Waypoint) => {
+  console.log('Clicked waypoint:', waypoint);
+});
+
 // Optional: Modify menu items dynamically before they are shown
 timeline.on('beforeAgentMenuShow', (agentIndex: number, actions: TimelineMenuItem[]) => {
   return actions.map(action => {
