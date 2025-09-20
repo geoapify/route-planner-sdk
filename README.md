@@ -323,13 +323,13 @@ const timeline = new RoutePlannerTimeline(container, inputData, undefined, {
 });
 
 // Optional: Listen to hover events
-timeline.on('onWaypointHover', (waypoint: Waypoint) => {
-  console.log('Hovered waypoint:', waypoint);
+timeline.on('onWaypointHover', (waypoint: Waypoint, agentIndex: number) => {
+  console.log('Hovered waypoint:', waypoint, 'Agent:', agentIndex);
 });
 
 // Optional: Listen to click events
-timeline.on('onWaypointClick', (waypoint: Waypoint) => {
-  console.log('Clicked waypoint:', waypoint);
+timeline.on('onWaypointClick', (waypoint: Waypoint, agentIndex: number) => {
+  console.log('Clicked waypoint:', waypoint, 'Agent:', agentIndex);
 });
 
 // Optional: Modify menu items dynamically before they are shown

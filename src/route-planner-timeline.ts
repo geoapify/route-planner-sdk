@@ -292,27 +292,27 @@ export class RoutePlannerTimeline {
             const html = this.timelineTemplate(timeline, index, this.options.timelineType!,
                 this.options.timeLabels || [], this.options.distanceLabels || [], this.options.agentMenuItems || []);
             this.container.insertAdjacentHTML('beforeend', html);
-
-            if (this.result) {
-                const waypointElements = this.container.querySelectorAll('.geoapify-rp-sdk-solution-item');
-                waypointElements.forEach((el: Element) => {
-                    const agentIndex = el.getAttribute('data-agent-index');
-                    const waypointIndex = el.getAttribute('data-waypoint-index');
-
-                    const agentSolution = this.result!.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex!);
-
-                    if (agentSolution && waypointIndex) {
-                        const waypoint = agentSolution.getWaypoints()[+waypointIndex];
-                        el.addEventListener('mouseover', () => {
-                            this.emit('onWaypointHover', waypoint);
-                        });
-                        el.addEventListener('click', () => {
-                            this.emit('onWaypointClick', waypoint);
-                        });
-                    }
-                });
-            }
         });
+
+        if (this.result) {
+            const waypointElements = this.container.querySelectorAll('.geoapify-rp-sdk-solution-item');
+            waypointElements.forEach((el: Element) => {
+                const agentIndex = el.getAttribute('data-agent-index');
+                const waypointIndex = el.getAttribute('data-waypoint-index');
+
+                const agentSolution = this.result!.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex!);
+
+                if (agentSolution && waypointIndex) {
+                    const waypoint = agentSolution.getWaypoints()[+waypointIndex];
+                    el.addEventListener('mouseover', () => {
+                        this.emit('onWaypointHover', waypoint, +agentIndex!);
+                    });
+                    el.addEventListener('click', () => {
+                        this.emit('onWaypointClick', waypoint, +agentIndex!);
+                    });
+                }
+            });
+        }
 
         if(this.options.showWaypointPopup) {
             if(this.options.waypointPopupGenerator) {
@@ -345,13 +345,13 @@ export class RoutePlannerTimeline {
         });
     }
 
-    private emit(eventName: string, data?: any): void {
+    private emit(eventName: string, ...args: any[]): void {
         if (!this.eventListeners[eventName]) {
             return;
         }
         this.eventListeners[eventName].forEach(handler => {
             try {
-                handler(data);
+                handler(...args);
             } catch (error) {
                 console.error(`Error in event handler for "${eventName}":`, error);
             }

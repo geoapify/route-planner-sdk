@@ -99,12 +99,12 @@ const timeline = new RoutePlannerTimeline(container, inputData, result, {
   ]
 });
 
-timeline.on("onWaypointHover", (waypoint) => {
-  console.log("Hovered over:", waypoint.getLocation());
+timeline.on("onWaypointHover", (waypoint, agentIndex) => {
+  console.log("Hovered over:", waypoint.getLocation(), "Agent:", agentIndex);
 });
 
-timeline.on("onWaypointClick", (waypoint) => {
-  console.log("Clicked on:", waypoint.getLocation());
+timeline.on("onWaypointClick", (waypoint, agentIndex) => {
+  console.log("Clicked on:", waypoint.getLocation(), "Agent:", agentIndex);
 });
 
 // Optional: Modify menu items dynamically before they are shown
