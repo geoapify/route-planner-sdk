@@ -1,4 +1,6 @@
 import {RoutePlannerResult} from "../../models/entities/route-planner-result";
+import {RoutePlanner} from "../../route-planner";
+import {Utils} from "../utils";
 import {
     AgentData,
     JobData,
@@ -12,6 +14,30 @@ export class RouteResultEditorBase {
 
     constructor(result: RoutePlannerResult) {
         this.result = result;
+    }
+
+    protected async executePlan(inputData: any): Promise<boolean> {
+        const planner = new RoutePlanner(this.result.getOptions(), inputData);
+        const newResult = await planner.plan();
+        this.updateResult(newResult);
+        return true;
+    }
+
+    protected cloneInputData(): any {
+        return Utils.cloneObject(this.result.getRawData().properties.params);
+    }
+
+    protected addRequirement(requirements: string[], req: string) {
+        if (!requirements.includes(req)) {
+            requirements.push(req);
+        }
+    }
+
+    protected removeRequirement(requirements: string[], req: string) {
+        const index = requirements.indexOf(req);
+        if (index !== -1) {
+            requirements.splice(index, 1);
+        }
     }
 
     protected checkIfArrayIsUnique(myArray: any[]) {
@@ -31,7 +57,7 @@ export class RouteResultEditorBase {
     }
 
     protected validateAgent(agentIndex: number) {
-        let agentFound = this.getAgentByIndex(agentIndex);
+        const agentFound = this.getAgentByIndex(agentIndex);
         if (!agentFound) {
             throw new Error(`Agent with index ${agentIndex} not found`);
         }
@@ -49,7 +75,6 @@ export class RouteResultEditorBase {
             if (!agent.capabilities) {
                 agent.capabilities = [];
             }
-            // Only add the capability if it's not already present
             if (!agent.capabilities.includes(capabilityName)) {
                 agent.capabilities.push(capabilityName);
             }

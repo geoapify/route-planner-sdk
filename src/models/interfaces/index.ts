@@ -31,3 +31,5 @@ export * from "./route-planner-timeline/timeline-item";
 export * from "./route-planner-timeline/timeline";
 export * from "./route-planner-timeline/timeline-menu-item";
 export * from "./route-planner-timeline/route-planner-timeline-options";
+
+export * from "./route-editor-options";

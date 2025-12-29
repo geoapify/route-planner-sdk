@@ -1,6 +1,7 @@
 import RoutePlanner, {
   RoutePlannerResultEditor,
-  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location
+  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location,
+  AddAssignOptions, RemoveOptions
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
 import { loadJson } from "../utils.helper";
@@ -663,5 +664,113 @@ describe('RoutePlannerResultEditor', () => {
     expect(allAgentSolution[0]).toBeDefined();
     expect(allAgentSolution[1]).toBeUndefined();
     expect(allAgentSolution[2]).toBeUndefined();
+  });
+});
+
+/**
+ * Tests for new options API
+ */
+describe('RoutePlannerResultEditor Options API', () => {
+
+  test('assignJobs with options object should work same as without', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignJobs('agent-B', ['job-2'], { strategy: 'reoptimize' });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+  });
+
+  test('assignJobs with priority in options should set job priority', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignJobs('agent-B', ['job-2'], { priority: 100 });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getRawData().properties.params.jobs[1].priority).toBe(100);
+  });
+
+  test('assignJobs backward compatibility: number as priority should work', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignJobs('agent-B', ['job-2'], 50);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getRawData().properties.params.jobs[1].priority).toBe(50);
+  });
+
+  test('assignShipments with options should work', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.assignShipments('agent-A', ['shipment-3'], { strategy: 'reoptimize' });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+  });
+
+  test('removeJobs with options should work', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-unassigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.removeJobs(['job-4'], { strategy: 'reoptimize' });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
+    expect(modifiedResult.getUnassignedJobs().length).toBe(2);
+  });
+
+  test('removeShipments with options should work', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    await routeEditor.removeShipments(['shipment-4'], { strategy: 'reoptimize' });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getShipmentInfo('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getUnassignedShipments().length).toBe(2);
+  });
+
+  test('addNewJobs with options should work', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-add-job-success-assigned-agent.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newJob = new Job()
+        .setLocation(44.50932929564537, 40.18686625)
+        .setPickupAmount(10)
+        .setId("job-5");
+    
+    await routeEditor.addNewJobs('agent-A', [newJob], { strategy: 'reoptimize' });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-A');
+  });
+
+  test('addNewShipments with options should work', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-add-shipment-success-assigned-agent.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newShipment = new Shipment()
+        .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
+        .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
+        .setId("shipment-5");
+    
+    await routeEditor.addNewShipments('agent-A', [newShipment], { strategy: 'reoptimize' });
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-A');
   });
 });
