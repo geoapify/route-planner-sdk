@@ -1,6 +1,10 @@
+import { Shipment, ShipmentData, AddAssignOptions, RemoveOptions, REOPTIMIZE } from "../../models";
+import { ShipmentStrategyFactory } from "./strategies";
 import { RouteResultEditorBase } from "./route-result-editor-base";
-import { Shipment, ShipmentData, AddAssignOptions, RemoveOptions } from "../../models";
 
+/**
+ * Editor for managing shipments in a route planner result
+ */
 export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     async assignShipments(agentIndex: number, shipmentIndexes: number[], options: AddAssignOptions = {}): Promise<boolean> {
@@ -8,127 +12,51 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         this.validateShipments(shipmentIndexes, agentIndex);
         this.applyPriority(shipmentIndexes, options.priority);
         
-        return this.replanWithShipmentsAssignedToAgent(agentIndex, shipmentIndexes);
+        const strategy = ShipmentStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
+        return strategy.execute(this.context, agentIndex, shipmentIndexes, options);
     }
 
     async removeShipments(shipmentIndexes: number[], options: RemoveOptions = {}): Promise<boolean> {
         this.validateShipments(shipmentIndexes);
-        return this.replanWithShipmentsUnassigned(shipmentIndexes);
+        
+        const strategy = ShipmentStrategyFactory.createRemoveStrategy(options.strategy ?? REOPTIMIZE);
+        return strategy.execute(this.context, shipmentIndexes, options);
     }
 
     async addNewShipments(agentIndex: number, shipments: Shipment[], options: AddAssignOptions = {}): Promise<boolean> {
         const shipmentsRaw = shipments.map(s => s.getRaw());
         this.validateAgent(agentIndex);
-        this.validateNewShipments(shipmentsRaw);
+        this.ensureNewItemsValid(shipmentsRaw, "shipments");
         
         const newShipmentIndexes = this.appendShipmentsToInput(shipmentsRaw);
-        return this.replanWithShipmentsAssignedToAgent(agentIndex, newShipmentIndexes);
-    }
-
-    private async replanWithShipmentsAssignedToAgent(agentIndex: number, shipmentIndexes: number[]): Promise<boolean> {
-        const inputData = this.cloneInputData();
         
-        this.markExistingUnassignedShipments(inputData.shipments);
-        this.markShipmentsForAgent(inputData.shipments, shipmentIndexes, agentIndex);
-        this.markRemainingShipmentsWithAgentRequirement(inputData.shipments, shipmentIndexes);
-        this.addAgentCapabilities(inputData.agents);
-
-        return this.executePlan(inputData);
+        const strategy = ShipmentStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
+        return strategy.execute(this.context, agentIndex, newShipmentIndexes, options);
     }
 
-    private async replanWithShipmentsUnassigned(shipmentIndexes: number[]): Promise<boolean> {
-        const inputData = this.cloneInputData();
+    // ===== Shipment-specific validation =====
+
+    private validateShipments(shipmentIndexes: number[], agentIndex?: number): void {
+        this.ensureItemsProvided(shipmentIndexes, "shipments");
+        this.ensureItemsUnique(shipmentIndexes, "Shipments");
         
-        this.markShipmentsUnassigned(inputData.shipments, shipmentIndexes);
-        this.markExistingUnassignedShipments(inputData.shipments);
-        this.markRemainingShipmentsWithAgentRequirement(inputData.shipments, shipmentIndexes);
-        this.addAgentCapabilities(inputData.agents);
-
-        return this.executePlan(inputData);
-    }
-
-    private appendShipmentsToInput(shipmentsRaw: ShipmentData[]): number[] {
-        const startIndex = this.result.getRawData().properties.params.shipments.length;
-        this.result.getRawData().properties.params.shipments.push(...shipmentsRaw);
-        return shipmentsRaw.map((_, i) => startIndex + i);
-    }
-
-    private applyPriority(shipmentIndexes: number[], priority?: number) {
-        if (priority === undefined) return;
         for (const shipmentIndex of shipmentIndexes) {
-            this.result.getRawData().properties.params.shipments[shipmentIndex].priority = priority;
+            this.validateShipmentAssignment(shipmentIndex, agentIndex);
         }
     }
 
-    private markExistingUnassignedShipments(shipments: ShipmentData[]) {
-        const unassignedShipments = this.result.getRawData().properties.issues?.unassigned_shipments;
-        if (unassignedShipments) {
-            this.markShipmentsUnassigned(shipments, unassignedShipments);
+    private validateShipmentAssignment(shipmentIndex: number, agentIndex?: number): void {
+        const shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
+        if (!shipmentInfo) {
+            this.validateShipmentExists(shipmentIndex);
+        }
+        if (agentIndex !== undefined && shipmentInfo?.getAgent().getAgentIndex() === agentIndex) {
+            throw new Error(`Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
         }
     }
 
-    private markShipmentsUnassigned(shipments: ShipmentData[], shipmentIndexes: number[]) {
-        for (const shipmentIndex of shipmentIndexes) {
-            if (!shipments[shipmentIndex]) continue;
-            if (!shipments[shipmentIndex].requirements) {
-                shipments[shipmentIndex].requirements = [];
-            }
-            if (!shipments[shipmentIndex].requirements.includes(this.unassignedReq)) {
-                shipments[shipmentIndex].requirements.push(this.unassignedReq);
-            }
-        }
-    }
-
-    private markRemainingShipmentsWithAgentRequirement(shipments: ShipmentData[], excludeIndexes: number[]) {
-        for (let i = 0; i < shipments.length; i++) {
-            if (excludeIndexes.includes(i)) continue;
-            
-            const shipmentInfo = this.result.getShipmentInfoByIndex(i);
-            if (!shipmentInfo) continue;
-            
-            const agentIndex = shipmentInfo.getAgent().getAgentIndex();
-            const assignAgentReq = `${this.assignAgentReqStart}${agentIndex}`;
-            
-            if (!shipments[i].requirements) {
-                shipments[i].requirements = [];
-            }
-            this.removeRequirement(shipments[i].requirements, this.unassignedReq);
-            this.addRequirement(shipments[i].requirements, assignAgentReq);
-        }
-    }
-
-    private markShipmentsForAgent(shipments: ShipmentData[], shipmentIndexes: number[], agentIndex: number) {
-        const assignAgentReq = `assign-agent-${agentIndex}`;
-        for (const shipmentIndex of shipmentIndexes) {
-            if (!shipments[shipmentIndex]) continue;
-            if (!shipments[shipmentIndex].requirements) {
-                shipments[shipmentIndex].requirements = [];
-            }
-            this.removeRequirement(shipments[shipmentIndex].requirements, this.unassignedReq);
-            this.addRequirement(shipments[shipmentIndex].requirements, assignAgentReq);
-        }
-    }
-
-    private validateShipments(shipmentIndexes: number[], agentIndex?: number) {
-        if (shipmentIndexes.length === 0) {
-            throw new Error("No shipments provided");
-        }
-        if (!this.checkIfArrayIsUnique(shipmentIndexes)) {
-            throw new Error("Shipments are not unique");
-        }
-        for (const shipmentIndex of shipmentIndexes) {
-            const shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
-            if (!shipmentInfo) {
-                this.validateShipmentExists(shipmentIndex);
-            }
-            if (agentIndex !== undefined && shipmentInfo?.getAgent().getAgentIndex() === agentIndex) {
-                throw new Error(`Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
-            }
-        }
-    }
-
-    private validateShipmentExists(shipmentIndex: number) {
-        const shipmentFound = this.getShipmentByIndex(shipmentIndex);
+    private validateShipmentExists(shipmentIndex: number): void {
+        const shipmentFound = this.result.getRawData().properties.params.shipments[shipmentIndex];
         if (!shipmentFound) {
             throw new Error(`Shipment with index ${shipmentIndex} not found`);
         }
@@ -138,12 +66,18 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         }
     }
 
-    private validateNewShipments(shipments: ShipmentData[]) {
-        if (shipments.length === 0) {
-            throw new Error("No shipments provided");
-        }
-        if (!this.checkIfArrayIsUnique(shipments)) {
-            throw new Error("Shipments are not unique");
+    // ===== Shipment-specific helpers =====
+
+    private appendShipmentsToInput(shipmentsRaw: ShipmentData[]): number[] {
+        const startIndex = this.result.getRawData().properties.params.shipments.length;
+        this.result.getRawData().properties.params.shipments.push(...shipmentsRaw);
+        return shipmentsRaw.map((_, i) => startIndex + i);
+    }
+
+    private applyPriority(shipmentIndexes: number[], priority?: number): void {
+        if (priority === undefined) return;
+        for (const shipmentIndex of shipmentIndexes) {
+            this.result.getRawData().properties.params.shipments[shipmentIndex].priority = priority;
         }
     }
 }

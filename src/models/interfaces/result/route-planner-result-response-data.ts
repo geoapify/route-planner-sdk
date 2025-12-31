@@ -4,7 +4,7 @@ import { ShipmentData } from "../nested/input/shipment-data";
 import { LocationData } from "../nested/input/location-data";
 import { AvoidData } from "../nested/input/avoid-data";
 import { FeatureResponseData } from "../nested/response/feature-response-data";
-import {DistanceUnitType, RouteType, TrafficType, TravelMode} from "../../types";
+import { DistanceUnitType, RouteType, TrafficType, TravelMode } from "../../types";
 
 export interface RoutePlannerResultResponseData {
     type: string;
@@ -22,11 +22,13 @@ export interface RoutePlannerResultResponseData {
             max_speed?: number;
             units?: DistanceUnitType;
         }
-        issues: {
-            unassigned_agents: number[];
-            unassigned_jobs: number[];
-            unassigned_shipments: number[];
-        }
+        issues: RoutePlannerIssues;
     }
     features: FeatureResponseData[];
+}
+
+export interface RoutePlannerIssues {
+    unassigned_agents: number[];
+    unassigned_jobs: number[];
+    unassigned_shipments: number[];
 }

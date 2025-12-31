@@ -1,11 +1,19 @@
 /**
+ * Strategy constants for adding or assigning jobs/shipments.
+ */
+export const REOPTIMIZE = 'reoptimize' as const;
+export const INSERT = 'insert' as const;
+export const APPEND = 'append' as const;
+export const PRESERVE_ORDER = 'preserveOrder' as const;
+
+/**
  * Strategy for adding or assigning jobs/shipments to an agent's route.
  * 
  * - `reoptimize`: Full route re-optimization (default). Finds optimal placement.
  * - `insert`: Insert at best position or specified index without reordering other stops.
  * - `append`: Add to end of agent's route without reordering.
  */
-export type AddAssignStrategy = 'reoptimize' | 'insert' | 'append';
+export type AddAssignStrategy = typeof REOPTIMIZE | typeof INSERT | typeof APPEND;
 
 /**
  * Strategy for removing jobs/shipments from an agent's route.
@@ -13,7 +21,7 @@ export type AddAssignStrategy = 'reoptimize' | 'insert' | 'append';
  * - `reoptimize`: Full route re-optimization after removal (default).
  * - `preserveOrder`: Remove without reordering remaining stops.
  */
-export type RemoveStrategy = 'reoptimize' | 'preserveOrder';
+export type RemoveStrategy = typeof REOPTIMIZE | typeof PRESERVE_ORDER;
 
 /**
  * Options for assigning or adding jobs/shipments to an agent's route.
@@ -69,4 +77,3 @@ export interface RemoveOptions {
      */
     strategy?: RemoveStrategy;
 }
-
