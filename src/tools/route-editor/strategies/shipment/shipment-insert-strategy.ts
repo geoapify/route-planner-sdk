@@ -31,7 +31,7 @@ export class ShipmentInsertStrategy implements AssignStrategy {
             const deliveryAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'delivery', positions.delivery);
             
             actions.splice(positions.pickup, 0, pickupAction);
-            actions.splice(positions.delivery + 1, 0, deliveryAction);
+            actions.splice(positions.delivery, 0, deliveryAction);
             
             context.reindexActions(actions);
         }

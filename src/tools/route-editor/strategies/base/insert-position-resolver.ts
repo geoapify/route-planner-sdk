@@ -20,7 +20,9 @@ export class InsertPositionResolver {
             return this.findActionPositionById(context, agentIndex, options.afterId) + 1;
         }
         if (options.insertAtIndex !== undefined) {
-            return options.insertAtIndex;
+            // Offset by 1 to account for 'start' action at position 0
+            // insertAtIndex: 0 means "first job/shipment position" which is after 'start'
+            return options.insertAtIndex + 1;
         }
         const agentSolution = context.getResult().getAgentSolutionByIndex(agentIndex);
         return agentSolution ? agentSolution.getActions().length : 0;
