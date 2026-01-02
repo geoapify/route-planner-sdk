@@ -38,7 +38,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private validateShipments(shipmentIndexes: number[], agentIndex?: number): void {
         this.ensureItemsProvided(shipmentIndexes, "shipments");
-        this.ensureItemsUnique(shipmentIndexes, "Shipments");
+        this.ensureItemsUnique(shipmentIndexes, "shipments");
         
         for (const shipmentIndex of shipmentIndexes) {
             this.validateShipmentAssignment(shipmentIndex, agentIndex);

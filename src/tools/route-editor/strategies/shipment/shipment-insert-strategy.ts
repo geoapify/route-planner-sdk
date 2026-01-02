@@ -2,7 +2,7 @@ import { AddAssignOptions } from "../../../../models";
 import { 
     AssignStrategy, 
     StrategyContext, 
-    ActionFactory, 
+    RouteEditorHelper, 
     RouteTimeCalculator,
     InsertPositionResolver
 } from "../base";
@@ -19,14 +19,16 @@ export class ShipmentInsertStrategy implements AssignStrategy {
         shipmentIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
+        RouteEditorHelper.removeShipmentsFromAgents(context, shipmentIndexes);
+        
         const agentFeature = context.getAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         
         for (const shipmentIndex of shipmentIndexes) {
             const positions = await this.determineShipmentInsertPositions(context, agentIndex, shipmentIndex, options);
             
-            const pickupAction = ActionFactory.createShipmentAction(context, shipmentIndex, 'pickup', positions.pickup);
-            const deliveryAction = ActionFactory.createShipmentAction(context, shipmentIndex, 'delivery', positions.delivery);
+            const pickupAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'pickup', positions.pickup);
+            const deliveryAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'delivery', positions.delivery);
             
             actions.splice(positions.pickup, 0, pickupAction);
             actions.splice(positions.delivery + 1, 0, deliveryAction);
@@ -56,7 +58,7 @@ export class ShipmentInsertStrategy implements AssignStrategy {
     }
 
     private async findOptimalShipmentPositions(context: StrategyContext, agentIndex: number, shipmentIndex: number): Promise<{ pickup: number; delivery: number }> {
-        const shipment = ActionFactory.getShipmentByIndex(context, shipmentIndex);
+        const shipment = RouteEditorHelper.getShipmentByIndex(context, shipmentIndex);
         const pickupLocation: [number, number] = shipment.pickup!.location!;
         const deliveryLocation: [number, number] = shipment.delivery!.location!;
         

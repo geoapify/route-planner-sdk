@@ -38,7 +38,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private validateJobs(jobIndexes: number[], agentIndex?: number): void {
         this.ensureItemsProvided(jobIndexes, "jobs");
-        this.ensureItemsUnique(jobIndexes, "Jobs");
+        this.ensureItemsUnique(jobIndexes, "jobs");
         
         for (const jobIndex of jobIndexes) {
             this.validateJobAssignment(jobIndex, agentIndex);

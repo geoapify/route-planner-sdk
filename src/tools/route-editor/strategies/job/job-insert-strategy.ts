@@ -2,7 +2,7 @@ import { AddAssignOptions } from "../../../../models";
 import { 
     AssignStrategy, 
     StrategyContext, 
-    ActionFactory, 
+    RouteEditorHelper, 
     RouteTimeCalculator,
     InsertPositionResolver
 } from "../base";
@@ -18,6 +18,8 @@ export class JobInsertStrategy implements AssignStrategy {
         jobIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
+        RouteEditorHelper.removeJobsFromAgents(context, jobIndexes);
+        
         const agentFeature = context.getAgentFeature(agentIndex);
         const insertPosition = await this.determineInsertPosition(context, agentIndex, jobIndexes[0], options);
         const actions = agentFeature.properties.actions;
@@ -41,7 +43,7 @@ export class JobInsertStrategy implements AssignStrategy {
     }
 
     private async findOptimalInsertPosition(context: StrategyContext, agentIndex: number, jobIndex: number): Promise<number> {
-        const job = ActionFactory.getJobByIndex(context, jobIndex);
+        const job = RouteEditorHelper.getJobByIndex(context, jobIndex);
         const jobLocation: [number, number] = job.location!;
         const agentSolution = context.getResult().getAgentSolutionByIndex(agentIndex);
         
@@ -58,7 +60,7 @@ export class JobInsertStrategy implements AssignStrategy {
 
     private insertJobActionsAtPosition(context: StrategyContext, actions: any[], jobIndexes: number[], insertPosition: number): void {
         for (let i = 0; i < jobIndexes.length; i++) {
-            const newAction = ActionFactory.createJobAction(context, jobIndexes[i], insertPosition + i);
+            const newAction = RouteEditorHelper.createJobAction(context, jobIndexes[i], insertPosition + i);
             actions.splice(insertPosition + i, 0, newAction);
         }
     }

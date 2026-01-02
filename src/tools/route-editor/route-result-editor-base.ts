@@ -28,7 +28,8 @@ export abstract class RouteResultEditorBase {
 
     protected ensureItemsUnique(indexes: number[], itemType: string): void {
         if (indexes.length !== new Set(indexes).size) {
-            throw new Error(`${itemType} are not unique`);
+            const capitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
+            throw new Error(`${capitalized} are not unique`);
         }
     }
 
@@ -37,7 +38,8 @@ export abstract class RouteResultEditorBase {
             throw new Error(`No ${itemType} provided`);
         }
         if (items.length !== new Set(items).size) {
-            throw new Error(`${itemType} are not unique`);
+            const capitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
+            throw new Error(`${capitalized} are not unique`);
         }
     }
 }

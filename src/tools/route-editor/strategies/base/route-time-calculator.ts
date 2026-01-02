@@ -39,7 +39,7 @@ export class RouteTimeCalculator {
             const job: JobData = context.getRawData().properties.params.jobs[action.job_index];
             return job?.location || null;
         }
-        return this.getAgentLocation(context, action);
+        return RouteTimeCalculator.getAgentLocation(context, action);
     }
 
     static getShipmentActionLocation(context: StrategyContext, action: any): [number, number] | null {
@@ -48,7 +48,7 @@ export class RouteTimeCalculator {
             if (action.type === 'pickup') return shipment?.pickup?.location || null;
             if (action.type === 'delivery') return shipment?.delivery?.location || null;
         }
-        return this.getAgentLocation(context, action);
+        return RouteTimeCalculator.getAgentLocation(context, action);
     }
 
     private static getAgentLocation(context: StrategyContext, action: any): [number, number] | null {

@@ -2,7 +2,7 @@ import { AddAssignOptions } from "../../../../models";
 import { 
     AssignStrategy, 
     StrategyContext, 
-    ActionFactory, 
+    RouteEditorHelper, 
     RouteTimeCalculator 
 } from "../base";
 
@@ -17,12 +17,14 @@ export class JobAppendStrategy implements AssignStrategy {
         jobIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
+        RouteEditorHelper.removeJobsFromAgents(context, jobIndexes);
+        
         const agentFeature = context.getAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         const endActionIndex = context.findEndActionIndex(actions);
         
         for (const jobIndex of jobIndexes) {
-            const newAction = ActionFactory.createJobAction(context, jobIndex, endActionIndex);
+            const newAction = RouteEditorHelper.createJobAction(context, jobIndex, endActionIndex);
             actions.splice(endActionIndex, 0, newAction);
             context.reindexActions(actions);
         }

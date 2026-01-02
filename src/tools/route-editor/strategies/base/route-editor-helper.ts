@@ -2,9 +2,9 @@ import { JobData, ShipmentData } from "../../../../models";
 import { StrategyContext } from "./strategy-context";
 
 /**
- * Factory for creating action objects
+ * Helper for route editing: create actions, retrieve job/shipment data, remove items from agents
  */
-export class ActionFactory {
+export class RouteEditorHelper {
 
     static createJobAction(context: StrategyContext, jobIndex: number, waypointIndex: number): any {
         const job = this.getJobByIndex(context, jobIndex);
@@ -42,6 +42,40 @@ export class ActionFactory {
 
     static getShipmentByIndex(context: StrategyContext, shipmentIndex: number): ShipmentData {
         return context.getRawData().properties.params.shipments[shipmentIndex];
+    }
+
+    // ===== Removal methods =====
+
+    static removeJobsFromAgents(context: StrategyContext, jobIndexes: number[]): void {
+        const rawData = context.getRawData();
+        
+        for (const jobIndex of jobIndexes) {
+            for (const feature of rawData.features) {
+                const actions = feature.properties.actions;
+                const jobActionIndex = actions.findIndex((a: any) => a.job_index === jobIndex);
+                if (jobActionIndex !== -1) {
+                    actions.splice(jobActionIndex, 1);
+                    context.reindexActions(actions);
+                }
+            }
+        }
+    }
+
+    static removeShipmentsFromAgents(context: StrategyContext, shipmentIndexes: number[]): void {
+        const rawData = context.getRawData();
+        
+        for (const shipmentIndex of shipmentIndexes) {
+            for (const feature of rawData.features) {
+                const actions = feature.properties.actions;
+                // Remove both pickup and delivery actions for this shipment
+                for (let i = actions.length - 1; i >= 0; i--) {
+                    if (actions[i].shipment_index === shipmentIndex) {
+                        actions.splice(i, 1);
+                    }
+                }
+                context.reindexActions(actions);
+            }
+        }
     }
 }
 
