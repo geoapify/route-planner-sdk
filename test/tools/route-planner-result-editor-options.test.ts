@@ -325,6 +325,56 @@ describe('RoutePlannerResultEditor Append Strategy', () => {
       'shipment-5-pickup', 'shipment-5-delivery', 'end'
     ]);
   });
+
+  test('assignJobs with append to unassigned agent should create feature and append', async () => {
+    // Initial state:
+    // agent-A: start(0) → job-3(1) → job-2(2) → end(3)
+    // agent-B: UNASSIGNED
+    // job-1: unassigned
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-unassigned-agent-job-not-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Assign unassigned job-1 to unassigned agent-B with append strategy
+    await routeEditor.assignJobs('agent-B', ['job-1'], { strategy: 'append' });
+    
+    // Verify Route Planner API was NOT called (local manipulation)
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Expected state:
+    // agent-B: start(0) → job-1(1) → end(2) (created from scratch)
+    expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedAgents().length).toBe(0);
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'end']);
+  });
+
+  test('assignShipments with append to unassigned agent should create feature and append', async () => {
+    // Initial state:
+    // agent-A: has shipments 1 & 2
+    // agent-B: UNASSIGNED
+    // shipment-3: unassigned
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Assign unassigned shipment-3 to unassigned agent-B with append strategy
+    await routeEditor.assignShipments('agent-B', ['shipment-3'], { strategy: 'append' });
+    
+    // Verify Route Planner API was NOT called (local manipulation)
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Expected state:
+    // agent-B: start(0) → shipment-3-pickup(1) → shipment-3-delivery(2) → end(3) (created from scratch)
+    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedAgents().length).toBe(0);
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'shipment-3-pickup', 'shipment-3-delivery', 'end']);
+  });
 });
 
 /**
@@ -638,6 +688,56 @@ describe('RoutePlannerResultEditor Insert Strategy', () => {
     expectValidRoute(agentA);
     expectShipmentsExactly(agentA, ['shipment-1', 'shipment-2', 'shipment-5']);
   }, 15000); // Extended timeout for multiple Route Matrix API calls
+
+  test('assignJobs with insert to unassigned agent should create feature and insert', async () => {
+    // Initial state:
+    // agent-A: start(0) → job-3(1) → job-2(2) → end(3)
+    // agent-B: UNASSIGNED
+    // job-1: unassigned
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-unassigned-agent-job-not-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Assign unassigned job-1 to unassigned agent-B with insert strategy at index 0
+    await routeEditor.assignJobs('agent-B', ['job-1'], { strategy: 'insert', insertAtIndex: 0 });
+    
+    // Verify Route Planner API was NOT called (local manipulation)
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Expected state:
+    // agent-B: start(0) → job-1(1) → end(2) (created from scratch)
+    expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedAgents().length).toBe(0);
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'end']);
+  });
+
+  test('assignShipments with insert to unassigned agent should create feature and insert', async () => {
+    // Initial state:
+    // agent-A: has shipments 1 & 2
+    // agent-B: UNASSIGNED
+    // shipment-3: unassigned
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Assign unassigned shipment-3 to unassigned agent-B with insert strategy
+    await routeEditor.assignShipments('agent-B', ['shipment-3'], { strategy: 'insert' });
+    
+    // Verify Route Matrix API was NOT called (no existing route to optimize insertion point for)
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Expected state:
+    // agent-B: start(0) → shipment-3-pickup(1) → shipment-3-delivery(2) → end(3) (created from scratch)
+    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getUnassignedAgents().length).toBe(0);
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'shipment-3-pickup', 'shipment-3-delivery', 'end']);
+  });
 });
 
 /**

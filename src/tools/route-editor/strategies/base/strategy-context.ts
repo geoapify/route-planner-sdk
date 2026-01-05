@@ -52,6 +52,69 @@ export class StrategyContext {
         return agentFeature;
     }
 
+    getOrCreateAgentFeature(agentIndex: number): any {
+        const rawData = this.result.getRawData();
+        let agentFeature = rawData.features.find((f: any) => f.properties.agent_index === agentIndex);
+        
+        if (!agentFeature) {
+            // Create a minimal feature structure for unassigned agents
+            const agent = rawData.properties.params.agents[agentIndex];
+            agentFeature = this.createEmptyAgentFeature(agentIndex, agent);
+            rawData.features.push(agentFeature);
+            
+            // Remove from unassigned list if present
+            if (rawData.properties.issues && rawData.properties.issues.unassigned_agents) {
+                const unassignedIndex = rawData.properties.issues.unassigned_agents.indexOf(agentIndex);
+                if (unassignedIndex !== -1) {
+                    rawData.properties.issues.unassigned_agents.splice(unassignedIndex, 1);
+                }
+            }
+        }
+        
+        return agentFeature;
+    }
+
+    private createEmptyAgentFeature(agentIndex: number, agent: any) {
+        const startTime = (agent.time_windows && agent.time_windows.length > 0 && agent.time_windows[0].length > 0) 
+            ? agent.time_windows[0][0] 
+            : 0;
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: []
+            },
+            properties: {
+                agent_index: agentIndex,
+                agent_id: agent.id || `agent-${agentIndex}`,
+                mode: agent.mode || 'drive',
+                waypoints: [],
+                time: 0,
+                start_time: startTime,
+                end_time: startTime,
+                distance: 0,
+                actions: [
+                    {
+                        type: 'start',
+                        index: 0,
+                        start_time: startTime,
+                        duration: 0,
+                        location_index: agent.start_location_index,
+                        waypoint_index: 0
+                    },
+                    {
+                        type: 'end',
+                        index: 1,
+                        start_time: startTime,
+                        duration: 0,
+                        location_index: agent.end_location_index !== undefined ? agent.end_location_index : agent.start_location_index,
+                        waypoint_index: 1
+                    }
+                ]
+            }
+        };
+    }
+
     findEndActionIndex(actions: any[]): number {
         return actions.findIndex((a: any) => a.type === 'end');
     }

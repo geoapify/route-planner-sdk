@@ -20,7 +20,7 @@ export class JobInsertStrategy implements AssignStrategy {
     ): Promise<boolean> {
         RouteEditorHelper.removeJobsFromAgents(context, jobIndexes);
         
-        const agentFeature = context.getAgentFeature(agentIndex);
+        const agentFeature = context.getOrCreateAgentFeature(agentIndex);
         const insertPosition = await this.determineInsertPosition(context, agentIndex, jobIndexes[0], options);
         const actions = agentFeature.properties.actions;
         

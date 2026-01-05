@@ -19,7 +19,7 @@ export class ShipmentAppendStrategy implements AssignStrategy {
     ): Promise<boolean> {
         RouteEditorHelper.removeShipmentsFromAgents(context, shipmentIndexes);
         
-        const agentFeature = context.getAgentFeature(agentIndex);
+        const agentFeature = context.getOrCreateAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         const endActionIndex = context.findEndActionIndex(actions);
         

@@ -19,7 +19,7 @@ export class JobAppendStrategy implements AssignStrategy {
     ): Promise<boolean> {
         RouteEditorHelper.removeJobsFromAgents(context, jobIndexes);
         
-        const agentFeature = context.getAgentFeature(agentIndex);
+        const agentFeature = context.getOrCreateAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         const endActionIndex = context.findEndActionIndex(actions);
         
