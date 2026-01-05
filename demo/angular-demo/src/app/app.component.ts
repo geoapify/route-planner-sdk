@@ -1,13 +1,40 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { RoutePlannerService } from "../services/route-planner.service";
-import { RoutePlannerTimelineLabel, RoutePlannerTimeline, Waypoint, TimelineMenuItem } from "../../../../src";
+import { EditorOperationResult, RoutePlannerService } from "../services/route-planner.service";
+import { 
+  RoutePlannerTimelineLabel, 
+  RoutePlannerTimeline, 
+  Waypoint, 
+  TimelineMenuItem,
+  RoutePlannerResult,
+  AgentSolution,
+  AddAssignStrategy,
+  RemoveStrategy
+} from "../../../../src";
 import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+
+interface AgentInfo {
+  id: string | null;        // Actual agent ID (may be null if not set)
+  displayName: string;      // Display name for UI
+  index: number;            // Agent index (always available)
+  jobCount: number;
+  shipmentCount: number;
+  distance: number;
+  time: number;
+}
+
+interface EditorLog {
+  timestamp: Date;
+  operation: string;
+  success: boolean;
+  message: string;
+}
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -20,11 +47,35 @@ export class AppComponent {
   distanceLabels!: RoutePlannerTimelineLabel[];
   timeLabels!: RoutePlannerTimelineLabel[];
 
-  rawDataForDrawingTimeline = '{"mode":"drive","agents":[{"start_location":[44.820383188672054,41.69446069999999],"time_windows":[[0,7200]]},{"start_location":[44.820383188672054,41.69446069999999],"time_windows":[[0,7200]]},{"start_location":[44.820383188672054,41.69446069999999],"time_windows":[[0,7200]]}],"shipments":[{"id":"order_1","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80223587256097,41.692045],"duration":120}},{"id":"order_2","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80429263046858,41.69458485],"duration":120}},{"id":"order_3","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80429263046858,41.69458485],"duration":120}},{"id":"order_4","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80429263046858,41.69458485],"duration":120}},{"id":"order_5","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.81217323729341,41.694093300461546],"duration":120}},{"id":"order_6","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80284948206578,41.6939907],"duration":120}},{"id":"order_7","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79882656136182,41.69205345],"duration":120}},{"id":"order_8","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80086951415857,41.69484995],"duration":120}},{"id":"order_9","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.82100349999999,41.69336120046147],"duration":120}},{"id":"order_10","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79823826245833,41.69299355],"duration":120}},{"id":"order_11","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79875455107554,41.69260845],"duration":120}},{"id":"order_12","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79957989088356,41.692849250461435],"duration":120}},{"id":"order_13","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79957989088356,41.692849250461435],"duration":120}},{"id":"order_14","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79957989088356,41.692849250461435],"duration":120}},{"id":"order_15","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79752501990028,41.69344205],"duration":120}},{"id":"order_16","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79752501990028,41.69344205],"duration":120}},{"id":"order_17","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.800588665956674,41.692680499999994],"duration":120}},{"id":"order_18","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.800588665956674,41.692680499999994],"duration":120}},{"id":"order_19","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.800588665956674,41.692680499999994],"duration":120}},{"id":"order_20","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79968626304391,41.69151135],"duration":120}},{"id":"order_21","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7992780816632,41.6921323],"duration":120}},{"id":"order_22","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7992780816632,41.6921323],"duration":120}},{"id":"order_23","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7992780816632,41.6921323],"duration":120}},{"id":"order_24","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79905844899226,41.6921251],"duration":120}},{"id":"order_25","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79913975708166,41.69264215],"duration":120}},{"id":"order_26","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79913975708166,41.69264215],"duration":120}},{"id":"order_27","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79913975708166,41.69264215],"duration":120}},{"id":"order_28","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.806901267842534,41.692131849999996],"duration":120}},{"id":"order_29","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.806901267842534,41.692131849999996],"duration":120}},{"id":"order_30","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.806901267842534,41.692131849999996],"duration":120}},{"id":"order_31","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80693947530342,41.69273855],"duration":120}},{"id":"order_32","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.806944938878466,41.69254330046141],"duration":120}},{"id":"order_33","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79667747680742,41.69228405],"duration":120}},{"id":"order_34","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79698107199418,41.69175190046134],"duration":120}},{"id":"order_35","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79698107199418,41.69175190046134],"duration":120}},{"id":"order_36","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80328556114039,41.69309485],"duration":120}},{"id":"order_37","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80328556114039,41.69309485],"duration":120}},{"id":"order_38","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.804188945660556,41.6916997],"duration":120}},{"id":"order_39","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.804188945660556,41.6916997],"duration":120}},{"id":"order_40","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80292548428854,41.6928931],"duration":120}},{"id":"order_41","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80292548428854,41.6928931],"duration":120}},{"id":"order_42","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80243802282037,41.69277235],"duration":120}},{"id":"order_43","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80243802282037,41.69277235],"duration":120}},{"id":"order_44","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80507228905727,41.6939231],"duration":120}},{"id":"order_45","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80324447976925,41.69218185],"duration":120}},{"id":"order_46","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79590953029308,41.69474105],"duration":120}},{"id":"order_47","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79590953029308,41.69474105],"duration":120}},{"id":"order_48","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.805705727931596,41.69432545],"duration":120}},{"id":"order_49","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.805705727931596,41.69432545],"duration":120}},{"id":"order_50","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.805705727931596,41.69432545],"duration":120}},{"id":"order_51","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80609475910855,41.69435735],"duration":120}},{"id":"order_52","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.806065553124995,41.6946249],"duration":120}},{"id":"order_53","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.803548338372096,41.6925705],"duration":120}},{"id":"order_54","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.802248473660775,41.6926464],"duration":120}},{"id":"order_55","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.802248473660775,41.6926464],"duration":120}},{"id":"order_56","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.802248473660775,41.6926464],"duration":120}},{"id":"order_57","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.803473378672,41.692026350000006],"duration":120}},{"id":"order_58","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.796250058123825,41.694078700000006],"duration":120}},{"id":"order_59","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7982309964476,41.69244465],"duration":120}},{"id":"order_60","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7982309964476,41.69244465],"duration":120}},{"id":"order_61","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7982309964476,41.69244465],"duration":120}},{"id":"order_62","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79804231287882,41.692694],"duration":120}},{"id":"order_63","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.797805389489824,41.69300455],"duration":120}},{"id":"order_64","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.797206033474325,41.692051750000005],"duration":120}},{"id":"order_65","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.797206033474325,41.692051750000005],"duration":120}},{"id":"order_66","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.797206033474325,41.692051750000005],"duration":120}},{"id":"order_67","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79632701664107,41.6916064],"duration":120}},{"id":"order_68","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80323003018576,41.6943037],"duration":120}},{"id":"order_69","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.803176710469444,41.6940678],"duration":120}},{"id":"order_70","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7953831230582,41.694231599999995],"duration":120}},{"id":"order_71","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79404622470484,41.6942502],"duration":120}},{"id":"order_72","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.7938719,41.6945844],"duration":120}},{"id":"order_73","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79651199087594,41.692556550000006],"duration":120}},{"id":"order_74","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79651199087594,41.692556550000006],"duration":120}},{"id":"order_75","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.81911887305633,41.692544999999996],"duration":120}},{"id":"order_76","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.8180584669929,41.69293625],"duration":120}},{"id":"order_77","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79517765373134,41.69264375],"duration":120}},{"id":"order_78","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.793632161562414,41.694728100461596],"duration":120}},{"id":"order_79","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.793632161562414,41.694728100461596],"duration":120}},{"id":"order_80","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.793632161562414,41.694728100461596],"duration":120}}],"locations":[{"id":"warehouse-0","location":[44.802171,41.6928772]}]}';
+  rawDataForDrawingTimeline = '{"mode":"drive","agents":[{"start_location":[44.820383188672054,41.69446069999999],"time_windows":[[0,7200]]},{"start_location":[44.820383188672054,41.69446069999999],"time_windows":[[0,7200]]},{"start_location":[44.820383188672054,41.69446069999999],"time_windows":[[0,7200]]}],"shipments":[{"id":"order_1","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80223587256097,41.692045],"duration":120}},{"id":"order_2","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80429263046858,41.69458485],"duration":120}},{"id":"order_3","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80429263046858,41.69458485],"duration":120}},{"id":"order_4","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80429263046858,41.69458485],"duration":120}},{"id":"order_5","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.81217323729341,41.694093300461546],"duration":120}},{"id":"order_6","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80284948206578,41.6939907],"duration":120}},{"id":"order_7","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79882656136182,41.69205345],"duration":120}},{"id":"order_8","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.80086951415857,41.69484995],"duration":120}},{"id":"order_9","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.82100349999999,41.69336120046147],"duration":120}},{"id":"order_10","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79823826245833,41.69299355],"duration":120}},{"id":"order_11","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79875455107554,41.69260845],"duration":120}},{"id":"order_12","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79957989088356,41.692849250461435],"duration":120}},{"id":"order_13","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79957989088356,41.692849250461435],"duration":120}},{"id":"order_14","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79957989088356,41.692849250461435],"duration":120}},{"id":"order_15","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79752501990028,41.69344205],"duration":120}},{"id":"order_16","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79752501990028,41.69344205],"duration":120}},{"id":"order_17","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.800588665956674,41.692680499999994],"duration":120}},{"id":"order_18","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.800588665956674,41.692680499999994],"duration":120}},{"id":"order_19","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.800588665956674,41.692680499999994],"duration":120}},{"id":"order_20","pickup":{"location_index":0,"duration":120},"delivery":{"location":[44.79968626304391,41.69151135],"duration":120}}],"locations":[{"id":"warehouse-0","location":[44.802171,41.6928772]}]}';
 
   routePlannerTimeline: RoutePlannerTimeline | undefined;
+  currentResult: RoutePlannerResult | undefined;
 
   agentVisibilityState: { [key: number]: boolean } = {};
+
+  // Editor Testing State
+  agentInfoList: AgentInfo[] = [];
+  shipmentIds: string[] = [];
+  editorLogs: EditorLog[] = [];
+  isLoading = false;
+
+  // Editor Form Controls
+  selectedSourceAgent = -1;
+  selectedTargetAgent = -1;  // Use index instead of string
+  selectedShipmentIds: string[] = [];
+  selectedStrategy: AddAssignStrategy = 'reoptimize';
+  selectedRemoveStrategy: RemoveStrategy = 'reoptimize';
+  insertAfterShipmentId = '';
+  insertBeforeShipmentId = '';
+  insertAtIndex: number | null = null;
+
+  // New shipment form
+  newShipmentId = 'new_order_1';
+  newPickupLon = 44.802171;
+  newPickupLat = 41.6928772;
+  newDeliveryLon = 44.805;
+  newDeliveryLat = 41.695;
 
   constructor(private routePlannerService: RoutePlannerService) {}
 
@@ -122,6 +173,7 @@ export class AppComponent {
   }
 
   async generateAndSolveTask() {
+    this.isLoading = true;
     let inputData = JSON.parse(this.rawDataForDrawingTimeline);
 
     const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
@@ -164,6 +216,10 @@ export class AppComponent {
     let result = await this.routePlannerService.planRoute(JSON.parse(this.rawDataForDrawingTimeline));
 
     if (typeof result !== 'string') {
+      this.currentResult = result;
+      this.updateAgentInfo();
+      this.extractShipmentIds();
+      
       let maxDistance = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => {
         return agentPlan.getDistance()
       }));
@@ -193,7 +249,12 @@ export class AppComponent {
       this.routePlannerTimeline.on('onWaypointHover', (waypoint: Waypoint) => {
         console.log('Waypoint hovered via event system:', waypoint);
       });
+
+      this.addLog('Plan Route', true, 'Route optimization completed successfully');
+    } else {
+      this.addLog('Plan Route', false, result);
     }
+    this.isLoading = false;
   }
 
   toggleAgentVisibility(agentIndex: number) {
@@ -202,9 +263,14 @@ export class AppComponent {
   }
 
   async solveTask() {
+    this.isLoading = true;
     let result = await this.routePlannerService.planRoute(JSON.parse(this.rawDataForDrawingTimeline));
 
     if (typeof result !== 'string') {
+      this.currentResult = result;
+      this.updateAgentInfo();
+      this.extractShipmentIds();
+
       let maxDistance = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => { return agentPlan.getDistance() }));
       let maxTime = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => { return agentPlan.getTime() + agentPlan.getStartTime() }));
 
@@ -213,8 +279,394 @@ export class AppComponent {
       this.routePlannerTimeline?.setTimeLabels(this.timeLabels);
 
       this.routePlannerTimeline!.setResult(result);
+      this.addLog('Solve Task', true, 'Task solved successfully');
+    }
+    this.isLoading = false;
+  }
+
+  // ============ EDITOR OPERATIONS ============
+
+  async assignShipmentWithStrategy() {
+    if (!this.currentResult || this.selectedTargetAgent < 0 || this.selectedShipmentIds.length === 0) {
+      this.addLog('Assign Shipment', false, 'Missing required fields');
+      return;
+    }
+
+    this.isLoading = true;
+    const options: any = { strategy: this.selectedStrategy };
+    
+    if (this.selectedStrategy === 'insert') {
+      if (this.insertAfterShipmentId) {
+        options.afterId = this.insertAfterShipmentId;
+      } else if (this.insertBeforeShipmentId) {
+        options.beforeId = this.insertBeforeShipmentId;
+      } else if (this.insertAtIndex !== null) {
+        options.insertAtIndex = this.insertAtIndex;
+      }
+    }
+
+    // Use agent index (number) instead of ID string
+    const operationResult = await this.routePlannerService.assignShipments(
+      this.currentResult,
+      this.selectedTargetAgent,  // Pass index directly
+      this.selectedShipmentIds,
+      options
+    );
+
+    this.handleOperationResult(operationResult, 'Assign Shipment');
+    this.isLoading = false;
+  }
+
+  async removeShipmentWithStrategy() {
+    if (!this.currentResult || this.selectedShipmentIds.length === 0) {
+      this.addLog('Remove Shipment', false, 'Missing required fields');
+      return;
+    }
+
+    this.isLoading = true;
+    const operationResult = await this.routePlannerService.removeShipments(
+      this.currentResult,
+      this.selectedShipmentIds,
+      { strategy: this.selectedRemoveStrategy }
+    );
+
+    this.handleOperationResult(operationResult, 'Remove Shipment');
+    this.isLoading = false;
+  }
+
+  async addNewShipmentWithStrategy() {
+    if (!this.currentResult || this.selectedTargetAgent < 0) {
+      this.addLog('Add New Shipment', false, 'Missing required fields');
+      return;
+    }
+
+    this.isLoading = true;
+    
+    const newShipment = this.routePlannerService.createSampleShipment(
+      this.newShipmentId,
+      this.newPickupLon,
+      this.newPickupLat,
+      this.newDeliveryLon,
+      this.newDeliveryLat
+    );
+
+    const options: any = { strategy: this.selectedStrategy };
+    
+    if (this.selectedStrategy === 'insert') {
+      if (this.insertAfterShipmentId) {
+        options.afterId = this.insertAfterShipmentId;
+      } else if (this.insertBeforeShipmentId) {
+        options.beforeId = this.insertBeforeShipmentId;
+      } else if (this.insertAtIndex !== null) {
+        options.insertAtIndex = this.insertAtIndex;
+      }
+    }
+
+    // Use agent index (number) instead of ID string
+    const operationResult = await this.routePlannerService.addNewShipments(
+      this.currentResult,
+      this.selectedTargetAgent,  // Pass index directly
+      [newShipment],
+      options
+    );
+
+    this.handleOperationResult(operationResult, 'Add New Shipment');
+    
+    // Increment the ID for next shipment
+    const idNum = parseInt(this.newShipmentId.replace('new_order_', '')) || 0;
+    this.newShipmentId = `new_order_${idNum + 1}`;
+    
+    this.isLoading = false;
+  }
+
+  async testAppendStrategy() {
+    if (!this.currentResult) {
+      this.addLog('Test Append', false, 'No result available');
+      return;
+    }
+
+    this.isLoading = true;
+    
+    // Find source agent with shipments and a different target agent
+    const { sourceAgent, targetAgent, shipmentToMove } = this.findAgentsForTest();
+    
+    if (shipmentToMove && sourceAgent !== null && targetAgent !== null) {
+      const operationResult = await this.routePlannerService.assignShipments(
+        this.currentResult,
+        targetAgent,
+        [shipmentToMove],
+        { strategy: 'append' }
+      );
+
+      this.handleOperationResult(operationResult, `Append: Move ${shipmentToMove} from Agent ${sourceAgent} to Agent ${targetAgent}`);
+    } else {
+      const agentCount = this.agentInfoList.length;
+      const agentsWithShipments = this.agentInfoList.filter(a => a.shipmentCount > 0).length;
+      this.addLog('Test Append', false, `Need at least 1 agent with shipments and 2+ total agents. Found ${agentCount} agents (${agentsWithShipments} with shipments).`);
+    }
+    
+    this.isLoading = false;
+  }
+
+  async testInsertStrategy() {
+    if (!this.currentResult) {
+      this.addLog('Test Insert', false, 'No result available');
+      return;
+    }
+
+    this.isLoading = true;
+    
+    // Find source agent with shipments and a different target agent
+    const { sourceAgent, targetAgent, shipmentToMove } = this.findAgentsForTest();
+    
+    if (shipmentToMove && sourceAgent !== null && targetAgent !== null) {
+      const operationResult = await this.routePlannerService.assignShipments(
+        this.currentResult,
+        targetAgent,
+        [shipmentToMove],
+        { strategy: 'insert', insertAtIndex: 1 }
+      );
+
+      this.handleOperationResult(operationResult, `Insert: Move ${shipmentToMove} from Agent ${sourceAgent} to Agent ${targetAgent} at index 1`);
+    } else {
+      const agentCount = this.agentInfoList.length;
+      const agentsWithShipments = this.agentInfoList.filter(a => a.shipmentCount > 0).length;
+      this.addLog('Test Insert', false, `Need at least 1 agent with shipments and 2+ total agents. Found ${agentCount} agents (${agentsWithShipments} with shipments).`);
+    }
+    
+    this.isLoading = false;
+  }
+
+  async testReoptimizeStrategy() {
+    if (!this.currentResult) {
+      this.addLog('Test Reoptimize', false, 'No result available');
+      return;
+    }
+
+    this.isLoading = true;
+    
+    // Find source agent with shipments and a different target agent
+    const { sourceAgent, targetAgent, shipmentToMove } = this.findAgentsForTest();
+    
+    if (shipmentToMove && sourceAgent !== null && targetAgent !== null) {
+      const operationResult = await this.routePlannerService.assignShipments(
+        this.currentResult,
+        targetAgent,
+        [shipmentToMove],
+        { strategy: 'reoptimize' }
+      );
+
+      this.handleOperationResult(operationResult, `Reoptimize: Move ${shipmentToMove} from Agent ${sourceAgent} to Agent ${targetAgent}`);
+    } else {
+      const agentCount = this.agentInfoList.length;
+      const agentsWithShipments = this.agentInfoList.filter(a => a.shipmentCount > 0).length;
+      this.addLog('Test Reoptimize', false, `Need at least 1 agent with shipments and 2+ total agents. Found ${agentCount} agents (${agentsWithShipments} with shipments).`);
+    }
+    
+    this.isLoading = false;
+  }
+
+  async testPreserveOrderRemoval() {
+    if (!this.currentResult) {
+      this.addLog('Test PreserveOrder', false, 'No result available');
+      return;
+    }
+
+    this.isLoading = true;
+    
+    // Find any agent with shipments
+    const { sourceAgent, shipmentToMove } = this.findAgentsForTest();
+    
+    if (shipmentToMove && sourceAgent !== null) {
+      const operationResult = await this.routePlannerService.removeShipments(
+        this.currentResult,
+        [shipmentToMove],
+        { strategy: 'preserveOrder' }
+      );
+
+      this.handleOperationResult(operationResult, `PreserveOrder Removal: Remove ${shipmentToMove} from Agent ${sourceAgent}`);
+    } else {
+      this.addLog('Test PreserveOrder', false, 'No shipments available in any agent');
+    }
+    
+    this.isLoading = false;
+  }
+
+  /**
+   * Find agents suitable for testing: one with shipments (source) and another as target
+   * Target can be any other agent, even if unassigned
+   */
+  private findAgentsForTest(): { sourceAgent: number | null, targetAgent: number | null, shipmentToMove: string | null } {
+    let sourceAgent: number | null = null;
+    let targetAgent: number | null = null;
+    let shipmentToMove: string | null = null;
+
+    // Find first agent with shipments (will be our source)
+    for (let i = 0; i < this.agentInfoList.length; i++) {
+      const shipments = this.getShipmentsForAgent(i);
+      if (shipments.length > 0) {
+        sourceAgent = i;
+        shipmentToMove = shipments[0];
+        break;
+      }
+    }
+
+    // Find a different agent as target - ANY other agent is fine (even if it's unassigned)
+    // This allows testing moves to empty agents
+    if (sourceAgent !== null && this.agentInfoList.length > 1) {
+      for (let i = 0; i < this.agentInfoList.length; i++) {
+        if (i !== sourceAgent) {
+          targetAgent = i;
+          break;
+        }
+      }
+    }
+
+    return { sourceAgent, targetAgent, shipmentToMove };
+  }
+
+  // ============ HELPER METHODS ============
+
+  private handleOperationResult(operationResult: EditorOperationResult, operation: string) {
+    this.addLog(operation, operationResult.success, operationResult.message);
+    
+    if (operationResult.success && operationResult.result) {
+      this.currentResult = operationResult.result;
+      this.updateAgentInfo();
+      this.extractShipmentIds();
+      this.updateTimeline();
     }
   }
+
+  private updateTimeline() {
+    if (this.routePlannerTimeline && this.currentResult) {
+      let maxDistance = Math.max.apply(Math, this.currentResult.getAgentSolutions().map((agentPlan) => agentPlan.getDistance()));
+      let maxTime = Math.max.apply(Math, this.currentResult.getAgentSolutions().map((agentPlan) => agentPlan.getTime() + agentPlan.getStartTime()));
+
+      this.generateLabels(maxDistance, maxTime);
+      this.routePlannerTimeline.setDistanceLabels(this.distanceLabels);
+      this.routePlannerTimeline.setTimeLabels(this.timeLabels);
+      this.routePlannerTimeline.setResult(this.currentResult);
+    }
+  }
+
+  private updateAgentInfo() {
+    if (!this.currentResult) return;
+    
+    // Get all agents (both assigned and unassigned)
+    const data = this.currentResult.getData();
+    const totalAgentCount = data.inputData.agents.length;
+    const agentSolutionsByIndex = this.currentResult.getAgentSolutionsByIndex();
+    
+    // Build info for ALL agents
+    this.agentInfoList = [];
+    for (let i = 0; i < totalAgentCount; i++) {
+      const solution = agentSolutionsByIndex[i];
+      const agentData = data.inputData.agents[i];
+      
+      if (solution) {
+        // Agent has assignments
+        this.agentInfoList.push({
+          id: solution.getAgentId() || null,
+          displayName: solution.getAgentId() || `Agent ${i}`,
+          index: i,
+          jobCount: solution.getActions().filter(a => a.getType() === 'job').length,
+          shipmentCount: solution.getActions().filter(a => a.getType() === 'pickup' || a.getType() === 'delivery').length / 2,
+          distance: solution.getDistance(),
+          time: solution.getTime()
+        });
+      } else {
+        // Agent is unassigned
+        this.agentInfoList.push({
+          id: agentData.id || null,
+          displayName: agentData.id || `Agent ${i}`,
+          index: i,
+          jobCount: 0,
+          shipmentCount: 0,
+          distance: 0,
+          time: 0
+        });
+      }
+    }
+
+    // Use index for selection, not ID string
+    if (this.agentInfoList.length > 0 && this.selectedTargetAgent < 0) {
+      this.selectedTargetAgent = this.agentInfoList[0].index;
+    }
+  }
+
+  private extractShipmentIds() {
+    if (!this.currentResult) return;
+    
+    const shipmentSet = new Set<string>();
+    this.currentResult.getAgentSolutions().forEach((solution: AgentSolution) => {
+      solution.getActions().forEach(action => {
+        const shipmentId = action.getShipmentId();
+        if (shipmentId) {
+          shipmentSet.add(shipmentId);
+        }
+      });
+    });
+    
+    // Also add unassigned shipments
+    const unassigned = this.currentResult.getUnassignedShipments();
+    if (unassigned) {
+      unassigned.forEach((s: any) => {
+        if (s.id) shipmentSet.add(s.id);
+      });
+    }
+    
+    this.shipmentIds = Array.from(shipmentSet).sort();
+  }
+
+  private getShipmentsForAgent(agentIndex: number): string[] {
+    if (!this.currentResult) return [];
+    
+    const solution = this.currentResult.getAgentSolutions()[agentIndex];
+    if (!solution) return [];
+    
+    const shipmentSet = new Set<string>();
+    solution.getActions().forEach(action => {
+      const shipmentId = action.getShipmentId();
+      if (shipmentId) {
+        shipmentSet.add(shipmentId);
+      }
+    });
+    
+    return Array.from(shipmentSet);
+  }
+
+  private addLog(operation: string, success: boolean, message: string) {
+    this.editorLogs.unshift({
+      timestamp: new Date(),
+      operation,
+      success,
+      message
+    });
+    
+    // Keep only last 20 logs
+    if (this.editorLogs.length > 20) {
+      this.editorLogs.pop();
+    }
+  }
+
+  clearLogs() {
+    this.editorLogs = [];
+  }
+
+  toggleShipmentSelection(shipmentId: string) {
+    const index = this.selectedShipmentIds.indexOf(shipmentId);
+    if (index > -1) {
+      this.selectedShipmentIds.splice(index, 1);
+    } else {
+      this.selectedShipmentIds.push(shipmentId);
+    }
+  }
+
+  isShipmentSelected(shipmentId: string): boolean {
+    return this.selectedShipmentIds.includes(shipmentId);
+  }
+
   generateLabels(maxDistance: number, maxTime: number) {
     let timeStep;
     if (maxTime < 30 * 60) {
@@ -263,48 +715,49 @@ export class AppComponent {
   }
 
   toPrettyTime(sec_num: number) {
-        let hours = Math.floor(sec_num / 3600);
-        let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-        if (sec_num === 0) {
-            return '0';
-        }
-        if (!hours) {
-            return minutes + 'min';
-        }
-        if (!minutes) {
-            return hours + 'h';
-        }
-        return hours + 'h ' + minutes + 'm';
+    let hours = Math.floor(sec_num / 3600);
+    let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    if (sec_num === 0) {
+      return '0';
     }
+    if (!hours) {
+      return minutes + 'min';
+    }
+    if (!minutes) {
+      return hours + 'h';
+    }
+    return hours + 'h ' + minutes + 'm';
+  }
 
-    toPrettyDistance(meters: number) {
-        if (meters > 10000) {
-            return `${(meters / 1000).toFixed(1)} km`;
-        }
-        if (meters > 5000) {
-            return `${(meters / 1000).toFixed(2)} km`;
-        }
-        return `${meters} m`;
+  toPrettyDistance(meters: number) {
+    if (meters > 10000) {
+      return `${(meters / 1000).toFixed(1)} km`;
     }
+    if (meters > 5000) {
+      return `${(meters / 1000).toFixed(2)} km`;
+    }
+    return `${meters} m`;
+  }
 
-    lightTheme() {
-      this.loadCssFile('assets/styles/timeline-minimal.css');
-    }
-    darkTheme() {
-      this.loadCssFile('assets/styles/timeline-dark.css');
-    }
+  lightTheme() {
+    this.loadCssFile('assets/styles/timeline-minimal.css');
+  }
+  
+  darkTheme() {
+    this.loadCssFile('assets/styles/timeline-dark.css');
+  }
 
-    loadCssFile(path: string, id: string = 'theme-style') {
-      let linkEl = document.getElementById(id) as HTMLLinkElement;
+  loadCssFile(path: string, id: string = 'theme-style') {
+    let linkEl = document.getElementById(id) as HTMLLinkElement;
 
-      if (linkEl) {
-        linkEl.href = path;
-      } else {
-        linkEl = document.createElement('link');
-        linkEl.rel = 'stylesheet';
-        linkEl.id = id;
-        linkEl.href = path;
-        document.head.appendChild(linkEl);
-      }
+    if (linkEl) {
+      linkEl.href = path;
+    } else {
+      linkEl = document.createElement('link');
+      linkEl.rel = 'stylesheet';
+      linkEl.id = id;
+      linkEl.href = path;
+      document.head.appendChild(linkEl);
     }
+  }
 }
