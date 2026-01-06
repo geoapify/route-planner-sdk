@@ -120,4 +120,4 @@ const unassignedJobs = result.getUnassignedJobs();
 * [`ShipmentSolution`](./shipment-solution.md)
 * [`RouteAction`](./route-action.md)
 * [`Waypoint`](./waypoint.md)
-* [`RoutingOptions`](./route-planner.md#routingoptions)
+* [`RoutingOptions`](./types.md#routingoptions)

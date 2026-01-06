@@ -157,11 +157,37 @@ Looking for full API references, usage examples, and SDK architecture details?
 
 You can edit planned routes easily using `RoutePlannerResultEditor`.
 
+### Strategies
+
+The editor supports different strategies for modifying routes:
+
+| Strategy | Description |
+|----------|-------------|
+| `reoptimize` | Full route re-optimization (default). Calls the API to find optimal placement. |
+| `insert` | Insert at optimal position without reordering other stops. Uses Route Matrix API. |
+| `append` | Add to end of route without reordering. Fastest, no API call needed. |
+| `preserveOrder` | For removal only - removes without reordering remaining stops. |
+
 ### Example: Assign jobs to the agent
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(result);
+
+// Default: full reoptimization
 await routeEditor.assignJobs('agent-a', ['job-2']);
+
+// Append to end of route (no API call)
+await routeEditor.assignJobs('agent-a', ['job-2'], { strategy: 'append' });
+
+// Insert at optimal position
+await routeEditor.assignJobs('agent-a', ['job-2'], { strategy: 'insert' });
+
+// Insert after a specific job
+await routeEditor.assignJobs('agent-a', ['job-2'], { 
+  strategy: 'insert', 
+  afterId: 'job-1' 
+});
+
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
@@ -170,6 +196,10 @@ let modifiedResult = routeEditor.getModifiedResult();
 ```ts
 const routeEditor = new RoutePlannerResultEditor(result);
 await routeEditor.assignShipments('agent-b', ['shipment-2']);
+
+// Or with strategy
+await routeEditor.assignShipments('agent-b', ['shipment-2'], { strategy: 'append' });
+
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
@@ -177,7 +207,13 @@ let modifiedResult = routeEditor.getModifiedResult();
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(plannerResult);
+
+// Default: reoptimize remaining route
 await routeEditor.removeJobs(['job-2']);
+
+// Remove without reordering remaining jobs
+await routeEditor.removeJobs(['job-2'], { strategy: 'preserveOrder' });
+
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
@@ -186,6 +222,10 @@ let modifiedResult = routeEditor.getModifiedResult();
 ```ts
 const routeEditor = new RoutePlannerResultEditor(plannerResult);
 await routeEditor.removeShipments(['shipment-4']);
+
+// Or with preserveOrder strategy
+await routeEditor.removeShipments(['shipment-4'], { strategy: 'preserveOrder' });
+
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
@@ -196,7 +236,13 @@ let newJob = new Job()
     .setLocation(44.50932929564537, 40.18686625)
     .setPickupAmount(10)
     .setId("job-5");
+
+// Default: reoptimize
 await routeEditor.addNewJobs('agent-A', [newJob]);
+
+// Or append to end of route
+await routeEditor.addNewJobs('agent-A', [newJob], { strategy: 'append' });
+
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 
@@ -208,7 +254,12 @@ let newShipment = new Shipment()
     .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
     .addRequirement('heavy-items')
     .setId("shipment-5");
+
 await routeEditor.addNewShipments('agent-A', [newShipment]);
+
+// Or with strategy
+await routeEditor.addNewShipments('agent-A', [newShipment], { strategy: 'insert' });
+
 let modifiedResult = routeEditor.getModifiedResult();
 ```
 

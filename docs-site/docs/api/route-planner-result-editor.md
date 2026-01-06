@@ -1,89 +1,335 @@
-# `RoutePlannerResultEditor`
+# RoutePlannerResultEditor
 
-The `RoutePlannerResultEditor` class allows you to **modify** an existing route planning result — for example, by reassigning jobs or shipments, adding new ones, or removing tasks.
-
-This is especially useful for:
-
-* Manual adjustments after optimization
-* Post-processing logic (e.g., reprioritizing deliveries)
-* Integrating user edits into optimized results
-
----
-
-## Purpose
-
-Use `RoutePlannerResultEditor` to:
-
-* Reassign jobs or shipments between agents
-* Add new jobs or shipments after optimization
-* Remove jobs or shipments from the result
-* Retrieve an updated result for visualization or re-submission
-
----
+This page documents the `RoutePlannerResultEditor` class from the `@geoapify/route-planner-sdk` library — including setup, configuration, and available methods.
+Use it to **modify route planning results** after optimization, such as reassigning jobs or shipments between agents, adding new tasks, or removing existing ones.
 
 ## Constructor
 
-```ts
-new RoutePlannerResultEditor(result: RoutePlannerResult)
+```typescript
+constructor(result: RoutePlannerResult)
 ```
 
-Creates an editor instance using a deep clone of the original `RoutePlannerResult`. Changes do not affect the original object.
+Creates a new **RoutePlannerResultEditor** instance that works on a cloned copy of the provided result. Changes do not affect the original object.
 
----
+Here are the parameters you can pass to the constructor:
 
-## Modification Methods
+| Name | Type | Description |
+|------|------|-------------|
+| `result` | [`RoutePlannerResult`](./route-planner-result.md) | The route planner result to edit. The editor creates a deep clone internally. |
 
-| Method                                                             | Description                                                                       |
-| ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| `assignJobs(agentIdOrIndex, jobIdsOrIndexes, priority?)`           | Reassigns existing jobs to the specified agent, optionally updating priority      |
-| `assignShipments(agentIdOrIndex, shipmentIdsOrIndexes, priority?)` | Reassigns existing shipments to the specified agent, optionally updating priority |
-| `removeJobs(jobIdsOrIndexes)`                                      | Completely removes the given jobs from the plan                                   |
-| `removeShipments(shipmentIdsOrIndexes)`                            | Completely removes the given shipments from the plan                              |
-| `addNewJobs(agentIdOrIndex, jobs)`                                 | Adds new jobs to an agent’s plan                                                  |
-| `addNewShipments(agentIdOrIndex, shipments)`                       | Adds new shipments to an agent’s plan                                             |
+Here's a basic example of how to initialize the editor:
 
-> All modification methods return a `Promise<boolean>` indicating whether the operation succeeded.
+```typescript
+import { RoutePlannerResultEditor } from '@geoapify/route-planner-sdk';
 
-Each method supports both IDs (`string[]`) and indexes (`number[]`) for referencing jobs, shipments, and agents.
-
----
-
-## Output
-
-| Method                | Description                                                                               |
-| --------------------- | ----------------------------------------------------------------------------------------- |
-| `getModifiedResult()` | Returns the updated [`RoutePlannerResult`](./route-planner-result.md) after modifications |
-
----
-
-## Example
-
-```ts
 const editor = new RoutePlannerResultEditor(result);
 
-// Move job-1 to agent-2 and change priority
-await editor.assignJobs("agent-2", ["job-1"], 10);
+// Make modifications...
+await editor.assignJobs('agent-2', ['job-1']);
 
-// Add a new shipment to agent-1
-await editor.addNewShipments("agent-1", [new Shipment().setId("new-shipment")]);
-
-const updatedResult = editor.getModifiedResult();
+// Get the modified result
+const modifiedResult = editor.getModifiedResult();
 ```
 
----
+## Strategies
+
+The editor supports different strategies for modifying routes. Choose based on your performance needs and use case:
+
+| Strategy | For | Description |
+|----------|-----|-------------|
+| `reoptimize` | Add/Assign/Remove | Full route re-optimization (default). Calls the API to find optimal placement. Best results but slowest. |
+| `insert` | Add/Assign | Insert at optimal position or specified index. Uses Route Matrix API if no position given. Good balance of quality and speed. |
+| `append` | Add/Assign | Add to end of route without reordering. Fastest option, no API call needed. |
+| `preserveOrder` | Remove | Remove without reordering remaining stops. No API call needed, keeps existing order. |
+
+You can use strategy constants for type safety:
+
+```typescript
+import { REOPTIMIZE, INSERT, APPEND, PRESERVE_ORDER } from '@geoapify/route-planner-sdk';
+
+await editor.assignJobs('agent-A', ['job-1'], { strategy: APPEND });
+await editor.removeJobs(['job-2'], { strategy: PRESERVE_ORDER });
+```
+
+## Methods
+
+The `RoutePlannerResultEditor` class provides methods to modify job and shipment assignments. Each method returns a `Promise<boolean>` indicating success.
+
+| Method | Signature | Purpose |
+|--------|-----------|---------|
+| [`assignJobs`](#assignjobs) | `assignJobs(agentIdOrIndex, jobIdsOrIndexes, options?): Promise<boolean>` | Reassign existing jobs to an agent |
+| [`assignShipments`](#assignshipments) | `assignShipments(agentIdOrIndex, shipmentIdsOrIndexes, options?): Promise<boolean>` | Reassign existing shipments to an agent |
+| [`removeJobs`](#removejobs) | `removeJobs(jobIdsOrIndexes, options?): Promise<boolean>` | Remove jobs from the plan |
+| [`removeShipments`](#removeshipments) | `removeShipments(shipmentIdsOrIndexes, options?): Promise<boolean>` | Remove shipments from the plan |
+| [`addNewJobs`](#addnewjobs) | `addNewJobs(agentIdOrIndex, jobs, options?): Promise<boolean>` | Add new jobs to an agent's plan |
+| [`addNewShipments`](#addnewshipments) | `addNewShipments(agentIdOrIndex, shipments, options?): Promise<boolean>` | Add new shipments to an agent's plan |
+| [`getModifiedResult`](#getmodifiedresult) | `getModifiedResult(): RoutePlannerResult` | Returns the modified result |
+
+Here's the detailed version of method descriptions:
+
+### assignJobs()
+
+Signature: `assignJobs(agentIdOrIndex: string | number, jobIdsOrIndexes: string[] | number[], options?: AddAssignOptions | number): Promise<boolean>`
+
+Reassigns existing jobs to a specified agent. If jobs are currently assigned to another agent, they are removed from that agent first.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `agentIdOrIndex` | `string \| number` | The ID or index of the target agent |
+| `jobIdsOrIndexes` | `string[] \| number[]` | Array of job IDs or indexes to assign |
+| `options` | [`AddAssignOptions`](#addassignoptions) \| `number` | Assignment options or priority (for backward compatibility) |
+
+**Example:**
+
+```typescript
+// Default: full reoptimization
+await editor.assignJobs('agent-A', ['job-1', 'job-2']);
+
+// With priority (backward compatible)
+await editor.assignJobs('agent-A', ['job-1'], 100);
+
+// Append to end of route (fastest, no API call)
+await editor.assignJobs('agent-A', ['job-1'], { strategy: 'append' });
+
+// Insert at optimal position
+await editor.assignJobs('agent-A', ['job-1'], { strategy: 'insert' });
+
+// Insert after specific job
+await editor.assignJobs('agent-A', ['job-2'], { 
+  strategy: 'insert', 
+  afterId: 'job-1' 
+});
+
+// Insert at specific index
+await editor.assignJobs('agent-A', ['job-1'], { 
+  strategy: 'insert', 
+  insertAtIndex: 2 
+});
+```
+
+### assignShipments()
+
+Signature: `assignShipments(agentIdOrIndex: string | number, shipmentIdsOrIndexes: string[] | number[], options?: AddAssignOptions | number): Promise<boolean>`
+
+Reassigns existing shipments to a specified agent. Both pickup and delivery are moved together.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `agentIdOrIndex` | `string \| number` | The ID or index of the target agent |
+| `shipmentIdsOrIndexes` | `string[] \| number[]` | Array of shipment IDs or indexes to assign |
+| `options` | [`AddAssignOptions`](#addassignoptions) \| `number` | Assignment options or priority |
+
+**Example:**
+
+```typescript
+// Default: full reoptimization
+await editor.assignShipments('agent-A', ['shipment-1']);
+
+// Append pickup and delivery to end of route
+await editor.assignShipments('agent-A', ['shipment-1'], { strategy: 'append' });
+
+// Insert at optimal position
+await editor.assignShipments('agent-B', ['shipment-2'], { strategy: 'insert' });
+```
+
+### removeJobs()
+
+Signature: `removeJobs(jobIdsOrIndexes: string[] | number[], options?: RemoveOptions): Promise<boolean>`
+
+Removes jobs from the plan, marking them as unassigned.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `jobIdsOrIndexes` | `string[] \| number[]` | Array of job IDs or indexes to remove |
+| `options` | [`RemoveOptions`](#removeoptions) | Removal options |
+
+**Example:**
+
+```typescript
+// Default: reoptimize remaining route
+await editor.removeJobs(['job-1', 'job-2']);
+
+// Remove without reordering remaining jobs (fastest)
+await editor.removeJobs(['job-1'], { strategy: 'preserveOrder' });
+```
+
+### removeShipments()
+
+Signature: `removeShipments(shipmentIdsOrIndexes: string[] | number[], options?: RemoveOptions): Promise<boolean>`
+
+Removes shipments from the plan, marking them as unassigned.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `shipmentIdsOrIndexes` | `string[] \| number[]` | Array of shipment IDs or indexes to remove |
+| `options` | [`RemoveOptions`](#removeoptions) | Removal options |
+
+**Example:**
+
+```typescript
+// Default: reoptimize remaining route
+await editor.removeShipments(['shipment-1']);
+
+// Remove without reordering (preserves existing order)
+await editor.removeShipments(['shipment-1'], { strategy: 'preserveOrder' });
+```
+
+### addNewJobs()
+
+Signature: `addNewJobs(agentIdOrIndex: string | number, jobs: Job[], options?: AddAssignOptions): Promise<boolean>`
+
+Adds new jobs to an agent's schedule. The jobs are added to the input data and then placed according to the strategy.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `agentIdOrIndex` | `string \| number` | The ID or index of the target agent |
+| `jobs` | [`Job[]`](./job.md) | Array of Job objects to add |
+| `options` | [`AddAssignOptions`](#addassignoptions) | Assignment options |
+
+**Example:**
+
+```typescript
+const newJob = new Job()
+  .setId('new-job')
+  .setLocation(44.5, 40.2)
+  .setDuration(300);
+
+// Default: reoptimize with new job
+await editor.addNewJobs('agent-A', [newJob]);
+
+// Append to end of route (fastest)
+await editor.addNewJobs('agent-A', [newJob], { strategy: 'append' });
+
+// Insert at specific position
+await editor.addNewJobs('agent-A', [newJob], { 
+  strategy: 'insert', 
+  insertAtIndex: 3 
+});
+```
+
+### addNewShipments()
+
+Signature: `addNewShipments(agentIdOrIndex: string | number, shipments: Shipment[], options?: AddAssignOptions): Promise<boolean>`
+
+Adds new shipments to an agent's schedule.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `agentIdOrIndex` | `string \| number` | The ID or index of the target agent |
+| `shipments` | [`Shipment[]`](./shipment.md) | Array of Shipment objects to add |
+| `options` | [`AddAssignOptions`](#addassignoptions) | Assignment options |
+
+**Example:**
+
+```typescript
+const newShipment = new Shipment()
+  .setId('new-shipment')
+  .setPickup(new ShipmentStep().setLocation(44.5, 40.2).setDuration(120))
+  .setDelivery(new ShipmentStep().setLocation(44.6, 40.3).setDuration(120));
+
+// Default: reoptimize with new shipment
+await editor.addNewShipments('agent-A', [newShipment]);
+
+// Append to end of route
+await editor.addNewShipments('agent-A', [newShipment], { strategy: 'append' });
+```
+
+### getModifiedResult()
+
+Signature: `getModifiedResult(): RoutePlannerResult`
+
+Returns the modified result after all operations have been applied.
+
+**Example:**
+
+```typescript
+await editor.assignJobs('agent-A', ['job-1']);
+await editor.removeShipments(['shipment-2'], { strategy: 'preserveOrder' });
+
+const modifiedResult = editor.getModifiedResult();
+
+// Use the modified result
+console.log(modifiedResult.getAgentSolutions());
+```
+
+## Options Interfaces
+
+### AddAssignOptions
+
+Options for assigning or adding jobs/shipments to an agent's route.
+
+```typescript
+interface AddAssignOptions {
+  /**
+   * Strategy for adding/assigning items to the route.
+   * - 'reoptimize': Full route re-optimization (default)
+   * - 'insert': Insert at optimal or specified position
+   * - 'append': Add to end of route
+   */
+  strategy?: 'reoptimize' | 'insert' | 'append';
+
+  /** Insert at a specific index in the agent's route (with 'insert' strategy) */
+  insertAtIndex?: number;
+
+  /** Insert before the stop with this ID (with 'insert' strategy) */
+  beforeId?: string;
+
+  /** Insert after the stop with this ID (with 'insert' strategy) */
+  afterId?: string;
+
+  /** Priority for optimization (higher = more important) */
+  priority?: number;
+}
+```
+
+### RemoveOptions
+
+Options for removing jobs/shipments from an agent's route.
+
+```typescript
+interface RemoveOptions {
+  /**
+   * Strategy for removing items from the route.
+   * - 'reoptimize': Full route re-optimization after removal (default)
+   * - 'preserveOrder': Remove without reordering remaining stops
+   */
+  strategy?: 'reoptimize' | 'preserveOrder';
+}
+```
+
+## Strategy Comparison
+
+| Strategy | Speed | API Calls | Best For |
+|----------|-------|-----------|----------|
+| `reoptimize` | Slowest | Yes (Route Planner API) | Finding optimal route after changes |
+| `insert` | Medium | Yes (Route Matrix API) | Quick optimal insertion without full reoptimization |
+| `append` | Fastest | No | Real-time UI updates, drag-and-drop |
+| `preserveOrder` | Fastest | No | Quick removal when order doesn't matter |
 
 ## Error Handling
 
-| Method                     | Description                                            |
-| -------------------------- | ------------------------------------------------------ |
-| `assertArray(array, name)` | Internal utility for validating that inputs are arrays |
+All methods throw errors for:
 
-All methods throw if provided agent/job/shipment IDs are not found.
+* Invalid agent ID or index
+* Invalid job/shipment ID or index
+* Empty arrays
+* Duplicate IDs in arrays
+* Invalid `beforeId` or `afterId` references
 
----
-
-## Related
+## Learn More
 
 * [`RoutePlannerResult`](./route-planner-result.md) – the result object this editor modifies
 * [`Job`](./job.md), [`Shipment`](./shipment.md) – entities used in `addNewJobs` and `addNewShipments`
-* [`Agent`](./agent.md) – entity used for assignment
+* [Editing Planned Result Example](../examples/editing-planned-result.md) – step-by-step tutorial
