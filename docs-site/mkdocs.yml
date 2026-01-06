@@ -6,6 +6,7 @@ theme:
   favicon: assets/favicon.ico
   features:
     - content.code.copy
+    - navigation.expand
 
 markdown_extensions:
   - pymdownx.highlight:
