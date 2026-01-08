@@ -1,0 +1,58 @@
+.violations-section {
+  background: white;
+  border: 2px solid #e74c3c;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+}
+
+.violations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 6px 6px 0 0;
+}
+
+.violations-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.1em;
+}
+
+.violations-container {
+  padding: 15px 20px;
+}
+
+.violation-entry {
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #fff5f5;
+  border-left: 4px solid #e74c3c;
+  border-radius: 4px;
+  color: #c0392b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.violation-entry:last-child {
+  margin-bottom: 0;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 500;
+}
+
+.btn-small:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+

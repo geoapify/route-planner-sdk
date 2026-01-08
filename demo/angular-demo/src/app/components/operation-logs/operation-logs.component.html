@@ -1,0 +1,22 @@
+<section class="demo-section">
+  <div class="logs-header">
+    <h2>📋 Operation Logs</h2>
+    <button (click)="clear.emit()" class="btn-small">Clear</button>
+  </div>
+  <div class="logs-container">
+    <div 
+      *ngFor="let log of logs" 
+      class="log-entry"
+      [class.success]="log.success"
+      [class.error]="!log.success">
+      <span class="log-time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
+      <span class="log-operation">{{ log.operation }}</span>
+      <span class="log-status">{{ log.success ? '✓' : '✗' }}</span>
+      <span class="log-message">{{ log.message }}</span>
+    </div>
+    <div *ngIf="logs.length === 0" class="no-logs">
+      No operations performed yet.
+    </div>
+  </div>
+</section>
+

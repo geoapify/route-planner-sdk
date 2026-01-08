@@ -1,0 +1,115 @@
+<div class="agent-card">
+  <!-- Agent Header -->
+  <div class="agent-header">
+    <h3>{{ getDisplayName() }} <span class="agent-index">[{{ agent.index }}]</span></h3>
+    <div class="agent-stats">
+      <span>{{ formatDistance(getDistance()) }}</span>
+      <span>{{ formatTime(getTime()) }}</span>
+    </div>
+  </div>
+
+  <!-- Agent Constraints -->
+  <div class="agent-constraints">
+    <div class="constraint-row">
+      <span class="constraint-label">🏷️ Capabilities:</span>
+      <div class="badge-group" *ngIf="getCapabilities().length > 0">
+        <span *ngFor="let cap of getCapabilities()" class="badge">{{ cap }}</span>
+      </div>
+      <span class="text-muted" *ngIf="getCapabilities().length === 0">None</span>
+    </div>
+
+    <div class="constraint-row">
+      <span class="constraint-label">📦 Capacity:</span>
+      <span *ngIf="getPickupCapacity()">↑ {{ getPickupCapacity() }}kg</span>
+      <span *ngIf="getDeliveryCapacity()">↓ {{ getDeliveryCapacity() }}kg</span>
+      <span class="text-muted" *ngIf="!getPickupCapacity() && !getDeliveryCapacity()">None</span>
+    </div>
+
+    <div class="constraint-row">
+      <span class="constraint-label">⏰ Hours:</span>
+      <span *ngIf="getTimeWindows().length > 0">{{ formatTimeWindow(getTimeWindows()[0]) }}</span>
+      <span class="text-muted" *ngIf="getTimeWindows().length === 0">Any time</span>
+    </div>
+
+    <div class="constraint-row">
+      <span class="constraint-label">☕ Breaks:</span>
+      <span class="badge-warning" *ngIf="hasBreaks()">Yes</span>
+      <span class="text-muted" *ngIf="!hasBreaks()">No</span>
+    </div>
+  </div>
+
+  <!-- Route Order -->
+  <div class="route-order" *ngIf="agent.solution">
+    <div class="route-header">
+      <strong>🗺️ Route ({{ getRouteStops().length }} stops):</strong>
+    </div>
+    <ol class="route-list">
+      <li *ngFor="let stop of getRouteStops()" class="route-stop">
+        <span class="stop-type">{{ stop.type }}</span>
+        <span class="stop-details" *ngIf="stop.details">{{ stop.details }}</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Jobs List -->
+  <div class="items-section">
+    <div class="items-header">
+      <strong>📋 Jobs ({{ agent.jobs.length }})</strong>
+    </div>
+    <div class="items-list" *ngIf="agent.jobs.length > 0">
+      <app-job-item
+        *ngFor="let job of agent.jobs"
+        [job]="job">
+      </app-job-item>
+    </div>
+    <div *ngIf="agent.jobs.length === 0" class="empty-list">No jobs</div>
+  </div>
+
+  <!-- Shipments List -->
+  <div class="items-section">
+    <div class="items-header">
+      <strong>📦 Shipments ({{ agent.shipments.length }})</strong>
+    </div>
+    <div class="items-list" *ngIf="agent.shipments.length > 0">
+      <app-shipment-item
+        *ngFor="let shipment of agent.shipments"
+        [shipment]="shipment">
+      </app-shipment-item>
+    </div>
+    <div *ngIf="agent.shipments.length === 0" class="empty-list">No shipments</div>
+  </div>
+
+  <!-- Agent Actions -->
+  <div class="agent-actions">
+    <div class="action-group" *ngIf="getSelectedCount() > 0">
+      <label>Move {{ getSelectedCount() }} selected to:</label>
+      <select 
+        class="move-to-select"
+        (change)="onMoveSelected($any($event.target).value); $any($event.target).value = -1"
+        [disabled]="isLoading">
+        <option value="-1" selected>-- Select Agent --</option>
+        <option *ngFor="let targetAgent of allAgents" 
+                [value]="targetAgent.index"
+                [disabled]="targetAgent.index === agent.index">
+          {{ getAgentDisplayName(targetAgent) }}
+        </option>
+      </select>
+    </div>
+    
+    <div class="button-group">
+      <button (click)="addJob.emit(agent.index)" [disabled]="isLoading" class="btn-small btn-success">
+        + Add Job
+      </button>
+      <button (click)="addShipment.emit(agent.index)" [disabled]="isLoading" class="btn-small btn-success">
+        + Add Shipment
+      </button>
+      <button 
+        (click)="removeSelected.emit(agent.index)" 
+        [disabled]="isLoading || getSelectedCount() === 0"
+        class="btn-small btn-danger">
+        Remove Selected ({{ getSelectedCount() }})
+      </button>
+    </div>
+  </div>
+</div>
+

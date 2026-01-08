@@ -1,0 +1,57 @@
+.issues-section {
+  background: white;
+  border: 2px solid #f39c12;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+}
+
+.issues-header {
+  padding: 12px 20px;
+  background: #f39c12;
+  color: white;
+  border-radius: 6px 6px 0 0;
+}
+
+.issues-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.1em;
+}
+
+.issues-container {
+  padding: 15px 20px;
+}
+
+.issue-group {
+  margin-bottom: 15px;
+}
+
+.issue-group:last-child {
+  margin-bottom: 0;
+}
+
+.issue-title {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.issue-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.issue-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #fff3cd;
+  border: 1px solid #f39c12;
+  border-radius: 12px;
+  color: #856404;
+  font-size: 12px;
+  font-weight: 500;
+}
+

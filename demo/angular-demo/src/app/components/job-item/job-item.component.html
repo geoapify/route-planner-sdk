@@ -1,0 +1,18 @@
+<label class="item-row">
+  <input type="checkbox" [(ngModel)]="job.selected" (change)="selectionChange.emit()">
+  <span class="item-id">{{ job.data.id || 'job-' + job.index }}</span>
+  <span class="item-details">
+    <span *ngIf="job.data.pickup_amount" class="amount-badge pickup" title="Pickup amount">
+      ↑{{ job.data.pickup_amount }}kg
+    </span>
+    <span *ngIf="job.data.delivery_amount" class="amount-badge delivery" title="Delivery amount">
+      ↓{{ job.data.delivery_amount }}kg
+    </span>
+    <span *ngIf="job.data.requirements && job.data.requirements.length > 0" 
+          class="requirements" 
+          title="Required capabilities">
+      {{ job.data.requirements.join(', ') }}
+    </span>
+  </span>
+</label>
+

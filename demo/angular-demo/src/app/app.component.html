@@ -1,171 +1,163 @@
-<h1>Route Planner SDK - Angular Demo</h1>
+<h1>Route Planner SDK - Interactive Demo</h1>
 
-<!-- Simple Request Section -->
+<!-- Quick Start -->
 <section class="demo-section">
-  <h2>1. Simple Request Test</h2>
-  <button (click)="makeSimpleRequest()">Simple Request</button>
-  <p class="result-text">{{ simpleRequestResult }}</p>
+  <h2>🚀 Quick Start</h2>
+  <div class="button-group">
+    <button (click)="generateAndSolveTask()" [disabled]="isLoading" class="btn-primary">
+      Generate Shipment Scenario (20 shipments, 3 agents)
+    </button>
+    <button (click)="generateValidationTestScenario()" [disabled]="isLoading" class="btn-primary">
+      Generate Validation Test Scenario
+    </button>
+  </div>
 </section>
 
-<!-- Timeline Section -->
-<section class="demo-section">
-  <h2>2. Route Planner Timeline</h2>
+<app-global-settings
+  *ngIf="currentResult"
+  [(strategy)]="selectedStrategy"
+  [(removeStrategy)]="selectedRemoveStrategy"
+  [(insertAtIndex)]="insertAtIndex"
+  [(insertAfterId)]="insertAfterId"
+  [(insertBeforeId)]="insertBeforeId"
+  [(allowViolations)]="allowViolations">
+</app-global-settings>
+
+<!-- Quick Validation Tests -->
+<section class="demo-section validation-tests" *ngIf="currentResult && agentInfoList.length >= 2">
+  <h2>🧪 Quick Validation Tests</h2>
+  <p class="help-text">One-click tests to demonstrate constraint validations:</p>
   <div class="button-group">
-    <button (click)="generateTask()">Generate Task</button>
-    <button (click)="solveTask()" *ngIf="routePlannerTimeline" [disabled]="isLoading">Solve Task</button>
-    <button (click)="generateAndSolveTask()" [disabled]="isLoading">Generate and Solve Task</button>
+    <button (click)="testMissingCapability()" [disabled]="isLoading" class="btn-test">
+      🔴 Missing Capability
+    </button>
+    <button (click)="testCapacityExceeded()" [disabled]="isLoading" class="btn-test">
+      ⚖️ Over Capacity
+    </button>
+    <button (click)="testTimeWindowViolation()" [disabled]="isLoading" class="btn-test">
+      ⏰ Wrong Time
+    </button>
+    <button (click)="testBreakViolation()" [disabled]="isLoading" class="btn-test">
+      ☕ During Break
+    </button>
+    <button (click)="testMultipleViolations()" [disabled]="isLoading" class="btn-test">
+      💥 Multiple Issues
+    </button>
   </div>
+</section>
 
-  <div *ngIf="routePlannerTimeline" class="button-group" style="margin-top: 10px">
-    <button (click)="lightTheme()">Light Theme</button>
-    <button (click)="darkTheme()">Dark Theme</button>
+<app-violations-display
+  [violations]="getViolations()"
+  (clear)="clearViolations()">
+</app-violations-display>
+
+<app-issues-display
+  [result]="currentResult">
+</app-issues-display>
+
+<section class="demo-section" *ngIf="currentResult">
+  <h2>👥 Agents & Routes</h2>
+  
+  <div class="agents-grid">
+    <app-agent-card
+      *ngFor="let agent of agentInfoList"
+      [agent]="agent"
+      [allAgents]="agentInfoList"
+      [isLoading]="isLoading"
+      (moveSelected)="moveSelectedItems($event)"
+      (removeSelected)="removeSelectedFromAgent($event)"
+      (addJob)="openAddJobModal($event)"
+      (addShipment)="openAddShipmentModal($event)">
+    </app-agent-card>
   </div>
+</section>
 
+<!-- Timeline -->
+<section class="demo-section" *ngIf="routePlannerTimeline">
+  <h2>📊 Timeline Visualization</h2>
+  <div class="button-group">
+    <button (click)="lightTheme()">☀️ Light Theme</button>
+    <button (click)="darkTheme()">🌙 Dark Theme</button>
+  </div>
   <div #timelinesContainer class="timeline-container"></div>
 </section>
 
-<!-- Editor Testing Section -->
-<section class="demo-section" *ngIf="currentResult">
-  <h2>3. Route Editor - Strategy Testing</h2>
-  
-  <!-- Agent Overview -->
-  <div class="agent-overview">
-    <h3>Agent Overview</h3>
-    <table class="info-table">
-      <thead>
-        <tr>
-          <th>Agent</th>
-          <th>Index</th>
-          <th>Shipments</th>
-          <th>Distance</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let agent of agentInfoList">
-          <td>{{ agent.displayName }}</td>
-          <td>{{ agent.index }}</td>
-          <td>{{ agent.shipmentCount }}</td>
-          <td>{{ toPrettyDistance(agent.distance) }}</td>
-          <td>{{ toPrettyTime(agent.time) }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<app-operation-logs
+  *ngIf="currentResult"
+  [logs]="editorLogs"
+  (clear)="clearLogs()">
+</app-operation-logs>
 
-  <!-- Quick Test Buttons -->
-  <div class="quick-tests">
-    <h3>Quick Strategy Tests</h3>
-    <p class="help-text">These buttons test different strategies by moving a shipment between agents:</p>
-    <div class="button-group">
-      <button (click)="testAppendStrategy()" [disabled]="isLoading" class="btn-append">
-        Test APPEND Strategy
-      </button>
-      <button (click)="testInsertStrategy()" [disabled]="isLoading" class="btn-insert">
-        Test INSERT Strategy (at index 1)
-      </button>
-      <button (click)="testReoptimizeStrategy()" [disabled]="isLoading" class="btn-reoptimize">
-        Test REOPTIMIZE Strategy
-      </button>
-      <button (click)="testPreserveOrderRemoval()" [disabled]="isLoading" class="btn-preserve">
-        Test PRESERVE_ORDER Removal
-      </button>
+<!-- Add Job Modal -->
+<div class="modal-overlay" *ngIf="showAddJobModal" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Add Job to {{ activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : '' }}</h3>
+    
+    <div class="form-group">
+      <label>Job ID:</label>
+      <input type="text" [(ngModel)]="newJobId">
     </div>
-  </div>
-
-  <!-- Custom Editor Operations -->
-  <div class="editor-controls">
-    <h3>Custom Editor Operations</h3>
     
     <div class="form-row">
       <div class="form-group">
-        <label>Target Agent:</label>
-        <select [(ngModel)]="selectedTargetAgent">
-          <option *ngFor="let agent of agentInfoList" [ngValue]="agent.index">
-            {{ agent.displayName }} ({{ agent.shipmentCount }} shipments)
-          </option>
-        </select>
+        <label>Longitude:</label>
+        <input type="number" [(ngModel)]="newJobLon" step="0.001">
       </div>
-
       <div class="form-group">
-        <label>Strategy (Add/Assign):</label>
-        <select [(ngModel)]="selectedStrategy">
-          <option value="reoptimize">Reoptimize (Full optimization)</option>
-          <option value="insert">Insert (Optimal position)</option>
-          <option value="append">Append (End of route)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Strategy (Remove):</label>
-        <select [(ngModel)]="selectedRemoveStrategy">
-          <option value="reoptimize">Reoptimize</option>
-          <option value="preserveOrder">Preserve Order</option>
-        </select>
+        <label>Latitude:</label>
+        <input type="number" [(ngModel)]="newJobLat" step="0.001">
       </div>
     </div>
-
-    <!-- Insert Options -->
-    <div class="form-row" *ngIf="selectedStrategy === 'insert'">
+    
+    <div class="form-row">
       <div class="form-group">
-        <label>Insert At Index:</label>
-        <input type="number" [(ngModel)]="insertAtIndex" placeholder="e.g., 1">
+        <label>Pickup Amount (kg):</label>
+        <input type="number" [(ngModel)]="newJobPickupAmount" min="0">
       </div>
       <div class="form-group">
-        <label>Or After Shipment ID:</label>
-        <select [(ngModel)]="insertAfterShipmentId">
-          <option value="">-- None --</option>
-          <option *ngFor="let id of shipmentIds" [value]="id">{{ id }}</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Or Before Shipment ID:</label>
-        <select [(ngModel)]="insertBeforeShipmentId">
-          <option value="">-- None --</option>
-          <option *ngFor="let id of shipmentIds" [value]="id">{{ id }}</option>
-        </select>
+        <label>Delivery Amount (kg):</label>
+        <input type="number" [(ngModel)]="newJobDeliveryAmount" min="0">
       </div>
     </div>
-
-    <!-- Shipment Selection -->
-    <div class="shipment-selection">
-      <label>Select Shipments to Assign/Remove:</label>
-      <div class="shipment-chips">
-        <span 
-          *ngFor="let id of shipmentIds" 
-          class="shipment-chip"
-          [class.selected]="isShipmentSelected(id)"
-          (click)="toggleShipmentSelection(id)">
-          {{ id }}
-        </span>
-      </div>
-      <small>Selected: {{ selectedShipmentIds.length > 0 ? selectedShipmentIds.join(', ') : 'None' }}</small>
+    
+    <div class="form-group">
+      <label>Requirements (comma-separated):</label>
+      <input type="text" [(ngModel)]="newJobRequirements" placeholder="e.g., refrigerated, fragile">
     </div>
-
-    <div class="button-group">
-      <button 
-        (click)="assignShipmentWithStrategy()" 
-        [disabled]="isLoading || selectedShipmentIds.length === 0"
-        class="btn-primary">
-        Assign Selected Shipments
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Time Window Start (seconds):</label>
+        <input type="number" [(ngModel)]="newJobTimeWindowStart" placeholder="32400 = 9am">
+      </div>
+      <div class="form-group">
+        <label>Time Window End (seconds):</label>
+        <input type="number" [(ngModel)]="newJobTimeWindowEnd" placeholder="61200 = 5pm">
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button (click)="addJobFromModal()" [disabled]="isLoading" class="btn-success">
+        Add Job
       </button>
-      <button 
-        (click)="removeShipmentWithStrategy()" 
-        [disabled]="isLoading || selectedShipmentIds.length === 0"
-        class="btn-danger">
-        Remove Selected Shipments
+      <button (click)="closeModals()" class="btn-secondary">
+        Cancel
       </button>
     </div>
   </div>
+</div>
 
-  <!-- Add New Shipment -->
-  <div class="new-shipment-form">
-    <h3>Add New Shipment</h3>
+<!-- Add Shipment Modal -->
+<div class="modal-overlay" *ngIf="showAddShipmentModal" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Add Shipment to {{ activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : '' }}</h3>
+    
+    <div class="form-group">
+      <label>Shipment ID:</label>
+      <input type="text" [(ngModel)]="newShipmentId">
+    </div>
+    
     <div class="form-row">
-      <div class="form-group">
-        <label>Shipment ID:</label>
-        <input type="text" [(ngModel)]="newShipmentId">
-      </div>
       <div class="form-group">
         <label>Pickup Lon:</label>
         <input type="number" [(ngModel)]="newPickupLon" step="0.001">
@@ -174,6 +166,9 @@
         <label>Pickup Lat:</label>
         <input type="number" [(ngModel)]="newPickupLat" step="0.001">
       </div>
+    </div>
+    
+    <div class="form-row">
       <div class="form-group">
         <label>Delivery Lon:</label>
         <input type="number" [(ngModel)]="newDeliveryLon" step="0.001">
@@ -183,37 +178,17 @@
         <input type="number" [(ngModel)]="newDeliveryLat" step="0.001">
       </div>
     </div>
-    <button 
-      (click)="addNewShipmentWithStrategy()" 
-      [disabled]="isLoading"
-      class="btn-success">
-      Add New Shipment ({{ selectedStrategy }})
-    </button>
-  </div>
-
-  <!-- Operation Logs -->
-  <div class="logs-section">
-    <div class="logs-header">
-      <h3>Operation Logs</h3>
-      <button (click)="clearLogs()" class="btn-small">Clear Logs</button>
-    </div>
-    <div class="logs-container">
-      <div 
-        *ngFor="let log of editorLogs" 
-        class="log-entry"
-        [class.success]="log.success"
-        [class.error]="!log.success">
-        <span class="log-time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
-        <span class="log-operation">{{ log.operation }}</span>
-        <span class="log-status">{{ log.success ? '✓' : '✗' }}</span>
-        <span class="log-message">{{ log.message }}</span>
-      </div>
-      <div *ngIf="editorLogs.length === 0" class="no-logs">
-        No operations performed yet.
-      </div>
+    
+    <div class="modal-actions">
+      <button (click)="addShipmentFromModal()" [disabled]="isLoading" class="btn-success">
+        Add Shipment
+      </button>
+      <button (click)="closeModals()" class="btn-secondary">
+        Cancel
+      </button>
     </div>
   </div>
-</section>
+</div>
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" *ngIf="isLoading">

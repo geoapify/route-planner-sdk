@@ -1,0 +1,45 @@
+<section class="demo-section">
+  <h2>⚙️ Global Settings</h2>
+  <div class="settings-grid">
+    <div class="form-group">
+      <label>Add/Assign Strategy:</label>
+      <select [(ngModel)]="strategy" (ngModelChange)="strategyChange.emit($event)">
+        <option value="reoptimize">🔄 Reoptimize (Full optimization)</option>
+        <option value="insert">📍 Insert (Optimal position)</option>
+        <option value="append">➕ Append (End of route)</option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="strategy === 'insert'">
+      <label>Insert At Index:</label>
+      <input type="number" [(ngModel)]="insertAtIndex" (ngModelChange)="insertAtIndexChange.emit($event)" placeholder="e.g., 1">
+    </div>
+
+    <div class="form-group" *ngIf="strategy === 'insert'">
+      <label>Or After ID:</label>
+      <input type="text" [(ngModel)]="insertAfterId" (ngModelChange)="insertAfterIdChange.emit($event)" placeholder="e.g., order_1">
+    </div>
+
+    <div class="form-group" *ngIf="strategy === 'insert'">
+      <label>Or Before ID:</label>
+      <input type="text" [(ngModel)]="insertBeforeId" (ngModelChange)="insertBeforeIdChange.emit($event)" placeholder="e.g., order_2">
+    </div>
+
+    <div class="form-group">
+      <label>Remove Strategy:</label>
+      <select [(ngModel)]="removeStrategy" (ngModelChange)="removeStrategyChange.emit($event)">
+        <option value="reoptimize">🔄 Reoptimize</option>
+        <option value="preserveOrder">📌 Preserve Order</option>
+      </select>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="allowViolations" (ngModelChange)="allowViolationsChange.emit($event)">
+        <span>Allow Violations (default)</span>
+      </label>
+      <small>When checked: violations collected. When unchecked: throws error.</small>
+    </div>
+  </div>
+</section>
+

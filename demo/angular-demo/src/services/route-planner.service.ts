@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import RoutePlanner, { 
-  Agent, 
-  Job, 
+  Agent,
+  Job,
   Shipment,
   ShipmentStep,
   RoutePlannerInputData, 
@@ -10,6 +10,7 @@ import RoutePlanner, {
   AddAssignOptions,
   RemoveOptions
 } from '../../../../src';
+import { ScenarioHelper } from './scenario-helper';
 import TEST_API_KEY from "../../../../env-variables";
 
 export interface EditorOperationResult {
@@ -50,22 +51,26 @@ export class RoutePlannerService {
     }
   }
 
+  async createValidationTestScenario(): Promise<RoutePlannerResult | string> {
+    return ScenarioHelper.createValidationScenario(this.API_KEY);
+  }
+
   /**
    * Assign jobs to a different agent using the editor
    */
   async assignJobs(
     result: RoutePlannerResult, 
     targetAgentIdOrIndex: string | number, 
-    jobIds: string[], 
+    jobIndexes: number[], 
     options: AddAssignOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.assignJobs(targetAgentIdOrIndex, jobIds, options);
+      const success = await editor.assignJobs(targetAgentIdOrIndex, jobIndexes, options);
       return {
         success,
         message: success 
-          ? `Jobs [${jobIds.join(', ')}] assigned to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${jobIndexes.length} job(s) assigned to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Assignment failed',
         result: editor.getModifiedResult()
       };
@@ -83,16 +88,16 @@ export class RoutePlannerService {
   async assignShipments(
     result: RoutePlannerResult, 
     targetAgentIdOrIndex: string | number, 
-    shipmentIds: string[], 
+    shipmentIndexes: number[], 
     options: AddAssignOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.assignShipments(targetAgentIdOrIndex, shipmentIds, options);
+      const success = await editor.assignShipments(targetAgentIdOrIndex, shipmentIndexes, options);
       return {
         success,
         message: success 
-          ? `Shipments [${shipmentIds.join(', ')}] assigned to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${shipmentIndexes.length} shipment(s) assigned to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Assignment failed',
         result: editor.getModifiedResult()
       };
@@ -109,16 +114,16 @@ export class RoutePlannerService {
    */
   async removeJobs(
     result: RoutePlannerResult, 
-    jobIds: string[], 
+    jobIndexes: number[], 
     options: RemoveOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.removeJobs(jobIds, options);
+      const success = await editor.removeJobs(jobIndexes, options);
       return {
         success,
         message: success 
-          ? `Jobs [${jobIds.join(', ')}] removed with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${jobIndexes.length} job(s) removed with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Removal failed',
         result: editor.getModifiedResult()
       };
@@ -135,16 +140,16 @@ export class RoutePlannerService {
    */
   async removeShipments(
     result: RoutePlannerResult, 
-    shipmentIds: string[], 
+    shipmentIndexes: number[], 
     options: RemoveOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.removeShipments(shipmentIds, options);
+      const success = await editor.removeShipments(shipmentIndexes, options);
       return {
         success,
         message: success 
-          ? `Shipments [${shipmentIds.join(', ')}] removed with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${shipmentIndexes.length} shipment(s) removed with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Removal failed',
         result: editor.getModifiedResult()
       };
@@ -211,13 +216,55 @@ export class RoutePlannerService {
   }
 
   /**
-   * Create a sample Job for testing
+   * Add a new job with validation support
    */
-  createSampleJob(id: string, lon: number, lat: number, duration: number = 300): Job {
-    return new Job()
-      .setId(id)
-      .setLocation(lon, lat)
-      .setDuration(duration);
+  async addNewJob(
+    result: RoutePlannerResult,
+    targetAgentIdOrIndex: string | number,
+    jobData: {
+      id: string;
+      lon: number;
+      lat: number;
+      pickupAmount?: number;
+      deliveryAmount?: number;
+      requirements?: string[];
+      timeWindowStart?: number | null;
+      timeWindowEnd?: number | null;
+    },
+    options: AddAssignOptions = {}
+  ): Promise<EditorOperationResult> {
+    try {
+      const job = new Job()
+        .setId(jobData.id)
+        .setLocation(jobData.lon, jobData.lat)
+        .setDuration(300);
+
+      if (jobData.pickupAmount) job.setPickupAmount(jobData.pickupAmount);
+      if (jobData.deliveryAmount) job.setDeliveryAmount(jobData.deliveryAmount);
+      if (jobData.requirements) {
+        jobData.requirements.forEach(req => job.addRequirement(req));
+      }
+      if (jobData.timeWindowStart !== null && jobData.timeWindowStart !== undefined && 
+          jobData.timeWindowEnd !== null && jobData.timeWindowEnd !== undefined) {
+        job.addTimeWindow(jobData.timeWindowStart, jobData.timeWindowEnd);
+      }
+
+      const editor = new RoutePlannerResultEditor(result);
+      const success = await editor.addNewJobs(targetAgentIdOrIndex, [job], options);
+      
+      return {
+        success,
+        message: success 
+          ? `Job ${jobData.id} added to agent ${targetAgentIdOrIndex}` 
+          : 'Adding job failed',
+        result: editor.getModifiedResult()
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: `Error: ${error.message}`
+      };
+    }
   }
 
   /**
