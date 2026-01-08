@@ -124,10 +124,9 @@ export interface AddAssignOptions {
     priority?: number;
 
     /**
-     * Reserved for future use.
-     * When true, violations would be added as issues instead of throwing exceptions.
-     * Currently not implemented due to API limitations.
-     * @default false
+     * When true, constraint violations are added as issues instead of throwing exceptions.
+     * When false, violations throw exceptions immediately.
+     * @default true
      */
     allowViolations?: boolean;
 }

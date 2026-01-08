@@ -54,6 +54,7 @@ nav:
     - Optimizing Delivery Routes with Two Agents: examples/optimizing-two-agents.md
     - Planning 20 Shipments with 3 Agents: examples/optimizing-shipments-3-agents.md
     - Editing Planned Result After Optimization: examples/editing-planned-result.md
+    - Constraint Validation: examples/constraint-validation.md
 
 repo_url: https://github.com/geoapify/route-planner-sdk
 repo_name: GitHub

@@ -291,6 +291,13 @@ interface AddAssignOptions {
 
   /** Priority for optimization (higher = more important) */
   priority?: number;
+
+  /**
+   * When true (default), constraint violations are added to result violations instead of throwing.
+   * When false, violations throw ValidationErrors immediately.
+   * @default true
+   */
+  allowViolations?: boolean;
 }
 ```
 
@@ -318,6 +325,70 @@ interface RemoveOptions {
 | `append` | Fastest | No | Real-time UI updates, drag-and-drop |
 | `preserveOrder` | Fastest | No | Quick removal when order doesn't matter |
 
+## Constraint Validation
+
+The editor automatically validates constraints when adding or assigning jobs/shipments. By default, violations are collected and added to the result (not thrown).
+
+### Validated Constraints
+
+| Constraint | Description |
+|------------|-------------|
+| **Capabilities** | Agent must have all required capabilities for the job/shipment |
+| **Pickup Capacity** | Total pickup amount must not exceed agent's capacity |
+| **Delivery Capacity** | Total delivery amount must not exceed agent's capacity |
+| **Time Windows** | Agent availability must overlap with job/shipment time windows |
+| **Breaks** | Job/shipment cannot fall entirely within agent break periods |
+
+### Default Behavior (allowViolations: true)
+
+By default, violations are collected and can be retrieved later:
+
+```typescript
+const newJob = new Job()
+  .setId('overloaded-job')
+  .addRequirement('refrigerated')  // Agent doesn't have this
+  .setDeliveryAmount(1000);        // Exceeds capacity
+
+// Default: violations collected, method succeeds
+await editor.addNewJobs('agent-A', [newJob]);
+
+// Check violations
+const violations = editor.getModifiedResult().getViolations();
+console.log(violations);
+// [
+//   "Agent is missing required capability: 'refrigerated'",
+//   "Total delivery amount (1000) exceeds agent capacity (500)"
+// ]
+```
+
+### Strict Mode (allowViolations: false)
+
+To throw immediately on violations:
+
+```typescript
+try {
+  await editor.addNewJobs('agent-A', [newJob], { allowViolations: false });
+} catch (validationErrors) {
+  if (validationErrors instanceof ValidationErrors) {
+    console.log(`Found ${validationErrors.errors.length} violations:`);
+    validationErrors.errors.forEach(error => {
+      console.log(`- ${error.constructor.name}: ${error.message}`);
+    });
+  }
+}
+```
+
+### Violation Types
+
+The following exception classes are thrown when `allowViolations: false`:
+
+* `AgentMissingCapability` – Agent lacks required capability or skill
+* `AgentPickupCapacityExceeded` – Total pickup amount exceeds capacity
+* `AgentDeliveryCapacityExceeded` – Total delivery amount exceeds capacity
+* `TimeWindowViolation` – No overlap between agent and item time windows
+* `BreakViolation` – Item can only be done during agent break periods
+* `ValidationErrors` – Container for multiple validation errors
+
 ## Error Handling
 
 All methods throw errors for:
@@ -327,6 +398,7 @@ All methods throw errors for:
 * Empty arrays
 * Duplicate IDs in arrays
 * Invalid `beforeId` or `afterId` references
+* Constraint violations (when `allowViolations: false`)
 
 ## Learn More
 

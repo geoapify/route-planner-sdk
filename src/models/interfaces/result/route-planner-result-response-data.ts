@@ -22,13 +22,14 @@ export interface RoutePlannerResultResponseData {
             max_speed?: number;
             units?: DistanceUnitType;
         }
-        issues: RoutePlannerIssues;
+        issues?: RoutePlannerIssues;
+        violations?: string[];
     }
     features: FeatureResponseData[];
 }
 
 export interface RoutePlannerIssues {
-    unassigned_agents: number[];
-    unassigned_jobs: number[];
-    unassigned_shipments: number[];
+    unassigned_agents?: number[];
+    unassigned_jobs?: number[];
+    unassigned_shipments?: number[];
 }

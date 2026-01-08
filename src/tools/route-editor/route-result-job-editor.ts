@@ -1,6 +1,7 @@
-import { Job, JobData, AddAssignOptions, RemoveOptions, REOPTIMIZE } from "../../models";
+import { Job, JobData, AddAssignOptions, RemoveOptions, REOPTIMIZE, ValidationErrors } from "../../models";
 import { JobStrategyFactory } from "./strategies";
 import { RouteResultEditorBase } from "./route-result-editor-base";
+import { JobValidationHelper } from "./validations";
 
 /**
  * Editor for managing jobs in a route planner result
@@ -10,6 +11,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     async assignJobs(agentIndex: number, jobIndexes: number[], options: AddAssignOptions = {}): Promise<boolean> {
         this.validateAgent(agentIndex);
         this.validateJobs(jobIndexes, agentIndex);
+        this.validateJobConstraints(agentIndex, jobIndexes, options);
         this.applyPriority(jobIndexes, options.priority);
         
         const strategy = JobStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
@@ -27,14 +29,13 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         const jobsRaw = jobs.map(job => job.getRaw());
         this.validateAgent(agentIndex);
         this.ensureNewItemsValid(jobsRaw, "jobs");
+        this.validateNewJobConstraints(agentIndex, jobsRaw, options);
         
         const newJobIndexes = this.appendJobsToInput(jobsRaw);
         
         const strategy = JobStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
         return strategy.execute(this.context, agentIndex, newJobIndexes, options);
     }
-
-    // ===== Job-specific validation =====
 
     private validateJobs(jobIndexes: number[], agentIndex?: number): void {
         this.ensureItemsProvided(jobIndexes, "jobs");
@@ -66,7 +67,59 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         }
     }
 
-    // ===== Job-specific helpers =====
+    private validateJobConstraints(agentIndex: number, jobIndexes: number[], options: AddAssignOptions): void {
+        const agent = this.getAgentData(agentIndex);
+        const existingJobIndexes = this.result.getAgentJobs(agentIndex);
+        const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
+        const newJobs = jobIndexes.map(i => this.getJobData(i));
+        const allJobs = [...existingJobs, ...newJobs];
+        
+        const issues = JobValidationHelper.validateAll(agent, allJobs);
+        this.handleValidationIssues(issues, options);
+    }
+
+    private validateNewJobConstraints(agentIndex: number, jobsRaw: JobData[], options: AddAssignOptions): void {
+        const agent = this.getAgentData(agentIndex);
+        const existingJobIndexes = this.result.getAgentJobs(agentIndex);
+        const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
+        const allJobs = [...existingJobs, ...jobsRaw];
+        
+        const issues = JobValidationHelper.validateAll(agent, allJobs);
+        this.handleValidationIssues(issues, options);
+    }
+
+    private handleValidationIssues(issues: Error[], options: AddAssignOptions): void {
+        if (issues.length === 0) return;
+        
+        const allowViolations = options.allowViolations ?? true;
+        
+        if (allowViolations) {
+            this.addIssuesToResult(issues);
+        } else {
+            throw new ValidationErrors(issues);
+        }
+    }
+
+    private addIssuesToResult(issues: Error[]): void {
+        if (issues.length === 0) return;
+        
+        const rawData = this.result.getRawData();
+        if (!rawData.properties.violations) {
+            rawData.properties.violations = [];
+        }
+        
+        issues.forEach(issue => {
+            rawData.properties.violations!.push(issue.message);
+        });
+    }
+
+    private getAgentData(agentIndex: number) {
+        return this.result.getRawData().properties.params.agents[agentIndex];
+    }
+
+    private getJobData(jobIndex: number): JobData {
+        return this.result.getRawData().properties.params.jobs[jobIndex];
+    }
 
     private appendJobsToInput(jobsRaw: JobData[]): number[] {
         const startIndex = this.result.getRawData().properties.params.jobs.length;

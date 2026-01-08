@@ -185,6 +185,13 @@ export class RoutePlannerResult {
     }
 
     /**
+     * Retrieves constraint validation violations.
+     */
+    getViolations(): string[] {
+        return this.rawData.properties.violations ?? [];
+    }
+
+    /**
      * Returns a list of all assigned jobs
      */
     getJobSolutions(): JobSolution[] {

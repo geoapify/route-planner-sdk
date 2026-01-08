@@ -74,6 +74,38 @@ Initializes the result handler with routing options and the raw API response.
 
 ---
 
+## Constraint Violations
+
+| Method              | Description                                         |
+| ------------------- | --------------------------------------------------- |
+| `getViolations()`   | Returns constraint violation messages (string[])   |
+
+Constraint violations are added when using [`RoutePlannerResultEditor`](./route-planner-result-editor.md) with `allowViolations: true` (default).
+
+**Example:**
+
+```typescript
+const editor = new RoutePlannerResultEditor(result);
+
+// Add job that might violate constraints
+const heavyJob = new Job()
+  .setId('heavy-delivery')
+  .setDeliveryAmount(1000);  // Might exceed capacity
+
+await editor.addNewJobs('agent-A', [heavyJob]); // Default: allowViolations = true
+
+// Check for violations
+const violations = editor.getModifiedResult().getViolations();
+if (violations.length > 0) {
+  console.log('Constraint violations:');
+  violations.forEach(v => console.log(`- ${v}`));
+}
+```
+
+See [Constraint Validation](./route-planner-result-editor.md#constraint-validation) for details.
+
+---
+
 ## Job & Shipment Info
 
 | Method                              | Description                                                                              |
