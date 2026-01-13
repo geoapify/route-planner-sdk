@@ -1,1 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Import Route Planner Timeline styles */
+@import url('https://unpkg.com/@geoapify/route-planner-sdk@latest/styles/timeline-minimal.css');

@@ -22,7 +22,12 @@ export class AgentCardComponent {
   @Output() addShipment = new EventEmitter<number>();
 
   getDisplayName(): string {
-    return this.agent.data.id || `Agent ${this.agent.index}`;
+    return `Agent ${this.agent.index + 1}`;
+  }
+
+  getAgentColor(): string {
+    const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#34495e'];
+    return colors[this.agent.index % colors.length];
   }
 
   getCapabilities(): string[] {
@@ -67,7 +72,7 @@ export class AgentCardComponent {
   }
 
   getAgentDisplayName(agent: AgentInfo): string {
-    return agent.data.id || `Agent ${agent.index}`;
+    return `Agent ${agent.index + 1}`;
   }
 
   formatTimeWindow(window: [number, number]): string {

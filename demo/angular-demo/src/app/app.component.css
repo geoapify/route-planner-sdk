@@ -3,7 +3,7 @@
   display: block;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   padding: 20px;
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
   background: #f5f7fa;
 }
@@ -85,6 +85,58 @@ button:disabled {
   color: #7f8c8d;
   font-size: 13px;
   margin: 10px 0;
+}
+
+/* Layout with sticky map */
+.content-with-map {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.map-sidebar {
+  flex: 0 0 600px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.map-sticky {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.map-sticky h2 {
+  margin: 0 0 15px 0;
+}
+
+.map-sticky h3 {
+  margin: 20px 0 10px 0;
+  font-size: 1.1em;
+  color: #34495e;
+}
+
+.timeline-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.timeline-section .button-group {
+  margin-bottom: 10px;
+}
+
+.timeline-section button {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Agents grid */
@@ -196,6 +248,20 @@ button:disabled {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .content-with-map {
+    flex-direction: column;
+  }
+  
+  .map-sidebar {
+    flex: none;
+    width: 100%;
+    position: relative;
+    top: 0;
+    max-height: none;
+  }
+}
+
 @media (max-width: 768px) {
   .agents-grid {
     grid-template-columns: 1fr;

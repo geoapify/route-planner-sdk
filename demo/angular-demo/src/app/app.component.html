@@ -20,13 +20,16 @@
   [(insertAtIndex)]="insertAtIndex"
   [(insertAfterId)]="insertAfterId"
   [(insertBeforeId)]="insertBeforeId"
-  [(allowViolations)]="allowViolations">
+  [(allowViolations)]="allowViolations"
+  [(priority)]="priority">
 </app-global-settings>
 
 <!-- Quick Validation Tests -->
 <section class="demo-section validation-tests" *ngIf="currentResult && agentInfoList.length >= 2">
   <h2>🧪 Quick Validation Tests</h2>
   <p class="help-text">One-click tests to demonstrate constraint validations:</p>
+  
+  <h3>Job Validations</h3>
   <div class="button-group">
     <button (click)="testMissingCapability()" [disabled]="isLoading" class="btn-test">
       🔴 Missing Capability
@@ -44,6 +47,16 @@
       💥 Multiple Issues
     </button>
   </div>
+
+  <h3>Shipment Validations</h3>
+  <div class="button-group">
+    <button (click)="testShipmentMissingCapability()" [disabled]="isLoading" class="btn-test">
+      📦 Missing Capability
+    </button>
+    <button (click)="testShipmentCapacityExceeded()" [disabled]="isLoading" class="btn-test">
+      📦 Over Capacity
+    </button>
+  </div>
 </section>
 
 <app-violations-display
@@ -55,32 +68,55 @@
   [result]="currentResult">
 </app-issues-display>
 
-<section class="demo-section" *ngIf="currentResult">
-  <h2>👥 Agents & Routes</h2>
-  
-  <div class="agents-grid">
-    <app-agent-card
-      *ngFor="let agent of agentInfoList"
-      [agent]="agent"
-      [allAgents]="agentInfoList"
-      [isLoading]="isLoading"
-      (moveSelected)="moveSelectedItems($event)"
-      (removeSelected)="removeSelectedFromAgent($event)"
-      (addJob)="openAddJobModal($event)"
-      (addShipment)="openAddShipmentModal($event)">
-    </app-agent-card>
+<div class="content-with-map" *ngIf="currentResult">
+  <!-- Sticky Map on Left -->
+  <aside class="map-sidebar">
+    <div class="map-sticky">
+      <h2>🗺️ Map</h2>
+      <app-route-map
+        [result]="currentResult"
+        [apiKey]="apiKey"
+        (addJobAtLocation)="openAddJobModalAtLocation($event)"
+        (addShipmentAtLocation)="openAddShipmentModalAtLocation($event)">
+      </app-route-map>
+      
+      <!-- Timeline below map -->
+      <div class="timeline-section" *ngIf="currentResult">
+        <h3>📊 Timeline</h3>
+        <div class="button-group">
+          <button (click)="lightTheme()">☀️ Light</button>
+          <button (click)="darkTheme()">🌙 Dark</button>
+        </div>
+        <div #timelinesContainer class="timeline-container"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content on Right -->
+  <div class="main-content">
+    <section class="demo-section">
+      <h2>👥 Agents & Routes</h2>
+      
+      <div class="agents-grid">
+        <app-agent-card
+          *ngFor="let agent of agentInfoList"
+          [agent]="agent"
+          [allAgents]="agentInfoList"
+          [isLoading]="isLoading"
+          (moveSelected)="moveSelectedItems($event)"
+          (removeSelected)="removeSelectedFromAgent($event)"
+          (addJob)="openAddJobModal($event)"
+          (addShipment)="openAddShipmentModal($event)">
+        </app-agent-card>
+      </div>
+    </section>
   </div>
+</div>
+
+<!-- When no result, show full width -->
+<section class="demo-section" *ngIf="!currentResult">
 </section>
 
-<!-- Timeline -->
-<section class="demo-section" *ngIf="routePlannerTimeline">
-  <h2>📊 Timeline Visualization</h2>
-  <div class="button-group">
-    <button (click)="lightTheme()">☀️ Light Theme</button>
-    <button (click)="darkTheme()">🌙 Dark Theme</button>
-  </div>
-  <div #timelinesContainer class="timeline-container"></div>
-</section>
 
 <app-operation-logs
   *ngIf="currentResult"
@@ -89,106 +125,24 @@
 </app-operation-logs>
 
 <!-- Add Job Modal -->
-<div class="modal-overlay" *ngIf="showAddJobModal" (click)="closeModals()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>Add Job to {{ activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : '' }}</h3>
-    
-    <div class="form-group">
-      <label>Job ID:</label>
-      <input type="text" [(ngModel)]="newJobId">
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Longitude:</label>
-        <input type="number" [(ngModel)]="newJobLon" step="0.001">
-      </div>
-      <div class="form-group">
-        <label>Latitude:</label>
-        <input type="number" [(ngModel)]="newJobLat" step="0.001">
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pickup Amount (kg):</label>
-        <input type="number" [(ngModel)]="newJobPickupAmount" min="0">
-      </div>
-      <div class="form-group">
-        <label>Delivery Amount (kg):</label>
-        <input type="number" [(ngModel)]="newJobDeliveryAmount" min="0">
-      </div>
-    </div>
-    
-    <div class="form-group">
-      <label>Requirements (comma-separated):</label>
-      <input type="text" [(ngModel)]="newJobRequirements" placeholder="e.g., refrigerated, fragile">
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Time Window Start (seconds):</label>
-        <input type="number" [(ngModel)]="newJobTimeWindowStart" placeholder="32400 = 9am">
-      </div>
-      <div class="form-group">
-        <label>Time Window End (seconds):</label>
-        <input type="number" [(ngModel)]="newJobTimeWindowEnd" placeholder="61200 = 5pm">
-      </div>
-    </div>
-    
-    <div class="modal-actions">
-      <button (click)="addJobFromModal()" [disabled]="isLoading" class="btn-success">
-        Add Job
-      </button>
-      <button (click)="closeModals()" class="btn-secondary">
-        Cancel
-      </button>
-    </div>
-  </div>
-</div>
+<app-add-job-modal
+  *ngIf="showAddJobModal"
+  [agentName]="activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : ''"
+  [isLoading]="isLoading"
+  [initialCoordinates]="mapClickCoordinates"
+  (add)="addJobFromModal($event)"
+  (cancel)="closeModals()">
+</app-add-job-modal>
 
 <!-- Add Shipment Modal -->
-<div class="modal-overlay" *ngIf="showAddShipmentModal" (click)="closeModals()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>Add Shipment to {{ activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : '' }}</h3>
-    
-    <div class="form-group">
-      <label>Shipment ID:</label>
-      <input type="text" [(ngModel)]="newShipmentId">
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pickup Lon:</label>
-        <input type="number" [(ngModel)]="newPickupLon" step="0.001">
-      </div>
-      <div class="form-group">
-        <label>Pickup Lat:</label>
-        <input type="number" [(ngModel)]="newPickupLat" step="0.001">
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Delivery Lon:</label>
-        <input type="number" [(ngModel)]="newDeliveryLon" step="0.001">
-      </div>
-      <div class="form-group">
-        <label>Delivery Lat:</label>
-        <input type="number" [(ngModel)]="newDeliveryLat" step="0.001">
-      </div>
-    </div>
-    
-    <div class="modal-actions">
-      <button (click)="addShipmentFromModal()" [disabled]="isLoading" class="btn-success">
-        Add Shipment
-      </button>
-      <button (click)="closeModals()" class="btn-secondary">
-        Cancel
-      </button>
-    </div>
-  </div>
-</div>
+<app-add-shipment-modal
+  *ngIf="showAddShipmentModal"
+  [agentName]="activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : ''"
+  [isLoading]="isLoading"
+  [initialCoordinates]="mapClickCoordinates"
+  (add)="addShipmentFromModal($event)"
+  (cancel)="closeModals()">
+</app-add-shipment-modal>
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" *ngIf="isLoading">

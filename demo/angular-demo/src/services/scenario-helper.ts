@@ -11,20 +11,23 @@ export class ScenarioHelper {
       const planner = new RoutePlanner({ apiKey });
       planner.setMode("drive");
 
-      const warehouse: [number, number] = [44.802171, 41.6928772];
+      // Washington, DC - Different depot locations for each agent
+      const depot1: [number, number] = [-77.0369, 38.9072];  // Downtown DC
+      const depot2: [number, number] = [-77.0450, 38.9035];  // Southwest DC
+      const depot3: [number, number] = [-77.0280, 38.9145];  // Northeast DC
 
-      // Create 3 agents with different constraints
+      // Create 3 agents with different constraints and start locations
       planner.addAgent(this.createAgent({
-        id: 'regular-van',
-        location: warehouse,
+        id: 'Agent 1',
+        location: depot1,
         capabilities: ['standard_delivery'],
         timeWindow: [32400, 61200],
         deliveryCapacity: 500
       }));
 
       planner.addAgent(this.createAgent({
-        id: 'driver-with-break',
-        location: warehouse,
+        id: 'Agent 2',
+        location: depot2,
         capabilities: ['standard_delivery'],
         timeWindow: [32400, 61200],
         deliveryCapacity: 300,
@@ -32,24 +35,25 @@ export class ScenarioHelper {
       }));
 
       planner.addAgent(this.createAgent({
-        id: 'pickup-van',
-        location: warehouse,
+        id: 'Agent 3',
+        location: depot3,
         capabilities: ['standard_delivery'],
         timeWindow: [28800, 64800],
         pickupCapacity: 400
       }));
 
-      // Add 8 jobs (mix of light and heavy)
+      // Add 8 jobs around Washington, DC (mix of light and heavy)
+      // All unique locations, different from depot1, depot2, depot3
       const jobConfigs = [
-        { id: 'job-1', loc: [44.805, 41.695], pickup: 50 },
-        { id: 'job-2', loc: [44.800, 41.692], delivery: 65 },
-        { id: 'job-3', loc: [44.810, 41.696], pickup: 80 },
-        { id: 'job-4', loc: [44.808, 41.694], delivery: 95 },
-        { id: 'job-5', loc: [44.803, 41.691], pickup: 110 },
+        { id: 'job-1', loc: [-77.0319, 38.9101], pickup: 50 },      // Near White House
+        { id: 'job-2', loc: [-77.0500, 38.9020], delivery: 65 },    // Southwest
+        { id: 'job-3', loc: [-77.0250, 38.9160], pickup: 80 },      // Northeast
+        { id: 'job-4', loc: [-77.0390, 38.9095], delivery: 95 },    // Central
+        { id: 'job-5', loc: [-77.0475, 38.9042], pickup: 110 },     // Southwest area
         // Heavy jobs (200kg each - will test capacity limits)
-        { id: 'heavy-job-1', loc: [44.806, 41.693], delivery: 200 },
-        { id: 'heavy-job-2', loc: [44.809, 41.697], delivery: 200 },
-        { id: 'heavy-job-3', loc: [44.804, 41.690], delivery: 200 }
+        { id: 'heavy-job-1', loc: [-77.0334, 38.9110], delivery: 200 }, // North central
+        { id: 'heavy-job-2', loc: [-77.0265, 38.9155], delivery: 200 }, // Far northeast
+        { id: 'heavy-job-3', loc: [-77.0510, 38.9015], delivery: 200 }  // Far southwest
       ];
       
       jobConfigs.forEach(config => {
@@ -61,16 +65,20 @@ export class ScenarioHelper {
         }));
       });
 
-      // Add 5 shipments
+      // Add 5 shipments around DC (all unique delivery locations)
       const deliveryLocations: [number, number][] = [
-        [44.805, 41.695], [44.800, 41.692], [44.810, 41.696],
-        [44.808, 41.694], [44.803, 41.691]
+        [-77.0315, 38.9105],  // Near Capitol
+        [-77.0485, 38.9028],  // Southwest waterfront
+        [-77.0245, 38.9170],  // Northeast corridor
+        [-77.0355, 38.9083],  // Downtown
+        [-77.0425, 38.9052]   // Southwest area
       ];
       
+      // Shipments pickup from depot1 (main warehouse)
       deliveryLocations.forEach((loc, i) => {
         planner.addShipment(this.createShipment({
           id: `shipment-${i + 1}`,
-          pickupLocation: warehouse,
+          pickupLocation: depot1,
           deliveryLocation: loc,
           amount: 30 + i * 10
         }));

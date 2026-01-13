@@ -75,6 +75,12 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('[assignJobs] Operation failed');
+      console.error('[assignJobs] Error:', error);
+      console.error('[assignJobs] Stack:', error.stack);
+      console.error('[assignJobs] Target agent:', targetAgentIdOrIndex);
+      console.error('[assignJobs] Job indexes:', jobIndexes);
+      console.error('[assignJobs] Options:', options);
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -102,6 +108,8 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('assignJobs failed:', error);
+      console.error('Stack trace:', error.stack);
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -128,6 +136,12 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('[removeJobs] Operation failed');
+      console.error('[removeJobs] Error:', error);
+      console.error('[removeJobs] Stack:', error.stack);
+      console.error('[removeJobs] Job indexes:', jobIndexes);
+      console.error('[removeJobs] Options:', options);
+      console.error('[removeJobs] Result data:', result.getRawData());
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -154,6 +168,12 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('[removeShipments] Operation failed');
+      console.error('[removeShipments] Error:', error);
+      console.error('[removeShipments] Stack:', error.stack);
+      console.error('[removeShipments] Shipment indexes:', shipmentIndexes);
+      console.error('[removeShipments] Options:', options);
+      console.error('[removeShipments] Result data:', result.getRawData());
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -181,6 +201,8 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('assignJobs failed:', error);
+      console.error('Stack trace:', error.stack);
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -208,6 +230,8 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('assignJobs failed:', error);
+      console.error('Stack trace:', error.stack);
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -260,6 +284,8 @@ export class RoutePlannerService {
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
+      console.error('assignJobs failed:', error);
+      console.error('Stack trace:', error.stack);
       return {
         success: false,
         message: `Error: ${error.message}`

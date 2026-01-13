@@ -873,6 +873,148 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy', () => {
     // agent-A: start(0) → job-2(1) → end(2)
     expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-2', 'end']);
   });
+
+  test('removeJobs with preserveOrder should handle missing issues object', async () => {
+    // Initial state with NO issues object in raw data
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+    
+    // Manually remove issues object to simulate the bug scenario
+    delete plannerResult.getRawData().properties.issues;
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Remove job-2 - should not crash even without issues object
+    await routeEditor.removeJobs(['job-2'], { strategy: 'preserveOrder' });
+    
+    // Verify Route Planner API was NOT called
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Expected state: job removed and added to newly created unassigned_jobs array
+    expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
+    expect(modifiedResult.getUnassignedJobs().length).toBe(1);
+    expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
+    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
+  });
+
+  test('removeShipments with preserveOrder should handle missing issues object', async () => {
+    // Initial state with NO issues object in raw data
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+    
+    // Manually remove issues object to simulate the bug scenario
+    delete plannerResult.getRawData().properties.issues;
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Remove shipment-3 - should not crash even without issues object
+    await routeEditor.removeShipments(['shipment-3'], { strategy: 'preserveOrder' });
+    
+    // Verify Route Planner API was NOT called
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Expected state: shipment removed and added to newly created unassigned_shipments array
+    expect(modifiedResult.getShipmentInfo('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getUnassignedShipments().length).toBe(1);
+    expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, [
+      'start', 'shipment-4-pickup', 'shipment-4-delivery', 'end'
+    ]);
+  });
+});
+
+/**
+ * Tests for empty string handling in insert options
+ */
+describe('RoutePlannerResultEditor Empty String Handling', () => {
+
+  test('assignJobs with empty afterId should use insertAtIndex instead', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Pass empty string for afterId and valid insertAtIndex
+    await routeEditor.assignJobs('agent-B', ['job-2'], { 
+      strategy: 'insert', 
+      afterId: '',  // Empty string - should be ignored
+      insertAtIndex: 0 
+    });
+    
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Should insert at index 0, ignoring empty afterId
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
+  });
+
+  test('assignJobs with empty beforeId should use insertAtIndex instead', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Pass empty string for beforeId and valid insertAtIndex
+    await routeEditor.assignJobs('agent-B', ['job-2'], { 
+      strategy: 'insert', 
+      beforeId: '',  // Empty string - should be ignored
+      insertAtIndex: 1 
+    });
+    
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    
+    // Should insert at index 1, ignoring empty beforeId
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
+  });
+
+  test('assignJobs with all empty strings should use optimal insert', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // All position options are empty strings - should fall back to optimal position
+    await routeEditor.assignJobs('agent-B', ['job-2'], { 
+      strategy: 'insert',
+      beforeId: '',
+      afterId: ''
+    });
+    
+    // Should call Route Matrix API for optimal position
+    expectApiCalled(['routematrix']);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+  });
+
+  test('assignShipments with empty insert IDs should use optimal insert', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    // Empty strings should be ignored, fall back to optimal
+    await routeEditor.assignShipments('agent-A', ['shipment-3'], { 
+      strategy: 'insert',
+      beforeId: '',
+      afterId: ''
+    });
+    
+    // Should call Route Matrix API for optimal position
+    expectApiCalled(['routematrix']);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+  });
 });
 
 /**

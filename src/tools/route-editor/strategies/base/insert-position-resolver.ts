@@ -7,16 +7,16 @@ import { StrategyContext } from "./strategy-context";
 export class InsertPositionResolver {
 
     static hasExplicitInsertPosition(options: AddAssignOptions): boolean {
-        return options.beforeId !== undefined || 
-               options.afterId !== undefined || 
+        return (options.beforeId !== undefined && options.beforeId !== '') || 
+               (options.afterId !== undefined && options.afterId !== '') || 
                options.insertAtIndex !== undefined;
     }
 
     static resolveInsertPosition(context: StrategyContext, agentIndex: number, options: AddAssignOptions): number {
-        if (options.beforeId !== undefined) {
+        if (options.beforeId && options.beforeId !== '') {
             return this.findActionPositionById(context, agentIndex, options.beforeId);
         }
-        if (options.afterId !== undefined) {
+        if (options.afterId && options.afterId !== '') {
             return this.findActionPositionById(context, agentIndex, options.afterId) + 1;
         }
         if (options.insertAtIndex !== undefined) {

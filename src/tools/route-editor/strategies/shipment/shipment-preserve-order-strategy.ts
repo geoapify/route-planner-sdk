@@ -42,7 +42,11 @@ export class ShipmentPreserveOrderStrategy implements IRemoveStrategy {
     }
 
     private addToUnassignedShipments(context: StrategyContext, shipmentIndex: number): void {
-        const issues = context.getRawData().properties.issues;
+        const rawData = context.getRawData();
+        if (!rawData.properties.issues) {
+            rawData.properties.issues = {};
+        }
+        const issues = rawData.properties.issues;
         if (!issues.unassigned_shipments) {
             issues.unassigned_shipments = [];
         }

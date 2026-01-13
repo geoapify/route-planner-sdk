@@ -1,0 +1,102 @@
+<div class="modal-overlay" (click)="onCancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Add Job to {{ agentName }}</h3>
+    
+    <div class="form-group">
+      <label>Job ID:</label>
+      <input type="text" [(ngModel)]="jobId">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Longitude:</label>
+        <input type="number" [(ngModel)]="lon" step="0.001">
+      </div>
+      <div class="form-group">
+        <label>Latitude:</label>
+        <input type="number" [(ngModel)]="lat" step="0.001">
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Pickup Amount (kg):</label>
+        <input type="number" [(ngModel)]="pickupAmount" min="0">
+      </div>
+      <div class="form-group">
+        <label>Delivery Amount (kg):</label>
+        <input type="number" [(ngModel)]="deliveryAmount" min="0">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>Requirements (comma-separated):</label>
+      <input type="text" [(ngModel)]="requirements" placeholder="e.g., refrigerated, fragile">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Time Window Start (seconds):</label>
+        <input type="number" [(ngModel)]="timeWindowStart" placeholder="32400 = 9am">
+      </div>
+      <div class="form-group">
+        <label>Time Window End (seconds):</label>
+        <input type="number" [(ngModel)]="timeWindowEnd" placeholder="61200 = 5pm">
+      </div>
+    </div>
+
+    <hr>
+    <h4>Options</h4>
+    
+    <div class="form-group">
+      <label>Strategy:</label>
+      <select [(ngModel)]="strategy">
+        <option value="reoptimize">🔄 Reoptimize (Full optimization)</option>
+        <option value="insert">📍 Insert (Optimal position)</option>
+        <option value="append">➕ Append (End of route)</option>
+      </select>
+    </div>
+
+    <div class="form-row" *ngIf="strategy === 'insert'">
+      <div class="form-group">
+        <label>Insert At Index:</label>
+        <input type="number" [(ngModel)]="insertAtIndex" placeholder="e.g., 1">
+      </div>
+    </div>
+
+    <div class="form-row" *ngIf="strategy === 'insert'">
+      <div class="form-group">
+        <label>Or After ID:</label>
+        <input type="text" [(ngModel)]="insertAfterId" placeholder="e.g., job-1">
+      </div>
+      <div class="form-group">
+        <label>Or Before ID:</label>
+        <input type="text" [(ngModel)]="insertBeforeId" placeholder="e.g., job-2">
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="strategy === 'reoptimize'">
+      <label>Priority:</label>
+      <input type="number" [(ngModel)]="priority" placeholder="Higher = more important">
+    </div>
+
+    <div class="form-group">
+      <label>Allow Violations:</label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="allowViolations">
+        <span>Enabled (default)</span>
+      </label>
+      <small>When unchecked, throws error if constraints violated</small>
+    </div>
+    
+    <div class="modal-actions">
+      <button (click)="onAdd()" [disabled]="isLoading" class="btn-success">
+        Add Job
+      </button>
+      <button (click)="onCancel()" class="btn-secondary">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+

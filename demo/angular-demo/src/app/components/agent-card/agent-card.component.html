@@ -1,7 +1,7 @@
 <div class="agent-card">
   <!-- Agent Header -->
-  <div class="agent-header">
-    <h3>{{ getDisplayName() }} <span class="agent-index">[{{ agent.index }}]</span></h3>
+  <div class="agent-header" [style.background]="getAgentColor()">
+    <h3>{{ getDisplayName() }}</h3>
     <div class="agent-stats">
       <span>{{ formatDistance(getDistance()) }}</span>
       <span>{{ formatTime(getTime()) }}</span>

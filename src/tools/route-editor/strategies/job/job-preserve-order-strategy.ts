@@ -34,7 +34,11 @@ export class JobPreserveOrderStrategy implements IRemoveStrategy {
     }
 
     private addToUnassignedJobs(context: StrategyContext, jobIndex: number): void {
-        const issues = context.getRawData().properties.issues;
+        const rawData = context.getRawData();
+        if (!rawData.properties.issues) {
+            rawData.properties.issues = {};
+        }
+        const issues = rawData.properties.issues;
         if (!issues.unassigned_jobs) {
             issues.unassigned_jobs = [];
         }

@@ -1,0 +1,14 @@
+<div class="map-wrapper">
+  <div #mapContainer class="map-container"></div>
+  <div class="map-legend" *ngIf="result">
+    <h4>🗺️ Routes</h4>
+    <div class="legend-item" *ngFor="let agent of result.getData().agents; let i = index">
+      <span class="legend-color" [style.background-color]="getAgentColor(i)"></span>
+      <span class="legend-text">
+        Agent {{ i + 1 }}: {{ agent.waypoints.length }} waypoints
+        ({{ formatDistance(agent.distance) }}, {{ formatTime(agent.time) }})
+      </span>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,86 @@
+<div class="modal-overlay" (click)="onCancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Add Shipment to {{ agentName }}</h3>
+    
+    <div class="form-group">
+      <label>Shipment ID:</label>
+      <input type="text" [(ngModel)]="shipmentId">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Pickup Lon:</label>
+        <input type="number" [(ngModel)]="pickupLon" step="0.001">
+      </div>
+      <div class="form-group">
+        <label>Pickup Lat:</label>
+        <input type="number" [(ngModel)]="pickupLat" step="0.001">
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Delivery Lon:</label>
+        <input type="number" [(ngModel)]="deliveryLon" step="0.001">
+      </div>
+      <div class="form-group">
+        <label>Delivery Lat:</label>
+        <input type="number" [(ngModel)]="deliveryLat" step="0.001">
+      </div>
+    </div>
+
+    <hr>
+    <h4>Options</h4>
+    
+    <div class="form-group">
+      <label>Strategy:</label>
+      <select [(ngModel)]="strategy">
+        <option value="reoptimize">🔄 Reoptimize (Full optimization)</option>
+        <option value="insert">📍 Insert (Optimal position)</option>
+        <option value="append">➕ Append (End of route)</option>
+      </select>
+    </div>
+
+    <div class="form-row" *ngIf="strategy === 'insert'">
+      <div class="form-group">
+        <label>Insert At Index:</label>
+        <input type="number" [(ngModel)]="insertAtIndex" placeholder="e.g., 1">
+      </div>
+    </div>
+
+    <div class="form-row" *ngIf="strategy === 'insert'">
+      <div class="form-group">
+        <label>Or After ID:</label>
+        <input type="text" [(ngModel)]="insertAfterId" placeholder="e.g., order_1">
+      </div>
+      <div class="form-group">
+        <label>Or Before ID:</label>
+        <input type="text" [(ngModel)]="insertBeforeId" placeholder="e.g., order_2">
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="strategy === 'reoptimize'">
+      <label>Priority:</label>
+      <input type="number" [(ngModel)]="priority" placeholder="Higher = more important">
+    </div>
+
+    <div class="form-group">
+      <label>Allow Violations:</label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="allowViolations">
+        <span>Enabled (default)</span>
+      </label>
+      <small>When unchecked, throws error if constraints violated</small>
+    </div>
+    
+    <div class="modal-actions">
+      <button (click)="onAdd()" [disabled]="isLoading" class="btn-success">
+        Add Shipment
+      </button>
+      <button (click)="onCancel()" class="btn-secondary">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+

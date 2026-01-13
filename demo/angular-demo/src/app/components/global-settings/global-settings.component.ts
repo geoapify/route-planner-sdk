@@ -17,6 +17,7 @@ export class GlobalSettingsComponent {
   @Input() insertAfterId = '';
   @Input() insertBeforeId = '';
   @Input() allowViolations = true;
+  @Input() priority: number | null = null;
 
   @Output() strategyChange = new EventEmitter<AddAssignStrategy>();
   @Output() removeStrategyChange = new EventEmitter<RemoveStrategy>();
@@ -24,5 +25,6 @@ export class GlobalSettingsComponent {
   @Output() insertAfterIdChange = new EventEmitter<string>();
   @Output() insertBeforeIdChange = new EventEmitter<string>();
   @Output() allowViolationsChange = new EventEmitter<boolean>();
+  @Output() priorityChange = new EventEmitter<number | null>();
 }
 
