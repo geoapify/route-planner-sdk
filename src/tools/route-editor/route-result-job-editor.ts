@@ -122,8 +122,12 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     }
 
     private appendJobsToInput(jobsRaw: JobData[]): number[] {
-        const startIndex = this.result.getRawData().properties.params.jobs.length;
-        this.result.getRawData().properties.params.jobs.push(...jobsRaw);
+        const params = this.result.getRawData().properties.params;
+        if (!params.jobs) {
+            params.jobs = [];
+        }
+        const startIndex = params.jobs.length;
+        params.jobs.push(...jobsRaw);
         return jobsRaw.map((_, i) => startIndex + i);
     }
 

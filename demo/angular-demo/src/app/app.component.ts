@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 import { EditorOperationResult, RoutePlannerService } from "../services/route-planner.service";
+import { AgentColorService } from "../services/agent-color.service";
 import { 
   RoutePlannerTimeline, 
   RoutePlannerResult,
@@ -25,6 +26,7 @@ import { GlobalSettingsComponent } from "./components/global-settings/global-set
 import { AddJobModalComponent, AddJobData, JobModalOptions } from "./components/add-job-modal/add-job-modal.component";
 import { AddShipmentModalComponent, AddShipmentData, ShipmentModalOptions } from "./components/add-shipment-modal/add-shipment-modal.component";
 import { RouteMapComponent } from "./components/route-map/route-map.component";
+import { TimelineMenuItem } from "../../../../src";
 
 @Component({
   selector: 'app-root',
@@ -47,6 +49,7 @@ import { RouteMapComponent } from "./components/route-map/route-map.component";
 })
 export class AppComponent {
   @ViewChild("timelinesContainer") timelinesContainer!: ElementRef;
+  @ViewChild(RouteMapComponent) routeMapComponent!: RouteMapComponent;
 
   currentResult: RoutePlannerResult | undefined;
   routePlannerTimeline: RoutePlannerTimeline | undefined;
@@ -54,6 +57,8 @@ export class AppComponent {
   editorLogs: EditorLog[] = [];
   isLoading = false;
   apiKey = TEST_API_KEY;
+  isValidationScenario = false;
+  agentVisibilityState: Map<number, boolean> = new Map(); // Track route visibility per agent
 
   // Global Settings
   selectedStrategy: AddAssignStrategy = 'reoptimize';
@@ -70,15 +75,18 @@ export class AppComponent {
   activeAgentForAdd: number | null = null;
   mapClickCoordinates: { lon: number; lat: number } | null = null;
 
-  constructor(private routePlannerService: RoutePlannerService) {}
+  constructor(
+    private routePlannerService: RoutePlannerService,
+    private agentColorService: AgentColorService
+  ) {}
 
   // ============ SCENARIO GENERATION ============
 
   async generateAndSolveTask() {
     this.isLoading = true;
-    const rawData = '{"mode":"drive","agents":[{"start_location":[-77.0369,38.9072],"time_windows":[[0,7200]]},{"start_location":[-77.0450,38.9035],"time_windows":[[0,7200]]},{"start_location":[-77.0280,38.9145],"time_windows":[[0,7200]]}],"shipments":[{"id":"order_1","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0315,38.9105],"duration":120}},{"id":"order_2","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0485,38.9028],"duration":120}},{"id":"order_3","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0245,38.9170],"duration":120}},{"id":"order_4","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0355,38.9083],"duration":120}},{"id":"order_5","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0425,38.9052],"duration":120}},{"id":"order_6","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0325,38.9098],"duration":120}},{"id":"order_7","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0465,38.9045],"duration":120}},{"id":"order_8","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0260,38.9162],"duration":120}},{"id":"order_9","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0340,38.9090],"duration":120}},{"id":"order_10","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0495,38.9025],"duration":120}},{"id":"order_11","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0255,38.9158],"duration":120}},{"id":"order_12","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0345,38.9093],"duration":120}},{"id":"order_13","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0455,38.9042],"duration":120}},{"id":"order_14","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0335,38.9088],"duration":120}},{"id":"order_15","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0268,38.9148],"duration":120}},{"id":"order_16","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0478,38.9032],"duration":120}},{"id":"order_17","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0310,38.9108],"duration":120}},{"id":"order_18","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0445,38.9050],"duration":120}},{"id":"order_19","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0275,38.9155],"duration":120}},{"id":"order_20","pickup":{"location_index":0,"duration":120},"delivery":{"location":[-77.0365,38.9075],"duration":120}}],"locations":[{"id":"warehouse-0","location":[-77.0369,38.9072]}]}';
+    this.isValidationScenario = false;
     
-    const result = await this.routePlannerService.planRoute(JSON.parse(rawData));
+    const result = await this.routePlannerService.createLargeTestScenario();
     
     if (typeof result !== 'string') {
       this.currentResult = result;
@@ -93,6 +101,7 @@ export class AppComponent {
 
   async generateValidationTestScenario() {
     this.isLoading = true;
+    this.isValidationScenario = true;
     
     const result = await this.routePlannerService.createValidationTestScenario();
     
@@ -347,14 +356,14 @@ export class AppComponent {
   }
 
   async addJobFromModal(event: { jobData: AddJobData; options: JobModalOptions }) {
-    if (!this.currentResult || this.activeAgentForAdd === null) return;
+    if (!this.currentResult) return;
     
     this.isLoading = true;
     const { jobData, options } = event;
     
     const result = await this.routePlannerService.addNewJob(
       this.currentResult,
-      this.activeAgentForAdd,
+      jobData.agentIndex,
       {
         id: jobData.id,
         lon: jobData.lon,
@@ -381,7 +390,7 @@ export class AppComponent {
   }
 
   async addShipmentFromModal(event: { shipmentData: AddShipmentData; options: ShipmentModalOptions }) {
-    if (!this.currentResult || this.activeAgentForAdd === null) return;
+    if (!this.currentResult) return;
     
     this.isLoading = true;
     const { shipmentData, options } = event;
@@ -396,7 +405,7 @@ export class AppComponent {
 
     const result = await this.routePlannerService.addNewShipments(
       this.currentResult,
-      this.activeAgentForAdd,
+      shipmentData.agentIndex,
       [newShipment],
       {
         strategy: options.strategy,
@@ -443,10 +452,6 @@ export class AppComponent {
 
   clearLogs() {
     this.editorLogs = [];
-  }
-
-  getAgentDisplayName(agent: AgentInfo): string {
-    return agent.data.id || `Agent ${agent.index}`;
   }
 
   lightTheme() {
@@ -529,6 +534,22 @@ export class AppComponent {
         
         const inputData = this.currentResult.getData().inputData;
         
+        // Initialize all agents as visible
+        for (let i = 0; i < inputData.agents.length; i++) {
+          this.agentVisibilityState.set(i, true);
+        }
+        
+        // Define menu items for agent actions
+        const agentMenuItems: TimelineMenuItem[] = [
+          {
+            key: 'toggle-visibility',
+            label: 'Hide Route',
+            callback: (agentIndex: number) => {
+              this.toggleAgentVisibility(agentIndex);
+            }
+          }
+        ];
+        
         this.routePlannerTimeline = new RoutePlannerTimeline(
           this.timelinesContainer.nativeElement,
           inputData,
@@ -539,9 +560,24 @@ export class AppComponent {
             hasLargeDescription: false,
             agentLabel: 'Agent',
             showWaypointPopup: true,
-            agentColors: ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#34495e']
+            agentColors: this.agentColorService.getAllColors(),
+            agentMenuItems: agentMenuItems
           }
         );
+        
+        // Listen for menu show event to update label dynamically
+        this.routePlannerTimeline.on('beforeAgentMenuShow', (agentIndex: number, actions: TimelineMenuItem[]) => {
+          return actions.map(action => {
+            if (action.key === 'toggle-visibility') {
+              const isVisible = this.agentVisibilityState.get(agentIndex) ?? true;
+              return {
+                ...action,
+                label: isVisible ? 'Hide Route' : 'Show Route'
+              };
+            }
+            return action;
+          });
+        });
       }
     }, 200);
   }
@@ -570,6 +606,29 @@ export class AppComponent {
       data: allShipmentsData[shipmentIndex],
       selected: false
     }));
+  }
+
+  toggleAgentVisibility(agentIndex: number) {
+    const currentState = this.agentVisibilityState.get(agentIndex) ?? true;
+    const newState = !currentState;
+    this.agentVisibilityState.set(agentIndex, newState);
+    
+    if (this.routeMapComponent) {
+      this.routeMapComponent.setAgentVisibility(agentIndex, newState);
+    }
+    
+    this.updateTimelineVisualState(agentIndex, newState);
+  }
+
+  private updateTimelineVisualState(agentIndex: number, visible: boolean) {
+    const timelineElement = document.querySelector(`.agent-${agentIndex} .geoapify-rp-sdk-timeline`);
+    if (timelineElement) {
+      if (visible) {
+        (timelineElement as HTMLElement).style.filter = '';
+      } else {
+        (timelineElement as HTMLElement).style.filter = 'grayscale(0.6)';
+      }
+    }
   }
 }
 

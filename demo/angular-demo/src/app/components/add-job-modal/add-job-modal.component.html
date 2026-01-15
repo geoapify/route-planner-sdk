@@ -1,6 +1,15 @@
 <div class="modal-overlay" (click)="onCancel()">
   <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>Add Job to {{ agentName }}</h3>
+    <h3>Add Job</h3>
+    
+    <div class="form-group">
+      <label>Select Agent:</label>
+      <select [(ngModel)]="selectedAgentIndex" (ngModelChange)="selectedAgentIndex = +$event">
+        <option *ngFor="let agent of allAgents; let i = index" [value]="i">
+          {{ agent.data.id }}
+        </option>
+      </select>
+    </div>
     
     <div class="form-group">
       <label>Job ID:</label>

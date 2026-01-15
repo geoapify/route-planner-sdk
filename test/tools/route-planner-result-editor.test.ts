@@ -773,4 +773,56 @@ describe('RoutePlannerResultEditor Options API', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-A');
   });
+
+  test('addNewJobs should handle undefined jobs array (shipment-only scenario)', async () => {
+    // Use a scenario with only shipments (no jobs array in response)
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-api-docs-simple-delivery-sample.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    // Verify that jobs array doesn't exist in the raw data (simulating API response without jobs)
+    const rawResponse = plannerResult.getRawData();
+    delete (rawResponse.properties.params as any).jobs;
+    
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newJob = new Job()
+        .setLocation(44.517954005538606, 40.18518455)
+        .setDuration(300)
+        .setId("new-job-1");
+    
+    // This should not throw "Cannot read properties of undefined (reading 'length')"
+    // Before the fix, this would throw: TypeError: Cannot read properties of undefined (reading 'length')
+    await routeEditor.addNewJobs(0, [newJob]);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    // Verify jobs array was created and the job was added
+    expect(modifiedResult.getRawData().properties.params.jobs).toBeDefined();
+    expect(modifiedResult.getRawData().properties.params.jobs.length).toBe(1);
+    expect(modifiedResult.getRawData().properties.params.jobs[0].id).toBe('new-job-1');
+  });
+
+  test('addNewShipments should handle undefined shipments array (job-only scenario)', async () => {
+    // Use a scenario with jobs and simulate missing shipments array
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-add-job-success-assigned-agent.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    // Verify that shipments array doesn't exist in the raw data (simulating API response without shipments)
+    const rawResponse = plannerResult.getRawData();
+    delete (rawResponse.properties.params as any).shipments;
+    
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    let newShipment = new Shipment()
+        .setPickup(new ShipmentStep().setLocation(44.517954005538606, 40.18518455).setDuration(120))
+        .setDelivery(new ShipmentStep().setLocation(44.511160727462574, 40.1816037).setDuration(120))
+        .setAmount(10)
+        .setId("new-shipment-1");
+    
+    // This should not throw "Cannot read properties of undefined (reading 'length')"
+    await routeEditor.addNewShipments(0, [newShipment]);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    expect(modifiedResult.getShipmentInfo('new-shipment-1')!.getAgentId()).toBeDefined();
+    // Verify shipments array was created
+    expect(modifiedResult.getRawData().properties.params.shipments).toBeDefined();
+    expect(modifiedResult.getRawData().properties.params.shipments.length).toBe(1);
+  });
 });

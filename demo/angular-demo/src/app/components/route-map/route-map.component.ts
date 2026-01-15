@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Map, NavigationControl, LngLatBounds, MapMouseEvent, Popup } from 'maplibre-gl';
 import { RoutePlannerResult } from '../../../../../../src';
+import {AgentColorService} from "../../../services/agent-color.service";
 
 @Component({
   selector: 'app-route-map',
@@ -24,18 +25,10 @@ export class RouteMapComponent implements AfterViewInit, OnChanges {
   private routeLayers: string[] = [];
   private markerLayers: string[] = [];
 
-  private readonly AGENT_COLORS = [
-    '#3498db', // Blue
-    '#e74c3c', // Red
-    '#2ecc71', // Green
-    '#f39c12', // Orange
-    '#9b59b6', // Purple
-    '#1abc9c', // Turquoise
-    '#34495e'  // Dark gray
-  ];
-
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private agentColorService: AgentColorService
+  ) {}
 
   ngAfterViewInit() {
     this.initializeMap();
@@ -121,10 +114,10 @@ export class RouteMapComponent implements AfterViewInit, OnChanges {
     const totalAgents = data.agents.length;
 
     // Draw routes for each agent with offset
-    const promises = data.agents.map((agent, index) => {
-      const color = this.AGENT_COLORS[index % this.AGENT_COLORS.length];
-      const offset = this.calculateOffset(index, totalAgents);
-      return this.drawAgentRoute(agent, index, color, bounds, offset);
+    const promises = data.agents.map((agent) => {
+      const color = this.agentColorService.getColorByIndex(agent.agentIndex);
+      const offset = this.calculateOffset(agent.agentIndex, totalAgents);
+      return this.drawAgentRoute(agent, agent.agentIndex, color, bounds, offset);
     });
 
     await Promise.all(promises);
@@ -384,8 +377,8 @@ export class RouteMapComponent implements AfterViewInit, OnChanges {
     this.markerLayers = [];
   }
 
-  getAgentColor(index: number): string {
-    return this.AGENT_COLORS[index % this.AGENT_COLORS.length];
+  getAgentColor(agentIndex: number): string {
+    return this.agentColorService.getColorByIndex(agentIndex);
   }
 
   formatDistance(meters: number): string {
@@ -403,6 +396,23 @@ export class RouteMapComponent implements AfterViewInit, OnChanges {
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
+  }
+
+  setAgentVisibility(agentIndex: number, visible: boolean) {
+    if (!this.map) return;
+    
+    const visibility = visible ? 'visible' : 'none';
+    const layersToToggle = [
+      `route-${agentIndex}-border`,
+      `route-${agentIndex}`,
+      `markers-${agentIndex}`
+    ];
+    
+    layersToToggle.forEach(layerId => {
+      if (this.map!.getLayer(layerId)) {
+        this.map!.setLayoutProperty(layerId, 'visibility', visibility);
+      }
+    });
   }
 }
 

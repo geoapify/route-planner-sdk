@@ -25,7 +25,7 @@
 </app-global-settings>
 
 <!-- Quick Validation Tests -->
-<section class="demo-section validation-tests" *ngIf="currentResult && agentInfoList.length >= 2">
+<section class="demo-section validation-tests" *ngIf="currentResult && isValidationScenario">
   <h2>🧪 Quick Validation Tests</h2>
   <p class="help-text">One-click tests to demonstrate constraint validations:</p>
   
@@ -98,16 +98,32 @@
       <h2>👥 Agents & Routes</h2>
       
       <div class="agents-grid">
-        <app-agent-card
-          *ngFor="let agent of agentInfoList"
-          [agent]="agent"
-          [allAgents]="agentInfoList"
-          [isLoading]="isLoading"
-          (moveSelected)="moveSelectedItems($event)"
-          (removeSelected)="removeSelectedFromAgent($event)"
-          (addJob)="openAddJobModal($event)"
-          (addShipment)="openAddShipmentModal($event)">
-        </app-agent-card>
+        <div class="agents-column">
+          <app-agent-card
+            *ngFor="let agent of agentInfoList; let i = index"
+            [agent]="agent"
+            [allAgents]="agentInfoList"
+            [isLoading]="isLoading"
+            [style.display]="i % 2 === 0 ? 'block' : 'none'"
+            (moveSelected)="moveSelectedItems($event)"
+            (removeSelected)="removeSelectedFromAgent($event)"
+            (addJob)="openAddJobModal($event)"
+            (addShipment)="openAddShipmentModal($event)">
+          </app-agent-card>
+        </div>
+        <div class="agents-column">
+          <app-agent-card
+            *ngFor="let agent of agentInfoList; let i = index"
+            [agent]="agent"
+            [allAgents]="agentInfoList"
+            [isLoading]="isLoading"
+            [style.display]="i % 2 === 1 ? 'block' : 'none'"
+            (moveSelected)="moveSelectedItems($event)"
+            (removeSelected)="removeSelectedFromAgent($event)"
+            (addJob)="openAddJobModal($event)"
+            (addShipment)="openAddShipmentModal($event)">
+          </app-agent-card>
+        </div>
       </div>
     </section>
   </div>
@@ -127,7 +143,8 @@
 <!-- Add Job Modal -->
 <app-add-job-modal
   *ngIf="showAddJobModal"
-  [agentName]="activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : ''"
+  [agentIndex]="activeAgentForAdd !== null ? activeAgentForAdd : 0"
+  [allAgents]="agentInfoList"
   [isLoading]="isLoading"
   [initialCoordinates]="mapClickCoordinates"
   (add)="addJobFromModal($event)"
@@ -137,7 +154,8 @@
 <!-- Add Shipment Modal -->
 <app-add-shipment-modal
   *ngIf="showAddShipmentModal"
-  [agentName]="activeAgentForAdd !== null ? getAgentDisplayName(agentInfoList[activeAgentForAdd]) : ''"
+  [agentIndex]="activeAgentForAdd !== null ? activeAgentForAdd : 0"
+  [allAgents]="agentInfoList"
   [isLoading]="isLoading"
   [initialCoordinates]="mapClickCoordinates"
   (add)="addShipmentFromModal($event)"

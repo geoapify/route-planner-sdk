@@ -95,7 +95,7 @@ button:disabled {
 }
 
 .map-sidebar {
-  flex: 0 0 600px;
+  flex: 0 0 50%;
   position: sticky;
   top: 20px;
   max-height: calc(100vh - 40px);
@@ -139,10 +139,16 @@ button:disabled {
   min-width: 0;
 }
 
-/* Agents grid */
+/* Agents grid - two columns */
 .agents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  display: flex;
+  gap: 20px;
+}
+
+.agents-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
@@ -262,11 +268,21 @@ button:disabled {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .agents-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
   
+  .agents-column:nth-child(2) {
+    display: none;
+  }
+  
+  .agents-column:nth-child(1) app-agent-card {
+    display: block !important;
+  }
+}
+
+@media (max-width: 768px) {
   .form-row {
     flex-direction: column;
   }

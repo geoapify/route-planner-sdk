@@ -6,6 +6,78 @@ import { Break } from '../../../../src/models/entities/nested/input/break';
  */
 export class ScenarioHelper {
 
+  static async createLargeScenario(apiKey: string): Promise<RoutePlannerResult | string> {
+    try {
+      const planner = new RoutePlanner({ apiKey });
+      planner.setMode("drive");
+
+      // Washington, DC - Different depot locations for each agent
+      const depot1: [number, number] = [-77.0369, 38.9072];  // Downtown DC
+      const depot2: [number, number] = [-77.0450, 38.9035];  // Southwest DC
+      const depot3: [number, number] = [-77.0280, 38.9145];  // Northeast DC
+
+      // Create 3 agents with simple time windows
+      planner.addAgent(this.createAgent({
+        id: 'Agent 1',
+        location: depot1,
+        capabilities: [],
+        timeWindow: [0, 7200]
+      }));
+
+      planner.addAgent(this.createAgent({
+        id: 'Agent 2',
+        location: depot2,
+        capabilities: [],
+        timeWindow: [0, 7200]
+      }));
+
+      planner.addAgent(this.createAgent({
+        id: 'Agent 3',
+        location: depot3,
+        capabilities: [],
+        timeWindow: [0, 7200]
+      }));
+
+      // Add 20 shipments with pickup locations in a horizontal line
+      // and delivery locations spread across the city
+      const shipmentConfigs = [
+        { pickup: [-77.0550, 38.9072], delivery: [-77.0315, 38.9105] },
+        { pickup: [-77.0530, 38.9072], delivery: [-77.0485, 38.9028] },
+        { pickup: [-77.0510, 38.9072], delivery: [-77.0245, 38.9170] },
+        { pickup: [-77.0490, 38.9072], delivery: [-77.0355, 38.9083] },
+        { pickup: [-77.0470, 38.9072], delivery: [-77.0425, 38.9052] },
+        { pickup: [-77.0450, 38.9072], delivery: [-77.0325, 38.9098] },
+        { pickup: [-77.0430, 38.9072], delivery: [-77.0465, 38.9045] },
+        { pickup: [-77.0410, 38.9072], delivery: [-77.0260, 38.9162] },
+        { pickup: [-77.0390, 38.9072], delivery: [-77.0340, 38.9090] },
+        { pickup: [-77.0370, 38.9072], delivery: [-77.0495, 38.9025] },
+        { pickup: [-77.0350, 38.9072], delivery: [-77.0255, 38.9158] },
+        { pickup: [-77.0330, 38.9072], delivery: [-77.0345, 38.9093] },
+        { pickup: [-77.0310, 38.9072], delivery: [-77.0455, 38.9042] },
+        { pickup: [-77.0290, 38.9072], delivery: [-77.0335, 38.9088] },
+        { pickup: [-77.0270, 38.9072], delivery: [-77.0268, 38.9148] },
+        { pickup: [-77.0250, 38.9072], delivery: [-77.0478, 38.9032] },
+        { pickup: [-77.0230, 38.9072], delivery: [-77.0310, 38.9108] },
+        { pickup: [-77.0210, 38.9072], delivery: [-77.0445, 38.9050] },
+        { pickup: [-77.0190, 38.9072], delivery: [-77.0275, 38.9155] },
+        { pickup: [-77.0170, 38.9072], delivery: [-77.0365, 38.9075] }
+      ];
+
+      shipmentConfigs.forEach((config, i) => {
+        planner.addShipment(this.createShipmentSimple({
+          id: `order_${i + 1}`,
+          pickupLocation: config.pickup as [number, number],
+          deliveryLocation: config.delivery as [number, number]
+        }));
+      });
+
+      return await planner.plan();
+    } catch (error) {
+      console.error("Failed to create large scenario:", error);
+      return "Error creating large scenario";
+    }
+  }
+
   static async createValidationScenario(apiKey: string): Promise<RoutePlannerResult | string> {
     try {
       const planner = new RoutePlanner({ apiKey });
@@ -65,21 +137,20 @@ export class ScenarioHelper {
         }));
       });
 
-      // Add 5 shipments around DC (all unique delivery locations)
-      const deliveryLocations: [number, number][] = [
-        [-77.0315, 38.9105],  // Near Capitol
-        [-77.0485, 38.9028],  // Southwest waterfront
-        [-77.0245, 38.9170],  // Northeast corridor
-        [-77.0355, 38.9083],  // Downtown
-        [-77.0425, 38.9052]   // Southwest area
+      // Add 5 shipments around DC with unique pickup locations near the warehouse
+      const shipmentConfigs = [
+        { pickup: [-77.0370, 38.9073], delivery: [-77.0315, 38.9105] },  // Near Capitol
+        { pickup: [-77.0371, 38.9074], delivery: [-77.0485, 38.9028] },  // Southwest waterfront
+        { pickup: [-77.0372, 38.9075], delivery: [-77.0245, 38.9170] },  // Northeast corridor
+        { pickup: [-77.0368, 38.9071], delivery: [-77.0355, 38.9083] },  // Downtown
+        { pickup: [-77.0367, 38.9070], delivery: [-77.0425, 38.9052] }   // Southwest area
       ];
       
-      // Shipments pickup from depot1 (main warehouse)
-      deliveryLocations.forEach((loc, i) => {
+      shipmentConfigs.forEach((config, i) => {
         planner.addShipment(this.createShipment({
           id: `shipment-${i + 1}`,
-          pickupLocation: depot1,
-          deliveryLocation: loc,
+          pickupLocation: config.pickup as [number, number],
+          deliveryLocation: config.delivery as [number, number],
           amount: 30 + i * 10
         }));
       });
@@ -138,6 +209,33 @@ export class ScenarioHelper {
     }
     
     return job;
+  }
+
+  static createShipmentSimple(config: {
+    id: string;
+    pickupLocation: [number, number];
+    deliveryLocation: [number, number];
+    requirements?: string[];
+    duration?: number;
+  }): Shipment {
+    const shipment = new Shipment()
+      .setId(config.id)
+      .setPickup(
+        new ShipmentStep()
+          .setLocation(config.pickupLocation[0], config.pickupLocation[1])
+          .setDuration(config.duration || 120)
+      )
+      .setDelivery(
+        new ShipmentStep()
+          .setLocation(config.deliveryLocation[0], config.deliveryLocation[1])
+          .setDuration(config.duration || 120)
+      );
+    
+    if (config.requirements) {
+      config.requirements.forEach(req => shipment.addRequirement(req));
+    }
+    
+    return shipment;
   }
 
   static createShipment(config: {

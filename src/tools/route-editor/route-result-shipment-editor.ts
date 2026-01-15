@@ -122,8 +122,12 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     }
 
     private appendShipmentsToInput(shipmentsRaw: ShipmentData[]): number[] {
-        const startIndex = this.result.getRawData().properties.params.shipments.length;
-        this.result.getRawData().properties.params.shipments.push(...shipmentsRaw);
+        const params = this.result.getRawData().properties.params;
+        if (!params.shipments) {
+            params.shipments = [];
+        }
+        const startIndex = params.shipments.length;
+        params.shipments.push(...shipmentsRaw);
         return shipmentsRaw.map((_, i) => startIndex + i);
     }
 

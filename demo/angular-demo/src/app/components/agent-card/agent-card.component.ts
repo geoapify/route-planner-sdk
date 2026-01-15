@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AgentInfo } from '../../models/demo.types';
 import { JobItemComponent } from '../job-item/job-item.component';
 import { ShipmentItemComponent } from '../shipment-item/shipment-item.component';
+import { AgentColorService } from '../../../services/agent-color.service';
 
 @Component({
   selector: 'app-agent-card',
@@ -21,13 +22,14 @@ export class AgentCardComponent {
   @Output() addJob = new EventEmitter<number>();
   @Output() addShipment = new EventEmitter<number>();
 
+  constructor(private agentColorService: AgentColorService) {}
+
   getDisplayName(): string {
     return `Agent ${this.agent.index + 1}`;
   }
 
   getAgentColor(): string {
-    const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#34495e'];
-    return colors[this.agent.index % colors.length];
+    return this.agentColorService.getColorByIndex(this.agent.index);
   }
 
   getCapabilities(): string[] {
@@ -72,7 +74,7 @@ export class AgentCardComponent {
   }
 
   getAgentDisplayName(agent: AgentInfo): string {
-    return `Agent ${agent.index + 1}`;
+    return agent.data.id!;
   }
 
   formatTimeWindow(window: [number, number]): string {

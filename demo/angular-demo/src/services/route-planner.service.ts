@@ -25,34 +25,12 @@ export interface EditorOperationResult {
 export class RoutePlannerService {
   API_KEY = TEST_API_KEY;
 
-  async makeSimpleRequest() {
-    try {
-      const planner = new RoutePlanner({apiKey: this.API_KEY});
-      return await planner
-          .setMode("drive")
-          .addAgent(new Agent().setId("agent-1").setStartLocation(13.38, 52.52))
-          .addJob(new Job().setId("job-1").setLocation(13.39, 52.51))
-          .plan();
-    } catch (error) {
-      console.error("API test failed:", error);
-      return "Error connecting to API";
-    }
-  }
-
-  async planRoute(rawData: RoutePlannerInputData): Promise<RoutePlannerResult | string> {
-    try {
-      const planner = new RoutePlanner({apiKey: this.API_KEY});
-      return await planner
-          .setRaw(rawData)
-          .plan();
-    } catch (error) {
-      console.error("API test failed:", error);
-      return "Error connecting to API";
-    }
-  }
-
   async createValidationTestScenario(): Promise<RoutePlannerResult | string> {
     return ScenarioHelper.createValidationScenario(this.API_KEY);
+  }
+
+  async createLargeTestScenario(): Promise<RoutePlannerResult | string> {
+    return ScenarioHelper.createLargeScenario(this.API_KEY);
   }
 
   /**
@@ -60,17 +38,17 @@ export class RoutePlannerService {
    */
   async assignJobs(
     result: RoutePlannerResult, 
-    targetAgentIdOrIndex: string | number, 
+    agentIndex: number, 
     jobIndexes: number[], 
     options: AddAssignOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.assignJobs(targetAgentIdOrIndex, jobIndexes, options);
+      const success = await editor.assignJobs(agentIndex, jobIndexes, options);
       return {
         success,
         message: success 
-          ? `${jobIndexes.length} job(s) assigned to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${jobIndexes.length} job(s) assigned to agent index ${agentIndex} with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Assignment failed',
         result: editor.getModifiedResult()
       };
@@ -78,7 +56,7 @@ export class RoutePlannerService {
       console.error('[assignJobs] Operation failed');
       console.error('[assignJobs] Error:', error);
       console.error('[assignJobs] Stack:', error.stack);
-      console.error('[assignJobs] Target agent:', targetAgentIdOrIndex);
+      console.error('[assignJobs] Agent index:', agentIndex);
       console.error('[assignJobs] Job indexes:', jobIndexes);
       console.error('[assignJobs] Options:', options);
       return {
@@ -93,22 +71,22 @@ export class RoutePlannerService {
    */
   async assignShipments(
     result: RoutePlannerResult, 
-    targetAgentIdOrIndex: string | number, 
+    agentIndex: number, 
     shipmentIndexes: number[], 
     options: AddAssignOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.assignShipments(targetAgentIdOrIndex, shipmentIndexes, options);
+      const success = await editor.assignShipments(agentIndex, shipmentIndexes, options);
       return {
         success,
         message: success 
-          ? `${shipmentIndexes.length} shipment(s) assigned to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${shipmentIndexes.length} shipment(s) assigned to agent index ${agentIndex} with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Assignment failed',
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
-      console.error('assignJobs failed:', error);
+      console.error('assignShipments failed:', error);
       console.error('Stack trace:', error.stack);
       return {
         success: false,
@@ -186,22 +164,22 @@ export class RoutePlannerService {
    */
   async addNewJobs(
     result: RoutePlannerResult, 
-    targetAgentIdOrIndex: string | number, 
+    agentIndex: number, 
     jobs: Job[], 
     options: AddAssignOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.addNewJobs(targetAgentIdOrIndex, jobs, options);
+      const success = await editor.addNewJobs(agentIndex, jobs, options);
       return {
         success,
         message: success 
-          ? `${jobs.length} new job(s) added to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${jobs.length} new job(s) added to agent index ${agentIndex} with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Adding jobs failed',
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
-      console.error('assignJobs failed:', error);
+      console.error('addNewJobs failed:', error);
       console.error('Stack trace:', error.stack);
       return {
         success: false,
@@ -215,22 +193,22 @@ export class RoutePlannerService {
    */
   async addNewShipments(
     result: RoutePlannerResult, 
-    targetAgentIdOrIndex: string | number, 
+    agentIndex: number, 
     shipments: Shipment[], 
     options: AddAssignOptions = {}
   ): Promise<EditorOperationResult> {
     try {
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.addNewShipments(targetAgentIdOrIndex, shipments, options);
+      const success = await editor.addNewShipments(agentIndex, shipments, options);
       return {
         success,
         message: success 
-          ? `${shipments.length} new shipment(s) added to agent ${targetAgentIdOrIndex} with strategy: ${options.strategy || 'reoptimize'}` 
+          ? `${shipments.length} new shipment(s) added to agent index ${agentIndex} with strategy: ${options.strategy || 'reoptimize'}` 
           : 'Adding shipments failed',
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
-      console.error('assignJobs failed:', error);
+      console.error('addNewShipments failed:', error);
       console.error('Stack trace:', error.stack);
       return {
         success: false,
@@ -244,7 +222,7 @@ export class RoutePlannerService {
    */
   async addNewJob(
     result: RoutePlannerResult,
-    targetAgentIdOrIndex: string | number,
+    agentIndex: number,
     jobData: {
       id: string;
       lon: number;
@@ -274,17 +252,17 @@ export class RoutePlannerService {
       }
 
       const editor = new RoutePlannerResultEditor(result);
-      const success = await editor.addNewJobs(targetAgentIdOrIndex, [job], options);
+      const success = await editor.addNewJobs(agentIndex, [job], options);
       
       return {
         success,
         message: success 
-          ? `Job ${jobData.id} added to agent ${targetAgentIdOrIndex}` 
+          ? `Job ${jobData.id} added to agent index ${agentIndex}` 
           : 'Adding job failed',
         result: editor.getModifiedResult()
       };
     } catch (error: any) {
-      console.error('assignJobs failed:', error);
+      console.error('addNewJob failed:', error);
       console.error('Stack trace:', error.stack);
       return {
         success: false,

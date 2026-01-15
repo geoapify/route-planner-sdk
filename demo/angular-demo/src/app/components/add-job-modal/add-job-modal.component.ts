@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AddAssignStrategy } from '../../../../../../src';
@@ -12,6 +12,7 @@ export interface AddJobData {
   requirements: string;
   timeWindowStart: number | null;
   timeWindowEnd: number | null;
+  agentIndex: number;
 }
 
 export interface JobModalOptions {
@@ -30,9 +31,11 @@ export interface JobModalOptions {
   templateUrl: './add-job-modal.component.html',
   styleUrls: ['./add-job-modal.component.css']
 })
-export class AddJobModalComponent {
+export class AddJobModalComponent implements OnInit {
   @Input() agentName = '';
   @Input() isLoading = false;
+  @Input() agentIndex = 0;
+  @Input() allAgents: any[] = [];
   @Input() set initialCoordinates(coords: { lon: number; lat: number } | null) {
     if (coords) {
       this.lon = coords.lon;
@@ -42,13 +45,15 @@ export class AddJobModalComponent {
 
   @Output() add = new EventEmitter<{ jobData: AddJobData; options: JobModalOptions }>();
   @Output() cancel = new EventEmitter<void>();
+  
+  selectedAgentIndex = 0;
 
   // Job data
   jobId = `new_job_${Date.now()}`;
   lon = -77.0319;  // Washington, DC
   lat = 38.9101;   // Washington, DC
   pickupAmount = 0;
-  deliveryAmount = 100;
+  deliveryAmount = 0;
   requirements = '';
   timeWindowStart: number | null = null;
   timeWindowEnd: number | null = null;
@@ -61,6 +66,10 @@ export class AddJobModalComponent {
   priority: number | null = null;
   allowViolations = true;
 
+  ngOnInit() {
+    this.selectedAgentIndex = this.agentIndex;
+  }
+
   onAdd() {
     const jobData: AddJobData = {
       id: this.jobId,
@@ -70,7 +79,8 @@ export class AddJobModalComponent {
       deliveryAmount: this.deliveryAmount,
       requirements: this.requirements,
       timeWindowStart: this.timeWindowStart,
-      timeWindowEnd: this.timeWindowEnd
+      timeWindowEnd: this.timeWindowEnd,
+      agentIndex: this.selectedAgentIndex
     };
 
     const options: JobModalOptions = {
@@ -92,4 +102,3 @@ export class AddJobModalComponent {
     this.cancel.emit();
   }
 }
-

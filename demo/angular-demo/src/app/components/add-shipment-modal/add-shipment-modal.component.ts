@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AddAssignStrategy } from '../../../../../../src';
@@ -9,6 +9,7 @@ export interface AddShipmentData {
   pickupLat: number;
   deliveryLon: number;
   deliveryLat: number;
+  agentIndex: number;
 }
 
 export interface ShipmentModalOptions {
@@ -27,9 +28,11 @@ export interface ShipmentModalOptions {
   templateUrl: './add-shipment-modal.component.html',
   styleUrls: ['./add-shipment-modal.component.css']
 })
-export class AddShipmentModalComponent {
+export class AddShipmentModalComponent implements OnInit {
   @Input() agentName = '';
   @Input() isLoading = false;
+  @Input() agentIndex = 0;
+  @Input() allAgents: any[] = [];
   @Input() set initialCoordinates(coords: { lon: number; lat: number } | null) {
     if (coords) {
       // Use clicked location as delivery location
@@ -40,6 +43,8 @@ export class AddShipmentModalComponent {
 
   @Output() add = new EventEmitter<{ shipmentData: AddShipmentData; options: ShipmentModalOptions }>();
   @Output() cancel = new EventEmitter<void>();
+  
+  selectedAgentIndex = 0;
 
   // Shipment data
   shipmentId = `new_order_${Date.now()}`;
@@ -56,13 +61,18 @@ export class AddShipmentModalComponent {
   priority: number | null = null;
   allowViolations = true;
 
+  ngOnInit() {
+    this.selectedAgentIndex = this.agentIndex;
+  }
+
   onAdd() {
     const shipmentData: AddShipmentData = {
       id: this.shipmentId,
       pickupLon: this.pickupLon,
       pickupLat: this.pickupLat,
       deliveryLon: this.deliveryLon,
-      deliveryLat: this.deliveryLat
+      deliveryLat: this.deliveryLat,
+      agentIndex: this.selectedAgentIndex
     };
 
     const options: ShipmentModalOptions = {
@@ -84,4 +94,3 @@ export class AddShipmentModalComponent {
     this.cancel.emit();
   }
 }
-
