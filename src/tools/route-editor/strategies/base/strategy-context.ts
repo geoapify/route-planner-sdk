@@ -2,6 +2,7 @@ import { RoutePlannerResult } from "../../../../models/entities/route-planner-re
 import { RoutePlanner } from "../../../../route-planner";
 import { Utils } from "../../../utils";
 import { RouteMatrixHelper } from "../../route-matrix-helper";
+import { FeatureResponseData } from "../../../../models";
 
 /**
  * Context provided to strategies containing shared utilities and state
@@ -41,9 +42,9 @@ export class StrategyContext {
         return new RouteMatrixHelper(this.result.getOptions());
     }
 
-    getAgentFeature(agentIndex: number): any {
+    getAgentFeature(agentIndex: number): FeatureResponseData {
         const rawData = this.result.getRawData();
-        const agentFeature = rawData.features.find((f: any) => f.properties.agent_index === agentIndex);
+        const agentFeature = rawData.features.find((f: FeatureResponseData) => f.properties.agent_index === agentIndex);
         
         if (!agentFeature) {
             throw new Error(`Agent with index ${agentIndex} has no solution`);

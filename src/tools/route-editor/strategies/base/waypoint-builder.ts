@@ -1,19 +1,13 @@
 import { StrategyContext } from "./strategy-context";
 import { RouteEditorHelper } from "./route-editor-helper";
+import {ActionResponseData, WaypointResponseData} from "../../../../models";
 
 /**
- * Helper for creating and inserting waypoints when using preserveOrder strategy.
- * 
- * When adding jobs/shipments with preserveOrder, we need to:
- * 1. Create a new waypoint with the location and action
- * 2. Insert it at the correct position in the waypoints array
- * 3. Update waypoint_index in all affected actions
+ * Builds/updates agent waypoints for preserveOrder edits, without calling the routing API.
+ * Keeps `waypoints[*].actions[*].waypoint_index` and `actions[*].waypoint_index` consistent.
  */
 export class WaypointBuilder {
 
-    /**
-     * Creates and inserts a waypoint for a job at the specified action index.
-     */
     static insertJobWaypoint(
         context: StrategyContext,
         agentIndex: number,
@@ -25,7 +19,7 @@ export class WaypointBuilder {
         const actions = agentFeature.properties.actions;
         
         const job = RouteEditorHelper.getJobByIndex(context, jobIndex);
-        const action = actions.find((a: any) => a.job_index === jobIndex);
+        const action = actions.find((a: ActionResponseData) => a.job_index === jobIndex);
         
         if (!action || !job.location) {
             return;
@@ -37,7 +31,7 @@ export class WaypointBuilder {
         // Create the new waypoint
         const newWaypoint = {
             original_location: job.location,
-            location: job.location, // Will be snapped by routing API later if needed
+            location: job.location,
             start_time: action.start_time || 0,
             duration: action.duration || 0,
             actions: [{ ...action, waypoint_index: waypointIndex }],
@@ -68,10 +62,10 @@ export class WaypointBuilder {
         
         const shipment = RouteEditorHelper.getShipmentByIndex(context, shipmentIndex);
         
-        const pickupAction = actions.find((a: any) => 
+        const pickupAction = actions.find((a: ActionResponseData) =>
             a.shipment_index === shipmentIndex && a.type === 'pickup'
         );
-        const deliveryAction = actions.find((a: any) => 
+        const deliveryAction = actions.find((a: ActionResponseData) =>
             a.shipment_index === shipmentIndex && a.type === 'delivery'
         );
 
@@ -119,7 +113,7 @@ export class WaypointBuilder {
      * Find the waypoint index where a new waypoint should be inserted
      * based on the action index.
      */
-    private static findWaypointIndexForAction(waypoints: any[], actionIndex: number): number {
+    private static findWaypointIndexForAction(waypoints: WaypointResponseData[], actionIndex: number): number {
         // Count actions before the target action index to find corresponding waypoint
         let cumulativeActions = 0;
         for (let i = 0; i < waypoints.length; i++) {
@@ -129,13 +123,13 @@ export class WaypointBuilder {
                 return i + 1; // Insert after this waypoint
             }
         }
-        return waypoints.length; // Append at end
+        return waypoints.length;
     }
 
     /**
      * Reindex waypoint_index in all actions and update waypoint references.
      */
-    private static reindexWaypoints(waypoints: any[], actions: any[]): void {
+    private static reindexWaypoints(waypoints: WaypointResponseData[], actions: ActionResponseData[]): void {
         // Update waypoint_index in each waypoint's actions
         for (let wpIndex = 0; wpIndex < waypoints.length; wpIndex++) {
             const waypoint = waypoints[wpIndex];
@@ -161,7 +155,7 @@ export class WaypointBuilder {
     /**
      * Find which waypoint contains a given action.
      */
-    private static findWaypointIndexForActionInWaypoints(waypoints: any[], targetAction: any): number {
+    private static findWaypointIndexForActionInWaypoints(waypoints: WaypointResponseData[], targetAction: ActionResponseData): number {
         for (let i = 0; i < waypoints.length; i++) {
             const waypoint = waypoints[i];
             if (waypoint.actions) {
@@ -178,7 +172,7 @@ export class WaypointBuilder {
     /**
      * Check if two actions refer to the same job/shipment.
      */
-    private static actionsMatch(a: any, b: any): boolean {
+    private static actionsMatch(a: ActionResponseData, b: ActionResponseData): boolean {
         if (a.type !== b.type) return false;
         if (a.type === 'job') return a.job_index === b.job_index;
         if (a.type === 'pickup' || a.type === 'delivery') return a.shipment_index === b.shipment_index;
