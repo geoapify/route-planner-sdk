@@ -4,27 +4,26 @@
  * 
  * @example
  * ```typescript
- * import { REOPTIMIZE, INSERT, APPEND } from '@geoapify/route-planner-sdk';
+ * import { REOPTIMIZE, PRESERVE_ORDER } from '@geoapify/route-planner-sdk';
  * 
  * await editor.assignJobs('agent-A', ['job-1'], { strategy: REOPTIMIZE });
+ * await editor.assignJobs('agent-A', ['job-1'], { strategy: PRESERVE_ORDER, appendToEnd: true });
  * ```
  */
 export const REOPTIMIZE = 'reoptimize' as const;
-export const INSERT = 'insert' as const;
-export const APPEND = 'append' as const;
 export const PRESERVE_ORDER = 'preserveOrder' as const;
 
 /**
  * Strategy for adding or assigning jobs/shipments to an agent's route.
  * 
- * - `reoptimize`: Full route re-optimization (default). Calls the API to find optimal placement.
+ * - `reoptimize`: Full route re-optimization (default). Calls the Route Planner API to find optimal placement.
  *   Best for finding the most efficient route but involves an API call.
- * - `insert`: Insert at best position or specified index without reordering other stops.
- *   Uses Route Matrix API to find optimal insertion point if no explicit position given.
- * - `append`: Add to end of agent's route without reordering. No API call needed.
- *   Fastest option but may not be optimal.
+ * - `preserveOrder`: Insert without reordering existing stops.
+ *   - Without position params: Uses Route Matrix API to find optimal insertion point.
+ *   - With beforeId/afterId/insertAtIndex: Inserts at specified position (no API call).
+ *   - With appendToEnd: true: Appends to end of route (no API call).
  */
-export type AddAssignStrategy = typeof REOPTIMIZE | typeof INSERT | typeof APPEND;
+export type AddAssignStrategy = typeof REOPTIMIZE | typeof PRESERVE_ORDER;
 
 /**
  * Strategy for removing jobs/shipments from an agent's route.
@@ -41,25 +40,28 @@ export type RemoveStrategy = typeof REOPTIMIZE | typeof PRESERVE_ORDER;
  * 
  * @example
  * ```typescript
- * // Default behavior - full reoptimization
+ * // Default behavior - full reoptimization (Route Planner API)
  * await editor.assignJobs('agent-A', ['job-1']);
  * 
- * // Append to end without reordering
- * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'append' });
+ * // Find optimal insertion point without reordering (Route Matrix API)
+ * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'preserveOrder' });
  * 
- * // Insert at optimal position
- * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'insert' });
- * 
- * // Insert at specific position
+ * // Insert at specific position (no API call)
  * await editor.assignJobs('agent-A', ['job-1'], { 
- *   strategy: 'insert', 
+ *   strategy: 'preserveOrder', 
  *   insertAtIndex: 2 
  * });
  * 
- * // Insert after a specific job
+ * // Insert after a specific job (no API call)
  * await editor.assignJobs('agent-A', ['job-2'], { 
- *   strategy: 'insert', 
+ *   strategy: 'preserveOrder', 
  *   afterId: 'job-1' 
+ * });
+ * 
+ * // Append to end of route (no API call)
+ * await editor.assignJobs('agent-A', ['job-1'], { 
+ *   strategy: 'preserveOrder', 
+ *   appendToEnd: true 
  * });
  * ```
  */
@@ -67,49 +69,91 @@ export interface AddAssignOptions {
     /**
      * Strategy for adding/assigning items to the route.
      * 
-     * - `reoptimize`: Full route re-optimization (default)
-     * - `insert`: Insert at optimal or specified position
-     * - `append`: Add to end of route
+     * - `reoptimize`: Full route re-optimization (default). Uses Route Planner API.
+     * - `preserveOrder`: Insert without reordering existing stops.
+     *   Uses Route Matrix API if no position specified, otherwise local operation.
      * 
      * @default 'reoptimize'
      */
     strategy?: AddAssignStrategy;
 
     /**
-     * Insert at a specific index in the agent's route.
-     * Used with strategy: 'insert'.
-     * Index 0 means insert at the beginning (after start location).
+     * Strategy for removing items from the source agent when moving between agents.
+     * Only applicable when the items are currently assigned to another agent.
+     * 
+     * - `preserveOrder`: Remove without reordering source agent's remaining stops (default, fast)
+     * - `reoptimize`: Reoptimize source agent's route after removal (slower, but optimal)
+     * 
+     * @default 'preserveOrder'
+     */
+    removeStrategy?: RemoveStrategy;
+
+    /**
+     * Insert before the waypoint at this index in the agent's route.
+     * Used with strategy: 'preserveOrder'.
+     * Waypoint index 0 is the start location, 1 is the first job/shipment stop, etc.
+     * 
+     * Note: Cannot use beforeWaypointIndex: 0 (cannot insert before start).
+     * Use afterWaypointIndex: 0 to insert at the beginning instead.
      * 
      * @example
      * ```typescript
-     * { strategy: 'insert', insertAtIndex: 2 } // Insert at position 2
+     * { strategy: 'preserveOrder', beforeWaypointIndex: 2 } // Insert before waypoint 2 (second stop)
      * ```
      */
-    insertAtIndex?: number;
+    beforeWaypointIndex?: number;
+
+    /**
+     * Insert after the waypoint at this index in the agent's route.
+     * Used with strategy: 'preserveOrder'.
+     * Waypoint index 0 is the start location, 1 is the first job/shipment stop, etc.
+     * 
+     * Note: Cannot use afterWaypointIndex for the last waypoint (end location).
+     * Use appendToEnd: true to append to the end of the route instead.
+     * 
+     * @example
+     * ```typescript
+     * { strategy: 'preserveOrder', afterWaypointIndex: 0 } // Insert after start (first position)
+     * { strategy: 'preserveOrder', afterWaypointIndex: 1 } // Insert after first stop
+     * ```
+     */
+    afterWaypointIndex?: number;
 
     /**
      * Insert before the stop with this ID (job ID or shipment ID).
-     * Takes precedence over insertAtIndex if both are provided.
-     * Used with strategy: 'insert'.
+     * Takes precedence over waypoint index options if both are provided.
+     * Used with strategy: 'preserveOrder'.
      * 
      * @example
      * ```typescript
-     * { strategy: 'insert', beforeId: 'job-3' } // Insert before job-3
+     * { strategy: 'preserveOrder', beforeId: 'job-3' } // Insert before job-3
      * ```
      */
     beforeId?: string;
 
     /**
      * Insert after the stop with this ID (job ID or shipment ID).
-     * Takes precedence over insertAtIndex if both are provided.
-     * Used with strategy: 'insert'.
+     * Takes precedence over waypoint index options if both are provided.
+     * Used with strategy: 'preserveOrder'.
      * 
      * @example
      * ```typescript
-     * { strategy: 'insert', afterId: 'job-1' } // Insert after job-1
+     * { strategy: 'preserveOrder', afterId: 'job-1' } // Insert after job-1
      * ```
      */
     afterId?: string;
+
+    /**
+     * Append to the end of the agent's route.
+     * Used with strategy: 'preserveOrder'.
+     * When true, items are added at the end without using Route Matrix API.
+     * 
+     * @example
+     * ```typescript
+     * { strategy: 'preserveOrder', appendToEnd: true } // Append to end
+     * ```
+     */
+    appendToEnd?: boolean;
 
     /**
      * Priority for optimization.
@@ -118,7 +162,7 @@ export interface AddAssignOptions {
      * 
      * @example
      * ```typescript
-     * { priority: 100 } // High priority job
+     * { strategy: 'reoptimize', priority: 100 } // High priority job
      * ```
      */
     priority?: number;

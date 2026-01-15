@@ -1,8 +1,7 @@
-import { AddAssignStrategy, RemoveStrategy, REOPTIMIZE, APPEND, INSERT, PRESERVE_ORDER } from "../../../../models";
+import { AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER } from "../../../../models";
 import { AssignStrategy, RemoveStrategy as IRemoveStrategy } from "../base";
 import { ShipmentReoptimizeStrategy } from "./shipment-reoptimize-strategy";
-import { ShipmentAppendStrategy } from "./shipment-append-strategy";
-import { ShipmentInsertStrategy } from "./shipment-insert-strategy";
+import { ShipmentPreserveOrderAssignStrategy } from "./shipment-preserve-order-assign-strategy";
 import { ShipmentRemoveReoptimizeStrategy } from "./shipment-remove-reoptimize-strategy";
 import { ShipmentPreserveOrderStrategy } from "./shipment-preserve-order-strategy";
 
@@ -13,8 +12,7 @@ export class ShipmentStrategyFactory {
     
     private static readonly assignStrategies = new Map<AddAssignStrategy, AssignStrategy>([
         [REOPTIMIZE, new ShipmentReoptimizeStrategy()],
-        [APPEND, new ShipmentAppendStrategy()],
-        [INSERT, new ShipmentInsertStrategy()],
+        [PRESERVE_ORDER, new ShipmentPreserveOrderAssignStrategy()],
     ]);
 
     private static readonly removeStrategies = new Map<RemoveStrategy, IRemoveStrategy>([
@@ -38,4 +36,3 @@ export class ShipmentStrategyFactory {
         return strategyInstance;
     }
 }
-

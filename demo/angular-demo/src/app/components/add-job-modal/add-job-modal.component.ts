@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AddAssignStrategy } from '../../../../../../src';
+import { AddAssignStrategy, REOPTIMIZE, PRESERVE_ORDER } from '../../../../../../src';
 
 export interface AddJobData {
   id: string;
@@ -17,11 +17,13 @@ export interface AddJobData {
 
 export interface JobModalOptions {
   strategy: AddAssignStrategy;
-  insertAtIndex: number | null;
-  insertAfterId: string;
-  insertBeforeId: string;
+  beforeWaypointIndex: number | null;
+  afterWaypointIndex: number | null;
+  beforeId: string;
+  afterId: string;
   priority: number | null;
   allowViolations: boolean;
+  appendToEnd: boolean;
 }
 
 @Component({
@@ -59,12 +61,18 @@ export class AddJobModalComponent implements OnInit {
   timeWindowEnd: number | null = null;
 
   // Options
-  strategy: AddAssignStrategy = 'reoptimize';
-  insertAtIndex: number | null = null;
-  insertAfterId = '';
-  insertBeforeId = '';
+  strategy: AddAssignStrategy = REOPTIMIZE;
+  beforeWaypointIndex: number | null = null;
+  afterWaypointIndex: number | null = null;
+  beforeId = '';
+  afterId = '';
   priority: number | null = null;
   allowViolations = true;
+  appendToEnd = false;
+  
+  // Expose constants for template
+  readonly REOPTIMIZE = REOPTIMIZE;
+  readonly PRESERVE_ORDER = PRESERVE_ORDER;
 
   ngOnInit() {
     this.selectedAgentIndex = this.agentIndex;
@@ -85,11 +93,13 @@ export class AddJobModalComponent implements OnInit {
 
     const options: JobModalOptions = {
       strategy: this.strategy,
-      insertAtIndex: this.insertAtIndex,
-      insertAfterId: this.insertAfterId,
-      insertBeforeId: this.insertBeforeId,
+      beforeWaypointIndex: this.beforeWaypointIndex,
+      afterWaypointIndex: this.afterWaypointIndex,
+      beforeId: this.beforeId,
+      afterId: this.afterId,
       priority: this.priority,
-      allowViolations: this.allowViolations
+      allowViolations: this.allowViolations,
+      appendToEnd: this.appendToEnd
     };
 
     this.add.emit({ jobData, options });

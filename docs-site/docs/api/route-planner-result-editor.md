@@ -25,7 +25,7 @@ import { RoutePlannerResultEditor } from '@geoapify/route-planner-sdk';
 const editor = new RoutePlannerResultEditor(result);
 
 // Make modifications...
-await editor.assignJobs('agent-2', ['job-1']);
+await editor.assignJobs('agent-A', ['job-1']);
 
 // Get the modified result
 const modifiedResult = editor.getModifiedResult();
@@ -33,21 +33,26 @@ const modifiedResult = editor.getModifiedResult();
 
 ## Strategies
 
-The editor supports different strategies for modifying routes. Choose based on your performance needs and use case:
+The editor supports two main strategies for modifying routes. Choose based on your performance needs and use case:
 
-| Strategy | For | Description |
-|----------|-----|-------------|
-| `reoptimize` | Add/Assign/Remove | Full route re-optimization (default). Calls the API to find optimal placement. Best results but slowest. |
-| `insert` | Add/Assign | Insert at optimal position or specified index. Uses Route Matrix API if no position given. Good balance of quality and speed. |
-| `append` | Add/Assign | Add to end of route without reordering. Fastest option, no API call needed. |
-| `preserveOrder` | Remove | Remove without reordering remaining stops. No API call needed, keeps existing order. |
+| Strategy | For | Description | API Call |
+|----------|-----|-------------|----------|
+| `reoptimize` | Add/Assign/Remove | Full route re-optimization (default). Finds optimal placement. | Route Planner API |
+| `preserveOrder` | Add/Assign/Remove | Insert without reordering existing stops. Flexible positioning options. | Route Matrix API (for optimal position) or None (for explicit position) |
+
+**`preserveOrder` strategy behavior:**
+
+- **No position params** → Uses Route Matrix API to find optimal insertion point (keeps other stops in order)
+- **With beforeId/afterId** → Inserts relative to job/shipment ID (no API call, local operation)
+- **With beforeWaypointIndex/afterWaypointIndex** → Inserts relative to waypoint index (no API call, local operation)
+- **With appendToEnd: true** → Appends to end of route (no API call, fastest option)
 
 You can use strategy constants for type safety:
 
 ```typescript
-import { REOPTIMIZE, INSERT, APPEND, PRESERVE_ORDER } from '@geoapify/route-planner-sdk';
+import { REOPTIMIZE, PRESERVE_ORDER } from '@geoapify/route-planner-sdk';
 
-await editor.assignJobs('agent-A', ['job-1'], { strategy: APPEND });
+await editor.assignJobs('agent-A', ['job-1'], { strategy: PRESERVE_ORDER, appendToEnd: true });
 await editor.removeJobs(['job-2'], { strategy: PRESERVE_ORDER });
 ```
 
@@ -84,28 +89,31 @@ Reassigns existing jobs to a specified agent. If jobs are currently assigned to 
 **Example:**
 
 ```typescript
-// Default: full reoptimization
+// Default: full reoptimization (Route Planner API)
 await editor.assignJobs('agent-A', ['job-1', 'job-2']);
 
 // With priority (backward compatible)
 await editor.assignJobs('agent-A', ['job-1'], 100);
 
-// Append to end of route (fastest, no API call)
-await editor.assignJobs('agent-A', ['job-1'], { strategy: 'append' });
+// Find optimal insertion point (Route Matrix API)
+await editor.assignJobs('agent-A', ['job-1'], { strategy: 'preserveOrder' });
 
-// Insert at optimal position
-await editor.assignJobs('agent-A', ['job-1'], { strategy: 'insert' });
+// Append to end of route (no API call)
+await editor.assignJobs('agent-A', ['job-1'], { 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
 
-// Insert after specific job
+// Insert after specific job (no API call)
 await editor.assignJobs('agent-A', ['job-2'], { 
-  strategy: 'insert', 
+  strategy: 'preserveOrder', 
   afterId: 'job-1' 
 });
 
-// Insert at specific index
+// Insert after specific waypoint (no API call)
 await editor.assignJobs('agent-A', ['job-1'], { 
-  strategy: 'insert', 
-  insertAtIndex: 2 
+  strategy: 'preserveOrder', 
+  afterWaypointIndex: 1  // After first stop
 });
 ```
 
@@ -129,11 +137,14 @@ Reassigns existing shipments to a specified agent. Both pickup and delivery are 
 // Default: full reoptimization
 await editor.assignShipments('agent-A', ['shipment-1']);
 
-// Append pickup and delivery to end of route
-await editor.assignShipments('agent-A', ['shipment-1'], { strategy: 'append' });
+// Find optimal insertion point (Route Matrix API)
+await editor.assignShipments('agent-A', ['shipment-1'], { strategy: 'preserveOrder' });
 
-// Insert at optimal position
-await editor.assignShipments('agent-B', ['shipment-2'], { strategy: 'insert' });
+// Append pickup and delivery to end of route (no API call)
+await editor.assignShipments('agent-A', ['shipment-1'], { 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
 ```
 
 ### removeJobs()
@@ -204,16 +215,22 @@ const newJob = new Job()
   .setLocation(44.5, 40.2)
   .setDuration(300);
 
-// Default: reoptimize with new job
+// Default: reoptimize with new job (Route Planner API)
 await editor.addNewJobs('agent-A', [newJob]);
 
-// Append to end of route (fastest)
-await editor.addNewJobs('agent-A', [newJob], { strategy: 'append' });
+// Find optimal insertion point (Route Matrix API)
+await editor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder' });
 
-// Insert at specific position
+// Append to end of route (no API call, fastest)
 await editor.addNewJobs('agent-A', [newJob], { 
-  strategy: 'insert', 
-  insertAtIndex: 3 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
+
+// Insert after specific waypoint (no API call)
+await editor.addNewJobs('agent-A', [newJob], { 
+  strategy: 'preserveOrder', 
+  afterWaypointIndex: 2  // After waypoint 2
 });
 ```
 
@@ -242,8 +259,11 @@ const newShipment = new Shipment()
 // Default: reoptimize with new shipment
 await editor.addNewShipments('agent-A', [newShipment]);
 
-// Append to end of route
-await editor.addNewShipments('agent-A', [newShipment], { strategy: 'append' });
+// Append to end of route (no API call)
+await editor.addNewShipments('agent-A', [newShipment], { 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
 ```
 
 ### getModifiedResult()
@@ -275,21 +295,33 @@ interface AddAssignOptions {
   /**
    * Strategy for adding/assigning items to the route.
    * - 'reoptimize': Full route re-optimization (default)
-   * - 'insert': Insert at optimal or specified position
-   * - 'append': Add to end of route
+   * - 'preserveOrder': Insert without reordering existing stops
    */
-  strategy?: 'reoptimize' | 'insert' | 'append';
+  strategy?: 'reoptimize' | 'preserveOrder';
 
-  /** Insert at a specific index in the agent's route (with 'insert' strategy) */
-  insertAtIndex?: number;
+  /**
+   * Strategy for removing items from the source agent when moving between agents.
+   * - 'preserveOrder': Don't reoptimize source agent (default, fast)
+   * - 'reoptimize': Reoptimize source agent after removal
+   */
+  removeStrategy?: 'reoptimize' | 'preserveOrder';
 
-  /** Insert before the stop with this ID (with 'insert' strategy) */
+  /** Insert before the waypoint at this index (with 'preserveOrder' strategy) */
+  beforeWaypointIndex?: number;
+
+  /** Insert after the waypoint at this index (with 'preserveOrder' strategy) */
+  afterWaypointIndex?: number;
+
+  /** Insert before the stop with this ID (with 'preserveOrder' strategy) */
   beforeId?: string;
 
-  /** Insert after the stop with this ID (with 'insert' strategy) */
+  /** Insert after the stop with this ID (with 'preserveOrder' strategy) */
   afterId?: string;
 
-  /** Priority for optimization (higher = more important) */
+  /** Append to the end of the route (with 'preserveOrder' strategy) */
+  appendToEnd?: boolean;
+
+  /** Priority for optimization (higher = more important, with 'reoptimize' strategy) */
   priority?: number;
 
   /**
@@ -320,10 +352,20 @@ interface RemoveOptions {
 
 | Strategy | Speed | API Calls | Best For |
 |----------|-------|-----------|----------|
-| `reoptimize` | Slowest | Yes (Route Planner API) | Finding optimal route after changes |
-| `insert` | Medium | Yes (Route Matrix API) | Quick optimal insertion without full reoptimization |
-| `append` | Fastest | No | Real-time UI updates, drag-and-drop |
-| `preserveOrder` | Fastest | No | Quick removal when order doesn't matter |
+| `reoptimize` | Slowest | Route Planner API | Finding optimal route after changes |
+| `preserveOrder` (no position) | Medium | Route Matrix API | Quick optimal insertion without reordering |
+| `preserveOrder` (with position) | Fastest | None | Manual placement at specific position |
+| `preserveOrder` (appendToEnd) | Fastest | None | Real-time UI updates, drag-and-drop |
+
+### PreserveOrder Strategy Decision Tree
+
+```
+strategy: 'preserveOrder'
+  ├─ appendToEnd: true → Append to end (no API call)
+  ├─ beforeId/afterId provided → Insert relative to job/shipment ID (no API call)
+  ├─ beforeWaypointIndex/afterWaypointIndex provided → Insert relative to waypoint index (no API call)
+  └─ No position params → Find optimal position (Route Matrix API)
+```
 
 ## Constraint Validation
 

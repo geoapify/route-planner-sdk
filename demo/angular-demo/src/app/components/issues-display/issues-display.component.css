@@ -54,3 +54,15 @@
   font-size: 12px;
   font-weight: 500;
 }
+
+button.issue-badge {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button.issue-badge:hover {
+  background: #f39c12;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(243, 156, 18, 0.3);
+}

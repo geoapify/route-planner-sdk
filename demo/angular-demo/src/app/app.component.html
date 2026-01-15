@@ -17,11 +17,13 @@
   *ngIf="currentResult"
   [(strategy)]="selectedStrategy"
   [(removeStrategy)]="selectedRemoveStrategy"
-  [(insertAtIndex)]="insertAtIndex"
-  [(insertAfterId)]="insertAfterId"
-  [(insertBeforeId)]="insertBeforeId"
+  [(beforeWaypointIndex)]="beforeWaypointIndex"
+  [(afterWaypointIndex)]="afterWaypointIndex"
+  [(beforeId)]="beforeId"
+  [(afterId)]="afterId"
   [(allowViolations)]="allowViolations"
-  [(priority)]="priority">
+  [(priority)]="priority"
+  [(appendToEnd)]="appendToEnd">
 </app-global-settings>
 
 <!-- Quick Validation Tests -->
@@ -65,7 +67,9 @@
 </app-violations-display>
 
 <app-issues-display
-  [result]="currentResult">
+  [result]="currentResult"
+  (assignJob)="openAssignJobModal($event)"
+  (assignShipment)="openAssignShipmentModal($event)">
 </app-issues-display>
 
 <div class="content-with-map" *ngIf="currentResult">
@@ -161,6 +165,28 @@
   (add)="addShipmentFromModal($event)"
   (cancel)="closeModals()">
 </app-add-shipment-modal>
+
+<!-- Assign Job Modal -->
+<app-assign-item-modal
+  *ngIf="showAssignJobModal"
+  itemType="job"
+  [itemId]="getJobId(jobIndexToAssign)"
+  [allAgents]="agentInfoList"
+  [isLoading]="isLoading"
+  (assign)="assignUnassignedJob($event)"
+  (cancel)="closeModals()">
+</app-assign-item-modal>
+
+<!-- Assign Shipment Modal -->
+<app-assign-item-modal
+  *ngIf="showAssignShipmentModal"
+  itemType="shipment"
+  [itemId]="getShipmentId(shipmentIndexToAssign)"
+  [allAgents]="agentInfoList"
+  [isLoading]="isLoading"
+  (assign)="assignUnassignedShipment($event)"
+  (cancel)="closeModals()">
+</app-assign-item-modal>
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" *ngIf="isLoading">

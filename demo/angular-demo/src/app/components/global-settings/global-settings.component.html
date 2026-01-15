@@ -4,36 +4,50 @@
     <div class="form-group">
       <label>Add/Assign Strategy:</label>
       <select [(ngModel)]="strategy" (ngModelChange)="strategyChange.emit($event)">
-        <option value="reoptimize">🔄 Reoptimize (Full optimization)</option>
-        <option value="insert">📍 Insert (Optimal position)</option>
-        <option value="append">➕ Append (End of route)</option>
+        <option [value]="REOPTIMIZE">🔄 Reoptimize (Full optimization)</option>
+        <option [value]="PRESERVE_ORDER">📌 Preserve Order (Insert at position)</option>
       </select>
     </div>
 
-    <div class="form-group" *ngIf="strategy === 'insert'">
-      <label>Insert At Index:</label>
-      <input type="number" [(ngModel)]="insertAtIndex" (ngModelChange)="insertAtIndexChange.emit($event)" placeholder="e.g., 1">
+    <div class="form-group" *ngIf="strategy === PRESERVE_ORDER">
+      <label>Append to End:</label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="appendToEnd" (ngModelChange)="appendToEndChange.emit($event)">
+        <span>Add to end of route (no API call)</span>
+      </label>
     </div>
 
-    <div class="form-group" *ngIf="strategy === 'insert'">
-      <label>Or After ID:</label>
-      <input type="text" [(ngModel)]="insertAfterId" (ngModelChange)="insertAfterIdChange.emit($event)" placeholder="e.g., order_1">
+    <div class="form-group" *ngIf="strategy === PRESERVE_ORDER && !appendToEnd">
+      <label>Before Waypoint Index:</label>
+      <input type="number" [(ngModel)]="beforeWaypointIndex" (ngModelChange)="beforeWaypointIndexChange.emit($event)" placeholder="e.g., 2">
+      <small>Waypoint 0 = start, 1 = first stop, etc.</small>
     </div>
 
-    <div class="form-group" *ngIf="strategy === 'insert'">
-      <label>Or Before ID:</label>
-      <input type="text" [(ngModel)]="insertBeforeId" (ngModelChange)="insertBeforeIdChange.emit($event)" placeholder="e.g., order_2">
+    <div class="form-group" *ngIf="strategy === PRESERVE_ORDER && !appendToEnd">
+      <label>After Waypoint Index:</label>
+      <input type="number" [(ngModel)]="afterWaypointIndex" (ngModelChange)="afterWaypointIndexChange.emit($event)" placeholder="e.g., 1">
+      <small>Waypoint 0 = start, 1 = first stop, etc.</small>
+    </div>
+
+    <div class="form-group" *ngIf="strategy === PRESERVE_ORDER && !appendToEnd">
+      <label>Before ID (job/shipment):</label>
+      <input type="text" [(ngModel)]="beforeId" (ngModelChange)="beforeIdChange.emit($event)" placeholder="e.g., job-3">
+    </div>
+
+    <div class="form-group" *ngIf="strategy === PRESERVE_ORDER && !appendToEnd">
+      <label>After ID (job/shipment):</label>
+      <input type="text" [(ngModel)]="afterId" (ngModelChange)="afterIdChange.emit($event)" placeholder="e.g., order_1">
     </div>
 
     <div class="form-group">
       <label>Remove Strategy:</label>
       <select [(ngModel)]="removeStrategy" (ngModelChange)="removeStrategyChange.emit($event)">
-        <option value="reoptimize">🔄 Reoptimize</option>
-        <option value="preserveOrder">📌 Preserve Order</option>
+        <option [value]="REOPTIMIZE">🔄 Reoptimize</option>
+        <option [value]="PRESERVE_ORDER">📌 Preserve Order</option>
       </select>
     </div>
 
-    <div class="form-group" *ngIf="strategy === 'reoptimize'">
+    <div class="form-group" *ngIf="strategy === REOPTIMIZE">
       <label>Priority:</label>
       <input type="number" [(ngModel)]="priority" (ngModelChange)="priorityChange.emit($event)" placeholder="e.g., 100">
       <small>Higher values = higher priority during optimization</small>
@@ -49,4 +63,3 @@
     </div>
   </div>
 </section>
-

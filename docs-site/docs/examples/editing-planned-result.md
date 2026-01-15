@@ -62,7 +62,7 @@ Let's say we want to reassign `job-1` from `agent-1` to `agent-2`:
 ```ts
 const editor = new RoutePlannerResultEditor(result);
 
-// Default: full reoptimization
+// Default: full reoptimization (Route Planner API)
 await editor.assignJobs("agent-2", ["job-1"]);
 
 const updatedResult = editor.getModifiedResult();
@@ -74,42 +74,80 @@ const updatedResult = editor.getModifiedResult();
 
 The editor supports different strategies depending on your needs:
 
-### Append Strategy (Fast, No API Call)
+### Full Reoptimization (Route Planner API)
 
-Use when you want to quickly add to the end of a route without optimization:
+Use when you want the best possible route after changes:
 
 ```ts
 const editor = new RoutePlannerResultEditor(result);
 
-// Append job to end of agent's route
-await editor.assignJobs("agent-2", ["job-1"], { strategy: 'append' });
+// Full reoptimization with Route Planner API
+await editor.assignJobs("agent-2", ["job-1"], { strategy: 'reoptimize' });
 ```
 
-### Insert Strategy (Optimal Position)
+### PreserveOrder Strategy
 
-Use when you want to find the best position without full reoptimization:
+The `preserveOrder` strategy is flexible and provides three different behaviors:
+
+#### 1. Find Optimal Insertion Point (Route Matrix API)
+
+Use when you want a good position without reordering existing stops:
 
 ```ts
 const editor = new RoutePlannerResultEditor(result);
 
-// Insert at optimal position (uses Route Matrix API)
-await editor.assignJobs("agent-2", ["job-1"], { strategy: 'insert' });
+// Find optimal insertion point using Route Matrix API
+await editor.assignJobs("agent-2", ["job-1"], { strategy: 'preserveOrder' });
+```
 
-// Or insert at a specific position
+#### 2. Insert at Specific Position (No API Call)
+
+Use when you know exactly where to place the item:
+
+```ts
+const editor = new RoutePlannerResultEditor(result);
+
+// Insert after a specific job (no API call)
 await editor.assignJobs("agent-2", ["job-1"], { 
-  strategy: 'insert', 
+  strategy: 'preserveOrder', 
   afterId: 'job-2' 
+});
+
+// Or insert after a specific waypoint
+await editor.assignJobs("agent-2", ["job-1"], { 
+  strategy: 'preserveOrder', 
+  afterWaypointIndex: 0  // After start waypoint (first position)
+});
+
+// Or insert before a specific job
+await editor.assignJobs("agent-2", ["job-1"], { 
+  strategy: 'preserveOrder', 
+  beforeId: 'job-3' 
 });
 ```
 
-### PreserveOrder Strategy (For Removal)
+#### 3. Append to End (No API Call, Fastest)
+
+Use for quick UI updates or when order doesn't matter:
+
+```ts
+const editor = new RoutePlannerResultEditor(result);
+
+// Append to end of route (no API call)
+await editor.assignJobs("agent-2", ["job-1"], { 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
+```
+
+### PreserveOrder for Removal
 
 Use when removing jobs/shipments without reordering remaining stops:
 
 ```ts
 const editor = new RoutePlannerResultEditor(result);
 
-// Remove without reordering
+// Remove without reordering (no API call)
 await editor.removeJobs(["job-1"], { strategy: 'preserveOrder' });
 ```
 
@@ -134,10 +172,11 @@ updatedResult.getAgentSolutions().forEach(agent => {
 
 | Strategy | Speed | API Calls | Best For |
 |----------|-------|-----------|----------|
-| `reoptimize` | Slowest | Yes (Route Planner API) | Finding optimal route |
-| `insert` | Medium | Yes (Route Matrix API) | Quick optimal insertion |
-| `append` | Fastest | No | Real-time UI updates |
-| `preserveOrder` | Fastest | No | Quick removal |
+| `reoptimize` | Slowest | Route Planner API | Finding optimal route |
+| `preserveOrder` (no position) | Medium | Route Matrix API | Quick optimal insertion without reordering |
+| `preserveOrder` (beforeId/afterId) | Fastest | None | Insert relative to job/shipment |
+| `preserveOrder` (waypoint index) | Fastest | None | Insert at specific waypoint |
+| `preserveOrder` (appendToEnd) | Fastest | None | Real-time UI updates |
 
 ---
 
@@ -147,7 +186,9 @@ This example shows how you can:
 
 * Automatically optimize a plan
 * Manually override assignments using editor tools
-* Choose the right strategy based on your needs
+* Choose the right strategy based on your needs:
+  - **`reoptimize`** for best results (slower)
+  - **`preserveOrder`** for flexible, fast modifications
 
 This gives you the flexibility to combine automated and human planning.
 

@@ -1,8 +1,7 @@
-import { AddAssignStrategy, RemoveStrategy, REOPTIMIZE, APPEND, INSERT, PRESERVE_ORDER } from "../../../../models";
+import { AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER } from "../../../../models";
 import { AssignStrategy, RemoveStrategy as IRemoveStrategy } from "../base";
 import { JobReoptimizeStrategy } from "./job-reoptimize-strategy";
-import { JobAppendStrategy } from "./job-append-strategy";
-import { JobInsertStrategy } from "./job-insert-strategy";
+import { JobPreserveOrderAssignStrategy } from "./job-preserve-order-assign-strategy";
 import { JobRemoveReoptimizeStrategy } from "./job-remove-reoptimize-strategy";
 import { JobPreserveOrderStrategy } from "./job-preserve-order-strategy";
 
@@ -13,8 +12,7 @@ export class JobStrategyFactory {
     
     private static readonly assignStrategies = new Map<AddAssignStrategy, AssignStrategy>([
         [REOPTIMIZE, new JobReoptimizeStrategy()],
-        [APPEND, new JobAppendStrategy()],
-        [INSERT, new JobInsertStrategy()],
+        [PRESERVE_ORDER, new JobPreserveOrderAssignStrategy()],
     ]);
 
     private static readonly removeStrategies = new Map<RemoveStrategy, IRemoveStrategy>([
@@ -38,4 +36,3 @@ export class JobStrategyFactory {
         return strategyInstance;
     }
 }
-

@@ -9,19 +9,22 @@ import { IndexConverter } from "./helpers/index-converter";
  * Editor for modifying route planner results.
  * 
  * Provides methods to assign, remove, and add jobs/shipments to agent routes.
- * Supports multiple strategies: reoptimize (default), insert, and append.
+ * Supports two strategies: reoptimize (default) and preserveOrder.
  * 
  * @example
  * ```typescript
- * import { RoutePlannerResultEditor, APPEND, PRESERVE_ORDER } from '@geoapify/route-planner-sdk';
+ * import { RoutePlannerResultEditor, PRESERVE_ORDER, REOPTIMIZE } from '@geoapify/route-planner-sdk';
  * 
  * const editor = new RoutePlannerResultEditor(plannerResult);
  * 
  * // Assign job to agent (with full reoptimization)
  * await editor.assignJobs('agent-A', ['job-1']);
  * 
- * // Append job to end of route (no reoptimization)
- * await editor.assignJobs('agent-A', ['job-2'], { strategy: APPEND });
+ * // Find optimal insertion point without reordering (Route Matrix API)
+ * await editor.assignJobs('agent-A', ['job-2'], { strategy: PRESERVE_ORDER });
+ * 
+ * // Append job to end of route (no API call)
+ * await editor.assignJobs('agent-A', ['job-2'], { strategy: PRESERVE_ORDER, appendToEnd: true });
  * 
  * // Remove job while keeping route order
  * await editor.removeJobs(['job-3'], { strategy: PRESERVE_ORDER });
@@ -54,22 +57,25 @@ export class RoutePlannerResultEditor {
      * 
      * @example
      * ```typescript
-     * // Default: full reoptimization
+     * // Default: full reoptimization (Route Planner API)
      * await editor.assignJobs('agent-A', ['job-1', 'job-2']);
      * 
      * // With priority (backward compatible)
      * await editor.assignJobs('agent-A', ['job-1'], 100);
      * 
-     * // Append to end of route
-     * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'append' });
+     * // Find optimal insertion point (Route Matrix API)
+     * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'preserveOrder' });
      * 
-     * // Insert at optimal position
-     * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'insert' });
-     * 
-     * // Insert after specific job
+     * // Insert at specific position (no API call)
      * await editor.assignJobs('agent-A', ['job-2'], { 
-     *   strategy: 'insert', 
+     *   strategy: 'preserveOrder', 
      *   afterId: 'job-1' 
+     * });
+     * 
+     * // Append to end of route (no API call)
+     * await editor.assignJobs('agent-A', ['job-1'], { 
+     *   strategy: 'preserveOrder', 
+     *   appendToEnd: true 
      * });
      * ```
      */
@@ -91,11 +97,17 @@ export class RoutePlannerResultEditor {
      * 
      * @example
      * ```typescript
-     * // Default: full reoptimization
+     * // Default: full reoptimization (Route Planner API)
      * await editor.assignShipments('agent-A', ['shipment-1']);
      * 
-     * // Append pickup and delivery to end of route
-     * await editor.assignShipments('agent-A', ['shipment-1'], { strategy: 'append' });
+     * // Find optimal insertion point (Route Matrix API)
+     * await editor.assignShipments('agent-A', ['shipment-1'], { strategy: 'preserveOrder' });
+     * 
+     * // Append pickup and delivery to end of route (no API call)
+     * await editor.assignShipments('agent-A', ['shipment-1'], { 
+     *   strategy: 'preserveOrder', 
+     *   appendToEnd: true 
+     * });
      * ```
      */
     async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], options?: number | AddAssignOptions): Promise<boolean> {
@@ -165,11 +177,14 @@ export class RoutePlannerResultEditor {
      *   .setLocation(44.5, 40.2)
      *   .setDuration(300);
      * 
-     * // Default: reoptimize with new job
+     * // Default: reoptimize with new job (Route Planner API)
      * await editor.addNewJobs('agent-A', [newJob]);
      * 
-     * // Append to end of route
-     * await editor.addNewJobs('agent-A', [newJob], { strategy: 'append' });
+     * // Find optimal insertion point (Route Matrix API)
+     * await editor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder' });
+     * 
+     * // Append to end of route (no API call)
+     * await editor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder', appendToEnd: true });
      * ```
      */
     addNewJobs(agentIdOrIndex: string | number, jobs: Job[], options?: AddAssignOptions): Promise<boolean> {
@@ -193,8 +208,17 @@ export class RoutePlannerResultEditor {
      *   .setPickup(new ShipmentStep().setLocation(44.5, 40.2).setDuration(120))
      *   .setDelivery(new ShipmentStep().setLocation(44.6, 40.3).setDuration(120));
      * 
-     * // Default: reoptimize with new shipment
+     * // Default: reoptimize with new shipment (Route Planner API)
      * await editor.addNewShipments('agent-A', [newShipment]);
+     * 
+     * // Find optimal insertion point (Route Matrix API)
+     * await editor.addNewShipments('agent-A', [newShipment], { strategy: 'preserveOrder' });
+     * 
+     * // Append to end of route (no API call)
+     * await editor.addNewShipments('agent-A', [newShipment], { 
+     *   strategy: 'preserveOrder', 
+     *   appendToEnd: true 
+     * });
      * ```
      */
     addNewShipments(agentIdOrIndex: string | number, shipments: Shipment[], options?: AddAssignOptions): Promise<boolean> {

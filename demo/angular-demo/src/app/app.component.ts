@@ -13,7 +13,9 @@ import {
   Job,
   Shipment,
   ShipmentStep,
-  AddAssignOptions
+  AddAssignOptions,
+  REOPTIMIZE,
+  PRESERVE_ORDER
 } from "../../../../src";
 import TEST_API_KEY from "../../../../env-variables";
 
@@ -25,6 +27,7 @@ import { OperationLogsComponent } from "./components/operation-logs/operation-lo
 import { GlobalSettingsComponent } from "./components/global-settings/global-settings.component";
 import { AddJobModalComponent, AddJobData, JobModalOptions } from "./components/add-job-modal/add-job-modal.component";
 import { AddShipmentModalComponent, AddShipmentData, ShipmentModalOptions } from "./components/add-shipment-modal/add-shipment-modal.component";
+import { AssignItemModalComponent } from "./components/assign-item-modal/assign-item-modal.component";
 import { RouteMapComponent } from "./components/route-map/route-map.component";
 import { TimelineMenuItem } from "../../../../src";
 
@@ -42,6 +45,7 @@ import { TimelineMenuItem } from "../../../../src";
     GlobalSettingsComponent,
     AddJobModalComponent,
     AddShipmentModalComponent,
+    AssignItemModalComponent,
     RouteMapComponent
   ],
   templateUrl: './app.component.html',
@@ -61,19 +65,31 @@ export class AppComponent {
   agentVisibilityState: Map<number, boolean> = new Map(); // Track route visibility per agent
 
   // Global Settings
-  selectedStrategy: AddAssignStrategy = 'reoptimize';
-  selectedRemoveStrategy: RemoveStrategy = 'reoptimize';
-  insertAfterId = '';
-  insertBeforeId = '';
-  insertAtIndex: number | null = null;
+  selectedStrategy: AddAssignStrategy = REOPTIMIZE;
+  selectedRemoveStrategy: RemoveStrategy = REOPTIMIZE;
+  beforeId = '';
+  afterId = '';
+  beforeWaypointIndex: number | null = null;
+  afterWaypointIndex: number | null = null;
   allowViolations = true;
   priority: number | null = null;
+  appendToEnd = false;
+  
+  // Expose constants for template
+  readonly REOPTIMIZE = REOPTIMIZE;
+  readonly PRESERVE_ORDER = PRESERVE_ORDER;
 
   // Add job/shipment modal state
   showAddJobModal = false;
   showAddShipmentModal = false;
   activeAgentForAdd: number | null = null;
   mapClickCoordinates: { lon: number; lat: number } | null = null;
+  
+  // Assign unassigned items modal state
+  showAssignJobModal = false;
+  showAssignShipmentModal = false;
+  jobIndexToAssign: number | null = null;
+  shipmentIndexToAssign: number | null = null;
 
   constructor(
     private routePlannerService: RoutePlannerService,
@@ -348,11 +364,29 @@ export class AppComponent {
     this.showAddShipmentModal = true;
   }
 
+  openAssignJobModal(jobIndex: number) {
+    console.log('openAssignJobModal called with index:', jobIndex);
+    if (!this.currentResult) return;
+    this.jobIndexToAssign = jobIndex;
+    this.showAssignJobModal = true;
+  }
+
+  openAssignShipmentModal(shipmentIndex: number) {
+    console.log('openAssignShipmentModal called with index:', shipmentIndex);
+    if (!this.currentResult) return;
+    this.shipmentIndexToAssign = shipmentIndex;
+    this.showAssignShipmentModal = true;
+  }
+
   closeModals() {
     this.showAddJobModal = false;
     this.showAddShipmentModal = false;
+    this.showAssignJobModal = false;
+    this.showAssignShipmentModal = false;
     this.activeAgentForAdd = null;
     this.mapClickCoordinates = null;
+    this.jobIndexToAssign = null;
+    this.shipmentIndexToAssign = null;
   }
 
   async addJobFromModal(event: { jobData: AddJobData; options: JobModalOptions }) {
@@ -376,9 +410,11 @@ export class AppComponent {
       },
       {
         strategy: options.strategy,
-        insertAtIndex: options.insertAtIndex ?? undefined,
-        beforeId: options.insertBeforeId,
-        afterId: options.insertAfterId,
+        appendToEnd: options.appendToEnd,
+        beforeWaypointIndex: options.beforeWaypointIndex ?? undefined,
+        afterWaypointIndex: options.afterWaypointIndex ?? undefined,
+        beforeId: options.beforeId,
+        afterId: options.afterId,
         priority: options.priority ?? undefined,
         allowViolations: options.allowViolations
       }
@@ -409,15 +445,49 @@ export class AppComponent {
       [newShipment],
       {
         strategy: options.strategy,
-        insertAtIndex: options.insertAtIndex ?? undefined,
-        beforeId: options.insertBeforeId,
-        afterId: options.insertAfterId,
+        appendToEnd: options.appendToEnd,
+        beforeWaypointIndex: options.beforeWaypointIndex ?? undefined,
+        afterWaypointIndex: options.afterWaypointIndex ?? undefined,
+        beforeId: options.beforeId,
+        afterId: options.afterId,
         priority: options.priority ?? undefined,
         allowViolations: options.allowViolations
       }
     );
 
     this.handleOperationResult(result, 'Add Shipment');
+    this.isLoading = false;
+    this.closeModals();
+  }
+
+  async assignUnassignedJob(agentIndex: number) {
+    if (!this.currentResult || this.jobIndexToAssign === null) return;
+    
+    this.isLoading = true;
+    const result = await this.routePlannerService.assignJobs(
+      this.currentResult,
+      agentIndex,
+      [this.jobIndexToAssign],
+      this.buildOptions()
+    );
+    
+    this.handleOperationResult(result, 'Assign Job');
+    this.isLoading = false;
+    this.closeModals();
+  }
+
+  async assignUnassignedShipment(agentIndex: number) {
+    if (!this.currentResult || this.shipmentIndexToAssign === null) return;
+    
+    this.isLoading = true;
+    const result = await this.routePlannerService.assignShipments(
+      this.currentResult,
+      agentIndex,
+      [this.shipmentIndexToAssign],
+      this.buildOptions()
+    );
+    
+    this.handleOperationResult(result, 'Assign Shipment');
     this.isLoading = false;
     this.closeModals();
   }
@@ -430,9 +500,11 @@ export class AppComponent {
       allowViolations: this.allowViolations
     };
     
-    if (this.insertAtIndex !== null) options.insertAtIndex = this.insertAtIndex;
-    if (this.insertBeforeId) options.beforeId = this.insertBeforeId;
-    if (this.insertAfterId) options.afterId = this.insertAfterId;
+    if (this.appendToEnd) options.appendToEnd = true;
+    if (this.beforeWaypointIndex !== null) options.beforeWaypointIndex = this.beforeWaypointIndex;
+    if (this.afterWaypointIndex !== null) options.afterWaypointIndex = this.afterWaypointIndex;
+    if (this.beforeId) options.beforeId = this.beforeId;
+    if (this.afterId) options.afterId = this.afterId;
     if (this.priority !== null) options.priority = this.priority;
     
     return options;
@@ -606,6 +678,18 @@ export class AppComponent {
       data: allShipmentsData[shipmentIndex],
       selected: false
     }));
+  }
+
+  getJobId(jobIndex: number | null): string {
+    if (jobIndex === null || !this.currentResult) return '';
+    const jobs = this.currentResult.getRawData().properties.params.jobs;
+    return jobs[jobIndex]?.id || `job-${jobIndex}`;
+  }
+
+  getShipmentId(shipmentIndex: number | null): string {
+    if (shipmentIndex === null || !this.currentResult) return '';
+    const shipments = this.currentResult.getRawData().properties.params.shipments;
+    return shipments[shipmentIndex]?.id || `shipment-${shipmentIndex}`;
   }
 
   toggleAgentVisibility(agentIndex: number) {

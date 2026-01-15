@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AddAssignStrategy, RemoveStrategy } from '../../../../../../src';
+import { AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER } from '../../../../../../src';
 
 @Component({
   selector: 'app-global-settings',
@@ -11,20 +11,27 @@ import { AddAssignStrategy, RemoveStrategy } from '../../../../../../src';
   styleUrls: ['./global-settings.component.css']
 })
 export class GlobalSettingsComponent {
-  @Input() strategy: AddAssignStrategy = 'reoptimize';
-  @Input() removeStrategy: RemoveStrategy = 'reoptimize';
-  @Input() insertAtIndex: number | null = null;
-  @Input() insertAfterId = '';
-  @Input() insertBeforeId = '';
+  @Input() strategy: AddAssignStrategy = REOPTIMIZE;
+  @Input() removeStrategy: RemoveStrategy = REOPTIMIZE;
+  @Input() beforeWaypointIndex: number | null = null;
+  @Input() afterWaypointIndex: number | null = null;
+  @Input() beforeId = '';
+  @Input() afterId = '';
   @Input() allowViolations = true;
   @Input() priority: number | null = null;
+  @Input() appendToEnd = false;
 
   @Output() strategyChange = new EventEmitter<AddAssignStrategy>();
   @Output() removeStrategyChange = new EventEmitter<RemoveStrategy>();
-  @Output() insertAtIndexChange = new EventEmitter<number | null>();
-  @Output() insertAfterIdChange = new EventEmitter<string>();
-  @Output() insertBeforeIdChange = new EventEmitter<string>();
+  @Output() beforeWaypointIndexChange = new EventEmitter<number | null>();
+  @Output() afterWaypointIndexChange = new EventEmitter<number | null>();
+  @Output() beforeIdChange = new EventEmitter<string>();
+  @Output() afterIdChange = new EventEmitter<string>();
   @Output() allowViolationsChange = new EventEmitter<boolean>();
   @Output() priorityChange = new EventEmitter<number | null>();
+  @Output() appendToEndChange = new EventEmitter<boolean>();
+  
+  // Expose constants for template
+  readonly REOPTIMIZE = REOPTIMIZE;
+  readonly PRESERVE_ORDER = PRESERVE_ORDER;
 }
-

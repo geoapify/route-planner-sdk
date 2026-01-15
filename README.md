@@ -159,33 +159,46 @@ You can edit planned routes easily using `RoutePlannerResultEditor`.
 
 ### Strategies
 
-The editor supports different strategies for modifying routes:
+The editor supports two main strategies for modifying routes:
 
-| Strategy | Description |
-|----------|-------------|
-| `reoptimize` | Full route re-optimization (default). Calls the API to find optimal placement. |
-| `insert` | Insert at optimal position without reordering other stops. Uses Route Matrix API. |
-| `append` | Add to end of route without reordering. Fastest, no API call needed. |
-| `preserveOrder` | For removal only - removes without reordering remaining stops. |
+| Strategy | Description | API Call |
+|----------|-------------|----------|
+| `reoptimize` | Full route re-optimization (default). Best results. | Route Planner API |
+| `preserveOrder` | Insert without reordering existing stops. Fast and flexible. | Route Matrix API (if no position specified) or None |
+
+**`preserveOrder` strategy behavior:**
+- **No position params** → Uses Route Matrix API to find optimal insertion point
+- **With beforeId/afterId** → Inserts relative to job/shipment ID (no API call)
+- **With beforeWaypointIndex/afterWaypointIndex** → Inserts relative to waypoint index (no API call)
+- **With appendToEnd: true** → Appends to end of route (no API call)
 
 ### Example: Assign jobs to the agent
 
 ```ts
 const routeEditor = new RoutePlannerResultEditor(result);
 
-// Default: full reoptimization
+// Default: full reoptimization (Route Planner API)
 await routeEditor.assignJobs('agent-a', ['job-2']);
 
+// Find optimal insertion point (Route Matrix API)
+await routeEditor.assignJobs('agent-a', ['job-2'], { strategy: 'preserveOrder' });
+
 // Append to end of route (no API call)
-await routeEditor.assignJobs('agent-a', ['job-2'], { strategy: 'append' });
-
-// Insert at optimal position
-await routeEditor.assignJobs('agent-a', ['job-2'], { strategy: 'insert' });
-
-// Insert after a specific job
 await routeEditor.assignJobs('agent-a', ['job-2'], { 
-  strategy: 'insert', 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
+
+// Insert after a specific job by ID (no API call)
+await routeEditor.assignJobs('agent-a', ['job-2'], { 
+  strategy: 'preserveOrder', 
   afterId: 'job-1' 
+});
+
+// Insert after a specific waypoint by index (no API call)
+await routeEditor.assignJobs('agent-a', ['job-2'], { 
+  strategy: 'preserveOrder', 
+  afterWaypointIndex: 1  // After first stop
 });
 
 let modifiedResult = routeEditor.getModifiedResult();
@@ -198,7 +211,10 @@ const routeEditor = new RoutePlannerResultEditor(result);
 await routeEditor.assignShipments('agent-b', ['shipment-2']);
 
 // Or with strategy
-await routeEditor.assignShipments('agent-b', ['shipment-2'], { strategy: 'append' });
+await routeEditor.assignShipments('agent-b', ['shipment-2'], { 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
 
 let modifiedResult = routeEditor.getModifiedResult();
 ```
@@ -241,7 +257,10 @@ let newJob = new Job()
 await routeEditor.addNewJobs('agent-A', [newJob]);
 
 // Or append to end of route
-await routeEditor.addNewJobs('agent-A', [newJob], { strategy: 'append' });
+await routeEditor.addNewJobs('agent-A', [newJob], { 
+  strategy: 'preserveOrder', 
+  appendToEnd: true 
+});
 
 let modifiedResult = routeEditor.getModifiedResult();
 ```
@@ -258,7 +277,7 @@ let newShipment = new Shipment()
 await routeEditor.addNewShipments('agent-A', [newShipment]);
 
 // Or with strategy
-await routeEditor.addNewShipments('agent-A', [newShipment], { strategy: 'insert' });
+await routeEditor.addNewShipments('agent-A', [newShipment], { strategy: 'preserveOrder' });
 
 let modifiedResult = routeEditor.getModifiedResult();
 ```

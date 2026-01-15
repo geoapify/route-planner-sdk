@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoutePlannerResult } from '../../../../../../src';
 
@@ -9,10 +9,44 @@ import { RoutePlannerResult } from '../../../../../../src';
   templateUrl: './issues-display.component.html',
   styleUrls: ['./issues-display.component.css']
 })
-export class IssuesDisplayComponent {
+export class IssuesDisplayComponent implements OnChanges {
   @Input() result: RoutePlannerResult | undefined;
+  @Output() assignJob = new EventEmitter<number>();
+  @Output() assignShipment = new EventEmitter<number>();
 
-  hasIssues(): boolean {
+  // Cached properties
+  hasIssuesCache = false;
+  totalIssuesCache = 0;
+  unassignedJobsCache: Array<{ index: number, id: string }> = [];
+  unassignedShipmentsCache: Array<{ index: number, id: string }> = [];
+  unassignedAgentsCache: Array<{ index: number, id: string }> = [];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['result']) {
+      this.updateCache();
+    }
+  }
+
+  private updateCache(): void {
+    this.hasIssuesCache = this.calculateHasIssues();
+    this.totalIssuesCache = this.calculateTotalIssues();
+    this.unassignedJobsCache = this.calculateUnassignedJobs();
+    this.unassignedShipmentsCache = this.calculateUnassignedShipments();
+    this.unassignedAgentsCache = this.calculateUnassignedAgents();
+  }
+
+  onJobClick(index: number) {
+    console.log('Job clicked, index:', index);
+    this.assignJob.emit(index);
+  }
+
+  onShipmentClick(index: number) {
+    console.log('Shipment clicked, index:', index);
+    this.assignShipment.emit(index);
+  }
+
+  // Private calculation methods
+  private calculateHasIssues(): boolean {
     if (!this.result) return false;
     
     const rawData = this.result.getRawData();
@@ -25,7 +59,7 @@ export class IssuesDisplayComponent {
     ));
   }
 
-  getTotalIssues(): number {
+  private calculateTotalIssues(): number {
     if (!this.result) return 0;
     
     const issues = this.result.getRawData().properties.issues;
@@ -36,7 +70,7 @@ export class IssuesDisplayComponent {
            (issues.unassigned_shipments?.length || 0);
   }
 
-  getUnassignedJobs(): Array<{ index: number, id: string }> {
+  private calculateUnassignedJobs(): Array<{ index: number, id: string }> {
     if (!this.result) return [];
     
     const rawData = this.result.getRawData();
@@ -49,7 +83,7 @@ export class IssuesDisplayComponent {
     }));
   }
 
-  getUnassignedShipments(): Array<{ index: number, id: string }> {
+  private calculateUnassignedShipments(): Array<{ index: number, id: string }> {
     if (!this.result) return [];
     
     const rawData = this.result.getRawData();
@@ -62,9 +96,17 @@ export class IssuesDisplayComponent {
     }));
   }
 
-  getUnassignedAgents(): number[] {
+  private calculateUnassignedAgents(): Array<{ index: number, id: string }> {
     if (!this.result) return [];
-    return this.result.getRawData().properties.issues?.unassigned_agents || [];
+    
+    const rawData = this.result.getRawData();
+    const agentIndexes = rawData.properties.issues?.unassigned_agents || [];
+    const allAgents = rawData.properties.params.agents;
+    
+    return agentIndexes.map(index => ({
+      index,
+      id: allAgents[index]?.id || `agent-${index}`
+    }));
   }
 }
 

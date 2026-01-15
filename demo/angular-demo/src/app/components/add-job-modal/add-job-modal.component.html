@@ -60,31 +60,44 @@
     <div class="form-group">
       <label>Strategy:</label>
       <select [(ngModel)]="strategy">
-        <option value="reoptimize">🔄 Reoptimize (Full optimization)</option>
-        <option value="insert">📍 Insert (Optimal position)</option>
-        <option value="append">➕ Append (End of route)</option>
+        <option [value]="REOPTIMIZE">🔄 Reoptimize (Full optimization)</option>
+        <option [value]="PRESERVE_ORDER">📌 Preserve Order (Insert at position)</option>
       </select>
     </div>
 
-    <div class="form-row" *ngIf="strategy === 'insert'">
+    <div class="form-group" *ngIf="strategy === PRESERVE_ORDER">
+      <label>Append to End:</label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="appendToEnd">
+        <span>Add to end of route (no API call)</span>
+      </label>
+    </div>
+
+    <div class="form-row" *ngIf="strategy === PRESERVE_ORDER && !appendToEnd">
       <div class="form-group">
-        <label>Insert At Index:</label>
-        <input type="number" [(ngModel)]="insertAtIndex" placeholder="e.g., 1">
+        <label>Before Waypoint Index:</label>
+        <input type="number" [(ngModel)]="beforeWaypointIndex" placeholder="e.g., 2">
+        <small>Waypoint 0 = start, 1 = first stop</small>
+      </div>
+      <div class="form-group">
+        <label>After Waypoint Index:</label>
+        <input type="number" [(ngModel)]="afterWaypointIndex" placeholder="e.g., 1">
+        <small>Waypoint 0 = start, 1 = first stop</small>
       </div>
     </div>
 
-    <div class="form-row" *ngIf="strategy === 'insert'">
+    <div class="form-row" *ngIf="strategy === PRESERVE_ORDER && !appendToEnd">
       <div class="form-group">
-        <label>Or After ID:</label>
-        <input type="text" [(ngModel)]="insertAfterId" placeholder="e.g., job-1">
+        <label>Before ID (job/shipment):</label>
+        <input type="text" [(ngModel)]="beforeId" placeholder="e.g., job-3">
       </div>
       <div class="form-group">
-        <label>Or Before ID:</label>
-        <input type="text" [(ngModel)]="insertBeforeId" placeholder="e.g., job-2">
+        <label>After ID (job/shipment):</label>
+        <input type="text" [(ngModel)]="afterId" placeholder="e.g., job-1">
       </div>
     </div>
 
-    <div class="form-group" *ngIf="strategy === 'reoptimize'">
+    <div class="form-group" *ngIf="strategy === REOPTIMIZE">
       <label>Priority:</label>
       <input type="number" [(ngModel)]="priority" placeholder="Higher = more important">
     </div>
@@ -108,4 +121,3 @@
     </div>
   </div>
 </div>
-
