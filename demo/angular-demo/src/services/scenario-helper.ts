@@ -11,29 +11,36 @@ export class ScenarioHelper {
       const planner = new RoutePlanner({ apiKey });
       planner.setMode("drive");
 
-      // Washington, DC - Different depot locations for each agent
-      const depot1: [number, number] = [-77.0369, 38.9072];  // Downtown DC
-      const depot2: [number, number] = [-77.0450, 38.9035];  // Southwest DC
-      const depot3: [number, number] = [-77.0280, 38.9145];  // Northeast DC
+      // Washington, DC - Different start and end locations for each agent
+      const startLocation1: [number, number] = [-77.0369, 38.9072];  // Downtown DC
+      const startLocation2: [number, number] = [-77.0450, 38.9035];  // Southwest DC
+      const startLocation3: [number, number] = [-77.0280, 38.9145];  // Northeast DC
+      
+      const endLocation1: [number, number] = [-77.0400, 38.9050];  // Near Southwest
+      const endLocation2: [number, number] = [-77.0300, 38.9120];  // Near Capitol Hill
+      const endLocation3: [number, number] = [-77.0500, 38.9010];  // Waterfront area
 
       // Create 3 agents with simple time windows
       planner.addAgent(this.createAgent({
         id: 'Agent 1',
-        location: depot1,
+        startLocation: startLocation1,
+        endLocation: endLocation1,
         capabilities: [],
         timeWindow: [0, 7200]
       }));
 
       planner.addAgent(this.createAgent({
         id: 'Agent 2',
-        location: depot2,
+        startLocation: startLocation2,
+        endLocation: endLocation2,
         capabilities: [],
         timeWindow: [0, 7200]
       }));
 
       planner.addAgent(this.createAgent({
         id: 'Agent 3',
-        location: depot3,
+        startLocation: startLocation3,
+        endLocation: endLocation3,
         capabilities: [],
         timeWindow: [0, 7200]
       }));
@@ -83,34 +90,45 @@ export class ScenarioHelper {
       const planner = new RoutePlanner({ apiKey });
       planner.setMode("drive");
 
-      // Washington, DC - Different depot locations for each agent
-      const depot1: [number, number] = [-77.0369, 38.9072];  // Downtown DC
-      const depot2: [number, number] = [-77.0450, 38.9035];  // Southwest DC
-      const depot3: [number, number] = [-77.0280, 38.9145];  // Northeast DC
+      // Washington, DC - Different start and end locations for each agent
+      const startLocation1: [number, number] = [-77.0369, 38.9072];  // Downtown DC
+      const startLocation2: [number, number] = [-77.0450, 38.9035];  // Southwest DC
+      const startLocation3: [number, number] = [-77.0280, 38.9145];  // Northeast DC
+      
+      const endLocation1: [number, number] = [-77.0400, 38.9050];  // Near Southwest
+      const endLocation2: [number, number] = [-77.0300, 38.9120];  // Near Capitol Hill
+      const endLocation3: [number, number] = [-77.0500, 38.9010];  // Waterfront area
 
       // Create 3 agents with different constraints and start locations
+      // Time windows are relative to planning start (0)
+      // Agent 1: 8-hour shift (0 to 8h = 28800s)
       planner.addAgent(this.createAgent({
         id: 'Agent 1',
-        location: depot1,
+        startLocation: startLocation1,
+        endLocation: endLocation1,
         capabilities: ['standard_delivery'],
-        timeWindow: [32400, 61200],
+        timeWindow: [0, 28800],
         deliveryCapacity: 500
       }));
 
+      // Agent 2: 8-hour shift with 1-hour lunch break after 3 hours
       planner.addAgent(this.createAgent({
         id: 'Agent 2',
-        location: depot2,
+        startLocation: startLocation2,
+        endLocation: endLocation2,
         capabilities: ['standard_delivery'],
-        timeWindow: [32400, 61200],
+        timeWindow: [0, 28800],
         deliveryCapacity: 300,
-        lunchBreak: [43200, 46800]
+        lunchBreak: [10800, 14400]  // 3h to 4h (1-hour break after 3 hours)
       }));
 
+      // Agent 3: 10-hour shift
       planner.addAgent(this.createAgent({
         id: 'Agent 3',
-        location: depot3,
+        startLocation: startLocation3,
+        endLocation: endLocation3,
         capabilities: ['standard_delivery'],
-        timeWindow: [28800, 64800],
+        timeWindow: [0, 36000],  // 10-hour shift
         pickupCapacity: 400
       }));
 
@@ -164,7 +182,8 @@ export class ScenarioHelper {
 
   static createAgent(config: {
     id: string;
-    location: [number, number];
+    startLocation: [number, number];
+    endLocation: [number, number];
     capabilities: string[];
     timeWindow: [number, number];
     pickupCapacity?: number;
@@ -173,7 +192,8 @@ export class ScenarioHelper {
   }): Agent {
     const agent = new Agent()
       .setId(config.id)
-      .setStartLocation(config.location[0], config.location[1]);
+      .setStartLocation(config.startLocation[0], config.startLocation[1])
+      .setEndLocation(config.endLocation[0], config.endLocation[1]);
     
     config.capabilities.forEach(cap => agent.addCapability(cap));
     agent.addTimeWindow(config.timeWindow[0], config.timeWindow[1]);

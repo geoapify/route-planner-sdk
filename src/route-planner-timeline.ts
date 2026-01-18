@@ -334,11 +334,11 @@ export class RoutePlannerTimeline {
         }));
         result.getAgentSolutions().forEach((agentPlan: AgentSolution) => {
             const timeline = timelines[agentPlan.getAgentIndex()];
-            timeline.timelineLength = ((agentPlan.getTime() - (agentPlan.getWaypoints()?.length ? agentPlan.getWaypoints()[0].getStartTime() : 0)) / maxTime * 100) + '%';
+            timeline.timelineLength = ((agentPlan.getEndTime() - agentPlan.getStartTime()) / maxTime * 100) + '%';
             timeline.distanceLineLength = (agentPlan.getDistance() / maxDistance * 100) + '%';
 
             timeline.itemsByDistance = [];
-            timeline.timelineLeft = (( agentPlan.getStartTime() || ( agentPlan.getWaypoints()?.length ? agentPlan.getWaypoints()[0].getStartTime() : 0 ) ) / maxTime * 100) + '%';
+            timeline.timelineLeft = (agentPlan.getStartTime() / maxTime * 100) + '%';
 
             this.generateItemsByTime(timeline, agentPlan, maxTime, result, unit);
             this.generateItemsByDistance(timeline, agentPlan, maxDistance);

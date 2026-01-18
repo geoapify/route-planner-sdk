@@ -38,13 +38,30 @@
     </div>
   </div>
 
-  <!-- Route Order -->
+  <!-- Waypoints Order -->
   <div class="route-order" *ngIf="agent.solution">
     <div class="route-header">
-      <strong>🗺️ Route ({{ getRouteStops().length }} stops):</strong>
+      <strong>📍 Waypoints ({{ routeWaypoints.length }}):</strong>
     </div>
     <ol class="route-list">
-      <li *ngFor="let stop of getRouteStops()" class="route-stop">
+      <li *ngFor="let waypoint of routeWaypoints" class="route-stop">
+        <div class="waypoint-header">
+          <span class="stop-type">Waypoint {{ waypoint.waypointIndex }}</span>
+        </div>
+        <div class="waypoint-tasks">
+          <div *ngFor="let task of waypoint.tasks" class="task-item">{{ task }}</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Route Actions (Linear) -->
+  <div class="route-order" *ngIf="agent.solution">
+    <div class="route-header">
+      <strong>🗺️ Actions ({{ routeStops.length }}):</strong>
+    </div>
+    <ol class="route-list">
+      <li *ngFor="let stop of routeStops" class="route-stop">
         <span class="stop-type">{{ stop.type }}</span>
         <span class="stop-details" *ngIf="stop.details">{{ stop.details }}</span>
       </li>

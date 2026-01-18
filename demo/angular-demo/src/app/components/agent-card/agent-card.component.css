@@ -114,6 +114,33 @@
   color: #2c3e50;
 }
 
+.waypoint-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.waypoint-time {
+  color: #666;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.waypoint-tasks {
+  margin-left: 20px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-item {
+  font-size: 0.9em;
+  color: #555;
+  padding-left: 8px;
+  border-left: 2px solid #ddd;
+}
+
 .stop-type {
   font-weight: 600;
   color: #3498db;

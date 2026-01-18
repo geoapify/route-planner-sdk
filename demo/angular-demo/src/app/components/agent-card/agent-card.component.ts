@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AgentInfo } from '../../models/demo.types';
 import { JobItemComponent } from '../job-item/job-item.component';
@@ -12,7 +12,7 @@ import { AgentColorService } from '../../../services/agent-color.service';
   templateUrl: './agent-card.component.html',
   styleUrls: ['./agent-card.component.css']
 })
-export class AgentCardComponent {
+export class AgentCardComponent implements OnChanges {
   @Input() agent!: AgentInfo;
   @Input() allAgents!: AgentInfo[];
   @Input() isLoading = false;
@@ -22,7 +22,22 @@ export class AgentCardComponent {
   @Output() addJob = new EventEmitter<number>();
   @Output() addShipment = new EventEmitter<number>();
 
+  // Computed properties
+  routeWaypoints: Array<{ waypointIndex: number, tasks: string[] }> = [];
+  routeStops: Array<{ type: string, details?: string }> = [];
+
   constructor(private agentColorService: AgentColorService) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['agent']) {
+      this.updateRouteData();
+    }
+  }
+
+  private updateRouteData(): void {
+    this.routeWaypoints = this.computeRouteWaypoints();
+    this.routeStops = this.computeRouteStops();
+  }
 
   getDisplayName(): string {
     return `Agent ${this.agent.index + 1}`;
@@ -96,7 +111,7 @@ export class AgentCardComponent {
     return `${meters} m`;
   }
 
-  getRouteStops(): Array<{ type: string, details?: string }> {
+  private computeRouteStops(): Array<{ type: string, details?: string }> {
     if (!this.agent.solution) return [];
     
     const stops: Array<{ type: string, details?: string }> = [];
@@ -137,6 +152,47 @@ export class AgentCardComponent {
     });
     
     return stops;
+  }
+
+  private computeRouteWaypoints(): Array<{ waypointIndex: number, tasks: string[] }> {
+    if (!this.agent.solution) return [];
+    
+    const waypoints = this.agent.solution.getWaypoints();
+    const result: Array<{ waypointIndex: number, tasks: string[] }> = [];
+    
+    waypoints.forEach((waypoint, index) => {
+      const tasks: string[] = [];
+      const actions = waypoint.getActions();
+      
+      actions.forEach(action => {
+        const type = action.getType();
+        
+        if (type === 'start') {
+          tasks.push('START');
+        } else if (type === 'end') {
+          tasks.push('END');
+        } else if (type === 'job') {
+          const jobId = action.getJobId();
+          const jobIndex = action.getJobIndex();
+          tasks.push(`JOB: ${jobId || `job-${jobIndex}`}`);
+        } else if (type === 'pickup') {
+          const shipmentId = action.getShipmentId();
+          const shipmentIndex = action.getShipmentIndex();
+          tasks.push(`PICKUP: ${shipmentId || `shipment-${shipmentIndex}`}`);
+        } else if (type === 'delivery') {
+          const shipmentId = action.getShipmentId();
+          const shipmentIndex = action.getShipmentIndex();
+          tasks.push(`DELIVERY: ${shipmentId || `shipment-${shipmentIndex}`}`);
+        }
+      });
+      
+      result.push({
+        waypointIndex: index,
+        tasks
+      });
+    });
+    
+    return result;
   }
 }
 

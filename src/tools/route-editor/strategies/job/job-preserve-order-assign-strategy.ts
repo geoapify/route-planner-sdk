@@ -1,4 +1,4 @@
-import { AddAssignOptions } from "../../../../models";
+import {ActionResponseData, AddAssignOptions} from "../../../../models";
 import { 
     AssignStrategy, 
     StrategyContext, 
@@ -101,7 +101,7 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
 
     private insertJobActionsAtPosition(
         context: StrategyContext, 
-        actions: any[], 
+        actions: ActionResponseData[],
         jobIndexes: number[], 
         insertPosition: number
     ): void {

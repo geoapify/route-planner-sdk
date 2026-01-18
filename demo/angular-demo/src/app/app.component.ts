@@ -157,7 +157,7 @@ export class AppComponent {
     const job = new Job()
       .setId(`test-evening-${Date.now()}`)
       .setLocation(-77.0360, 38.9085)  // Washington, DC
-      .addTimeWindow(64800, 72000)
+      .addTimeWindow(32400, 39600)  // 9h to 11h after start (outside 8h shift)
       .setDeliveryAmount(50);
     
     await this.addJobAndShowResult(job, 'Time Window Violation Test', 0);
@@ -167,7 +167,7 @@ export class AppComponent {
     const job = new Job()
       .setId(`test-lunch-${Date.now()}`)
       .setLocation(-77.0375, 38.9070)  // Washington, DC
-      .addTimeWindow(43800, 45900)
+      .addTimeWindow(11400, 13500)  // 3h10m to 3h45m (during lunch break: 3h-4h)
       .setDeliveryAmount(50);
     
     await this.addJobAndShowResult(job, 'Break Violation Test', 1);
@@ -179,7 +179,7 @@ export class AppComponent {
       .setLocation(-77.0385, 38.9065)  // Washington, DC
       .addRequirement('refrigerated')
       .addRequirement('hazmat')
-      .addTimeWindow(64800, 72000)
+      .addTimeWindow(32400, 39600)  // 9h to 11h after start (outside 8h shift)
       .setDeliveryAmount(600);
     
     await this.addJobAndShowResult(job, 'Multiple Violations Test', 0);

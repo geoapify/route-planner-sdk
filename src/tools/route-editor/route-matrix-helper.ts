@@ -85,50 +85,67 @@ export class RouteMatrixHelper {
         return matrix.sources_to_targets[0][0].time;
     }
 
-    /**
-     * Find optimal insertion point for a new location
-     * Returns the index where the new location should be inserted
-     */
     async findOptimalInsertionPoint(
         route: [number, number][],
         newLocation: [number, number]
     ): Promise<number> {
-        if (route.length === 0) {
-            return 0;
-        }
+        if (route.length === 0) return 0;
+        if (route.length === 1) return 1;
 
-        if (route.length === 1) {
-            return 1; // Insert after the only location
-        }
+        const [timesToNew, timesFromNew, consecutiveTimes] = await Promise.all([
+            this.calculateTimesToLocation(route, newLocation),
+            this.calculateTimesFromLocation(newLocation, route),
+            this.calculateConsecutiveTravelTimes(route)
+        ]);
 
-        // Calculate time increase for each possible insertion point
-        const insertionCosts: number[] = [];
-
-        for (let i = 0; i < route.length; i++) {
-            if (i === route.length - 1) {
-                // Insert at end: only need time from last location to new
-                const timeToNew = await this.calculateTravelTime(route[i], newLocation);
-                insertionCosts.push(timeToNew);
+        const costs: number[] = [];
+        for (let i = 0; i < timesToNew.length; i++) {
+            if (i === timesToNew.length - 1) {
+                costs.push(timesToNew[i]);
             } else {
-                // Insert between i and i+1
-                // Cost = time(i → new) + time(new → i+1) - time(i → i+1)
-                const matrix = await this.calculateMatrix(
-                    [{ location: route[i] }, { location: newLocation }],
-                    [{ location: newLocation }, { location: route[i + 1] }]
-                );
-
-                const timeItoNew = matrix.sources_to_targets[0][0].time;
-                const timeNewToNext = matrix.sources_to_targets[1][1].time;
-                const timeItoNext = matrix.sources_to_targets[0][1].time;
-
-                const insertionCost = timeItoNew + timeNewToNext - timeItoNext;
-                insertionCosts.push(insertionCost);
+                costs.push(timesToNew[i] + timesFromNew[i + 1] - consecutiveTimes[i]);
             }
         }
 
-        // Find index with minimum cost
-        const minCost = Math.min(...insertionCosts);
-        return insertionCosts.indexOf(minCost) + 1; // +1 because we insert AFTER this position
+        const minCost = Math.min(...costs);
+        return costs.indexOf(minCost) + 1;
+    }
+
+    private async calculateTimesToLocation(
+        routeLocations: [number, number][],
+        targetLocation: [number, number]
+    ): Promise<number[]> {
+        const matrix = await this.calculateMatrix(
+            this.toMatrixLocations(routeLocations),
+            this.toMatrixLocations([targetLocation])
+        );
+        return matrix.sources_to_targets.map(row => row[0].time);
+    }
+
+    private async calculateTimesFromLocation(
+        sourceLocation: [number, number],
+        routeLocations: [number, number][]
+    ): Promise<number[]> {
+        const matrix = await this.calculateMatrix(
+            this.toMatrixLocations([sourceLocation]),
+            this.toMatrixLocations(routeLocations)
+        );
+        return matrix.sources_to_targets[0].map(entry => entry.time);
+    }
+
+    async calculateConsecutiveTravelTimes(routeLocations: [number, number][]): Promise<number[]> {
+        if (routeLocations.length < 2) return [];
+
+        const matrix = await this.calculateMatrix(
+            this.toMatrixLocations(routeLocations.slice(0, -1)),
+            this.toMatrixLocations(routeLocations.slice(1))
+        );
+        
+        return matrix.sources_to_targets.map((row, i) => row[i].time);
+    }
+
+    private toMatrixLocations(locations: [number, number][]): RouteMatrixSource[] {
+        return locations.map(loc => ({ location: loc }));
     }
 }
 

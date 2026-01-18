@@ -2,7 +2,7 @@ import { RoutePlannerResult } from "../../../../models/entities/route-planner-re
 import { RoutePlanner } from "../../../../route-planner";
 import { Utils } from "../../../utils";
 import { RouteMatrixHelper } from "../../route-matrix-helper";
-import { FeatureResponseData } from "../../../../models";
+import {ActionResponseData, FeatureResponseData, RoutePlannerResultResponseData} from "../../../../models";
 
 /**
  * Context provided to strategies containing shared utilities and state
@@ -14,12 +14,8 @@ export class StrategyContext {
         return this.result;
     }
 
-    getRawData(): any {
+    getRawData(): RoutePlannerResultResponseData {
         return this.result.getRawData();
-    }
-
-    getOptions(): any {
-        return this.result.getOptions();
     }
 
     cloneInputData(): any {
@@ -53,7 +49,7 @@ export class StrategyContext {
         return agentFeature;
     }
 
-    getOrCreateAgentFeature(agentIndex: number): any {
+    getOrCreateAgentFeature(agentIndex: number): FeatureResponseData {
         const rawData = this.result.getRawData();
         let agentFeature = rawData.features.find((f: any) => f.properties.agent_index === agentIndex);
         
@@ -75,7 +71,7 @@ export class StrategyContext {
         return agentFeature;
     }
 
-    private createEmptyAgentFeature(agentIndex: number, agent: any) {
+    private createEmptyAgentFeature(agentIndex: number, agent: any): FeatureResponseData {
         const startTime = (agent.time_windows && agent.time_windows.length > 0 && agent.time_windows[0].length > 0) 
             ? agent.time_windows[0][0] 
             : 0;
@@ -116,11 +112,11 @@ export class StrategyContext {
         };
     }
 
-    findEndActionIndex(actions: any[]): number {
+    findEndActionIndex(actions: ActionResponseData[]): number {
         return actions.findIndex((a: any) => a.type === 'end');
     }
 
-    reindexActions(actions: any[]): void {
+    reindexActions(actions: ActionResponseData[]): void {
         actions.forEach((action: any, idx: number) => {
             action.index = idx;
         });
