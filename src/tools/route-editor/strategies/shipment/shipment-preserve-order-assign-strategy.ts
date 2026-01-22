@@ -95,15 +95,13 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
         const shipment = RouteEditorHelper.getShipmentByIndex(context, shipmentIndex);
         const pickupLocation: [number, number] = shipment.pickup!.location!;
         const deliveryLocation: [number, number] = shipment.delivery!.location!;
-        
 
-        // ToDO: getAgentLocations (from rawData)
-        const agentPlan = context.getResult().getAgentPlan(agentIndex);
-        if (!agentPlan) {
+        const agentFeature = context.getAgentFeature(agentIndex);
+        if (!agentFeature) {
             return { pickup: 1, delivery: 2 }; // After start action
         }
 
-        const routeLocations = InsertPositionResolver.extractRouteLocations(agentPlan);
+        const routeLocations = InsertPositionResolver.extractRouteLocations(agentFeature);
         
         if (routeLocations.length === 0) {
             return { pickup: 1, delivery: 2 }; // After start action

@@ -1,9 +1,8 @@
 import {
   RoutePlannerResultEditor,
-  RoutePlannerResultData, Job, Shipment, ShipmentStep, RoutePlanner
+  RoutePlannerResultData, Job, Shipment, ShipmentStep, RoutePlanner, AgentPlan
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
-import { AgentSolution } from "../../src/models/entities/nested/result/agent-solution";
 import { loadJson } from "../utils.helper";
 import TEST_API_KEY from "../../env-variables";
 import {RoutePlannerResultReverseConverter} from "../route-planner-result-reverse-converter";
@@ -69,9 +68,9 @@ describe('RoutePlannerResultEditor Default & Reoptimize Strategy', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2) (job-2 removed)
     // agent-B: job-2 added (position optimized by API)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectJobsExactly(modifiedResult.getAgentSolution('agent-B')!, ['job-1', 'job-2', 'job-4']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectJobsExactly(modifiedResult.getAgentPlan('agent-B')!, ['job-1', 'job-2', 'job-4']);
   });
 
   test('assignJobs with explicit reoptimize strategy should call API with correct params', async () => {
@@ -100,9 +99,9 @@ describe('RoutePlannerResultEditor Default & Reoptimize Strategy', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2) (job-2 removed)
     // agent-B: job-2 added (position optimized by API)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectJobsExactly(modifiedResult.getAgentSolution('agent-B')!, ['job-1', 'job-2', 'job-4']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectJobsExactly(modifiedResult.getAgentPlan('agent-B')!, ['job-1', 'job-2', 'job-4']);
   });
 });
 
@@ -131,9 +130,9 @@ describe('RoutePlannerResultEditor Priority Handling', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2) (job-2 removed)
     // agent-B: start(0) → job-1(1) → job-4(2) → job-2(?) → end(?) (job-2 added, position optimized by API)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectJobsExactly(modifiedResult.getAgentSolution('agent-B')!, ['job-1', 'job-2', 'job-4']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectJobsExactly(modifiedResult.getAgentPlan('agent-B')!, ['job-1', 'job-2', 'job-4']);
   });
 
   test('assignJobs with priority in options (new API) should work', async () => {
@@ -156,9 +155,9 @@ describe('RoutePlannerResultEditor Priority Handling', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2) (job-2 removed)
     // agent-B: start(0) → job-1(1) → job-4(2) → job-2(?) → end(?) (job-2 added, position optimized by API)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectJobsExactly(modifiedResult.getAgentSolution('agent-B')!, ['job-1', 'job-2', 'job-4']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectJobsExactly(modifiedResult.getAgentPlan('agent-B')!, ['job-1', 'job-2', 'job-4']);
   });
 
   test('assignShipments with priority as number (old API) should work', async () => {
@@ -181,11 +180,11 @@ describe('RoutePlannerResultEditor Priority Handling', () => {
     // Expected state:
     // agent-A: shipment-3-pickup and shipment-3-delivery added (position optimized by API)
     // agent-B: start(0) → shipment-4-pickup(1) → shipment-4-delivery(2) → end(3) (shipment-3 removed)
-    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-A');
     
     // Verify source agent - shipment-3 should be removed
-    expectActionsNotContain(modifiedResult.getAgentSolution('agent-B')!, ['shipment-3']);
-    expectActionsContain(modifiedResult.getAgentSolution('agent-B')!, ['shipment-4']);
+    expectActionsNotContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-3']);
+    expectActionsContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-4']);
   }, 10000); // Extended timeout for API call
 });
 
@@ -213,9 +212,9 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     // agent-A: start(0) → job-3(1) → end(2)
     // agent-B: start(0) → job-1(1) → job-4(2) → job-2(3) → end(4)
     let modifiedResult = routeEditor.getModifiedResult();
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'job-4', 'job-2', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-4', 'job-2', 'end']);
   });
 
   test('assignJobs with preserveOrder + appendToEnd should add job to end of route', async () => {
@@ -238,9 +237,9 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // agent-B: start(0) → job-1(1) → job-4(2) → job-2(3) → end(4)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'job-4', 'job-2', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-4', 'job-2', 'end']);
   });
 
   test('assignShipments with preserveOrder + appendToEnd should add shipment to end of route', async () => {
@@ -263,12 +262,12 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     // Expected state:
     // agent-A: start(0) → shipment-2-pickup(1) → shipment-2-delivery(2) → shipment-1-pickup(3) → shipment-1-delivery(4) → shipment-3-pickup(5) → shipment-3-delivery(6) → end(7)
     // agent-B: start(0) → shipment-4-pickup(1) → shipment-4-delivery(2) → end(3)
-    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, [
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, [
       'start', 'shipment-2-pickup', 'shipment-2-delivery', 'shipment-1-pickup', 'shipment-1-delivery', 
       'shipment-3-pickup', 'shipment-3-delivery', 'end'
     ]);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, [
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, [
       'start', 'shipment-4-pickup', 'shipment-4-delivery', 'end'
     ]);
   });
@@ -294,8 +293,8 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     
     // Expected state:
     // agent-A: start(0) → job-3(1) → job-2(2) → job-5(3) → end(4)
-    expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'job-2', 'job-5', 'end']);
+    expect(modifiedResult.getJobPlan('job-5')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'job-2', 'job-5', 'end']);
   });
 
   test('addNewShipments with preserveOrder + appendToEnd should add new shipment to end of route', async () => {
@@ -319,8 +318,8 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     
     // Expected state:
     // agent-A: start(0) → shipment-2-pickup(1) → shipment-2-delivery(2) → shipment-1-pickup(3) → shipment-1-delivery(4) → shipment-5-pickup(5) → shipment-5-delivery(6) → end(7)
-    expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, [
+    expect(modifiedResult.getShipmentPlan('shipment-5')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, [
       'start', 'shipment-2-pickup', 'shipment-2-delivery', 'shipment-1-pickup', 'shipment-1-delivery',
       'shipment-5-pickup', 'shipment-5-delivery', 'end'
     ]);
@@ -346,9 +345,9 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     
     // Expected state:
     // agent-B: start(0) → job-1(1) → end(2) (created from scratch)
-    expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'end']);
   });
 
   test('assignShipments with preserveOrder + appendToEnd to unassigned agent should create feature and append', async () => {
@@ -371,9 +370,9 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     
     // Expected state:
     // agent-B: start(0) → shipment-3-pickup(1) → shipment-3-delivery(2) → end(3) (created from scratch)
-    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'shipment-3-pickup', 'shipment-3-delivery', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'shipment-3-pickup', 'shipment-3-delivery', 'end']);
   });
 });
 
@@ -402,11 +401,11 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // agent-B: job-2 inserted at optimal position (algorithm decides)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
     
     // Verify agent-B has all expected jobs (order determined by algorithm)
-    const agentB = modifiedResult.getAgentSolution('agent-B')!;
+    const agentB = modifiedResult.getAgentPlan('agent-B')!;
     expectValidRoute(agentB);
     expect(agentB.getActions().length).toBe(5); // start, job-1, job-4, job-2, end
     expectJobsExactly(agentB, ['job-1', 'job-2', 'job-4']);
@@ -432,9 +431,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // agent-B: start(0) → job-2(1) → job-1(2) → job-4(3) → end(4)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
   });
 
   test('assignJobs with preserveOrder + beforeId should place job before specified job', async () => {
@@ -457,9 +456,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // agent-B: start(0) → job-1(1) → job-2(2) → job-4(3) → end(4)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
   });
 
   test('assignJobs with preserveOrder + afterId should place job after specified job', async () => {
@@ -482,9 +481,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // agent-B: start(0) → job-1(1) → job-2(2) → job-4(3) → end(4)
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
   });
 
   test('assignShipments with preserveOrder (no position) should find optimal position via Route Matrix', async () => {
@@ -507,13 +506,13 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-B: start(0) → shipment-4-pickup(1) → shipment-4-delivery(2) → end(3)
     // agent-A: shipment-3 inserted at optimal position (algorithm decides)
-    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, [
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, [
       'start', 'shipment-4-pickup', 'shipment-4-delivery', 'end'
     ]);
     
     // Verify agent-A has all expected shipments
-    const agentA = modifiedResult.getAgentSolution('agent-A')!;
+    const agentA = modifiedResult.getAgentPlan('agent-A')!;
     expectValidRoute(agentA);
     expectActionsContain(agentA, ['shipment-1', 'shipment-2', 'shipment-3']);
   });
@@ -538,13 +537,13 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-A: start(0) → shipment-4-pickup(1) → shipment-4-delivery(2) → shipment-2-pickup(3) → shipment-2-delivery(4) → shipment-1-pickup(5) → shipment-1-delivery(6) → end(7)
     // agent-B: start(0) → shipment-3-pickup(1) → shipment-3-delivery(2) → end(3)
-    expect(modifiedResult.getShipmentInfo('shipment-4')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, [
+    expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, [
       'start', 'shipment-4-pickup', 'shipment-4-delivery', 'shipment-2-pickup', 'shipment-2-delivery', 
       'shipment-1-pickup', 'shipment-1-delivery', 'end'
     ]);
-    expectActionsContain(modifiedResult.getAgentSolution('agent-B')!, ['shipment-3']);
-    expectActionsNotContain(modifiedResult.getAgentSolution('agent-B')!, ['shipment-4']);
+    expectActionsContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-3']);
+    expectActionsNotContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-4']);
   });
 
   test('addNewJobs with preserveOrder + afterWaypointIndex should place job at specific index', async () => {
@@ -568,8 +567,8 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Expected state:
     // agent-A: start(0) → job-5(1) → job-3(2) → job-2(3) → end(4)
-    expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-5', 'job-3', 'job-2', 'end']);
+    expect(modifiedResult.getJobPlan('job-5')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-5', 'job-3', 'job-2', 'end']);
   });
 
   test('addNewShipments with preserveOrder + afterWaypointIndex should place shipment at specific index', async () => {
@@ -593,8 +592,8 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Expected state:
     // agent-A: start(0) → shipment-5-pickup(1) → shipment-5-delivery(2) → shipment-2-pickup(3) → shipment-2-delivery(4) → shipment-1-pickup(5) → shipment-1-delivery(6) → end(7)
-    expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-A');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, [
+    expect(modifiedResult.getShipmentPlan('shipment-5')!.getAgentId()).toBe('agent-A');
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, [
       'start', 'shipment-5-pickup', 'shipment-5-delivery', 'shipment-2-pickup', 'shipment-2-delivery',
       'shipment-1-pickup', 'shipment-1-delivery', 'end'
     ]);
@@ -621,9 +620,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Expected state:
     // agent-A: job-5 inserted at optimal position (algorithm decides)
-    expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getJobPlan('job-5')!.getAgentId()).toBe('agent-A');
     
-    const agentA = modifiedResult.getAgentSolution('agent-A')!;
+    const agentA = modifiedResult.getAgentPlan('agent-A')!;
     expectValidRoute(agentA);
     expect(agentA.getActions().length).toBe(5); // start, job-3, job-2, job-5, end
     expectJobsExactly(agentA, ['job-2', 'job-3', 'job-5']);
@@ -651,9 +650,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     // Expected state:
     // agent-A: shipment-5-pickup and shipment-5-delivery inserted at optimal positions (algorithm decides)
     //          shipment-1 and shipment-2 remain on agent-A
-    expect(modifiedResult.getShipmentInfo('shipment-5')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentPlan('shipment-5')!.getAgentId()).toBe('agent-A');
     
-    const agentA = modifiedResult.getAgentSolution('agent-A')!;
+    const agentA = modifiedResult.getAgentPlan('agent-A')!;
     expectValidRoute(agentA);
     expectShipmentsExactly(agentA, ['shipment-1', 'shipment-2', 'shipment-5']);
   }, 15000); // Extended timeout for multiple Route Matrix API calls
@@ -679,9 +678,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Expected state:
     // agent-B: start(0) → job-1(1) → end(2) (created from scratch)
-    expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'end']);
   });
 
   test('assignShipments with preserveOrder to unassigned agent should create feature and insert', async () => {
@@ -705,9 +704,9 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Expected state:
     // agent-B: start(0) → shipment-3-pickup(1) → shipment-3-delivery(2) → end(3) (created from scratch)
-    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'shipment-3-pickup', 'shipment-3-delivery', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'shipment-3-pickup', 'shipment-3-delivery', 'end']);
   });
 });
 
@@ -736,11 +735,11 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-A: job-2 removed, route reoptimized
     // Unassigned jobs: [job-2]
-    expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
-    expectActionsContain(modifiedResult.getAgentSolution('agent-A')!, ['job-3']);
-    expectActionsNotContain(modifiedResult.getAgentSolution('agent-A')!, ['job-2']);
+    expectActionsContain(modifiedResult.getAgentPlan('agent-A')!, ['job-3']);
+    expectActionsNotContain(modifiedResult.getAgentPlan('agent-A')!, ['job-2']);
   });
 
   test('removeShipments with explicit reoptimize strategy should call API', async () => {
@@ -763,11 +762,11 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-B: shipment-3 removed, route reoptimized
     // Unassigned shipments: [shipment-3]
-    expect(modifiedResult.getShipmentInfo('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
-    expectActionsContain(modifiedResult.getAgentSolution('agent-B')!, ['shipment-4']);
-    expectActionsNotContain(modifiedResult.getAgentSolution('agent-B')!, ['shipment-3']);
+    expectActionsContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-4']);
+    expectActionsNotContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-3']);
   });
 
   test('removeJobs with preserveOrder should remove without reoptimizing', async () => {
@@ -790,10 +789,10 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // Unassigned jobs: [job-2]
-    expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
   });
 
   test('removeShipments with preserveOrder should remove without reoptimizing', async () => {
@@ -816,10 +815,10 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-B: start(0) → shipment-4-pickup(1) → shipment-4-delivery(2) → end(3)
     // Unassigned shipments: [shipment-3]
-    expect(modifiedResult.getShipmentInfo('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, [
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, [
       'start', 'shipment-4-pickup', 'shipment-4-delivery', 'end'
     ]);
   });
@@ -842,7 +841,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     
     // Expected state:
     // agent-A: start(0) → job-2(1) → end(2)
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-2', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-2', 'end']);
   });
 
   test('removeJobs with preserveOrder should handle missing issues object', async () => {
@@ -851,7 +850,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
     
     // Manually remove issues object to simulate the bug scenario
-    delete plannerResult.getRawData().properties.issues;
+    delete plannerResult.getRaw().properties.issues;
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
@@ -864,10 +863,10 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     
     // Expected state: job removed and added to newly created unassigned_jobs array
-    expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
-    expectActions(modifiedResult.getAgentSolution('agent-A')!, ['start', 'job-3', 'end']);
+    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
   });
 
   test('removeShipments with preserveOrder should handle missing issues object', async () => {
@@ -876,7 +875,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
     
     // Manually remove issues object to simulate the bug scenario
-    delete plannerResult.getRawData().properties.issues;
+    delete plannerResult.getRaw().properties.issues;
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
@@ -889,10 +888,10 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     
     // Expected state: shipment removed and added to newly created unassigned_shipments array
-    expect(modifiedResult.getShipmentInfo('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, [
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, [
       'start', 'shipment-4-pickup', 'shipment-4-delivery', 'end'
     ]);
   });
@@ -922,8 +921,8 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     
     // Should insert after waypoint 0 (start), ignoring empty afterId
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
   });
 
   test('assignJobs with empty beforeId should use afterWaypointIndex instead', async () => {
@@ -945,8 +944,8 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     
     // Should insert after waypoint 1 (job-1), ignoring empty beforeId
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentSolution('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
   });
 
   test('assignJobs with all empty strings should use optimal insert via Route Matrix', async () => {
@@ -966,7 +965,7 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     expectApiCalled(['routematrix']);
     
     let modifiedResult = routeEditor.getModifiedResult();
-    expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
   });
 
   test('assignShipments with empty insert IDs should use optimal insert via Route Matrix', async () => {
@@ -986,7 +985,7 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     expectApiCalled(['routematrix']);
     
     let modifiedResult = routeEditor.getModifiedResult();
-    expect(modifiedResult.getShipmentInfo('shipment-3')!.getAgentId()).toBe('agent-A');
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-A');
   }, 10000);  // Extended timeout for Route Matrix calls
 });
 
@@ -1094,7 +1093,7 @@ describe('RoutePlannerResultEditor Error Handling', () => {
     // agent-B has 3 waypoints total: start(0), job-1(1), job-4(2), end(3)
     // But waypoints.length is based on actual waypoint objects, not action count
     // Need to find the actual last waypoint index
-    const agentB = plannerResult.getAgentSolution('agent-B')!;
+    const agentB = plannerResult.getAgentPlan('agent-B')!;
     const lastWaypointIndex = agentB.getWaypoints().length - 1;
     
     try {
@@ -1118,7 +1117,7 @@ describe('RoutePlannerResultEditor Error Handling', () => {
  *                          Use job/shipment IDs for job actions
  *                          Use 'shipment-X-pickup' or 'shipment-X-delivery' for shipment actions
  */
-function expectActions(agent: AgentSolution, expectedActions: string[]): void {
+function expectActions(agent: AgentPlan, expectedActions: string[]): void {
   const actions = agent.getActions();
 
   expect(actions.length).toBe(expectedActions.length);
@@ -1127,7 +1126,7 @@ function expectActions(agent: AgentSolution, expectedActions: string[]): void {
     const expected = expectedActions[i];
     const actual = actions[i];
 
-    expect(actual.getIndex()).toBe(i);
+    expect(actual.getActionIndex()).toBe(i);
 
     if (expected === 'start' || expected === 'end') {
       expect(actual.getType()).toBe(expected);
@@ -1149,7 +1148,7 @@ function expectActions(agent: AgentSolution, expectedActions: string[]): void {
 /**
  * Gets all job IDs from agent's actions
  */
-function getJobIds(agent: AgentSolution): string[] {
+function getJobIds(agent: AgentPlan): string[] {
   return agent.getActions()
     .filter(a => a.getJobId())
     .map(a => a.getJobId()!);
@@ -1158,7 +1157,7 @@ function getJobIds(agent: AgentSolution): string[] {
 /**
  * Gets all shipment IDs from agent's actions (unique)
  */
-function getShipmentIds(agent: AgentSolution): string[] {
+function getShipmentIds(agent: AgentPlan): string[] {
   return [...new Set(agent.getActions()
     .filter(a => a.getShipmentId())
     .map(a => a.getShipmentId()!))];
@@ -1169,7 +1168,7 @@ function getShipmentIds(agent: AgentSolution): string[] {
  * @param agent - The agent solution to verify
  * @param itemIds - Array of job or shipment IDs that should be present
  */
-function expectActionsContain(agent: AgentSolution, itemIds: string[]): void {
+function expectActionsContain(agent: AgentPlan, itemIds: string[]): void {
   const jobIds = getJobIds(agent);
   const shipmentIds = getShipmentIds(agent);
   const allItemIds = [...jobIds, ...shipmentIds];
@@ -1184,7 +1183,7 @@ function expectActionsContain(agent: AgentSolution, itemIds: string[]): void {
  * @param agent - The agent solution to verify
  * @param itemIds - Array of job or shipment IDs that should NOT be present
  */
-function expectActionsNotContain(agent: AgentSolution, itemIds: string[]): void {
+function expectActionsNotContain(agent: AgentPlan, itemIds: string[]): void {
   const jobIds = getJobIds(agent);
   const shipmentIds = getShipmentIds(agent);
   const allItemIds = [...jobIds, ...shipmentIds];
@@ -1199,7 +1198,7 @@ function expectActionsNotContain(agent: AgentSolution, itemIds: string[]): void 
  * @param agent - The agent solution to verify
  * @param expectedJobIds - Array of job IDs that should be present (and no others)
  */
-function expectJobsExactly(agent: AgentSolution, expectedJobIds: string[]): void {
+function expectJobsExactly(agent: AgentPlan, expectedJobIds: string[]): void {
   const actualJobIds = getJobIds(agent).sort();
   expect(actualJobIds).toEqual(expectedJobIds.sort());
 }
@@ -1209,7 +1208,7 @@ function expectJobsExactly(agent: AgentSolution, expectedJobIds: string[]): void
  * @param agent - The agent solution to verify
  * @param expectedShipmentIds - Array of shipment IDs that should be present (and no others)
  */
-function expectShipmentsExactly(agent: AgentSolution, expectedShipmentIds: string[]): void {
+function expectShipmentsExactly(agent: AgentPlan, expectedShipmentIds: string[]): void {
   const actualShipmentIds = getShipmentIds(agent).sort();
   expect(actualShipmentIds).toEqual(expectedShipmentIds.sort());
 }
@@ -1218,7 +1217,7 @@ function expectShipmentsExactly(agent: AgentSolution, expectedShipmentIds: strin
  * Verifies agent's route starts with 'start' and ends with 'end' actions
  * @param agent - The agent solution to verify
  */
-function expectValidRoute(agent: AgentSolution): void {
+function expectValidRoute(agent: AgentPlan): void {
   const actions = agent.getActions();
   expect(actions.length).toBeGreaterThanOrEqual(2);
   expect(actions[0].getType()).toBe('start');

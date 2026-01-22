@@ -5,7 +5,7 @@ import RoutePlanner, {
   Shipment,
   ShipmentStep,
   RoutePlannerError,
-  RoutePlannerInputData, RouteLeg, RouteAction, Waypoint, RouteActionInfo
+  RoutePlannerInputData, RouteLeg, RouteAction, Waypoint
 } from "../src";
 import { RoutePlannerResult } from "../src/models/entities/route-planner-result";
 import TEST_API_KEY from "../env-variables";
@@ -54,19 +54,19 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(1);
+    expect(result.getAgentPlans().length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[1]);
-    testAllWaypointFieldsArePopulated(result.getAgentWaypoints(result.getAgentSolutions()[0].getAgentId())[1]);
+    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[1]);
+    testAllWaypointFieldsArePopulated(result.getAgentWaypoints(result.getAgentPlans()[0].getAgentId())[1]);
     testGetAgentShipments(result);
     testGetShipmentInfo(result);
     testGetShipmentSolutions(result);
     testGetShipmentSolution(result);
-    expect(result.getJobSolutions().length).toBe(0);
+    expect(result.getJobPlans().length).toBe(0);
   });
 
   test('should return success for complex test 2 - "Deliver shipments and pickup returns"', async () => {
@@ -91,14 +91,14 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(1);
+    expect(result.getAgentPlans().length).toBe(1);
     expect(result.getUnassignedAgents().length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[2]);
-    testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].getWaypoints()[1]);
+    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[2]);
+    testAllWaypointFieldsArePopulated(result.getAgentPlans()[0]!.getWaypoints()[1]);
     testGetAgentJobs(result);
   });
 
@@ -124,14 +124,14 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(1);
+    expect(result.getAgentPlans().length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentSolutions()[0].getActions()[2]);
-    testAllWaypointFieldsArePopulated(result.getAgentSolutions()[0].getWaypoints()[1]);
+    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[2]);
+    testAllWaypointFieldsArePopulated(result.getAgentPlans()[0]!.getWaypoints()[1]);
   });
 
   test('should return success for complex test 4 - "Delivery / pickup with constraints"', async () => {
@@ -158,15 +158,14 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(1);
+    expect(result.getAgentPlans().length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getUnassignedShipments().length).toBe(1);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentRouteActions(result.getData().agents[0].agentId)[1]);
-    expect(result.getOptions()).toBeDefined();
+    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(result.getAgentPlan(result.getData().agents[0].agentId)!.getActions()[1]);
   });
 
   test('should return success for complex test 5 - "Garbage collector truck routes"', async () => {
@@ -185,7 +184,7 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(1);
+    expect(result.getAgentPlans().length).toBe(1);
     expect(result.getUnassignedAgents().length).toBe(2);
     expect(result.getUnassignedJobs().length).toBe(1);
     expect(result.getData().inputData).toBeDefined();
@@ -195,7 +194,7 @@ describe('RoutePlanner', () => {
     testGetJobInfo(result);
     testGetJobSolutions(result);
     testGetJobSolution(result);
-    expect(result.getShipmentSolutions().length).toBe(0);
+    expect(result.getShipmentPlans().length).toBe(0);
   });
 
   test('should return success test all not used fields"', async () => {
@@ -220,14 +219,14 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentSolutions().length).toBe(1);
+    expect(result.getAgentPlans().length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getData().unassignedJobs.length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentSolutions()[0].getLegs()![0]);
-    expect(result.getAgentSolutions()[0].getActions()[2].getJobIndex()).toBeDefined()
+    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
+    expect(result.getAgentPlans()[0]!.getActions()[2].getJobIndex()).toBeDefined()
   });
 
 
@@ -292,7 +291,7 @@ describe('RoutePlanner', () => {
     expect(firstWaypoint.getLocation()).toBeDefined();
     expect(firstWaypoint.getStartTime()).toBeDefined();
     expect(firstWaypoint.getDuration()).toBeDefined();
-    expect(firstWaypoint.getActions()[1].getIndex()).toBeDefined();
+    expect(firstWaypoint.getActions()[1].getActionIndex()).toBeDefined();
     expect(firstWaypoint.getActions()[1].getType()).toBeDefined();
     expect(firstWaypoint.getActions()[1].getStartTime()).toBeDefined();
     expect(firstWaypoint.getActions()[1].getDuration()).toBeDefined();
@@ -308,7 +307,7 @@ describe('RoutePlanner', () => {
   }
 
   function testAllActionFieldsArePopulated(nextAction: RouteAction) {
-    expect(nextAction.getIndex()).toBeDefined();
+    expect(nextAction.getActionIndex()).toBeDefined();
     expect(nextAction.getType()).toBeDefined();
     expect(nextAction.getStartTime()).toBeDefined();
     expect(nextAction.getDuration()).toBeDefined();
@@ -331,34 +330,34 @@ describe('RoutePlanner', () => {
   }
 
   function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResult) {
-    expect(result.getAgentSolutions()).toBeDefined();
-    expect(result.getAgentSolutions()[0].getAgentIndex()).toBeDefined();
-    expect(result.getAgentSolutions()[0].getTime()).toBeDefined();
-    expect(result.getAgentSolutions()[0].getStartTime()).toBeDefined();
-    expect(result.getAgentSolutions()[0].getEndTime()).toBeDefined();
-    expect(result.getAgentSolutions()[0].getDistance()).toBeDefined();
+    expect(result.getAgentPlans()).toBeDefined();
+    expect(result.getAgentPlans()[0]!.getAgentIndex()).toBeDefined();
+    expect(result.getAgentPlans()[0]!.getTime()).toBeDefined();
+    expect(result.getAgentPlans()[0]!.getStartTime()).toBeDefined();
+    expect(result.getAgentPlans()[0]!.getEndTime()).toBeDefined();
+    expect(result.getAgentPlans()[0]!.getDistance()).toBeDefined();
   }
 
   function testGetAgentShipments(result: RoutePlannerResult) {
-    expect(result.getAgentShipments(result.getAgentSolutions()[0].getAgentId())).toStrictEqual([0, 1]);
+    expect(result.getShipmentPlan(result.getAgentPlans()[0]!.getAgentId())).toStrictEqual([0, 1]);
   }
 
   function testGetAgentJobs(result: RoutePlannerResult) {
     let expectedResult = result.getData().agents[0].actions.filter(action => action.job_id !== undefined)
         .map(action => action.job_id);
-    expect(result.getAgentJobs(result.getAgentSolutions()[0].getAgentId())).toStrictEqual(expectedResult);
+    expect(result.getJobPlan(result.getAgentPlans()[0]!.getAgentId())).toStrictEqual(expectedResult);
   }
 
   function testGetShipmentInfo(result: RoutePlannerResult) {
-    let agent = result.getAgentSolutions()[0];
-    let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1], agent.getActions()[4]], agent: agent};
-    expect(result.getShipmentInfo(agent.getActions()[1].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let agent = result.getAgentPlans()[0];
+    let expectedResult = {agentId: agent!.getAgentId(), actions: [agent!.getActions()[1], agent!.getActions()[4]], agent: agent};
+    expect(result.getShipmentPlan(agent!.getActions()[1].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
   }
 
   function testGetJobInfo(result: RoutePlannerResult) {
-    let agent = result.getAgentSolutions()[0];
+    let agent = result.getAgentPlans()[0];
     let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1]], agent: agent};
-    expect(result.getJobInfo(agent.getActions()[1].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    expect(result.getJobPlan(agent!.getActions()[1].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {
@@ -368,42 +367,42 @@ describe('RoutePlanner', () => {
   }
 
   function testGetShipmentSolutions(result: RoutePlannerResult) {
-    let shipmentSolutions = result.getShipmentSolutions();
+    let shipmentSolutions = result.getShipmentPlans();
     expect(shipmentSolutions.length).toBe(2);
-    expect(shipmentSolutions[0].getAgentId()).toBe('agent-A');
-    expect(shipmentSolutions[0].getActions().length).toBe(2);
-    expect(shipmentSolutions[0].getAgent().getAgentId()).toBe('agent-A');
-    expect(shipmentSolutions[0].getShipment().getRaw().id).toBe('order-1');
+    expect(shipmentSolutions[0]!.getAgentId()).toBe('agent-A');
+    expect(shipmentSolutions[0]!.getRouteActions().length).toBe(2);
+    expect(shipmentSolutions[0]!.getAgentPlan()!.getAgentId()).toBe('agent-A');
+    expect(shipmentSolutions[0]!.getShipmentId()).toBe('order-1');
   }
 
   function testGetJobSolutions(result: RoutePlannerResult) {
-    let jobSolutions = result.getJobSolutions();
+    let jobSolutions = result.getJobPlans();
     expect(jobSolutions.length).toBe(3);
     expect(jobSolutions[0].getAgentId()).toBe('agent-A');
-    expect(jobSolutions[0].getActions().length).toBe(1);
-    expect(jobSolutions[0].getAgent().getAgentId()).toBe('agent-A');
-    expect(jobSolutions[0].getJob().getRaw().id).toBe('1');
+    expect(jobSolutions[0].getRouteActions().length).toBe(1);
+    expect(jobSolutions[0].getAgentId()).toBe('agent-A');
+    expect(jobSolutions[0].getJobInputData().id).toBe('1');
   }
 
   function testGetShipmentSolution(result: RoutePlannerResult) {
-    let shipmentSolution = result.getShipmentSolution('order-1');
+    let shipmentSolution = result.getShipmentPlan('order-1');
     expect(shipmentSolution).toBeDefined();
     expect(shipmentSolution!.getAgentId()).toBe('agent-A');
-    expect(shipmentSolution!.getActions().length).toBe(2);
-    expect(shipmentSolution!.getAgent().getAgentId()).toBe('agent-A');
-    expect(shipmentSolution!.getShipment().getRaw().id).toBe('order-1');
+    expect(shipmentSolution!.getRouteActions().length).toBe(2);
+    expect(shipmentSolution!.getAgentPlan()!.getAgentId()).toBe('agent-A');
+    expect(shipmentSolution!.getShipmentId()).toBe('order-1');
 
-    expect(result.getShipmentSolution('unknown')).toBeUndefined()
+    expect(result.getShipmentPlan('unknown')).toBeUndefined()
   }
 
   function testGetJobSolution(result: RoutePlannerResult) {
-    let jobSolution = result.getJobSolution('1');
+    let jobSolution = result.getJobPlan('1');
     expect(jobSolution).toBeDefined();
     expect(jobSolution!.getAgentId()).toBe('agent-A');
-    expect(jobSolution!.getActions().length).toBe(1);
-    expect(jobSolution!.getAgent().getAgentId()).toBe('agent-A');
-    expect(jobSolution!.getJob().getRaw().id).toBe('1');
+    expect(jobSolution!.getRouteActions().length).toBe(1);
+    expect(jobSolution!.getAgentId()).toBe('agent-A');
+    expect(jobSolution!.getJobInputData().id).toBe('1');
 
-    expect(result.getJobSolution('unknown')).toBeUndefined()
+    expect(result.getJobPlan('unknown')).toBeUndefined()
   }
 });

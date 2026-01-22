@@ -368,7 +368,8 @@ export class RoutePlannerTimeline {
                 this.options.distanceLabels = this.generateDistanceLabels(maxDistance, labelWidth);
             }
         }
-        result.getAgentPlans().filter(agentPlan => !!agentPlan).forEach((agentPlan: AgentPlan) => {
+        result.getAgentPlans()
+            .filter((agentPlan): agentPlan is AgentPlan => agentPlan !== undefined).forEach((agentPlan: AgentPlan) => {
             const timeline = timelines[agentPlan.getAgentIndex()];
             timeline.timelineLength = ((agentPlan.getEndTime() - agentPlan.getStartTime()) / maxTime * 100) + '%';
             timeline.distanceLineLength = (agentPlan.getDistance() / maxDistance * 100) + '%';

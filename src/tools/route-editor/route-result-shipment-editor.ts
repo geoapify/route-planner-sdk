@@ -47,14 +47,11 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     }
 
     private validateShipmentAssignment(shipmentIndex: number, agentIndex?: number): void {
-
-        // ToDO: context.getAgentIndexForShipment()
-
-        const shipmentPlanData: ShipmentData = this.context.getShipmentPlan(shipmentIndex);
-        if (!shipmentPlan) {
+        const realAgentIndexForShipment = this.context.getAgentIndexForShipment(shipmentIndex);
+        if (!realAgentIndexForShipment) {
             this.validateShipmentExists(shipmentIndex);
         }
-        if (agentIndex !== undefined && shipmentPlanData.s === agentIndex) {
+        if (agentIndex !== undefined && realAgentIndexForShipment === agentIndex) {
             throw new Error(`Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
         }
     }
@@ -73,9 +70,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private validateShipmentConstraints(agentIndex: number, shipmentIndexes: number[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
 
-        // ToDO: context.getAgentShipments()
-
-        const existingShipmentIndexes: number[] = this.result.getAgentPlan(agentIndex)!.getPlannedShipments();
+        const existingShipmentIndexes: number[] = this.context.getAgentShipments(agentIndex);
         const existingShipments = existingShipmentIndexes.map(i => this.getShipmentData(i));
         const newShipments = shipmentIndexes.map(i => this.getShipmentData(i));
         const allShipments = [...existingShipments, ...newShipments];
@@ -86,7 +81,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private validateNewShipmentConstraints(agentIndex: number, shipmentsRaw: ShipmentData[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingShipmentIndexes: number[] = this.result.getAgentPlan(agentIndex)!.getPlannedShipments();
+        const existingShipmentIndexes: number[] = this.context.getAgentShipments(agentIndex);
         const existingShipments = existingShipmentIndexes.map(i => this.getShipmentData(i));
         const allShipments = [...existingShipments, ...shipmentsRaw];
         

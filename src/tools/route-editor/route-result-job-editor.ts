@@ -47,14 +47,11 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     }
 
     private validateJobAssignment(jobIndex: number, agentIndex?: number): void {
-
-        // // ToDO: context.getAgentIndexForJob()
-
-        const jobPlan = this.result.getJobPlan(jobIndex);
-        if (!jobPlan) {
+        const jobAgentIndex = this.context.getAgentIndexForJob(jobIndex);
+        if (jobAgentIndex) {
             this.validateJobExists(jobIndex);
         }
-        if (agentIndex !== undefined && jobPlan &&  jobPlan.getAgentIndex() === agentIndex) {
+        if (agentIndex !== undefined && jobAgentIndex === agentIndex) {
             throw new Error(`Job with index ${jobIndex} already assigned to agent with index ${agentIndex}`);
         }
     }
@@ -73,9 +70,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private validateJobConstraints(agentIndex: number, jobIndexes: number[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
 
-        // ToDO: context.getAgentJobs()
-
-        const existingJobIndexes = this.result.getAgentPlan(agentIndex)!.getPlannedJobs();
+        const existingJobIndexes = this.context.getAgentJobs(agentIndex);
         const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
         const newJobs = jobIndexes.map(i => this.getJobData(i));
         const allJobs = [...existingJobs, ...newJobs];
@@ -86,7 +81,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private validateNewJobConstraints(agentIndex: number, jobsRaw: JobData[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingJobIndexes = this.result.getAgentPlan(agentIndex)!.getPlannedJobs();
+        const existingJobIndexes = this.context.getAgentJobs(agentIndex);
         const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
         const allJobs = [...existingJobs, ...jobsRaw];
         

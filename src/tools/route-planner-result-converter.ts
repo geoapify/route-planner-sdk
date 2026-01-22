@@ -1,6 +1,5 @@
 import {
-  ActionResponseData,
-  AgentSolutionData,
+  ActionResponseData, AgentPlanData,
   FeatureResponseData, LegResponseData, LegStepResponseData, RouteActionData, RouteLegData, RouteLegStepData,
   RoutePlannerResultData,
   RoutePlannerResultResponseData, WaypointData, WaypointResponseData
@@ -20,8 +19,8 @@ export class RoutePlannerResultConverter {
     }
   }
 
-  private static generateAgents(response: RoutePlannerResultResponseData): AgentSolutionData[] {
-    let result: AgentSolutionData[] = [];
+  private static generateAgents(response: RoutePlannerResultResponseData): AgentPlanData[] {
+    let result: AgentPlanData[] = [];
     response.features.forEach((feature: FeatureResponseData) => {
       let properties = feature.properties;
       result.push({

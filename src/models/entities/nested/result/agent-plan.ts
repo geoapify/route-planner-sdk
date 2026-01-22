@@ -2,11 +2,13 @@ import { RouteLeg } from "./route-leg";
 import { AgentData, AgentPlanData, RoutingOptions, RoutingOptionsExtended } from "../../../interfaces";
 import { RouteAction } from "./route-action";
 import { Waypoint } from "./waypoint";
-import { RoutePlannerResult } from "../../route-planner-result";
 import { RoutePlannerCallOptions } from "../../../interfaces/route-planner-call-options";
 
 export class AgentPlan {
-    constructor(private readonly raw: AgentPlanData, private readonly agentInputData: AgentData, private readonly routingOptions: RoutingOptions, private readonly RoutePlannerCallOptions: RoutePlannerCallOptions) {
+    constructor(private readonly raw: AgentPlanData,
+                private readonly agentInputData: AgentData,
+                private readonly routingOptions: RoutingOptions,
+                private readonly callOptions: RoutePlannerCallOptions) {
         if (!raw) {
             throw new Error("AgentSolutionData is undefined");
         }
@@ -124,7 +126,9 @@ export class AgentPlan {
         return feature;
     }
 
-    private constructRoutingRequest(waypoints: string, options: RoutingOptionsExtended, RoutePlannerCallOptions: RoutePlannerCallOptions) {
+    private constructRoutingRequest(waypoints: string,
+                                    options: RoutingOptionsExtended,
+                                    callOptions: RoutePlannerCallOptions) {
         let url = `${callOptions.baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${callOptions.apiKey}`;
         
         if(options.mode) {

@@ -81,11 +81,10 @@ export class RequirementHelper {
         for (let i = 0; i < jobs.length; i++) {
             if (excludeIndexes.includes(i)) continue;
             
-            const jobPlan = context.getResult().getJobPlan(i);
-            if (!jobPlan) continue;
+            const agentIndexForJob = context.getAgentIndexForJob(i);
+            if (!agentIndexForJob) continue;
             
-            const agentIndex = jobPlan.getAgentIndex();
-            this.assignToAgent(jobs[i], agentIndex!);
+            this.assignToAgent(jobs[i], agentIndexForJob!);
         }
     }
 
@@ -93,11 +92,10 @@ export class RequirementHelper {
         for (let i = 0; i < shipments.length; i++) {
             if (excludeIndexes.includes(i)) continue;
             
-            const shipmentPlan = context.getResult().getShipmentPlan(i);
-            if (!shipmentPlan) continue;
+            const agentIndexForShipment = context.getAgentIndexForShipment(i);
+            if (!agentIndexForShipment) continue;
             
-            const agentIndex = shipmentPlan.getAgentIndex();
-            this.assignToAgent(shipments[i], agentIndex!);
+            this.assignToAgent(shipments[i], agentIndexForShipment!);
         }
     }
 }

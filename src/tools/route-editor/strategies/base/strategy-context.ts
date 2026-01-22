@@ -2,7 +2,13 @@ import { RoutePlannerResult } from "../../../../models/entities/route-planner-re
 import { RoutePlanner } from "../../../../route-planner";
 import { Utils } from "../../../utils";
 import { RouteMatrixHelper } from "../../route-matrix-helper";
-import {ActionResponseData, FeatureResponseData, RoutePlannerResultResponseData, RoutingOptions} from "../../../../models";
+import {
+    ActionResponseData,
+    FeatureResponseData,
+    RoutePlannerResultResponseData,
+    RoutingOptions,
+    WaypointData
+} from "../../../../models";
 import { RoutePlannerCallOptions } from "../../../../models/interfaces/route-planner-call-options";
 
 /**
@@ -136,6 +142,88 @@ export class StrategyContext {
                 agent.capabilities.push(capabilityName);
             }
         }
+    }
+
+    getAgentIndexForShipment(shipmentIndex: number): number | undefined {
+        const features = this.getRawData().features;
+
+        for (const feature of features) {
+            for (const action of feature.properties.actions) {
+                if (action.shipment_index === shipmentIndex) {
+                    return feature.properties.agent_index;
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    getAgentShipments(agentIndex: number): number[] {
+        const agentFeature = this.getRawData().features.find(
+            feature => feature.properties.agent_index === agentIndex
+        );
+
+        if (!agentFeature) {
+            return [];
+        }
+
+        const shipmentIndexes: number[] = [];
+
+        for (const action of agentFeature.properties.actions) {
+            if (action.shipment_index !== undefined && !shipmentIndexes.includes(action.shipment_index)) {
+                shipmentIndexes.push(action.shipment_index);
+            }
+        }
+
+        return shipmentIndexes;
+    }
+
+    getAgentIndexForJob(jobIndex: number): number | undefined {
+        for (const agentFeature of this.getRawData().features) {
+            for (const action of agentFeature.properties.actions) {
+                if (action.job_index === jobIndex) {
+                    return agentFeature.properties.agent_index;
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    getAgentJobs(agentIndex: number): number[] {
+        const agentFeature = this.getRawData().features.find(
+            feature => feature.properties.agent_index === agentIndex
+        );
+
+        if (!agentFeature) {
+            return [];
+        }
+
+        const jobIndexes: number[] = [];
+
+        for (const action of agentFeature.properties.actions) {
+            if (action.job_index !== undefined && !jobIndexes.includes(action.job_index)) {
+                jobIndexes.push(action.job_index);
+            }
+        }
+
+        return jobIndexes;
+    }
+
+    getAgentActions(agentIndex: number): ActionResponseData[] {
+        const agentFeature = this.getRawData().features.find(
+            feature => feature.properties.agent_index === agentIndex
+        );
+
+        return agentFeature ? agentFeature.properties.actions : [];
+    }
+
+    getAgentWaypoints(agentIndex: number): WaypointData[] {
+        const agentFeature = this.getRawData().features.find(
+            feature => feature.properties.agent_index === agentIndex
+        );
+
+        return agentFeature ? agentFeature.properties.waypoints : [];
     }
 }
 
