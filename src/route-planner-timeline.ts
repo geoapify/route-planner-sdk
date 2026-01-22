@@ -1,6 +1,5 @@
 import {
     AgentData,
-    AgentSolution,
     RoutePlannerResult,
     TravelMode,
     Waypoint,
@@ -9,7 +8,8 @@ import {
     RoutePlannerTimelineLabel,
     Timeline,
     TimelineMenuItem,
-    RoutePlannerInputData
+    RoutePlannerInputData,
+    AgentPlan
 } from "./models";
 import { RoutePlannerFormatter } from "./helpers/route-planner-formatter";
 
@@ -72,7 +72,7 @@ export class RoutePlannerTimeline {
           </div> `
     ).join('')}
           ` : ''}
-        ${timeLabels && timelineType === 'time' ? `
+        ${timeLabels && timeLabels.length > 0 && timelineType === 'time' ? `
             <div class="geoapify-rp-sdk-label-vertical-lines">
             ${(timeLabels || []).map(label => `
               <div class="geoapify-rp-sdk-label-vertical-line"  style="left: ${label.position};"></div>
@@ -80,7 +80,7 @@ export class RoutePlannerTimeline {
             </div>
         ` : ''}
 
-        ${distanceLabels && timelineType === 'distance' ? `
+        ${distanceLabels && distanceLabels.length > 0 && timelineType === 'distance' ? `
           <div class="geoapify-rp-sdk-label-vertical-lines">
           ${(distanceLabels || []).map(label =>
         `<div class="geoapify-rp-sdk-label-vertical-line"  style="left: ${label.position};"></div>`
@@ -113,7 +113,8 @@ export class RoutePlannerTimeline {
                 hasLargeDescription: false,
                 timelineType: 'time',
                 agentColors: this.defaultColors,
-                capacityUnit: 'items'
+                capacityUnit: 'items',
+                showTimelineLabels: false
             };
         }
         this.generateAgentTimeline();
@@ -162,6 +163,15 @@ export class RoutePlannerTimeline {
 
     public setTimeLabels(value: RoutePlannerTimelineLabel[]) {
         this.options.timeLabels = value;
+        this.generateAgentTimeline();
+    }
+
+    public getShowTimelineLabels(): boolean | undefined {
+        return this.options.showTimelineLabels;
+    }
+
+    public setShowTimelineLabels(value: boolean) {
+        this.options.showTimelineLabels = value;
         this.generateAgentTimeline();
     }
 
@@ -228,30 +238,7 @@ export class RoutePlannerTimeline {
 
     private generateAgentTimeline() {
         let timelines: Timeline[];
-        if (this.result && !this.result.getRawData()) {
-            const maxIndex = this.result.getRawData().properties.params.agents.length;
-
-            // create timelines based on result
-            timelines = [];
-            for (let i = 0; i <= maxIndex; i++) {
-                timelines.push({
-                    label: `${this.options.agentLabel ? this.options.agentLabel : 'agent'} ${i + 1}`,
-                    mode: this.result.getData().inputData.mode,
-                    color: this.getAgentColorByIndex(i),
-                    description: '',
-                    routeVisible: true,
-                    agentIndex: i,
-                    timelineLength: "",
-                    distanceLineLength: "",
-                    itemsByDistance: [],
-                    itemsByTime: [],
-                    timelineLeft: "100%"
-                })
-            }
-
-            this.drawTimelines(timelines, this.result);
-            return timelines;
-        } else if(this.inputData) {
+        if (this.inputData) {
             timelines = this.inputData.agents.map((agent: AgentData, index: number) => {
 
                 const label = `${this.options.agentLabel ? this.options.agentLabel : 'Agent'} ${index + 1}`;
@@ -288,9 +275,36 @@ export class RoutePlannerTimeline {
         }
         this.container.innerHTML = ''; // clear
 
+        if (this.options.showTimelineLabels) {
+            const labels = this.options.timelineType === 'distance'
+                ? this.getDistanceLabels()
+                : this.getTimeLabels();
+            if (labels && labels.length > 0) {
+                const labelsHtml = labels.map((label, labelIndex) => {
+                    let transform = 'translateX(-50%)';
+                    if (labelIndex === 0) {
+                        transform = 'translateX(0)';
+                    } else if (labelIndex === labels.length - 1) {
+                        transform = 'translateX(-100%)';
+                    }
+                    return `<span class="geoapify-rp-sdk-timeline-label" style="left: ${label.position}; transform: ${transform};">${label.label}</span>`;
+                }).join('');
+                const widerClass = this.options.hasLargeDescription ? 'geoapify-rp-sdk-wider' : '';
+                const headerHtml = `
+                  <div class="geoapify-rp-sdk-timeline-labels-row flex-container items-center">
+                    <div class="geoapify-rp-sdk-timeline-item-agent flex-container items-center padding-top-5 padding-bottom-5 ${widerClass}"></div>
+                    <div class="geoapify-rp-sdk-timeline-labels-container flex-main">
+                      <div class="geoapify-rp-sdk-timeline-labels">${labelsHtml}</div>
+                    </div>
+                  </div>
+                `;
+                this.container.insertAdjacentHTML('beforeend', headerHtml);
+            }
+        }
+
         timelines?.forEach((timeline: Timeline, index: number) => {
             const html = this.timelineTemplate(timeline, index, this.options.timelineType!,
-                this.options.timeLabels || [], this.options.distanceLabels || [], this.options.agentMenuItems || []);
+                this.getTimeLabels() || [], this.getDistanceLabels() || [], this.options.agentMenuItems || []);
             this.container.insertAdjacentHTML('beforeend', html);
         });
 
@@ -300,10 +314,10 @@ export class RoutePlannerTimeline {
                 const agentIndex = el.getAttribute('data-agent-index');
                 const waypointIndex = el.getAttribute('data-waypoint-index');
 
-                const agentSolution = this.result!.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex!);
+                const agentPlan = this.result!.getAgentPlan(+agentIndex!);
 
-                if (agentSolution && waypointIndex) {
-                    const waypoint = agentSolution.getWaypoints()[+waypointIndex];
+                if (agentPlan && waypointIndex) {
+                    const waypoint = agentPlan.getWaypoints()[+waypointIndex];
                     el.addEventListener('mouseover', () => {
                         this.emit('onWaypointHover', waypoint, +agentIndex!);
                     });
@@ -326,13 +340,35 @@ export class RoutePlannerTimeline {
     private generateTimelinesData(timelines: Timeline[],
                                   result: RoutePlannerResult) {
         const unit = this.options.capacityUnit || 'items';
-        let maxDistance = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => {
+
+
+
+        let maxDistance = Math.max.apply(Math, result.getAgentPlans().map((agentPlan) => {
+
+            if (!agentPlan) {
+                return 0;
+            }
+
             return agentPlan.getDistance()
         }));
-        let maxTime = Math.max.apply(Math, result.getAgentSolutions().map((agentPlan) => {
+
+        let maxTime = Math.max.apply(Math, result.getAgentPlans().map((agentPlan) => {
+            if (!agentPlan) {
+                return 0;
+            }
             return agentPlan.getTime() + agentPlan.getStartTime()
         }));
-        result.getAgentSolutions().forEach((agentPlan: AgentSolution) => {
+
+        if (this.options.showTimelineLabels) {
+            const labelWidth = this.getTimelineLabelsWidth();
+            if ((!this.options.timeLabels || this.options.timeLabels.length === 0) && maxTime > 0) {
+                this.options.timeLabels = this.generateTimeLabels(maxTime, labelWidth);
+            }
+            if ((!this.options.distanceLabels || this.options.distanceLabels.length === 0) && maxDistance > 0) {
+                this.options.distanceLabels = this.generateDistanceLabels(maxDistance, labelWidth);
+            }
+        }
+        result.getAgentPlans().filter(agentPlan => !!agentPlan).forEach((agentPlan: AgentPlan) => {
             const timeline = timelines[agentPlan.getAgentIndex()];
             timeline.timelineLength = ((agentPlan.getEndTime() - agentPlan.getStartTime()) / maxTime * 100) + '%';
             timeline.distanceLineLength = (agentPlan.getDistance() / maxDistance * 100) + '%';
@@ -353,13 +389,16 @@ export class RoutePlannerTimeline {
             try {
                 handler(...args);
             } catch (error) {
+
+                // ToDo: Remove try/catch in the library itself. We keep try/catch only for HTTP errors
+
                 console.error(`Error in event handler for "${eventName}":`, error);
             }
         });
     }
 
     private generateItemsByTime(timeline: Timeline,
-                                agentPlan: AgentSolution,
+                                agentPlan: AgentPlan,
                                 maxTime: number,
                                 solution: RoutePlannerResult,
                                 unit: string) {
@@ -421,7 +460,7 @@ export class RoutePlannerTimeline {
     }
 
     private generateItemsByDistance(timeline: Timeline,
-                                    agentPlan: AgentSolution,
+                                    agentPlan: AgentPlan,
                                     maxDistance: number) {
         let distance = 0;
         agentPlan.getLegs().forEach((leg, index) => {
@@ -468,6 +507,115 @@ export class RoutePlannerTimeline {
 
             timeline.itemsByDistance.push(distanceItem);
         });
+    }
+
+    private generateTimeLabels(maxTime: number, width: number): RoutePlannerTimelineLabel[] {
+        if (!Number.isFinite(maxTime) || maxTime <= 0) {
+            return [];
+        }
+
+        const minLabelPx = 70;
+        const maxLabels = Math.max(2, Math.floor((width || 600) / minLabelPx));
+        const stepCandidatesHours = [0.5, 1, 2, 3, 4, 6, 12, 24, 48];
+        const totalHours = maxTime / 3600;
+        let stepHours = stepCandidatesHours[stepCandidatesHours.length - 1];
+
+        for (const candidate of stepCandidatesHours) {
+            const count = Math.floor(totalHours / candidate) + 1;
+            if (count <= maxLabels) {
+                stepHours = candidate;
+                break;
+            }
+        }
+
+        const stepSeconds = stepHours * 3600;
+        const rawLabels: { time: number; label: string; position: string }[] = [];
+        for (let t = 0; t <= maxTime; t += stepSeconds) {
+            rawLabels.push({
+                time: t,
+                position: (t / maxTime * 100) + '%',
+                label: RoutePlannerFormatter.toPrettyTime(t)
+            });
+        }
+
+        if (rawLabels.length === 0 || rawLabels[rawLabels.length - 1].time < maxTime) {
+            rawLabels.push({
+                time: maxTime,
+                position: '100%',
+                label: RoutePlannerFormatter.toPrettyTime(maxTime)
+            });
+        }
+
+        if (rawLabels.length > 1 && width > 0) {
+            const last = rawLabels[rawLabels.length - 1];
+            const prev = rawLabels[rawLabels.length - 2];
+            const pxGap = (last.time - prev.time) / maxTime * width;
+            if (pxGap < minLabelPx) {
+                rawLabels.splice(rawLabels.length - 2, 1);
+            }
+        }
+
+        return rawLabels.map(({ position, label }) => ({ position, label }));
+    }
+
+    private generateDistanceLabels(maxDistance: number, width: number): RoutePlannerTimelineLabel[] {
+        if (!Number.isFinite(maxDistance) || maxDistance <= 0) {
+            return [];
+        }
+
+        const minLabelPx = 70;
+        const maxLabels = Math.max(2, Math.floor((width || 600) / minLabelPx));
+        const stepCandidatesKm = [0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200];
+        const totalKm = maxDistance / 1000;
+        let stepKm = stepCandidatesKm[stepCandidatesKm.length - 1];
+
+        for (const candidate of stepCandidatesKm) {
+            const count = Math.floor(totalKm / candidate) + 1;
+            if (count <= maxLabels) {
+                stepKm = candidate;
+                break;
+            }
+        }
+
+        const stepMeters = stepKm * 1000;
+        const rawLabels: { distance: number; label: string; position: string }[] = [];
+        for (let d = 0; d <= maxDistance; d += stepMeters) {
+            rawLabels.push({
+                distance: d,
+                position: (d / maxDistance * 100) + '%',
+                label: RoutePlannerFormatter.toPrettyDistance(Math.round(d))
+            });
+        }
+
+        if (rawLabels.length === 0 || rawLabels[rawLabels.length - 1].distance < maxDistance) {
+            rawLabels.push({
+                distance: maxDistance,
+                position: '100%',
+                label: RoutePlannerFormatter.toPrettyDistance(Math.round(maxDistance))
+            });
+        }
+
+        if (rawLabels.length > 1 && width > 0) {
+            const last = rawLabels[rawLabels.length - 1];
+            const prev = rawLabels[rawLabels.length - 2];
+            const pxGap = (last.distance - prev.distance) / maxDistance * width;
+            if (pxGap < minLabelPx) {
+                rawLabels.splice(rawLabels.length - 2, 1);
+            }
+        }
+
+        return rawLabels.map(({ position, label }) => ({ position, label }));
+    }
+
+    private getTimelineLabelsWidth(): number {
+        const containerWidth = this.container?.clientWidth || 0;
+        const agentWidth = this.options.hasLargeDescription ? 200 : 140;
+        const gap = 10;
+        const width = containerWidth - agentWidth - gap;
+        if (width > 0) {
+            return width;
+        }
+        return containerWidth || 600;
     }
 
     private generateAgentDescription(agent: AgentData, hasLargeDescription: boolean) {
@@ -584,10 +732,10 @@ export class RoutePlannerTimeline {
                 const waypointIndex = waypointElement.getAttribute('data-waypoint-index');
 
                 if (agentIndex !== null && waypointIndex !== null) {
-                    const agentSolution = this.result!.getAgentSolutions().find(sol => sol.getAgentIndex() === +agentIndex);
+                    const agentPlan = this.result!.getAgentPlan(+agentIndex);
 
-                    if (agentSolution) {
-                        const waypoint = agentSolution.getWaypoints()[+waypointIndex];
+                    if (agentPlan) {
+                        const waypoint = agentPlan.getWaypoints()[+waypointIndex];
                         if (this.options.waypointPopupGenerator) {
                             try {
                                 const popupContentElement = this.options.waypointPopupGenerator(waypoint);

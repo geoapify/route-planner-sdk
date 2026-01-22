@@ -47,21 +47,24 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     }
 
     private validateShipmentAssignment(shipmentIndex: number, agentIndex?: number): void {
-        const shipmentInfo = this.result.getShipmentInfoByIndex(shipmentIndex);
-        if (!shipmentInfo) {
+
+        // ToDO: context.getAgentIndexForShipment()
+
+        const shipmentPlanData: ShipmentData = this.context.getShipmentPlan(shipmentIndex);
+        if (!shipmentPlan) {
             this.validateShipmentExists(shipmentIndex);
         }
-        if (agentIndex !== undefined && shipmentInfo?.getAgent().getAgentIndex() === agentIndex) {
+        if (agentIndex !== undefined && shipmentPlanData.s === agentIndex) {
             throw new Error(`Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
         }
     }
 
     private validateShipmentExists(shipmentIndex: number): void {
-        const shipmentFound = this.result.getRawData().properties.params.shipments[shipmentIndex];
+        const shipmentFound = this.rawData.properties.params.shipments[shipmentIndex];
         if (!shipmentFound) {
             throw new Error(`Shipment with index ${shipmentIndex} not found`);
         }
-        const isUnassignedShipment = this.result.getRawData().properties.issues?.unassigned_shipments?.includes(shipmentIndex);
+        const isUnassignedShipment = this.rawData.properties.issues?.unassigned_shipments?.includes(shipmentIndex);
         if (!isUnassignedShipment) {
             throw new Error(`Shipment with index ${shipmentIndex} is invalid`);
         }
@@ -69,7 +72,10 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private validateShipmentConstraints(agentIndex: number, shipmentIndexes: number[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingShipmentIndexes = this.result.getAgentShipments(agentIndex);
+
+        // ToDO: context.getAgentShipments()
+
+        const existingShipmentIndexes: number[] = this.result.getAgentPlan(agentIndex)!.getPlannedShipments();
         const existingShipments = existingShipmentIndexes.map(i => this.getShipmentData(i));
         const newShipments = shipmentIndexes.map(i => this.getShipmentData(i));
         const allShipments = [...existingShipments, ...newShipments];
@@ -80,7 +86,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private validateNewShipmentConstraints(agentIndex: number, shipmentsRaw: ShipmentData[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingShipmentIndexes = this.result.getAgentShipments(agentIndex);
+        const existingShipmentIndexes: number[] = this.result.getAgentPlan(agentIndex)!.getPlannedShipments();
         const existingShipments = existingShipmentIndexes.map(i => this.getShipmentData(i));
         const allShipments = [...existingShipments, ...shipmentsRaw];
         
@@ -103,7 +109,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private addIssuesToResult(issues: Error[]): void {
         if (issues.length === 0) return;
         
-        const rawData = this.result.getRawData();
+        const rawData = this.rawData;
         if (!rawData.properties.violations) {
             rawData.properties.violations = [];
         }
@@ -114,15 +120,15 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     }
 
     private getAgentData(agentIndex: number) {
-        return this.result.getRawData().properties.params.agents[agentIndex];
+        return this.rawData.properties.params.agents[agentIndex];
     }
 
     private getShipmentData(shipmentIndex: number): ShipmentData {
-        return this.result.getRawData().properties.params.shipments[shipmentIndex];
+        return this.rawData.properties.params.shipments[shipmentIndex];
     }
 
     private appendShipmentsToInput(shipmentsRaw: ShipmentData[]): number[] {
-        const params = this.result.getRawData().properties.params;
+        const params = this.rawData.properties.params;
         if (!params.shipments) {
             params.shipments = [];
         }
@@ -134,7 +140,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private applyPriority(shipmentIndexes: number[], priority?: number): void {
         if (priority === undefined) return;
         for (const shipmentIndex of shipmentIndexes) {
-            this.result.getRawData().properties.params.shipments[shipmentIndex].priority = priority;
+            this.rawData.properties.params.shipments[shipmentIndex].priority = priority;
         }
     }
 }

@@ -12,15 +12,15 @@ import {
     DistanceUnitType,
     RouteType
 } from "./models";
-import { RoutePlannerOptions } from "./models/interfaces/route-planner-options";
+import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 import { Utils } from "./tools/utils";
 import { RoutePlannerResult } from "./models/entities/route-planner-result";
 
 export class RoutePlanner {
     private raw: RoutePlannerInputData;
-    private options: RoutePlannerOptions;
+    private options: RoutePlannerCallOptions;
 
-    constructor(options: RoutePlannerOptions,
+    constructor(options: RoutePlannerCallOptions,
                 raw?: RoutePlannerInputData) {
         this.options = options;
         if(!this.options.baseUrl) {
@@ -74,6 +74,7 @@ export class RoutePlanner {
     }
 
     public addAvoid(avoid: Avoid): this {
+        this.raw.avoid = this.raw.avoid || [];
         this.raw.avoid.push(avoid.getRaw());
         return this;
     }
@@ -111,6 +112,10 @@ export class RoutePlanner {
 
         if (!response.ok) {
             let errorResponse = await response.json();
+
+            // ToDo: But here we keep try/catch
+
+
             throw new RoutePlannerError(errorResponse.error, errorResponse.message, errorResponse);
         }
 

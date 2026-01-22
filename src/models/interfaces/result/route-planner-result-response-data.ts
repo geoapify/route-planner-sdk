@@ -23,7 +23,7 @@ export interface RoutePlannerResultResponseData {
             units?: DistanceUnitType;
         }
         issues?: RoutePlannerIssues;
-        violations?: string[];
+        violations?: string[]; // ToDo: shouldn't be in raw data. I think they can be in the agent plan
     }
     features: FeatureResponseData[];
 }

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Route Planner Editor Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="timeline-minimal.css" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js" defer></script>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="topbar__controls">
+          <div class="topbar__group">
+            <label class="topbar__label" for="task-select">Task</label>
+            <select id="task-select" class="topbar__select"></select>
+            <button id="task-load" class="button button--primary">Load task</button>
+          </div>
+          <div class="topbar__status" id="task-status">No task loaded</div>
+        </div>
+        <section class="panel panel--log topbar__log">
+          <div class="panel__header">
+            <div class="panel__actions">
+              <button id="log-clear" class="button button--ghost">Clear log</button>
+              <button id="log-copy" class="button button--ghost">Copy</button>
+            </div>
+          </div>
+          <div id="log-list" class="log"></div>
+        </section>
+      </header>
+
+      <main class="main">
+        <section class="main__center">
+          <div class="panel panel--preview">
+            <div class="panel__header">
+              <h2>Preview</h2>
+              <span class="panel__hint" id="map-hint">Toggle agents to show or hide routes.</span>
+            </div>
+            <div class="preview">
+              <div id="map" class="map"></div>
+              <div class="preview__timeline">
+                <div class="preview__timeline-bar">
+                  <div class="panel__meta" id="timeline-meta">
+                    Load a task to view stops.
+                  </div>
+                  <div class="timeline-toggle">
+                    <button
+                      id="timeline-mode-time"
+                      class="button button--primary"
+                      type="button"
+                    >
+                      Time
+                    </button>
+                    <button
+                      id="timeline-mode-distance"
+                      class="button button--ghost"
+                      type="button"
+                    >
+                      Distance
+                    </button>
+                  </div>
+                </div>
+                <div id="timeline" class="timeline"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="main__side panel panel--agents">
+          <div class="panel__header">
+            <h2>Result</h2>
+            <div class="panel__meta" id="agents-meta">0 agents</div>
+          </div>
+          <div class="panel__issues" id="agents-issues">No issues reported.</div>
+          <div id="agents-list" class="agents"></div>
+        </aside>
+      </main>
+
+    </div>
+  </body>
+</html>

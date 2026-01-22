@@ -2,7 +2,7 @@ import { WaypointData } from "./waypoint-data";
 import { RouteActionData } from "./route-action-data";
 import { RouteLegData } from "./route-leg-data";
 
-export interface AgentSolutionData {
+export interface AgentPlanData {
     agentIndex: number;
     agentId: string;
     time: number;

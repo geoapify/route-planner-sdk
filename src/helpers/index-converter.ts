@@ -1,3 +1,4 @@
+import { RoutePlannerResultResponseData } from "../models";
 import { RoutePlannerResultData } from "../models/interfaces/result/route-planner-result-data";
 
 /**
@@ -7,13 +8,16 @@ export class IndexConverter {
     /**
      * Converts agent ID or index to index
      */
-    static convertAgentToIndex(data: RoutePlannerResultData, agentIdOrIndex: string | number, throwExceptionIfNotFound = false): number {
+    static convertAgentToIndex(data: RoutePlannerResultResponseData, agentIdOrIndex: string | number, throwExceptionIfNotFound = false): number {
         if(typeof agentIdOrIndex === "number") {
             return agentIdOrIndex as number;
         }
-        let index = data.inputData.agents.findIndex(agent => agent.id === agentIdOrIndex);
+        let index = data.properties.params.agents.findIndex(agent => agent.id === agentIdOrIndex);
         if(index === -1) {
             if(throwExceptionIfNotFound) {
+
+                // ToDo: if we throw a customer facing error => then create a class for it. We will need to list them in docs.
+
                 throw new Error(`Agent with id ${agentIdOrIndex} not found`);
             }
             return -1;
@@ -25,11 +29,11 @@ export class IndexConverter {
     /**
      * Converts job ID or index to index
      */
-    static convertJobToIndex(data: RoutePlannerResultData, jobIdOrIndex: string | number): number {
+    static convertJobToIndex(data: RoutePlannerResultResponseData, jobIdOrIndex: string | number): number {
         if(typeof jobIdOrIndex === "number") {
             return jobIdOrIndex as number;
         }
-        let jobIndex = data.inputData.jobs.findIndex(job => job.id === jobIdOrIndex);
+        let jobIndex = data.properties.params.jobs.findIndex(job => job.id === jobIdOrIndex);
         if (jobIndex < 0) {
             return -1;
         } else {
@@ -40,11 +44,11 @@ export class IndexConverter {
     /**
      * Converts shipment ID or index to index
      */
-    static convertShipmentToIndex(data: RoutePlannerResultData, shipmentIdOrIndex: string | number): number {
+    static convertShipmentToIndex(data: RoutePlannerResultResponseData, shipmentIdOrIndex: string | number): number {
         if (typeof shipmentIdOrIndex === "number") {
             return shipmentIdOrIndex as number;
         }
-        let shipmentIndex = data.inputData.shipments.findIndex(shipment => shipment.id === shipmentIdOrIndex);
+        let shipmentIndex = data.properties.params.shipments.findIndex(shipment => shipment.id === shipmentIdOrIndex);
         if (shipmentIndex < 0) {
             return -1;
         } else {
@@ -55,13 +59,13 @@ export class IndexConverter {
     /**
      * Converts multiple job IDs or indexes to indexes
      */
-    static convertJobsToIndexes(data: RoutePlannerResultData, jobIndexesOrIds: number[] | string[]): number[] {
+    static convertJobsToIndexes(data: RoutePlannerResultResponseData, jobIndexesOrIds: number[] | string[]): number[] {
         if(typeof jobIndexesOrIds[0] === "number") {
             return jobIndexesOrIds as number[];
         }
         let jobIndexes: number[] = [];
         jobIndexesOrIds.forEach(jobId => {
-            let jobIndex = data.inputData.jobs.findIndex(job => job.id === jobId);
+            let jobIndex = data.properties.params.jobs.findIndex(job => job.id === jobId);
             if (jobIndex < 0) {
                 throw new Error(`Job with id ${jobId} not found`);
             } else {
@@ -74,13 +78,13 @@ export class IndexConverter {
     /**
      * Converts multiple shipment IDs or indexes to indexes
      */
-    static convertShipmentsToIndexes(data: RoutePlannerResultData, shipmentIds: number[] | string[]): number[] {
+    static convertShipmentsToIndexes(data: RoutePlannerResultResponseData, shipmentIds: number[] | string[]): number[] {
         if (typeof shipmentIds[0] === "number") {
             return shipmentIds as number[];
         }
         let shipmentIndexes: number[] = [];
         shipmentIds.forEach(shipmentId => {
-            let shipmentIndex = data.inputData.shipments.findIndex(shipment => shipment.id === shipmentId);
+            let shipmentIndex = data.properties.params.shipments.findIndex(shipment => shipment.id === shipmentId);
             if (shipmentIndex < 0) {
                 throw new Error(`Shipment with id ${shipmentId} not found`);
             } else {

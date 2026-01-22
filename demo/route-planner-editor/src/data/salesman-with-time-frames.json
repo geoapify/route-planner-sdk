@@ -1,0 +1,471 @@
+{
+    "mode": "drive",
+    "type": "balanced",
+    "traffic": "free_flow",
+    "agents": [
+        {
+            "start_location": [
+                -111.86647160000001,
+                40.6928303
+            ],
+            "capabilities": [],
+            "time_windows": [],
+            "breaks": [],
+            "end_location": [
+                -111.86647160000001,
+                40.6928303
+            ]
+        },
+        {
+            "start_location": [
+                -111.86603502516394,
+                40.69273965
+            ],
+            "capabilities": [],
+            "time_windows": [],
+            "breaks": [],
+            "end_location": [
+                -111.86603502516394,
+                40.69273965
+            ]
+        },
+        {
+            "start_location": [
+                -111.8660348758573,
+                40.69292135
+            ],
+            "capabilities": [],
+            "time_windows": [],
+            "breaks": [],
+            "end_location": [
+                -111.8660348758573,
+                40.69292135
+            ]
+        }
+    ],
+    "jobs": [
+        {
+            "location": [
+                -111.85524699999999,
+                40.70090890035739
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.86482742486177,
+                40.67380510035413
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.85033939999998,
+                40.70056740035735
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.86493119999999,
+                40.7260049003604
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.85432792385457,
+                40.72570075036037
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.8233075,
+                40.68743540035577
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.8977847,
+                40.72892450036075
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.8667026,
+                40.73420210036138
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.90103829999998,
+                40.73136150036105
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.82409909999998,
+                40.66859120035348
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.82389519999998,
+                40.66775660035339
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.824378,
+                40.66661400035324
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.9376872,
+                40.68321660035527
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.82601599999998,
+                40.726290600360436
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.82308580049627,
+                40.72504655036029
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.88776169999998,
+                40.74229660036235
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.9409238,
+                40.681362500355036
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.9015186,
+                40.740638100362155
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.8126431,
+                40.72000290035969
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.93960841558915,
+                40.66849945035348
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.84266359999998,
+                40.74142530036225
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.94119049999999,
+                40.666246000353205
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.90184799999999,
+                40.744979000362676
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.7994019,
+                40.7016859003575
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.79925439999998,
+                40.7016635003575
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.86638899999998,
+                40.750766200363365
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    3600,
+                    7200
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.83294299999999,
+                40.63804150034978
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    0,
+                    3600
+                ]
+            ],
+            "duration": 600
+        },
+        {
+            "location": [
+                -111.9404394,
+                40.65183810035146
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.9183481,
+                40.75140450036345
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 1200
+        },
+        {
+            "location": [
+                -111.8754999,
+                40.76138620036463
+            ],
+            "requirements": [],
+            "time_windows": [
+                [
+                    7200,
+                    10800
+                ]
+            ],
+            "duration": 600
+        }
+    ],
+    "shipments": [],
+    "locations": [],
+    "avoid": []
+}

@@ -5,7 +5,8 @@
     "moduleResolution": "Node",
     "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strictPropertyInitialization": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "test", "dist", "rollup-config.mjs"]

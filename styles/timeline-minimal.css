@@ -4,6 +4,9 @@
     align-items: center;
     padding-right: 20px;
     margin-right: -20px;
+
+    padding-left: 20px;
+    margin-left: -20px;    
 }
 
 .geoapify-rp-sdk-timeline-item.geoapify-rp-sdk-even {
@@ -138,6 +141,32 @@
 
 .geoapify-rp-sdk-custom-tooltip.geoapify-rp-sdk-show {
     opacity: 1;
+}
+
+.geoapify-rp-sdk-timeline-labels {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 14px;
+    font-size: 11px;
+    color: #6b6b6b;
+}
+
+.geoapify-rp-sdk-timeline-label {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.geoapify-rp-sdk-timeline-labels-row {
+    margin-bottom: 0px;
+}
+
+.geoapify-rp-sdk-timeline-labels-container {
+    position: relative;
+    height: 14px;
+    margin-left: 10px;
 }
 
 .geoapify-rp-sdk-three-dot-menu {

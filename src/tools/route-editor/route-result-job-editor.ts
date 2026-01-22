@@ -47,21 +47,24 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     }
 
     private validateJobAssignment(jobIndex: number, agentIndex?: number): void {
-        const jobInfo = this.result.getJobInfoByIndex(jobIndex);
-        if (!jobInfo) {
+
+        // // ToDO: context.getAgentIndexForJob()
+
+        const jobPlan = this.result.getJobPlan(jobIndex);
+        if (!jobPlan) {
             this.validateJobExists(jobIndex);
         }
-        if (agentIndex !== undefined && jobInfo?.getAgent().getAgentIndex() === agentIndex) {
+        if (agentIndex !== undefined && jobPlan &&  jobPlan.getAgentIndex() === agentIndex) {
             throw new Error(`Job with index ${jobIndex} already assigned to agent with index ${agentIndex}`);
         }
     }
 
     private validateJobExists(jobIndex: number): void {
-        const jobFound = this.result.getRawData().properties.params.jobs[jobIndex];
+        const jobFound = this.rawData.properties.params.jobs[jobIndex];
         if (!jobFound) {
             throw new Error(`Job with index ${jobIndex} not found`);
         }
-        const isUnassignedJob = this.result.getRawData().properties.issues?.unassigned_jobs?.includes(jobIndex);
+        const isUnassignedJob = this.rawData.properties.issues?.unassigned_jobs?.includes(jobIndex);
         if (!isUnassignedJob) {
             throw new Error(`Job with index ${jobIndex} is invalid`);
         }
@@ -69,7 +72,10 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private validateJobConstraints(agentIndex: number, jobIndexes: number[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingJobIndexes = this.result.getAgentJobs(agentIndex);
+
+        // ToDO: context.getAgentJobs()
+
+        const existingJobIndexes = this.result.getAgentPlan(agentIndex)!.getPlannedJobs();
         const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
         const newJobs = jobIndexes.map(i => this.getJobData(i));
         const allJobs = [...existingJobs, ...newJobs];
@@ -80,7 +86,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private validateNewJobConstraints(agentIndex: number, jobsRaw: JobData[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingJobIndexes = this.result.getAgentJobs(agentIndex);
+        const existingJobIndexes = this.result.getAgentPlan(agentIndex)!.getPlannedJobs();
         const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
         const allJobs = [...existingJobs, ...jobsRaw];
         
@@ -103,7 +109,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private addIssuesToResult(issues: Error[]): void {
         if (issues.length === 0) return;
         
-        const rawData = this.result.getRawData();
+        const rawData = this.rawData;
         if (!rawData.properties.violations) {
             rawData.properties.violations = [];
         }
@@ -114,15 +120,15 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     }
 
     private getAgentData(agentIndex: number) {
-        return this.result.getRawData().properties.params.agents[agentIndex];
+        return this.rawData.properties.params.agents[agentIndex];
     }
 
     private getJobData(jobIndex: number): JobData {
-        return this.result.getRawData().properties.params.jobs[jobIndex];
+        return this.rawData.properties.params.jobs[jobIndex];
     }
 
     private appendJobsToInput(jobsRaw: JobData[]): number[] {
-        const params = this.result.getRawData().properties.params;
+        const params = this.rawData.properties.params;
         if (!params.jobs) {
             params.jobs = [];
         }
@@ -134,7 +140,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private applyPriority(jobIndexes: number[], priority?: number): void {
         if (priority === undefined) return;
         for (const jobIndex of jobIndexes) {
-            this.result.getRawData().properties.params.jobs[jobIndex].priority = priority;
+            this.rawData.properties.params.jobs[jobIndex].priority = priority;
         }
     }
 }

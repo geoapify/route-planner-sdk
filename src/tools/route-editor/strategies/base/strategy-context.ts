@@ -2,55 +2,58 @@ import { RoutePlannerResult } from "../../../../models/entities/route-planner-re
 import { RoutePlanner } from "../../../../route-planner";
 import { Utils } from "../../../utils";
 import { RouteMatrixHelper } from "../../route-matrix-helper";
-import {ActionResponseData, FeatureResponseData, RoutePlannerResultResponseData} from "../../../../models";
+import {ActionResponseData, FeatureResponseData, RoutePlannerResultResponseData, RoutingOptions} from "../../../../models";
+import { RoutePlannerCallOptions } from "../../../../models/interfaces/route-planner-call-options";
 
 /**
  * Context provided to strategies containing shared utilities and state
  */
-export class StrategyContext {
-    constructor(private readonly result: RoutePlannerResult) {}
 
-    getResult(): RoutePlannerResult {
-        return this.result;
-    }
+//ToDo: this is actually a Helper, not a Context
+export class StrategyContext {
+    constructor(private readonly resultRawData: RoutePlannerResultResponseData, private routePlannerCallOptions: RoutePlannerCallOptions, private routingOptions: RoutingOptions) {}
 
     getRawData(): RoutePlannerResultResponseData {
-        return this.result.getRawData();
+        return this.resultRawData;
     }
 
     cloneInputData(): any {
-        return Utils.cloneObject(this.result.getRawData().properties.params);
+        return Utils.cloneObject(this.resultRawData.properties.params);
     }
 
     async executePlan(inputData: any): Promise<boolean> {
-        const planner = new RoutePlanner(this.result.getOptions(), inputData);
+        const planner = new RoutePlanner(this.routePlannerCallOptions, inputData);
         const newResult = await planner.plan();
         this.updateResult(newResult);
         return true;
     }
 
     private updateResult(newResult: RoutePlannerResult): void {
-        this.result.getRawData().features = newResult.getRawData().features;
-        this.result.getRawData().properties.issues = newResult.getRawData().properties.issues;
+        this.resultRawData.features = newResult.getRaw().features;
+        this.resultRawData.properties.issues = newResult.getRaw().properties.issues;
     }
 
     createMatrixHelper(): RouteMatrixHelper {
-        return new RouteMatrixHelper(this.result.getOptions());
+        // ToDo: Should be getMatrixHelper
+        return new RouteMatrixHelper(this.routePlannerCallOptions, this.routingOptions);
     }
 
     getAgentFeature(agentIndex: number): FeatureResponseData {
-        const rawData = this.result.getRawData();
+        const rawData = this.resultRawData;
         const agentFeature = rawData.features.find((f: FeatureResponseData) => f.properties.agent_index === agentIndex);
         
         if (!agentFeature) {
-            throw new Error(`Agent with index ${agentIndex} has no solution`);
+
+            // ToDo: We need t
+
+            throw new Error(`Agent with index ${agentIndex} has no Plan`);
         }
         
         return agentFeature;
     }
 
     getOrCreateAgentFeature(agentIndex: number): FeatureResponseData {
-        const rawData = this.result.getRawData();
+        const rawData = this.resultRawData;
         let agentFeature = rawData.features.find((f: any) => f.properties.agent_index === agentIndex);
         
         if (!agentFeature) {

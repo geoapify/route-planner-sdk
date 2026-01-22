@@ -81,13 +81,13 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
     ): Promise<number> {
         const job = RouteEditorHelper.getJobByIndex(context, jobIndex);
         const jobLocation: [number, number] = job.location!;
-        const agentSolution = context.getResult().getAgentSolutionByIndex(agentIndex);
+        const agentPlan = context.getResult().getAgentPlan(agentIndex);
         
-        if (!agentSolution) {
+        if (!agentPlan) {
             return 1; // After start action
         }
 
-        const routeLocations = InsertPositionResolver.extractRouteLocations(agentSolution);
+        const routeLocations = InsertPositionResolver.extractRouteLocations(agentPlan);
         
         if (routeLocations.length === 0) {
             return 1; // After start action

@@ -42,7 +42,7 @@ export class RouteAction {
     getJobId(): string | undefined {
         return this.raw.job_id;
     }
-    getIndex(): number | undefined {
+    getActionIndex(): number | undefined {
         return this.raw.index;
     }
     getWaypointIndex(): number | undefined {

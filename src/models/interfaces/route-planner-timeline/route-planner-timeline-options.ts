@@ -13,6 +13,7 @@ export interface RoutePlannerTimelineOptions {
     distanceLabels?: RoutePlannerTimelineLabel[];
     agentColors?: string[];
     showWaypointPopup?: boolean;
+    showTimelineLabels?: boolean;
     waypointPopupGenerator?: (waypoint: Waypoint) => HTMLElement;
     agentMenuItems?: TimelineMenuItem[];
 }

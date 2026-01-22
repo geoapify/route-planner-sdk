@@ -2,8 +2,9 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { Utils } from "./tools/utils";
-import { Job, Shipment, AddAssignOptions, RemoveOptions } from "./models";
+import { Job, Shipment, AddAssignOptions, RemoveOptions, RoutingOptions, RoutePlannerResultResponseData } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
+import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 
 /**
  * Editor for modifying route planner results.
@@ -34,7 +35,12 @@ import { IndexConverter } from "./helpers/index-converter";
  * ```
  */
 export class RoutePlannerResultEditor {
-    private readonly result: RoutePlannerResult;
+    private rawData: RoutePlannerResultResponseData;
+    private callOptions: RoutePlannerCallOptions;
+    private routingOptions: RoutingOptions;
+
+    private jobEditor: RouteResultJobEditor;
+    private shipmentEditor: RouteResultShipmentEditor;
 
     /**
      * Creates a new RoutePlannerResultEditor.
@@ -43,8 +49,9 @@ export class RoutePlannerResultEditor {
      * @param result - The route planner result to edit
      */
     constructor(result: RoutePlannerResult) {
-        this.result = new RoutePlannerResult(Utils.cloneObject(result.getOptions()),
-            Utils.cloneObject(result.getRawData()));
+        this.rawData = Utils.cloneObject(result.getRaw());
+        this.callOptions = result.getCallOptions();
+        this.routingOptions = result.getRoutingOptions();
     }
 
     /**
@@ -82,9 +89,9 @@ export class RoutePlannerResultEditor {
     async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[], options?: number | AddAssignOptions): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
         const normalizedOptions = this.normalizeAddAssignOptions(options);
-        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
-        let jobIndexes = IndexConverter.convertJobsToIndexes(this.result.getData(), jobIndexesOrIds);
-        return new RouteResultJobEditor(this.result).assignJobs(agentIndex, jobIndexes, normalizedOptions);
+        let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        let jobIndexes = IndexConverter.convertJobsToIndexes(this.rawData, jobIndexesOrIds);
+        return this.getJobEditor().assignJobs(agentIndex, jobIndexes, normalizedOptions)
     }
 
     /**
@@ -113,9 +120,9 @@ export class RoutePlannerResultEditor {
     async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], options?: number | AddAssignOptions): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexesOrIds");
         const normalizedOptions = this.normalizeAddAssignOptions(options);
-        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.result.getData(), shipmentIndexesOrIds);
-        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
-        return new RouteResultShipmentEditor(this.result).assignShipments(agentIndex, shipmentIndexes, normalizedOptions);
+        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.rawData, shipmentIndexesOrIds);
+        let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        return this.getShipmentEditor().assignShipments(agentIndex, shipmentIndexes, normalizedOptions);
     }
 
     /**
@@ -136,8 +143,8 @@ export class RoutePlannerResultEditor {
      */
     async removeJobs(jobIndexesOrIds: number[] | string[], options?: RemoveOptions): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
-        let jobIndexes = IndexConverter.convertJobsToIndexes(this.result.getData(), jobIndexesOrIds);
-        return new RouteResultJobEditor(this.result).removeJobs(jobIndexes, this.normalizeRemoveOptions(options));
+        let jobIndexes = IndexConverter.convertJobsToIndexes(this.rawData, jobIndexesOrIds);
+        return this.getJobEditor().removeJobs(jobIndexes, this.normalizeRemoveOptions(options));
     }
 
     /**
@@ -158,8 +165,8 @@ export class RoutePlannerResultEditor {
      */
     async removeShipments(shipmentIndexesOrIds: number[] | string[], options?: RemoveOptions): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexes");
-        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.result.getData(), shipmentIndexesOrIds);
-        return new RouteResultShipmentEditor(this.result).removeShipments(shipmentIndexes, this.normalizeRemoveOptions(options));
+        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.rawData, shipmentIndexesOrIds);
+        return this.getShipmentEditor().removeShipments(shipmentIndexes, this.normalizeRemoveOptions(options));
     }
 
     /**
@@ -189,8 +196,9 @@ export class RoutePlannerResultEditor {
      */
     addNewJobs(agentIdOrIndex: string | number, jobs: Job[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(jobs, "jobs");
-        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
-        return new RouteResultJobEditor(this.result).addNewJobs(agentIndex, jobs, this.normalizeAddAssignOptions(options));
+        let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        
+        return this.getJobEditor().addNewJobs(agentIndex, jobs, this.normalizeAddAssignOptions(options));
     }
 
     /**
@@ -223,8 +231,9 @@ export class RoutePlannerResultEditor {
      */
     addNewShipments(agentIdOrIndex: string | number, shipments: Shipment[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(shipments, "shipments");
-        let agentIndex = IndexConverter.convertAgentToIndex(this.result.getData(), agentIdOrIndex, true);
-        return new RouteResultShipmentEditor(this.result).addNewShipments(agentIndex, shipments, this.normalizeAddAssignOptions(options));
+        let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        /* ToDo No need to create an object here, use functions */
+        return this.getShipmentEditor().addNewShipments(agentIndex, shipments, this.normalizeAddAssignOptions(options));
     }
 
     /**
@@ -242,11 +251,13 @@ export class RoutePlannerResultEditor {
      * ```
      */
     getModifiedResult(): RoutePlannerResult {
-        return this.result;
+        return new RoutePlannerResult(this.callOptions, this.rawData);
     }
 
     private assertArray(array: any[], name: string): void {
         if (!Array.isArray(array)) {
+
+            // ToDo: We should throw only customer facing errors
             throw new Error("Type error: " + name + " must be an array");
         }
     }
@@ -264,5 +275,21 @@ export class RoutePlannerResultEditor {
 
     private normalizeRemoveOptions(options?: RemoveOptions): RemoveOptions {
         return options ?? {};
+    }
+
+    private getJobEditor() {
+        if (!this.jobEditor) {
+            this.jobEditor = new RouteResultJobEditor(this.rawData, this.callOptions, this.routingOptions);
+        }
+
+        return this.jobEditor;
+    }
+
+    private getShipmentEditor() {
+        if (!this.shipmentEditor) {
+            this.shipmentEditor = new RouteResultShipmentEditor(this.rawData, this.callOptions, this.routingOptions);
+        }
+
+        return this.shipmentEditor;
     }
 }

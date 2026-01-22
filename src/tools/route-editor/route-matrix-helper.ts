@@ -1,4 +1,5 @@
-import { RoutePlannerOptions } from "../../models/interfaces/route-planner-options";
+import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
+import { RoutingOptions } from '../../models/interfaces/route-planner-input-data';
 
 export interface RouteMatrixSource {
     location: [number, number];
@@ -36,10 +37,10 @@ export class RouteMatrixHelper {
     private apiKey: string;
     private mode: string;
 
-    constructor(options: RoutePlannerOptions, mode: string = 'drive') {
+    constructor(options: RoutePlannerCallOptions, routingOptions: RoutingOptions) {
         this.baseUrl = options.baseUrl || 'https://api.geoapify.com';
         this.apiKey = options.apiKey;
-        this.mode = mode;
+        this.mode = routingOptions.mode || 'drive'; /* ToDo: use all routing options, keep it in routingOptions, don't create separate properties */
     }
 
     /**
