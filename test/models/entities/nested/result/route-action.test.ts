@@ -67,7 +67,7 @@ describe("RouteAction", () => {
     });
 
     test("should return index", () => {
-        expect(routeAction.getIndex()).toBe(5);
+        expect(routeAction.getActionIndex()).toBe(5);
     });
 
     test("should return waypoint index", () => {
@@ -89,6 +89,6 @@ describe("RouteAction", () => {
         expect(partialRouteAction.getLocationId()).toBeUndefined();
         expect(partialRouteAction.getJobIndex()).toBeUndefined();
         expect(partialRouteAction.getJobId()).toBeUndefined();
-        expect(partialRouteAction.getIndex()).toBeUndefined();
+        expect(partialRouteAction.getActionIndex()).toBeUndefined();
     });
 });

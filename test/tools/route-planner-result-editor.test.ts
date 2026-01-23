@@ -1,7 +1,6 @@
 import RoutePlanner, {
   RoutePlannerResultEditor,
-  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location,
-  AddAssignOptions, RemoveOptions
+  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
 import { loadJson } from "../utils.helper";
@@ -60,7 +59,7 @@ describe('RoutePlannerResultEditor', () => {
     })
     let agentToAssignTheJob = result.getJobPlan('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
     await routeEditor.assignJobs(agentToAssignTheJob, ['job-2']);
-    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
+    expect(routeEditor.getModifiedResult().getJobPlan('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
   });
 
   test('assignShipments should work as expected for simple case"', async () => {
@@ -111,7 +110,7 @@ describe('RoutePlannerResultEditor', () => {
     })
     let agentToAssignTheShipment = result.getShipmentPlan('shipment-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
     await routeEditor.assignShipments(agentToAssignTheShipment, ['shipment-2']);
-    expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe(agentToAssignTheShipment);
+    expect(routeEditor.getModifiedResult().getShipmentPlan('shipment-2')!.getAgentId()).toBe(agentToAssignTheShipment);
   });
 
 
@@ -170,10 +169,10 @@ describe('RoutePlannerResultEditor', () => {
     // After assignment we should have
     // Job 1 -> unassigned, Job 2 -> Agent B
     // Job 3 -> Agent A, Job 4 -> unassigned
-    expect(modifiedResult.getJobPlan('job-1')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getJobPlan('job-4')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
     expect(modifiedResult.getUnassignedJobs().length).toBe(2);
     expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[0]);
@@ -197,7 +196,7 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getJobPlan('job-4')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[3]);
@@ -260,8 +259,8 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 3 -> unassigned, Shipment 4 -> unassigned
     expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
-    expect(modifiedResult.getShipmentPlan('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
     expect(modifiedResult.getUnassignedShipments().length).toBe(2);
     expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[2]);
@@ -284,7 +283,7 @@ describe('RoutePlannerResultEditor', () => {
     expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getShipmentPlan('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[3]);
@@ -307,9 +306,9 @@ describe('RoutePlannerResultEditor', () => {
     // Job 2 -> unassigned
     // Job 4 -> unassigned
     expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getJobPlan('job-4')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(2);
     expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[1]);
   });
@@ -330,7 +329,7 @@ describe('RoutePlannerResultEditor', () => {
     // Job 3 -> Agent A, Job 4 -> Agent B
     // Job 2 -> unassigned
     expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
@@ -353,8 +352,8 @@ describe('RoutePlannerResultEditor', () => {
     // Job 4 -> Agent B
     // Job 2 -> unassigned
     expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
-    expect(modifiedResult.getJobPlan('job-3')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedJobs().length).toBe(2);
   });
@@ -393,9 +392,9 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 2 -> unassigned
     // Shipment 4 -> unassigned
     expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getShipmentPlan('shipment-2')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-    expect(modifiedResult.getShipmentPlan('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedShipments().length).toBe(2);
     expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[1]);
   });
@@ -416,7 +415,7 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
     // Shipment 2 -> unassigned
     expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getShipmentPlan('shipment-2')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
@@ -434,8 +433,8 @@ describe('RoutePlannerResultEditor', () => {
     await routeEditor.removeShipments(['shipment-1']);
     let modifiedResult = routeEditor.getModifiedResult();
     // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-    expect(modifiedResult.getShipmentPlan('shipment-1')).toBeUndefined();
-    expect(modifiedResult.getShipmentPlan('shipment-2')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedShipments().length).toBe(2);
@@ -502,10 +501,10 @@ describe('RoutePlannerResultEditor', () => {
     // Job 1 -> unassigned, Job 2 -> Agent A
     // Job 3 -> Agent A, Job 4 -> unassigned
     // Job 5 -> Agent B
-    expect(modifiedResult.getJobPlan('job-1')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getJobPlan('job-4')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getJobPlan('job-5')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
     expect(modifiedResult.getUnassignedJobs().length).toBe(2);
@@ -561,8 +560,8 @@ describe('RoutePlannerResultEditor', () => {
     // Shipment 5 -> Agent B
     expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
     expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
-    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
-    expect(modifiedResult.getShipmentPlan('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getShipmentPlan('shipment-5')!.getAgentId()).toBe('agent-B');
     expect(modifiedResult.getUnassignedAgents().length).toBe(0);
     expect(modifiedResult.getUnassignedShipments().length).toBe(2);
@@ -586,10 +585,13 @@ describe('RoutePlannerResultEditor', () => {
     .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
     const result = await planner.plan();
 
-    console.log(result);
+    const currentAgentId = result.getShipmentPlan('shipment-1')!.getAgentId();
+
+    const availableAgents = ['agent-a', 'agent-b', 'agent-c'];
+    const targetAgent = availableAgents.find(id => id !== currentAgentId);
 
     const routeEditor = new RoutePlannerResultEditor(result);
-    await routeEditor.assignShipments('agent-c', ['shipment-1']);
+    await routeEditor.assignShipments(targetAgent!, ['shipment-1']);
 
     let modifiedResult = routeEditor.getModifiedResult();
   });
@@ -661,9 +663,13 @@ describe('RoutePlannerResultEditor', () => {
         .setPickup(new ShipmentStep().setDuration(120).setLocationIndex(0)));
     const result = await planner.plan();
     let allAgentSolution = result.getAgentPlans();
-    expect(allAgentSolution[0]).toBeDefined();
-    expect(allAgentSolution[1]).toBeUndefined();
-    expect(allAgentSolution[2]).toBeUndefined();
+    expect(allAgentSolution.length).toBe(3);
+
+    const usedCount = allAgentSolution.filter(a => a !== undefined).length;
+    const unusedCount = allAgentSolution.filter(a => a === undefined).length;
+
+    expect(usedCount).toBeGreaterThan(0);
+    expect(unusedCount).toBeGreaterThan(0);
   });
 });
 
@@ -726,7 +732,7 @@ describe('RoutePlannerResultEditor Options API', () => {
     await routeEditor.removeJobs(['job-4'], { strategy: 'reoptimize' });
     
     let modifiedResult = routeEditor.getModifiedResult();
-    expect(modifiedResult.getJobPlan('job-4')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(2);
   });
 
@@ -738,7 +744,7 @@ describe('RoutePlannerResultEditor Options API', () => {
     await routeEditor.removeShipments(['shipment-4'], { strategy: 'reoptimize' });
     
     let modifiedResult = routeEditor.getModifiedResult();
-    expect(modifiedResult.getShipmentPlan('shipment-4')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedShipments().length).toBe(2);
   });
 

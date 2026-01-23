@@ -1,6 +1,6 @@
 import {
   ActionResponseData,
-  AgentSolutionData,
+  AgentPlanData,
   FeatureResponseData,
   LegResponseData,
   LegStepResponseData,
@@ -31,7 +31,7 @@ export class RoutePlannerResultReverseConverter {
     };
   }
 
-  private static generateFeatures(agents: AgentSolutionData[]): FeatureResponseData[] {
+  private static generateFeatures(agents: AgentPlanData[]): FeatureResponseData[] {
     return agents.map(agent => ({
       properties: {
         agent_index: agent.agentIndex,

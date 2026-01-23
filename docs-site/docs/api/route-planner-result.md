@@ -108,6 +108,7 @@ See [Constraint Validation](./route-planner-result-editor.md#constraint-validati
 
 ## Job & Shipment Info
 
+[//]: # TODO: Update documentation, it should be getJobPlan, same for getShipmentPlan
 | Method                              | Description                                                                              |
 | ----------------------------------- | ---------------------------------------------------------------------------------------- |
 | `getJobInfo(jobIdOrIndex)`          | Returns [`RouteActionInfo`](./route-action-info.md) for a job (agent, actions, timeline) |

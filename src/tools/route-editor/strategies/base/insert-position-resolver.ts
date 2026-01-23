@@ -1,4 +1,10 @@
-import {AddAssignOptions, FeatureResponseData, RoutePlannerResultData} from "../../../../models";
+import {
+    ActionResponseData,
+    AddAssignOptions,
+    FeatureResponseData,
+    RoutePlannerResultData,
+    WaypointResponseData
+} from "../../../../models";
 import { StrategyContext } from "./strategy-context";
 
 /**
@@ -98,9 +104,9 @@ export class InsertPositionResolver {
             .map(waypoint => waypoint.location);
     }
 
-    static isActionWaypoint(waypoint: any): boolean {
-        return waypoint.getActions().some((a: any) => 
-            a.getType() !== 'start' && a.getType() !== 'end'
+    static isActionWaypoint(waypoint: WaypointResponseData): boolean {
+        return waypoint.actions.some((action: ActionResponseData) =>
+            action.type !== 'start' && action.type !== 'end'
         );
     }
 }

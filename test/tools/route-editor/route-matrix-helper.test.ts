@@ -8,7 +8,7 @@ describe('RouteMatrixHelper', () => {
   describe('calculateMatrix', () => {
 
     test('should call Route Matrix API with correct params', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       // Spy on fetch to capture request
       const fetchSpy = jest.spyOn(global, 'fetch');
@@ -41,7 +41,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should return matrix with travel times and distances', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       const sources = [
         { location: [13.388860, 52.517037] as [number, number] }  // Berlin Mitte
@@ -70,7 +70,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should use custom mode when provided', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, 'walk');
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'walk' });
       
       const fetchSpy = jest.spyOn(global, 'fetch');
       
@@ -86,7 +86,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should throw error when API fails', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: 'invalid-key' });
+      const helper = new RouteMatrixHelper({ apiKey: 'invalid-api-key' }, { mode: 'drive' });
       
       const sources = [{ location: [13.388860, 52.517037] as [number, number] }];
       const targets = [{ location: [13.428555, 52.523219] as [number, number] }];
@@ -99,7 +99,7 @@ describe('RouteMatrixHelper', () => {
   describe('calculateTravelTime', () => {
 
     test('should return travel time between two points', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       const from: [number, number] = [13.388860, 52.517037];  // Berlin Mitte
       const to: [number, number] = [13.428555, 52.523219];    // Berlin East
@@ -112,7 +112,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should call calculateMatrix internally', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       const matrixSpy = jest.spyOn(helper, 'calculateMatrix');
       
@@ -134,7 +134,7 @@ describe('RouteMatrixHelper', () => {
   describe('findOptimalInsertionPoint', () => {
 
     test('should return 0 for empty route', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       const route: [number, number][] = [];
       const newLocation: [number, number] = [13.388860, 52.517037];
@@ -145,7 +145,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should return 1 for single location route', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       const route: [number, number][] = [[13.388860, 52.517037]];
       const newLocation: [number, number] = [13.428555, 52.523219];
@@ -156,7 +156,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should find optimal insertion point in multi-location route', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       // Route: West Berlin → East Berlin
       const route: [number, number][] = [
@@ -175,7 +175,7 @@ describe('RouteMatrixHelper', () => {
     });
 
     test('should minimize total route time increase', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY });
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
       // Linear route: A → B → C
       const route: [number, number][] = [

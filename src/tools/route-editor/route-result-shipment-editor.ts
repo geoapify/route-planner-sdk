@@ -48,7 +48,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private validateShipmentAssignment(shipmentIndex: number, agentIndex?: number): void {
         const realAgentIndexForShipment = this.context.getAgentIndexForShipment(shipmentIndex);
-        if (!realAgentIndexForShipment) {
+        if (realAgentIndexForShipment === undefined)  {
             this.validateShipmentExists(shipmentIndex);
         }
         if (agentIndex !== undefined && realAgentIndexForShipment === agentIndex) {
@@ -60,10 +60,6 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         const shipmentFound = this.rawData.properties.params.shipments[shipmentIndex];
         if (!shipmentFound) {
             throw new Error(`Shipment with index ${shipmentIndex} not found`);
-        }
-        const isUnassignedShipment = this.rawData.properties.issues?.unassigned_shipments?.includes(shipmentIndex);
-        if (!isUnassignedShipment) {
-            throw new Error(`Shipment with index ${shipmentIndex} is invalid`);
         }
     }
 

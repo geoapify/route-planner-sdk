@@ -82,7 +82,7 @@ export class RequirementHelper {
             if (excludeIndexes.includes(i)) continue;
             
             const agentIndexForJob = context.getAgentIndexForJob(i);
-            if (!agentIndexForJob) continue;
+            if (agentIndexForJob === undefined) continue;
             
             this.assignToAgent(jobs[i], agentIndexForJob!);
         }
@@ -93,7 +93,7 @@ export class RequirementHelper {
             if (excludeIndexes.includes(i)) continue;
             
             const agentIndexForShipment = context.getAgentIndexForShipment(i);
-            if (!agentIndexForShipment) continue;
+            if (agentIndexForShipment === undefined) continue;
             
             this.assignToAgent(shipments[i], agentIndexForShipment!);
         }

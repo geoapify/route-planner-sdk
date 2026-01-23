@@ -48,7 +48,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private validateJobAssignment(jobIndex: number, agentIndex?: number): void {
         const jobAgentIndex = this.context.getAgentIndexForJob(jobIndex);
-        if (jobAgentIndex) {
+        if (jobAgentIndex != undefined) {
             this.validateJobExists(jobIndex);
         }
         if (agentIndex !== undefined && jobAgentIndex === agentIndex) {
@@ -60,10 +60,6 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         const jobFound = this.rawData.properties.params.jobs[jobIndex];
         if (!jobFound) {
             throw new Error(`Job with index ${jobIndex} not found`);
-        }
-        const isUnassignedJob = this.rawData.properties.issues?.unassigned_jobs?.includes(jobIndex);
-        if (!isUnassignedJob) {
-            throw new Error(`Job with index ${jobIndex} is invalid`);
         }
     }
 

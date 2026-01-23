@@ -516,7 +516,7 @@ export class AppComponent {
 
   clearViolations() {
     if (this.currentResult) {
-      this.currentResult.getRawData().properties.violations = [];
+      this.currentResult.getRaw().properties.violations = [];
       this.addLog('Clear Violations', true, 'All violations cleared');
     }
   }
@@ -658,7 +658,7 @@ export class AppComponent {
     if (!this.currentResult) return [];
     
     const jobIndexes = this.currentResult.getAgentJobs(agentIndex);
-    const allJobsData = this.currentResult.getRawData().properties.params.jobs;
+    const allJobsData = this.currentResult.getRaw().properties.params.jobs;
     
     return jobIndexes.map(jobIndex => ({
       index: jobIndex,

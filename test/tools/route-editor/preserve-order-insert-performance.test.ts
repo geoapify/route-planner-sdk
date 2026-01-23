@@ -77,7 +77,7 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
         
         console.log('\n=== Initial Planning ===');
         const result = await planner.plan();
-        const waypointCount = result.getAgentSolutions()[0].getWaypoints().length;
+        const waypointCount = result.getAgentPlans()[0]!.getWaypoints().length;
         console.log(`✓ Initial route created with ${waypointCount} waypoints`);
         
         resetCounter();
@@ -124,7 +124,7 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
         
         console.log('\n=== Initial Planning ===');
         const result = await planner.plan();
-        const waypointCount = result.getAgentSolutions()[0].getWaypoints().length;
+        const waypointCount = result.getAgentPlans()[0]!.getWaypoints().length;
         console.log(`✓ Initial route created with ${waypointCount} waypoints`);
         
         resetCounter();
@@ -194,7 +194,7 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
             console.log(`  → ${callsForThis} Matrix API requests`);
         }
         
-        const finalWaypointCount = editor.getModifiedResult().getAgentSolutions()[0].getWaypoints().length;
+        const finalWaypointCount = editor.getModifiedResult().getAgentPlans()[0]!.getWaypoints().length;
         
         logPerformanceResults({
             actualRequests: matrixApiCallCount,

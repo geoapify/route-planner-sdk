@@ -49,7 +49,7 @@ describe('RoutePlannerResultJobEditor', () => {
 
         const result = await planner.plan();
         expect(result).toBeDefined();
-        expect(result.getAgentSolutions().length).toBe(2);
+        expect(result.getAgentPlans().length).toBe(2);
         expect(result.getData().inputData).toBeDefined();
 
         const routeEditor = new RoutePlannerResultEditor(result);
@@ -57,9 +57,9 @@ describe('RoutePlannerResultJobEditor', () => {
         modifiedResult.getData().inputData.agents.forEach(agent => {
             agent.pickup_capacity = 100;
         })
-        let agentToAssignTheJob = result.getJobInfo('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
+        let agentToAssignTheJob = result.getJobPlan('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
         await routeEditor.assignJobs(agentToAssignTheJob, ['job-2']);
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
     });
 
     test('assignJobs should work "AgentSolution for provided agentId is found and the job is assigned to someone else."', async () => {
@@ -75,10 +75,10 @@ describe('RoutePlannerResultJobEditor', () => {
         // After assignment we should have
         // Job 1 -> Agent B, Job 2 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
     });
 
     test('assignJobs should change priority if its passed', async () => {
@@ -89,10 +89,10 @@ describe('RoutePlannerResultJobEditor', () => {
         await routeEditor.assignJobs('agent-B', ['job-2'], 100);
         let modifiedResult = routeEditor.getModifiedResult();
 
-        expect(modifiedResult.getRawData().properties.params.jobs[0].priority).toBeUndefined();
-        expect(modifiedResult.getRawData().properties.params.jobs[1].priority).toBe(100);
-        expect(modifiedResult.getRawData().properties.params.jobs[2].priority).toBe(10);
-        expect(modifiedResult.getRawData().properties.params.jobs[3].priority).toBe(10);
+        expect(modifiedResult.getRaw().properties.params.jobs[0].priority).toBeUndefined();
+        expect(modifiedResult.getRaw().properties.params.jobs[1].priority).toBe(100);
+        expect(modifiedResult.getRaw().properties.params.jobs[2].priority).toBe(10);
+        expect(modifiedResult.getRaw().properties.params.jobs[3].priority).toBe(10);
     });
 
     test('assignJobs should work "AgentSolution for provided agentId is found. But the job is not assigned to anyone."', async () => {
@@ -109,10 +109,10 @@ describe('RoutePlannerResultJobEditor', () => {
         // After assignment we should have
         // Job 1 -> Agent B, Job 2 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getUnassignedJobs().length).toBe(0);
     });
 
@@ -130,14 +130,14 @@ describe('RoutePlannerResultJobEditor', () => {
         // After assignment we should have
         // Job 1 -> unassigned, Job 2 -> Agent B
         // Job 3 -> Agent A, Job 4 -> unassigned
-        expect(modifiedResult.getJobInfo('job-1')).toBeUndefined();
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-1')?.getAgentId()).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')?.getAgentId()).toBeUndefined();
         expect(modifiedResult.getUnassignedAgents().length).toBe(0);
         expect(modifiedResult.getUnassignedJobs().length).toBe(2);
-        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[0]);
-        expect(modifiedResult.getUnassignedJobs()[1]).toEqual(modifiedResult.getRawData().properties.params.jobs[3]);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[0]);
+        expect(modifiedResult.getUnassignedJobs()[1]).toEqual(modifiedResult.getRaw().properties.params.jobs[3]);
     });
 
     test('assignJobs should work "AgentSolution for provided agentId is not found and the job is not assigned to anyone."', async () => {
@@ -154,13 +154,13 @@ describe('RoutePlannerResultJobEditor', () => {
         // After assignment we should have
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')?.getAgentId()).toBeUndefined();
         expect(modifiedResult.getUnassignedAgents().length).toBe(0);
         expect(modifiedResult.getUnassignedJobs().length).toBe(1);
-        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[3]);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[3]);
     });
 
     test('assignJobs should work "Job with provided jobId already assigned to provided agentId."', async () => {
@@ -221,10 +221,10 @@ describe('RoutePlannerResultJobEditor', () => {
         await routeEditor.assignJobs('agent-B', ['job-2']);
 
         const modifiedResult = routeEditor.getModifiedResult();
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
     });
 
     test('assignJobs should throw error when job is already assigned to a different agent', async () => {
@@ -269,12 +269,12 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 3 -> Agent A
         // Job 2 -> unassigned
         // Job 4 -> unassigned
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')?.getAgentId()).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')?.getAgentId()).toBeUndefined();
         expect(modifiedResult.getUnassignedJobs().length).toBe(2);
-        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[1]);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[1]);
     });
 
     test('removeJobs should work "Job is not assigned."', async () => {
@@ -292,10 +292,10 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 2 -> unassigned
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')).toBeUndefined();
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')?.getAgentId()).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     });
 
@@ -368,11 +368,11 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> Agent B, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> Agent B
         // Job 5 -> Agent A
-        expect(modifiedResult.getJobInfo('job-1')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-1')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-5')!.getAgentId()).toBe('agent-A');
     });
 
     test('addNewJobs should work "Job assigned to agent without existing AgentSolution."', async () => {
@@ -394,15 +394,15 @@ describe('RoutePlannerResultJobEditor', () => {
         // Job 1 -> unassigned, Job 2 -> Agent A
         // Job 3 -> Agent A, Job 4 -> unassigned
         // Job 5 -> Agent B
-        expect(modifiedResult.getJobInfo('job-1')).toBeUndefined();
-        expect(modifiedResult.getJobInfo('job-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getJobInfo('job-4')).toBeUndefined();
-        expect(modifiedResult.getJobInfo('job-5')!.getAgentId()).toBe('agent-B');
+        expect(modifiedResult.getJobPlan('job-1')?.getAgentId()).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-3')!.getAgentId()).toBe('agent-A');
+        expect(modifiedResult.getJobPlan('job-4')?.getAgentId()).toBeUndefined();
+        expect(modifiedResult.getJobPlan('job-5')!.getAgentId()).toBe('agent-B');
         expect(modifiedResult.getUnassignedAgents().length).toBe(0);
         expect(modifiedResult.getUnassignedJobs().length).toBe(2);
-        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRawData().properties.params.jobs[0]);
-        expect(modifiedResult.getUnassignedJobs()[1]).toEqual(modifiedResult.getRawData().properties.params.jobs[3]);
+        expect(modifiedResult.getUnassignedJobs()[0]).toEqual(modifiedResult.getRaw().properties.params.jobs[0]);
+        expect(modifiedResult.getUnassignedJobs()[1]).toEqual(modifiedResult.getRaw().properties.params.jobs[3]);
     });
 
     test('addNewJobs should work "No jobs provided"', async () => {

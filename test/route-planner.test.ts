@@ -61,7 +61,7 @@ describe('RoutePlanner', () => {
     testAllPrimitiveFeatureFieldsArePopulated(result);
     testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
     testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[1]);
-    testAllWaypointFieldsArePopulated(result.getAgentWaypoints(result.getAgentPlans()[0].getAgentId())[1]);
+    testAllWaypointFieldsArePopulated(result.getAgentPlans()[0]?.getWaypoints()[1]!);
     testGetAgentShipments(result);
     testGetShipmentInfo(result);
     testGetShipmentSolutions(result);
@@ -190,7 +190,8 @@ describe('RoutePlanner', () => {
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentRouteLegs(result.getData().agents[0].agentId)[0]);
+    const legs = result.getAgentPlan(result.getData().agents[0].agentId)?.getLegs();
+    testAllLegFieldsArePopulated(legs?.[0]!);
     testGetJobInfo(result);
     testGetJobSolutions(result);
     testGetJobSolution(result);
@@ -350,14 +351,26 @@ describe('RoutePlanner', () => {
 
   function testGetShipmentInfo(result: RoutePlannerResult) {
     let agent = result.getAgentPlans()[0];
-    let expectedResult = {agentId: agent!.getAgentId(), actions: [agent!.getActions()[1], agent!.getActions()[4]], agent: agent};
-    expect(result.getShipmentPlan(agent!.getActions()[1].getShipmentId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let shipmentPlan = result.getShipmentPlan(agent!.getActions()[1].getShipmentId()!);
+
+    expect(shipmentPlan).toBeDefined();
+    expect(shipmentPlan?.getAgentId()).toBe(agent!.getAgentId());
+    expect(shipmentPlan?.getAgentPlan()).toBe(agent);
+
+    const expectedActions = [agent!.getActions()[1], agent!.getActions()[4]];
+    expect(shipmentPlan?.getRouteActions()).toEqual(expectedActions);
   }
 
   function testGetJobInfo(result: RoutePlannerResult) {
     let agent = result.getAgentPlans()[0];
-    let expectedResult = {agentId: agent.getAgentId(), actions: [agent.getActions()[1]], agent: agent};
-    expect(result.getJobPlan(agent!.getActions()[1].getJobId()!)).toStrictEqual(new RouteActionInfo(expectedResult));
+    let jobPlan = result.getJobPlan(agent!.getActions()[1].getJobId()!);
+
+    expect(jobPlan).toBeDefined();
+    expect(jobPlan?.getAgentId()).toBe(agent!.getAgentId());
+    expect(jobPlan?.getAgentPlan()).toBe(agent);
+
+    const expectedActions = [agent!.getActions()[1]];
+    expect(jobPlan?.getRouteActions()).toEqual(expectedActions);
   }
 
   function testResponseParamsArePopulated(result: RoutePlannerResult, planner: RoutePlanner) {
@@ -392,7 +405,7 @@ describe('RoutePlanner', () => {
     expect(shipmentSolution!.getAgentPlan()!.getAgentId()).toBe('agent-A');
     expect(shipmentSolution!.getShipmentId()).toBe('order-1');
 
-    expect(result.getShipmentPlan('unknown')).toBeUndefined()
+    expect(result.getShipmentPlan('unknown')?.getAgentId()).toBeUndefined()
   }
 
   function testGetJobSolution(result: RoutePlannerResult) {
@@ -403,6 +416,6 @@ describe('RoutePlanner', () => {
     expect(jobSolution!.getAgentId()).toBe('agent-A');
     expect(jobSolution!.getJobInputData().id).toBe('1');
 
-    expect(result.getJobPlan('unknown')).toBeUndefined()
+    expect(result.getJobPlan('unknown')?.getAgentId()).toBeUndefined()
   }
 });

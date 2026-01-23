@@ -735,7 +735,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-A: job-2 removed, route reoptimized
     // Unassigned jobs: [job-2]
-    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')?.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
     expectActionsContain(modifiedResult.getAgentPlan('agent-A')!, ['job-3']);
@@ -762,7 +762,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-B: shipment-3 removed, route reoptimized
     // Unassigned shipments: [shipment-3]
-    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')?.getAgentId()).toBeUndefined()
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
     expectActionsContain(modifiedResult.getAgentPlan('agent-B')!, ['shipment-4']);
@@ -789,7 +789,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-A: start(0) → job-3(1) → end(2)
     // Unassigned jobs: [job-2]
-    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')?.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
     expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
@@ -815,7 +815,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     // Expected state:
     // agent-B: start(0) → shipment-4-pickup(1) → shipment-4-delivery(2) → end(3)
     // Unassigned shipments: [shipment-3]
-    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')?.getAgentId()).toBeUndefined()
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
     expectActions(modifiedResult.getAgentPlan('agent-B')!, [
@@ -863,7 +863,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     
     // Expected state: job removed and added to newly created unassigned_jobs array
-    expect(modifiedResult.getJobPlan('job-2')).toBeUndefined();
+    expect(modifiedResult.getJobPlan('job-2')?.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedJobs().length).toBe(1);
     expect(modifiedResult.getUnassignedJobs()[0].id).toBe('job-2');
     expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
@@ -888,7 +888,7 @@ describe('RoutePlannerResultEditor PreserveOrder Remove Strategy', () => {
     let modifiedResult = routeEditor.getModifiedResult();
     
     // Expected state: shipment removed and added to newly created unassigned_shipments array
-    expect(modifiedResult.getShipmentPlan('shipment-3')).toBeUndefined();
+    expect(modifiedResult.getShipmentPlan('shipment-3')?.getAgentId()).toBeUndefined();
     expect(modifiedResult.getUnassignedShipments().length).toBe(1);
     expect(modifiedResult.getUnassignedShipments()[0].id).toBe('shipment-3');
     expectActions(modifiedResult.getAgentPlan('agent-B')!, [

@@ -119,7 +119,7 @@ export class RoutePlannerService {
       console.error('[removeJobs] Stack:', error.stack);
       console.error('[removeJobs] Job indexes:', jobIndexes);
       console.error('[removeJobs] Options:', options);
-      console.error('[removeJobs] Result data:', result.getRawData());
+      console.error('[removeJobs] Result data:', result.getRaw());
       return {
         success: false,
         message: `Error: ${error.message}`
@@ -151,7 +151,7 @@ export class RoutePlannerService {
       console.error('[removeShipments] Stack:', error.stack);
       console.error('[removeShipments] Shipment indexes:', shipmentIndexes);
       console.error('[removeShipments] Options:', options);
-      console.error('[removeShipments] Result data:', result.getRawData());
+      console.error('[removeShipments] Result data:', result.getRaw());
       return {
         success: false,
         message: `Error: ${error.message}`

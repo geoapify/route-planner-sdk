@@ -16,7 +16,7 @@ export interface RoutePlannerResultResponseData {
             jobs: JobData[];
             shipments: ShipmentData[];
             locations: LocationData[];
-            avoid: AvoidData[];
+            avoid?: AvoidData[];
             traffic?: TrafficType;
             type?: RouteType;
             max_speed?: number;
