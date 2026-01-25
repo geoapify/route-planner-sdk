@@ -1,5 +1,5 @@
 import { JobData, ShipmentData } from "../../../../models";
-import { StrategyContext } from "./strategy-context";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 type ItemWithRequirements = { requirements?: string[] };
 
@@ -63,21 +63,21 @@ export class RequirementHelper {
         }
     }
 
-    static markExistingUnassignedJobs(context: StrategyContext, jobs: JobData[]): void {
+    static markExistingUnassignedJobs(context: RouteResultEditorBase, jobs: JobData[]): void {
         const unassignedJobs = context.getRawData().properties.issues?.unassigned_jobs;
         if (unassignedJobs) {
             this.markItemsAsUnassigned(jobs, unassignedJobs);
         }
     }
 
-    static markExistingUnassignedShipments(context: StrategyContext, shipments: ShipmentData[]): void {
+    static markExistingUnassignedShipments(context: RouteResultEditorBase, shipments: ShipmentData[]): void {
         const unassignedShipments = context.getRawData().properties.issues?.unassigned_shipments;
         if (unassignedShipments) {
             this.markItemsAsUnassigned(shipments, unassignedShipments);
         }
     }
 
-    static markRemainingJobsWithAgentRequirement(context: StrategyContext, jobs: JobData[], excludeIndexes: number[]): void {
+    static markRemainingJobsWithAgentRequirement(context: RouteResultEditorBase, jobs: JobData[], excludeIndexes: number[]): void {
         for (let i = 0; i < jobs.length; i++) {
             if (excludeIndexes.includes(i)) continue;
             
@@ -88,7 +88,7 @@ export class RequirementHelper {
         }
     }
 
-    static markRemainingShipmentsWithAgentRequirement(context: StrategyContext, shipments: ShipmentData[], excludeIndexes: number[]): void {
+    static markRemainingShipmentsWithAgentRequirement(context: RouteResultEditorBase, shipments: ShipmentData[], excludeIndexes: number[]): void {
         for (let i = 0; i < shipments.length; i++) {
             if (excludeIndexes.includes(i)) continue;
             

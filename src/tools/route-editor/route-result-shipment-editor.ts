@@ -15,14 +15,14 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         this.applyPriority(shipmentIndexes, options.priority);
         
         const strategy = ShipmentStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this.context, agentIndex, shipmentIndexes, options);
+        return strategy.execute(this, agentIndex, shipmentIndexes, options);
     }
 
     async removeShipments(shipmentIndexes: number[], options: RemoveOptions = {}): Promise<boolean> {
         this.validateShipments(shipmentIndexes);
         
         const strategy = ShipmentStrategyFactory.createRemoveStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this.context, shipmentIndexes, options);
+        return strategy.execute(this, shipmentIndexes, options);
     }
 
     async addNewShipments(agentIndex: number, shipments: Shipment[], options: AddAssignOptions = {}): Promise<boolean> {
@@ -34,7 +34,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         const newShipmentIndexes = this.appendShipmentsToInput(shipmentsRaw);
         
         const strategy = ShipmentStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this.context, agentIndex, newShipmentIndexes, options);
+        return strategy.execute(this, agentIndex, newShipmentIndexes, options);
     }
 
     private validateShipments(shipmentIndexes: number[], agentIndex?: number): void {
@@ -47,7 +47,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     }
 
     private validateShipmentAssignment(shipmentIndex: number, agentIndex?: number): void {
-        const realAgentIndexForShipment = this.context.getAgentIndexForShipment(shipmentIndex);
+        const realAgentIndexForShipment = this.getAgentIndexForShipment(shipmentIndex);
         if (realAgentIndexForShipment === undefined)  {
             this.validateShipmentExists(shipmentIndex);
         }
@@ -66,7 +66,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     private validateShipmentConstraints(agentIndex: number, shipmentIndexes: number[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
 
-        const existingShipmentIndexes: number[] = this.context.getAgentShipments(agentIndex);
+        const existingShipmentIndexes: number[] = this.getAgentShipments(agentIndex);
         const existingShipments = existingShipmentIndexes.map(i => this.getShipmentData(i));
         const newShipments = shipmentIndexes.map(i => this.getShipmentData(i));
         const allShipments = [...existingShipments, ...newShipments];
@@ -77,7 +77,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
 
     private validateNewShipmentConstraints(agentIndex: number, shipmentsRaw: ShipmentData[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingShipmentIndexes: number[] = this.context.getAgentShipments(agentIndex);
+        const existingShipmentIndexes: number[] = this.getAgentShipments(agentIndex);
         const existingShipments = existingShipmentIndexes.map(i => this.getShipmentData(i));
         const allShipments = [...existingShipments, ...shipmentsRaw];
         

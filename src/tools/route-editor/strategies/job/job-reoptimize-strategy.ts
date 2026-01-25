@@ -1,5 +1,6 @@
 import { AddAssignOptions } from "../../../../models";
-import { AssignStrategy, StrategyContext, RequirementHelper } from "../base";
+import { AssignStrategy, RequirementHelper } from "../base";
+import { RouteResultEditorBase } from "../../route-result-editor-base";
 
 /**
  * Strategy that reoptimizes the entire route when assigning jobs
@@ -7,7 +8,7 @@ import { AssignStrategy, StrategyContext, RequirementHelper } from "../base";
 export class JobReoptimizeStrategy implements AssignStrategy {
 
     async execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         jobIndexes: number[],
         options: AddAssignOptions

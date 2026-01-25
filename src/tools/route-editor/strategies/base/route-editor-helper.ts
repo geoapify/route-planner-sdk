@@ -1,12 +1,12 @@
 import { JobData, ShipmentData } from "../../../../models";
-import { StrategyContext } from "./strategy-context";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Helper for route editing: create actions, retrieve job/shipment data, remove items from agents
  */
 export class RouteEditorHelper {
 
-    static createJobAction(context: StrategyContext, jobIndex: number, waypointIndex: number): any {
+    static createJobAction(context: RouteResultEditorBase, jobIndex: number, waypointIndex: number): any {
         const job = this.getJobByIndex(context, jobIndex);
         return {
             index: 0,
@@ -19,7 +19,7 @@ export class RouteEditorHelper {
         };
     }
 
-    static createShipmentAction(context: StrategyContext, shipmentIndex: number, type: 'pickup' | 'delivery', waypointIndex: number): any {
+    static createShipmentAction(context: RouteResultEditorBase, shipmentIndex: number, type: 'pickup' | 'delivery', waypointIndex: number): any {
         const shipment = this.getShipmentByIndex(context, shipmentIndex);
         const duration = type === 'pickup' ? 
             (shipment.pickup?.duration || 0) : 
@@ -36,17 +36,17 @@ export class RouteEditorHelper {
         };
     }
 
-    static getJobByIndex(context: StrategyContext, jobIndex: number): JobData {
+    static getJobByIndex(context: RouteResultEditorBase, jobIndex: number): JobData {
         return context.getRawData().properties.params.jobs[jobIndex];
     }
 
-    static getShipmentByIndex(context: StrategyContext, shipmentIndex: number): ShipmentData {
+    static getShipmentByIndex(context: RouteResultEditorBase, shipmentIndex: number): ShipmentData {
         return context.getRawData().properties.params.shipments[shipmentIndex];
     }
 
     // ===== Removal methods =====
 
-    static removeJobsFromAgents(context: StrategyContext, jobIndexes: number[]): void {
+    static removeJobsFromAgents(context: RouteResultEditorBase, jobIndexes: number[]): void {
         const rawData = context.getRawData();
         
         for (const jobIndex of jobIndexes) {
@@ -61,7 +61,7 @@ export class RouteEditorHelper {
         }
     }
 
-    static removeShipmentsFromAgents(context: StrategyContext, shipmentIndexes: number[]): void {
+    static removeShipmentsFromAgents(context: RouteResultEditorBase, shipmentIndexes: number[]): void {
         const rawData = context.getRawData();
         
         for (const shipmentIndex of shipmentIndexes) {

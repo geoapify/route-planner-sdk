@@ -59,7 +59,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
         })
         let agentToAssignTheShipment = result.getShipmentPlan('shipment-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
         await routeEditor.assignShipments(agentToAssignTheShipment, ['shipment-2']);
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe(agentToAssignTheShipment);
+        expect(routeEditor.getModifiedResult().getShipmentPlan('shipment-2')!.getAgentId()).toBe(agentToAssignTheShipment);
     });
 
     test('assignShipments should work "AgentSolution for provided agentId is found and the shipment is assigned to someone else."', async () => {
@@ -191,10 +191,10 @@ describe('RoutePlannerResultShipmentEditor', () => {
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
         try {
-            await routeEditor.assignShipments('agent-A', ['shipment-5']);
+            await routeEditor.assignShipments('agent-A', ['shipment-6']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Shipment with index 4 is invalid');
+            expect(error.message).toBe('Shipment with id shipment-6 not found');
         }
     });
 

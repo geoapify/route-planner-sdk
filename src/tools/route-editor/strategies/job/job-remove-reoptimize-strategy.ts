@@ -1,5 +1,6 @@
 import { RemoveOptions } from "../../../../models";
-import { RemoveStrategy as IRemoveStrategy, StrategyContext, RequirementHelper } from "../base";
+import { RemoveStrategy as IRemoveStrategy, RequirementHelper } from "../base";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Strategy that reoptimizes the route after removing jobs
@@ -7,7 +8,7 @@ import { RemoveStrategy as IRemoveStrategy, StrategyContext, RequirementHelper }
 export class JobRemoveReoptimizeStrategy implements IRemoveStrategy {
 
     async execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         jobIndexes: number[],
         options: RemoveOptions
     ): Promise<boolean> {

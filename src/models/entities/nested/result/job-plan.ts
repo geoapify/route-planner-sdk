@@ -23,7 +23,7 @@ export class JobPlan {
 
     getRouteActions(): RouteAction[] {
         return this.agentPlan ? this.agentPlan.getActions().filter((action: RouteAction) => {
-            action.getJobIndex() === this.jobIndex;
+            return action.getJobIndex() === this.jobIndex;
         }) : [];
     }
 

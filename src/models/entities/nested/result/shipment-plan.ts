@@ -28,8 +28,8 @@ export class ShipmentPlan {
 
     getRouteActions(): RouteAction[] {
         return this.agentPlan ? this.agentPlan.getActions().filter((action: RouteAction) => {
-            action.getShipmentIndex() === this.shipmentIndex;
-        }) : [];;
+            return action.getShipmentIndex() === this.shipmentIndex;
+        }) : [];
     }
 
     getAgentPlan(): AgentPlan | undefined  {

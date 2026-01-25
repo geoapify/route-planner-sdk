@@ -387,14 +387,7 @@ export class RoutePlannerTimeline {
             return;
         }
         this.eventListeners[eventName].forEach(handler => {
-            try {
-                handler(...args);
-            } catch (error) {
-
-                // ToDo: Remove try/catch in the library itself. We keep try/catch only for HTTP errors
-
-                console.error(`Error in event handler for "${eventName}":`, error);
-            }
+            handler(...args);
         });
     }
 

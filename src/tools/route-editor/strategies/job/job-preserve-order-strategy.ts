@@ -1,5 +1,6 @@
 import { RemoveOptions } from "../../../../models";
-import { RemoveStrategy as IRemoveStrategy, StrategyContext } from "../base";
+import { RemoveStrategy as IRemoveStrategy } from "../base";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Strategy that removes jobs while preserving the order of remaining jobs
@@ -7,7 +8,7 @@ import { RemoveStrategy as IRemoveStrategy, StrategyContext } from "../base";
 export class JobPreserveOrderStrategy implements IRemoveStrategy {
 
     async execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         jobIndexes: number[],
         options: RemoveOptions
     ): Promise<boolean> {
@@ -17,7 +18,7 @@ export class JobPreserveOrderStrategy implements IRemoveStrategy {
         return true;
     }
 
-    private removeJobFromResult(context: StrategyContext, jobIndex: number): void {
+    private removeJobFromResult(context: RouteResultEditorBase, jobIndex: number): void {
         const rawData = context.getRawData();
         
         for (const feature of rawData.features) {
@@ -33,7 +34,7 @@ export class JobPreserveOrderStrategy implements IRemoveStrategy {
         }
     }
 
-    private addToUnassignedJobs(context: StrategyContext, jobIndex: number): void {
+    private addToUnassignedJobs(context: RouteResultEditorBase, jobIndex: number): void {
         const rawData = context.getRawData();
         if (!rawData.properties.issues) {
             rawData.properties.issues = {};

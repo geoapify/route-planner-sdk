@@ -1,12 +1,12 @@
 import { AddAssignOptions } from "../../../../models";
 import { 
     AssignStrategy, 
-    StrategyContext, 
-    RouteEditorHelper, 
+    RouteEditorHelper,
     RouteTimeCalculator,
     InsertPositionResolver,
     WaypointBuilder
 } from "../base";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Strategy that inserts shipments while preserving the order of existing stops.
@@ -20,7 +20,7 @@ import {
 export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
 
     async execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         shipmentIndexes: number[],
         options: AddAssignOptions
@@ -60,7 +60,7 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
     }
 
     private async determineShipmentInsertPositions(
-        context: StrategyContext, 
+        context: RouteResultEditorBase,
         agentIndex: number, 
         shipmentIndex: number, 
         options: AddAssignOptions
@@ -80,7 +80,7 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
         return await this.findOptimalShipmentPositions(context, agentIndex, shipmentIndex);
     }
 
-    private getEndPositions(context: StrategyContext, agentIndex: number): { pickup: number; delivery: number } {
+    private getEndPositions(context: RouteResultEditorBase, agentIndex: number): { pickup: number; delivery: number } {
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         const endActionIndex = context.findEndActionIndex(actions);
@@ -88,7 +88,7 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
     }
 
     private async findOptimalShipmentPositions(
-        context: StrategyContext, 
+        context: RouteResultEditorBase,
         agentIndex: number, 
         shipmentIndex: number
     ): Promise<{ pickup: number; delivery: number }> {
@@ -107,7 +107,7 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
             return { pickup: 1, delivery: 2 }; // After start action
         }
 
-        const matrixHelper = context.createMatrixHelper();
+        const matrixHelper = context.getMatrixHelper();
 
         // Find optimal position for pickup
         const pickupIndex = await matrixHelper.findOptimalInsertionPoint(routeLocations, pickupLocation);

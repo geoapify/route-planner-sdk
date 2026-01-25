@@ -54,16 +54,16 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentPlans().length).toBe(1);
+    expect(getUsedAgents(result).length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[1]);
-    testAllWaypointFieldsArePopulated(result.getAgentPlans()[0]?.getWaypoints()[1]!);
-    testGetAgentShipments(result);
-    testGetShipmentInfo(result);
+    testAllLegFieldsArePopulated(getUsedAgents(result)[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(getUsedAgents(result)[0]!.getActions()[1]);
+    testAllWaypointFieldsArePopulated(getUsedAgents(result)[0]?.getWaypoints()[1]!);
+    testGetPlannedShipments(result);
+    testGetShipmentPlan(result);
     testGetShipmentSolutions(result);
     testGetShipmentSolution(result);
     expect(result.getJobPlans().length).toBe(0);
@@ -91,15 +91,15 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentPlans().length).toBe(1);
+    expect(getUsedAgents(result).length).toBe(1);
     expect(result.getUnassignedAgents().length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[2]);
-    testAllWaypointFieldsArePopulated(result.getAgentPlans()[0]!.getWaypoints()[1]);
-    testGetAgentJobs(result);
+    testAllLegFieldsArePopulated(getUsedAgents(result)[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(getUsedAgents(result)[0]!.getActions()[2]);
+    testAllWaypointFieldsArePopulated(getUsedAgents(result)[0]!.getWaypoints()[1]);
+    testGetPlannedJobs(result);
   });
 
   test('should return success for complex test 3 - "Pickup bulky items from different locations"', async () => {
@@ -124,14 +124,14 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentPlans().length).toBe(1);
+    expect(getUsedAgents(result).length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
-    testAllActionFieldsArePopulated(result.getAgentPlans()[0]!.getActions()[2]);
-    testAllWaypointFieldsArePopulated(result.getAgentPlans()[0]!.getWaypoints()[1]);
+    testAllLegFieldsArePopulated(getUsedAgents(result)[0]!.getLegs()![0]);
+    testAllActionFieldsArePopulated(getUsedAgents(result)[0]!.getActions()[2]);
+    testAllWaypointFieldsArePopulated(getUsedAgents(result)[0]!.getWaypoints()[1]);
   });
 
   test('should return success for complex test 4 - "Delivery / pickup with constraints"', async () => {
@@ -158,13 +158,13 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentPlans().length).toBe(1);
+    expect(getUsedAgents(result).length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getUnassignedShipments().length).toBe(1);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
+    testAllLegFieldsArePopulated(getUsedAgents(result)[0]!.getLegs()![0]);
     testAllActionFieldsArePopulated(result.getAgentPlan(result.getData().agents[0].agentId)!.getActions()[1]);
   });
 
@@ -184,7 +184,7 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentPlans().length).toBe(1);
+    expect(getUsedAgents(result).length).toBe(1);
     expect(result.getUnassignedAgents().length).toBe(2);
     expect(result.getUnassignedJobs().length).toBe(1);
     expect(result.getData().inputData).toBeDefined();
@@ -192,7 +192,7 @@ describe('RoutePlanner', () => {
     testAllPrimitiveFeatureFieldsArePopulated(result);
     const legs = result.getAgentPlan(result.getData().agents[0].agentId)?.getLegs();
     testAllLegFieldsArePopulated(legs?.[0]!);
-    testGetJobInfo(result);
+    testGetJobPlan(result);
     testGetJobSolutions(result);
     testGetJobSolution(result);
     expect(result.getShipmentPlans().length).toBe(0);
@@ -220,14 +220,14 @@ describe('RoutePlanner', () => {
 
     const result = await planner.plan();
     expect(result).toBeDefined();
-    expect(result.getAgentPlans().length).toBe(1);
+    expect(getUsedAgents(result).length).toBe(1);
     expect(result.getData().unassignedAgents.length).toBe(2);
     expect(result.getData().unassignedJobs.length).toBe(2);
     expect(result.getData().inputData).toBeDefined();
     testResponseParamsArePopulated(result, planner);
     testAllPrimitiveFeatureFieldsArePopulated(result);
-    testAllLegFieldsArePopulated(result.getAgentPlans()[0]!.getLegs()![0]);
-    expect(result.getAgentPlans()[0]!.getActions()[2].getJobIndex()).toBeDefined()
+    testAllLegFieldsArePopulated(getUsedAgents(result)[0]!.getLegs()![0]);
+    expect(getUsedAgents(result)[0]!.getActions()[2].getJobIndex()).toBeDefined()
   });
 
 
@@ -331,26 +331,35 @@ describe('RoutePlanner', () => {
   }
 
   function testAllPrimitiveFeatureFieldsArePopulated(result: RoutePlannerResult) {
-    expect(result.getAgentPlans()).toBeDefined();
-    expect(result.getAgentPlans()[0]!.getAgentIndex()).toBeDefined();
-    expect(result.getAgentPlans()[0]!.getTime()).toBeDefined();
-    expect(result.getAgentPlans()[0]!.getStartTime()).toBeDefined();
-    expect(result.getAgentPlans()[0]!.getEndTime()).toBeDefined();
-    expect(result.getAgentPlans()[0]!.getDistance()).toBeDefined();
+    let currentAgent = getUsedAgents(result)[0];
+    expect(currentAgent).toBeDefined();
+    expect(currentAgent!.getAgentIndex()).toBeDefined();
+    expect(currentAgent!.getTime()).toBeDefined();
+    expect(currentAgent!.getStartTime()).toBeDefined();
+    expect(currentAgent!.getEndTime()).toBeDefined();
+    expect(currentAgent!.getDistance()).toBeDefined();
   }
 
-  function testGetAgentShipments(result: RoutePlannerResult) {
-    expect(result.getShipmentPlan(result.getAgentPlans()[0]!.getAgentId())).toStrictEqual([0, 1]);
+  function testGetPlannedShipments(result: RoutePlannerResult) {
+    const agentPlan = getUsedAgents(result)[0];
+    expect(agentPlan?.getPlannedShipments()).toEqual(expect.arrayContaining([0, 1]));
+    expect(agentPlan?.getPlannedShipments().length).toBe(2);
   }
 
-  function testGetAgentJobs(result: RoutePlannerResult) {
-    let expectedResult = result.getData().agents[0].actions.filter(action => action.job_id !== undefined)
-        .map(action => action.job_id);
-    expect(result.getJobPlan(result.getAgentPlans()[0]!.getAgentId())).toStrictEqual(expectedResult);
+  function testGetPlannedJobs(result: RoutePlannerResult) {
+    const usedAgent = getUsedAgents(result)[0]!;
+
+    const expectedJobIndexes = result.getData().agents[0].actions
+      .filter(action => action.job_index !== undefined)
+      .map(action => action.job_index);
+
+    const actualJobIndexes = usedAgent.getPlannedJobs();
+
+    expect(actualJobIndexes).toEqual(expectedJobIndexes);
   }
 
-  function testGetShipmentInfo(result: RoutePlannerResult) {
-    let agent = result.getAgentPlans()[0];
+  function testGetShipmentPlan(result: RoutePlannerResult) {
+    let agent = getUsedAgents(result)[0];
     let shipmentPlan = result.getShipmentPlan(agent!.getActions()[1].getShipmentId()!);
 
     expect(shipmentPlan).toBeDefined();
@@ -361,8 +370,8 @@ describe('RoutePlanner', () => {
     expect(shipmentPlan?.getRouteActions()).toEqual(expectedActions);
   }
 
-  function testGetJobInfo(result: RoutePlannerResult) {
-    let agent = result.getAgentPlans()[0];
+  function testGetJobPlan(result: RoutePlannerResult) {
+    let agent = getUsedAgents(result)[0];
     let jobPlan = result.getJobPlan(agent!.getActions()[1].getJobId()!);
 
     expect(jobPlan).toBeDefined();
@@ -390,10 +399,10 @@ describe('RoutePlanner', () => {
 
   function testGetJobSolutions(result: RoutePlannerResult) {
     let jobSolutions = result.getJobPlans();
-    expect(jobSolutions.length).toBe(3);
-    expect(jobSolutions[0].getAgentId()).toBe('agent-A');
+    expect(jobSolutions.length).toBe(4);
+    expect(jobSolutions[0].getAgentId()).toBe('agent-C');
     expect(jobSolutions[0].getRouteActions().length).toBe(1);
-    expect(jobSolutions[0].getAgentId()).toBe('agent-A');
+    expect(jobSolutions[0].getAgentId()).toBe('agent-C');
     expect(jobSolutions[0].getJobInputData().id).toBe('1');
   }
 
@@ -411,11 +420,15 @@ describe('RoutePlanner', () => {
   function testGetJobSolution(result: RoutePlannerResult) {
     let jobSolution = result.getJobPlan('1');
     expect(jobSolution).toBeDefined();
-    expect(jobSolution!.getAgentId()).toBe('agent-A');
+    expect(jobSolution!.getAgentId()).toBe('agent-C');
     expect(jobSolution!.getRouteActions().length).toBe(1);
-    expect(jobSolution!.getAgentId()).toBe('agent-A');
+    expect(jobSolution!.getAgentId()).toBe('agent-C');
     expect(jobSolution!.getJobInputData().id).toBe('1');
 
     expect(result.getJobPlan('unknown')?.getAgentId()).toBeUndefined()
+  }
+
+  function getUsedAgents(result: RoutePlannerResult) {
+    return result.getAgentPlans().filter(agent => agent);
   }
 });

@@ -1,5 +1,6 @@
 import { RemoveOptions } from "../../../../models";
-import { RemoveStrategy as IRemoveStrategy, StrategyContext } from "../base";
+import { RemoveStrategy as IRemoveStrategy } from "../base";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Strategy that removes shipments while preserving the order of remaining items
@@ -7,7 +8,7 @@ import { RemoveStrategy as IRemoveStrategy, StrategyContext } from "../base";
 export class ShipmentPreserveOrderStrategy implements IRemoveStrategy {
 
     async execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         shipmentIndexes: number[],
         options: RemoveOptions
     ): Promise<boolean> {
@@ -17,7 +18,7 @@ export class ShipmentPreserveOrderStrategy implements IRemoveStrategy {
         return true;
     }
 
-    private removeShipmentFromResult(context: StrategyContext, shipmentIndex: number): void {
+    private removeShipmentFromResult(context: RouteResultEditorBase, shipmentIndex: number): void {
         const rawData = context.getRawData();
         
         for (const feature of rawData.features) {
@@ -41,7 +42,7 @@ export class ShipmentPreserveOrderStrategy implements IRemoveStrategy {
         }
     }
 
-    private addToUnassignedShipments(context: StrategyContext, shipmentIndex: number): void {
+    private addToUnassignedShipments(context: RouteResultEditorBase, shipmentIndex: number): void {
         const rawData = context.getRawData();
         if (!rawData.properties.issues) {
             rawData.properties.issues = {};

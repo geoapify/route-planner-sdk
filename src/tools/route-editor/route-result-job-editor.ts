@@ -15,14 +15,14 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         this.applyPriority(jobIndexes, options.priority);
         
         const strategy = JobStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this.context, agentIndex, jobIndexes, options);
+        return strategy.execute(this, agentIndex, jobIndexes, options);
     }
 
     async removeJobs(jobIndexes: number[], options: RemoveOptions = {}): Promise<boolean> {
         this.validateJobs(jobIndexes);
         
         const strategy = JobStrategyFactory.createRemoveStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this.context, jobIndexes, options);
+        return strategy.execute(this, jobIndexes, options);
     }
 
     async addNewJobs(agentIndex: number, jobs: Job[], options: AddAssignOptions = {}): Promise<boolean> {
@@ -34,7 +34,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         const newJobIndexes = this.appendJobsToInput(jobsRaw);
         
         const strategy = JobStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this.context, agentIndex, newJobIndexes, options);
+        return strategy.execute(this, agentIndex, newJobIndexes, options);
     }
 
     private validateJobs(jobIndexes: number[], agentIndex?: number): void {
@@ -47,7 +47,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     }
 
     private validateJobAssignment(jobIndex: number, agentIndex?: number): void {
-        const jobAgentIndex = this.context.getAgentIndexForJob(jobIndex);
+        const jobAgentIndex = this.getAgentIndexForJob(jobIndex);
         if (jobAgentIndex != undefined) {
             this.validateJobExists(jobIndex);
         }
@@ -66,7 +66,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     private validateJobConstraints(agentIndex: number, jobIndexes: number[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
 
-        const existingJobIndexes = this.context.getAgentJobs(agentIndex);
+        const existingJobIndexes = this.getAgentJobs(agentIndex);
         const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
         const newJobs = jobIndexes.map(i => this.getJobData(i));
         const allJobs = [...existingJobs, ...newJobs];
@@ -77,7 +77,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
 
     private validateNewJobConstraints(agentIndex: number, jobsRaw: JobData[], options: AddAssignOptions): void {
         const agent = this.getAgentData(agentIndex);
-        const existingJobIndexes = this.context.getAgentJobs(agentIndex);
+        const existingJobIndexes = this.getAgentJobs(agentIndex);
         const existingJobs = existingJobIndexes.map(i => this.getJobData(i));
         const allJobs = [...existingJobs, ...jobsRaw];
         

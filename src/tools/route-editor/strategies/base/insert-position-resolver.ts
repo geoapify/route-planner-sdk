@@ -2,10 +2,9 @@ import {
     ActionResponseData,
     AddAssignOptions,
     FeatureResponseData,
-    RoutePlannerResultData,
     WaypointResponseData
 } from "../../../../models";
-import { StrategyContext } from "./strategy-context";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Shared helper for resolving insert positions
@@ -24,7 +23,7 @@ export class InsertPositionResolver {
         return options.appendToEnd === true;
     }
 
-    static resolveInsertPosition(context: StrategyContext, agentIndex: number, options: AddAssignOptions): number {
+    static resolveInsertPosition(context: RouteResultEditorBase, agentIndex: number, options: AddAssignOptions): number {
         if (options.beforeId && options.beforeId !== '') {
             return this.findActionPositionById(context, agentIndex, options.beforeId);
         }
@@ -44,7 +43,7 @@ export class InsertPositionResolver {
     }
 
     static validateAndGetWaypointIndex(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         waypointIndex: number
     ): number {
@@ -74,7 +73,7 @@ export class InsertPositionResolver {
         }
     }
 
-    static validateAfterWaypointIndex(context: StrategyContext, agentIndex: number, waypointIndex: number): void {
+    static validateAfterWaypointIndex(context: RouteResultEditorBase, agentIndex: number, waypointIndex: number): void {
         const waypoints = context.getAgentWaypoints(agentIndex);
         const lastWaypointIndex = waypoints.length - 1;
 
@@ -85,7 +84,7 @@ export class InsertPositionResolver {
         }
     }
 
-    static findActionPositionById(context: StrategyContext, agentIndex: number, actionId: string): number {
+    static findActionPositionById(context: RouteResultEditorBase, agentIndex: number, actionId: string): number {
         const actions = context.getAgentActions(agentIndex);
 
         for (let i = 0; i < actions.length; i++) {

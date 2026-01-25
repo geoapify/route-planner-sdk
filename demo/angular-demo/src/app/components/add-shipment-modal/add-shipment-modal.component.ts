@@ -104,4 +104,3 @@ export class AddShipmentModalComponent implements OnInit {
     this.cancel.emit();
   }
 }
-

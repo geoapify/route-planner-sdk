@@ -59,7 +59,7 @@ describe('RoutePlannerResultJobEditor', () => {
         })
         let agentToAssignTheJob = result.getJobPlan('job-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
         await routeEditor.assignJobs(agentToAssignTheJob, ['job-2']);
-        expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
+        expect(routeEditor.getModifiedResult().getJobPlan('job-2')!.getAgentId()).toBe(agentToAssignTheJob);
     });
 
     test('assignJobs should work "AgentSolution for provided agentId is found and the job is assigned to someone else."', async () => {
@@ -189,10 +189,10 @@ describe('RoutePlannerResultJobEditor', () => {
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
         try {
-            await routeEditor.assignJobs('agent-A', ['job-5']);
+            await routeEditor.assignJobs('agent-A', ['job-6']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with index 4 is invalid');
+            expect(error.message).toBe('Job with id job-6 not found');
         }
     });
 
@@ -206,10 +206,10 @@ describe('RoutePlannerResultJobEditor', () => {
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
 
         try {
-            await routeEditor.assignJobs('agent-B', ['job-5']);
+            await routeEditor.assignJobs('agent-B', ['job-6']);
             fail();
         } catch (error: any) {
-            expect(error.message).toBe('Job with index 4 is invalid');
+            expect(error.message).toBe('Job with id job-6 not found');
         }
     });
 

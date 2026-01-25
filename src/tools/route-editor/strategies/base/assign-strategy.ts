@@ -1,12 +1,12 @@
 import { AddAssignOptions } from "../../../../models";
-import { StrategyContext } from "./strategy-context";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Base interface for assign/add strategies
  */
 export interface AssignStrategy {
     execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         itemIndexes: number[],
         options: AddAssignOptions

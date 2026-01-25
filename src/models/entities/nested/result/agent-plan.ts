@@ -144,7 +144,7 @@ export class AgentPlan {
             url += `&lang=${options.lang}`;
         }
         if(options.avoid && options.avoid.length > 0) {
-            url += `&avoid=${options.avoid.join('|')}`;
+            url += `&avoid=${options.avoid.map(a => a.type).join('|')}`;
         }
         if(options.details && options.details.length > 0) {
             url += `&details=${options.details.join(',')}`;

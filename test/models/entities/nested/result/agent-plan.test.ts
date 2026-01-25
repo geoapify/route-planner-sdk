@@ -1,8 +1,12 @@
-import { AgentSolution, AgentSolutionData, RouteAction, RouteLeg, Waypoint } from "../../../../../src";
+import {AgentPlan, AgentPlanData, RouteAction, RouteLeg, Waypoint, AgentData, RoutingOptions} from "../../../../../src";
+import {RoutePlannerCallOptions} from "../../../../../src/models/interfaces/route-planner-call-options";
 
-describe("AgentSolution", () => {
-    let agentSolution: AgentSolution;
-    let initialData: AgentSolutionData;
+describe("AgentPlan", () => {
+    let agentPlan: AgentPlan;
+    let initialData: AgentPlanData;
+    let agentInputData: AgentData;
+    let routingOptions: RoutingOptions;
+    let callOptions: RoutePlannerCallOptions;
 
     beforeEach(() => {
         initialData = {
@@ -24,59 +28,71 @@ describe("AgentSolution", () => {
             ],
         };
 
-        agentSolution = new AgentSolution(initialData);
-    });
+        agentInputData = {
+            start_location: [40.712776, -74.005974],
+            time_windows: [],
+            capabilities: [],
+            breaks: []
+        };
 
-    test("should throw an error if no data is provided", () => {
-        expect(() => new AgentSolution(undefined as any)).toThrow("AgentSolutionData is undefined");
+        routingOptions = {
+            mode: 'drive'
+        };
+
+        callOptions = {
+            apiKey: 'test-key',
+            baseUrl: 'https://api.geoapify.com'
+        };
+
+        agentPlan = new AgentPlan(initialData, agentInputData, routingOptions, callOptions);
     });
 
     test("should return the raw data", () => {
-        expect(agentSolution.getRaw()).toEqual(initialData);
+        expect(agentPlan.getRaw()).toEqual(initialData);
     });
 
     test("should return agent index", () => {
-        expect(agentSolution.getAgentIndex()).toBe(1);
+        expect(agentPlan.getAgentIndex()).toBe(1);
     });
 
     test("should return agent ID", () => {
-        expect(agentSolution.getAgentId()).toBe("A1");
+        expect(agentPlan.getAgentId()).toBe("A1");
     });
 
     test("should return agent time", () => {
-        expect(agentSolution.getTime()).toBe(1000);
+        expect(agentPlan.getTime()).toBe(1000);
     });
 
     test("should return agent start time", () => {
-        expect(agentSolution.getStartTime()).toBe(500);
+        expect(agentPlan.getStartTime()).toBe(500);
     });
 
     test("should return agent end time", () => {
-        expect(agentSolution.getEndTime()).toBe(2000);
+        expect(agentPlan.getEndTime()).toBe(2000);
     });
 
     test("should return agent distance", () => {
-        expect(agentSolution.getDistance()).toBe(15000);
+        expect(agentPlan.getDistance()).toBe(15000);
     });
 
     test("should return agent mode", () => {
-        expect(agentSolution.getMode()).toBe("drive");
+        expect(agentPlan.getMode()).toBe("drive");
     });
 
     test("should return an array of RouteLeg instances", () => {
-        const legs = agentSolution.getLegs();
+        const legs = agentPlan.getLegs();
         expect(legs.length).toBe(1);
         expect(legs[0]).toBeInstanceOf(RouteLeg);
     });
 
     test("should return an array of RouteAction instances", () => {
-        const actions = agentSolution.getActions();
+        const actions = agentPlan.getActions();
         expect(actions.length).toBe(1);
         expect(actions[0]).toBeInstanceOf(RouteAction);
     });
 
     test("should return an array of Waypoint instances", () => {
-        const waypoints = agentSolution.getWaypoints();
+        const waypoints = agentPlan.getWaypoints();
         expect(waypoints.length).toBe(1);
         expect(waypoints[0]).toBeInstanceOf(Waypoint);
     });

@@ -1,12 +1,12 @@
 import {ActionResponseData, AddAssignOptions} from "../../../../models";
 import { 
     AssignStrategy, 
-    StrategyContext, 
-    RouteEditorHelper, 
+    RouteEditorHelper,
     RouteTimeCalculator,
     InsertPositionResolver,
     WaypointBuilder
 } from "../base";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Strategy that inserts jobs while preserving the order of existing stops.
@@ -19,7 +19,7 @@ import {
 export class JobPreserveOrderAssignStrategy implements AssignStrategy {
 
     async execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         jobIndexes: number[],
         options: AddAssignOptions
@@ -49,7 +49,7 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
     }
 
     private async determineInsertPosition(
-        context: StrategyContext, 
+        context: RouteResultEditorBase,
         agentIndex: number, 
         firstJobIndex: number, 
         options: AddAssignOptions
@@ -68,14 +68,14 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
         return await this.findOptimalInsertPosition(context, agentIndex, firstJobIndex);
     }
 
-    private getEndPosition(context: StrategyContext, agentIndex: number): number {
+    private getEndPosition(context: RouteResultEditorBase, agentIndex: number): number {
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         return context.findEndActionIndex(actions);
     }
 
     private async findOptimalInsertPosition(
-        context: StrategyContext, 
+        context: RouteResultEditorBase,
         agentIndex: number, 
         jobIndex: number
     ): Promise<number> {
@@ -93,14 +93,14 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
             return 1; // After start action
         }
         
-        const matrixHelper = context.createMatrixHelper();
+        const matrixHelper = context.getMatrixHelper();
         const optimalIndex = await matrixHelper.findOptimalInsertionPoint(routeLocations, jobLocation);
         
         return optimalIndex + 1; // +1 to account for 'start' action
     }
 
     private insertJobActionsAtPosition(
-        context: StrategyContext, 
+        context: RouteResultEditorBase,
         actions: ActionResponseData[],
         jobIndexes: number[], 
         insertPosition: number

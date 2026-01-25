@@ -1,8 +1,7 @@
 import {
-    AgentPlan,
     RouteAction,
     RouteLeg,
-    RoutePlannerResultData, RoutingOptions, RoutingOptionsExtended,
+    RoutePlannerResultData, RoutingOptionsExtended,
     Waypoint
 } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
@@ -239,7 +238,7 @@ describe("RoutePlannerResult", () => {
     });
 
     test("should return all agent solutions", () => {
-        const agentPlans = routePlannerResult.getAgentPlans();
+        const agentPlans = getUsedAgents(routePlannerResult);
         expect(agentPlans.length).toEqual(rawData.agents.length);
         agentPlans.forEach((agentPlan, index) => {
             expect(agentPlan?.getRaw()).toEqual(rawData.agents[index]);
@@ -265,19 +264,9 @@ describe("RoutePlannerResult", () => {
         expect(routePlannerResult.getAgentPlan(0)?.getWaypoints()).toEqual(rawData.agents[0].waypoints.map(waypoint => new Waypoint(waypoint)));
     });
 
-    test("should return an empty array for waypoints of a non-existent agent", () => {
-        expect(routePlannerResult.getAgentPlan("A2")?.getWaypoints()).toEqual([]);
-        expect(routePlannerResult.getAgentPlan(1)?.getWaypoints()).toEqual([]);
-    });
-
     test("should return route actions for a specific agent", () => {
         expect(routePlannerResult.getAgentPlan("A1")?.getActions()).toEqual(rawData.agents[0].actions.map(action => new RouteAction(action)));
         expect(routePlannerResult.getAgentPlan(0)?.getActions()).toEqual(rawData.agents[0].actions.map(action => new RouteAction(action)));
-    });
-
-    test("should return an empty array for route actions of a non-existent agent", () => {
-        expect(routePlannerResult.getAgentPlan("A2")?.getActions()).toEqual([]);
-        expect(routePlannerResult.getAgentPlan(1)?.getActions()).toEqual([]);
     });
 
     test("should return route legs for a specific agent", () => {
@@ -285,29 +274,14 @@ describe("RoutePlannerResult", () => {
         expect(routePlannerResult.getAgentPlan(0)?.getLegs()).toEqual(rawData.agents[0].legs.map(leg => new RouteLeg(leg)));
     });
 
-    test("should return an empty array for route legs of a non-existent agent", () => {
-        expect(routePlannerResult.getAgentPlan("A2")?.getLegs()).toEqual([]);
-        expect(routePlannerResult.getAgentPlan(1)?.getLegs()).toEqual([]);
-    });
-
     test("should return assigned jobs for a specific agent", () => {
         expect(routePlannerResult.getAgentPlan("A1")?.getPlannedJobs()).toEqual([0]);
         expect(routePlannerResult.getAgentPlan(0)?.getPlannedJobs()).toEqual([0]);
     });
 
-    test("should return an empty array for assigned jobs of a non-existent agent", () => {
-        expect(routePlannerResult.getAgentPlan("A2")?.getPlannedJobs()).toEqual([]);
-        expect(routePlannerResult.getAgentPlan(1)?.getPlannedJobs()).toEqual([]);
-    });
-
     test("should return assigned shipments for a specific agent", () => {
         expect(routePlannerResult.getAgentPlan("A1")?.getPlannedShipments()).toEqual([0]);
         expect(routePlannerResult.getAgentPlan(0)?.getPlannedShipments()).toEqual([0]);
-    });
-
-    test("should return an empty array for assigned shipments of a non-existent agent", () => {
-        expect(routePlannerResult.getAgentPlan("A2")?.getPlannedShipments()).toEqual([]);
-        expect(routePlannerResult.getAgentPlan(1)?.getPlannedShipments()).toEqual([]);
     });
 
     test("should return unassigned agents", () => {
@@ -357,12 +331,11 @@ describe("RoutePlannerResult", () => {
         expect(routePlannerResult.getShipmentPlan(1)?.getAgentId()).toBeUndefined()
     });
 
-    test("should getAgentRoute() call routing API agent not found", async () => {
+    test("getAgentPlan should return undefined it it's not found", async () => {
         routePlannerResult.getCallOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult.getCallOptions().apiKey = TEST_API_KEY;
         let agentPlan = routePlannerResult.getAgentPlan("TESTING1");
-        let result = await agentPlan!.getRoute({mode: 'drive'})
-        expect(result).toBeUndefined();
+        expect(agentPlan).toBeUndefined();
     });
 
     test("should getAgentRoute() call routing API success without waypoint", async () => {
@@ -375,16 +348,15 @@ describe("RoutePlannerResult", () => {
         expect(result).toBeUndefined();
     });
 
-    test("should getAgentRoute() call routing API success with 1 waypoint", async () => {
+    test("should getRoute() skip calling routing API success with 1 waypoint and return mocked response", async () => {
         routePlannerResult.getCallOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult.getCallOptions().apiKey = TEST_API_KEY;
         let result = await routePlannerResult.getAgentPlan("A1")?.getRoute({mode: 'drive'});
-        expect(result.statusCode).toBe(400);
-        expect(result.error).toBe("Bad Request")
-        expect(result.message).toBe("Insufficient number of locations provided")
+        expect(result.properties).toBeDefined();
+        expect(result.properties.units).toBeUndefined();
     });
 
-    test("should getAgentRoute() call routing API success with 2 waypoints", async () => {
+    test("should getRoute() call routing API success with 2 waypoints", async () => {
         let rawData1 = JSON.parse(JSON.stringify(rawData));
         rawData1.agents[0].waypoints.push(
             {
@@ -403,10 +375,11 @@ describe("RoutePlannerResult", () => {
         routePlannerResult1.getCallOptions().baseUrl = 'https://api.geoapify.com';
         routePlannerResult1.getCallOptions().apiKey = TEST_API_KEY;
         let result = await routePlannerResult1.getAgentPlan("A1")?.getRoute({mode: 'drive'});
-        expect(result.features.length).toBe(1);
+        expect(result.properties).toBeDefined();
+        expect(result.properties.units).toBeDefined();
     });
 
-    test("should getAgentRoute() call routing API success with all options", async () => {
+    test("should getRoute() call routing API success with all options", async () => {
         let rawData1 = JSON.parse(JSON.stringify(rawData));
         rawData1.agents[0].waypoints.push(
             {
@@ -437,7 +410,12 @@ describe("RoutePlannerResult", () => {
             traffic: 'free_flow',
             max_speed: 100
         }
-        let result = await routePlannerResult1.getAgentPlan("A1")?.getRoute({mode: 'drive'});
-        expect(result.features.length).toBe(1);
+        let result = await routePlannerResult1.getAgentPlan("A1")?.getRoute(routingOptions);
+        expect(result.properties).toBeDefined();
+        expect(result.properties.units).toBeDefined();
     });
+
+    function getUsedAgents(result: RoutePlannerResult) {
+        return result.getAgentPlans().filter(agent => agent);
+    }
 });

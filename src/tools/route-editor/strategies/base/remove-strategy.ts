@@ -1,12 +1,12 @@
 import { RemoveOptions } from "../../../../models";
-import { StrategyContext } from "./strategy-context";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Base interface for remove strategies
  */
 export interface RemoveStrategy {
     execute(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         itemIndexes: number[],
         options: RemoveOptions
     ): Promise<boolean>;

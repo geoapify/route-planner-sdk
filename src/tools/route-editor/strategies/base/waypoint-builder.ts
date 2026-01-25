@@ -1,6 +1,6 @@
-import { StrategyContext } from "./strategy-context";
 import { RouteEditorHelper } from "./route-editor-helper";
 import {ActionResponseData, WaypointResponseData} from "../../../../models";
+import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 /**
  * Builds/updates agent waypoints for preserveOrder edits, without calling the routing API.
@@ -9,7 +9,7 @@ import {ActionResponseData, WaypointResponseData} from "../../../../models";
 export class WaypointBuilder {
 
     static insertJobWaypoint(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         jobIndex: number,
         actionIndex: number
@@ -50,7 +50,7 @@ export class WaypointBuilder {
      * Creates and inserts waypoints for a shipment (pickup and delivery).
      */
     static insertShipmentWaypoints(
-        context: StrategyContext,
+        context: RouteResultEditorBase,
         agentIndex: number,
         shipmentIndex: number,
         pickupActionIndex: number,
