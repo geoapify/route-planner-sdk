@@ -1,6 +1,6 @@
 import RoutePlanner, {
   RoutePlannerResultEditor,
-  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location
+  RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep, Location, InvalidParameterType
 } from "../../src";
 import { RoutePlannerResult } from "../../src/models/entities/route-planner-result";
 import { loadJson } from "../utils.helper";
@@ -618,7 +618,8 @@ describe('RoutePlannerResultEditor', () => {
     try {
       await routeEditor.removeJobs('job-2' as any);
     } catch (error: any) {
-      expect(error.message).toBe('Type error: jobIndexesOrIds must be an array');
+      expect(error).toBeInstanceOf(InvalidParameterType);
+      expect(error.message).toBe('jobIndexesOrIds must be an array');
     }
   });
 

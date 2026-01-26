@@ -1,4 +1,4 @@
-import { AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER } from "../../../../models";
+import {AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER, UnknownStrategy} from "../../../../models";
 import { AssignStrategy, RemoveStrategy as IRemoveStrategy } from "../base";
 import { JobReoptimizeStrategy } from "./job-reoptimize-strategy";
 import { JobPreserveOrderAssignStrategy } from "./job-preserve-order-assign-strategy";
@@ -23,7 +23,7 @@ export class JobStrategyFactory {
     static createAssignStrategy(strategy: AddAssignStrategy): AssignStrategy {
         const strategyInstance = this.assignStrategies.get(strategy);
         if (!strategyInstance) {
-            throw new Error(`Unknown assign strategy: ${strategy}`);
+            throw new UnknownStrategy(`Unknown assign strategy: ${strategy}`, strategy, 'assign');
         }
         return strategyInstance;
     }
@@ -31,7 +31,7 @@ export class JobStrategyFactory {
     static createRemoveStrategy(strategy: RemoveStrategy): IRemoveStrategy {
         const strategyInstance = this.removeStrategies.get(strategy);
         if (!strategyInstance) {
-            throw new Error(`Unknown remove strategy: ${strategy}`);
+            throw new UnknownStrategy(`Unknown remove strategy: ${strategy}`, strategy, 'remove');
         }
         return strategyInstance;
     }

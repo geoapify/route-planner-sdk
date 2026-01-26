@@ -9,6 +9,7 @@ export async function universalFetch(url: string, options: RequestInit): Promise
       const nodeFetch = (await fetchModule).default as unknown as typeof fetch;
       return nodeFetch(url, options) as unknown as Response;
     } catch (error) {
+      // As it's a configuration issue, we can keep it as an ERROR. User should not expect to get this.
       throw new Error(
         "Fetch is not available in this environment. If you are using Node.js <18, install 'node-fetch' manually: npm install node-fetch"
       );

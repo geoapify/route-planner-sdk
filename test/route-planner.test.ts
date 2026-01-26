@@ -432,3 +432,34 @@ describe('RoutePlanner', () => {
     return result.getAgentPlans().filter(agent => agent);
   }
 });
+
+describe('RoutePlanner error handling', () => {
+
+  test('should handle network errors properly', async () => {
+    const planner = new RoutePlanner({apiKey: 'invalid-key', baseUrl: "invalid://api.geoapify.com"});
+    planner.addAgent(new Agent().setStartLocation(11.11, 12.11));
+    planner.addJob(new Job().setLocation(11.11, 12.34));
+
+    try {
+      await planner.plan();
+      fail();
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(RoutePlannerError);
+      expect(error.errorName).toBe("TypeError");
+      expect(error.message).toBe("fetch failed");
+    }
+  });
+
+  test('should return proper validation if called without agent/any data', async () => {
+    const planner = new RoutePlanner({apiKey: API_KEY});
+
+    try {
+      await planner.plan();
+      fail();
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(RoutePlannerError);
+      expect(error.errorName).toBe("Bad Request");
+      expect(error.message).toBe("\"agents\" is required");
+    }
+  });
+});

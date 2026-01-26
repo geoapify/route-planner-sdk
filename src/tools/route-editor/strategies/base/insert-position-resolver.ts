@@ -1,7 +1,7 @@
 import {
     ActionResponseData,
     AddAssignOptions,
-    FeatureResponseData,
+    FeatureResponseData, InvalidInsertionPosition,
     WaypointResponseData
 } from "../../../../models";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
@@ -31,7 +31,7 @@ export class InsertPositionResolver {
             return this.findActionPositionById(context, agentIndex, options.afterId) + 1;
         }
         if (options.beforeWaypointIndex !== undefined) {
-            this.validateBeforeWaypointIndex(options.beforeWaypointIndex);
+            this.validateBeforeWaypointIndex(agentIndex, options.beforeWaypointIndex);
             return this.validateAndGetWaypointIndex(context, agentIndex, options.beforeWaypointIndex);
         }
         if (options.afterWaypointIndex !== undefined) {
@@ -50,12 +50,14 @@ export class InsertPositionResolver {
         const waypoints = context.getAgentWaypoints(agentIndex);
 
         if (waypoints.length === 0) {
-            throw new Error(`Agent ${agentIndex} has no route. Use appendToEnd: true for agents without routes.`
-            );
+            throw new InvalidInsertionPosition(`Agent ${agentIndex} has no route. Use appendToEnd: true for agents without routes.`, agentIndex);
         }
 
         if (waypointIndex < 0 || waypointIndex >= waypoints.length) {
-            throw new Error(`Waypoint index ${waypointIndex} out of range (0-${waypoints.length - 1})`
+            throw new InvalidInsertionPosition(
+                `Waypoint index ${waypointIndex} out of range (0-${waypoints.length - 1})`,
+                agentIndex,
+                waypointIndex
             );
         }
 
@@ -67,9 +69,13 @@ export class InsertPositionResolver {
         return actionIndex;
     }
 
-    static validateBeforeWaypointIndex(waypointIndex: number): void {
+    static validateBeforeWaypointIndex(agentIndex: number, waypointIndex: number): void {
         if (waypointIndex === 0) {
-            throw new Error(`Cannot insert before waypoint 0 (start location). Use afterWaypointIndex: 0 to insert at the beginning.`);
+            throw new InvalidInsertionPosition(
+                `Cannot insert before waypoint 0 (start location). Use afterWaypointIndex: 0 to insert at the beginning.`,
+                agentIndex,
+                waypointIndex
+            );
         }
     }
 
@@ -78,8 +84,10 @@ export class InsertPositionResolver {
         const lastWaypointIndex = waypoints.length - 1;
 
         if (waypointIndex === lastWaypointIndex) {
-            throw new Error(
-                `Cannot insert after waypoint ${waypointIndex} (end location). Use appendToEnd: true instead.`
+            throw new InvalidInsertionPosition(
+                `Cannot insert after waypoint ${waypointIndex} (end location). Use appendToEnd: true instead.`,
+                agentIndex,
+                waypointIndex
             );
         }
     }
@@ -94,7 +102,9 @@ export class InsertPositionResolver {
             }
         }
 
-        throw new Error(`Action '${actionId}' not found in agent ${agentIndex} route`);
+        throw new InvalidInsertionPosition(`Action '${actionId}' not found in agent ${agentIndex} route`, agentIndex,
+            undefined, actionId
+        );
     }
 
     static extractRouteLocations(agentFeature: FeatureResponseData): [number, number][] {

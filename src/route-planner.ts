@@ -100,6 +100,20 @@ export class RoutePlanner {
     }
 
     public async plan(): Promise<RoutePlannerResult> {
+        try {
+            return await this.callPlan();
+        } catch (error: any) {
+            if(error instanceof RoutePlannerError) {
+                throw error;
+            } else {
+                const errorName = error?.name || 'UnknownError';
+                const errorMessage = error?.message || 'An unknown error occurred';
+                throw new RoutePlannerError(errorName, errorMessage, error);
+            }
+        }
+    }
+
+    private async callPlan() {
         const requestBody = Utils.cleanObject(this.raw);
 
         const response = await universalFetch(`${this.options.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {
@@ -112,9 +126,6 @@ export class RoutePlanner {
 
         if (!response.ok) {
             let errorResponse = await response.json();
-
-            // ToDo: But here we keep try/catch
-
 
             throw new RoutePlannerError(errorResponse.error, errorResponse.message, errorResponse);
         }

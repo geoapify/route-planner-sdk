@@ -3,7 +3,8 @@ import {
     FeatureResponseData, RoutePlannerResult,
     RoutePlannerResultResponseData,
     RoutingOptions,
-    WaypointData
+    WaypointData,
+    AgentHasNoPlan, AgentNotFound, NoItemsProvided, ItemsNotUnique
 } from "../../models";
 import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
 import {RouteMatrixHelper} from "./route-matrix-helper";
@@ -22,30 +23,30 @@ export abstract class RouteResultEditorBase {
     protected validateAgent(agentIndex: number): void {
         const agentFound = this.rawData.properties.params.agents[agentIndex];
         if (!agentFound) {
-            throw new Error(`Agent with index ${agentIndex} not found`);
+            throw new AgentNotFound(`Agent with index ${agentIndex} not found`, agentIndex);
         }
     }
 
     protected ensureItemsProvided(indexes: number[], itemType: string): void {
         if (indexes.length === 0) {
-            throw new Error(`No ${itemType} provided`);
+            throw new NoItemsProvided(`No ${itemType} provided`, itemType);
         }
     }
 
     protected ensureItemsUnique(indexes: number[], itemType: string): void {
         if (indexes.length !== new Set(indexes).size) {
             const capitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
-            throw new Error(`${capitalized} are not unique`);
+            throw new ItemsNotUnique(`${capitalized} are not unique`, itemType);
         }
     }
 
     protected ensureNewItemsValid<T>(items: T[], itemType: string): void {
         if (items.length === 0) {
-            throw new Error(`No ${itemType} provided`);
+            throw new NoItemsProvided(`No ${itemType} provided`, itemType);
         }
         if (items.length !== new Set(items).size) {
             const capitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
-            throw new Error(`${capitalized} are not unique`);
+            throw new ItemsNotUnique(`${capitalized} are not unique`, itemType);
         }
     }
 
@@ -78,10 +79,7 @@ export abstract class RouteResultEditorBase {
         const agentFeature = rawData.features.find((f: FeatureResponseData) => f.properties.agent_index === agentIndex);
 
         if (!agentFeature) {
-
-            // ToDo: We need t
-
-            throw new Error(`Agent with index ${agentIndex} has no Plan`);
+            throw new AgentHasNoPlan(`Agent with index ${agentIndex} has no Plan`, agentIndex);
         }
 
         return agentFeature;

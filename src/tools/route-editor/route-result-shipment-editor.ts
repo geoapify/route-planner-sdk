@@ -1,4 +1,12 @@
-import { Shipment, ShipmentData, AddAssignOptions, RemoveOptions, REOPTIMIZE, ValidationErrors } from "../../models";
+import {
+    Shipment,
+    ShipmentData,
+    AddAssignOptions,
+    RemoveOptions,
+    REOPTIMIZE,
+    ValidationErrors,
+    ItemAlreadyAssigned, ShipmentNotFound
+} from "../../models";
 import { ShipmentStrategyFactory } from "./strategies";
 import { RouteResultEditorBase } from "./route-result-editor-base";
 import { ShipmentValidationHelper } from "./validations";
@@ -52,14 +60,17 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
             this.validateShipmentExists(shipmentIndex);
         }
         if (agentIndex !== undefined && realAgentIndexForShipment === agentIndex) {
-            throw new Error(`Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`);
+            throw new ItemAlreadyAssigned(
+                `Shipment with index ${shipmentIndex} already assigned to agent with index ${agentIndex}`,
+                'shipment', shipmentIndex, agentIndex
+            );
         }
     }
 
     private validateShipmentExists(shipmentIndex: number): void {
         const shipmentFound = this.rawData.properties.params.shipments[shipmentIndex];
         if (!shipmentFound) {
-            throw new Error(`Shipment with index ${shipmentIndex} not found`);
+            throw new ShipmentNotFound(`Shipment with index ${shipmentIndex} not found`, shipmentIndex);
         }
     }
 

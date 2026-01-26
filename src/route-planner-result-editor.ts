@@ -2,7 +2,7 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { Utils } from "./tools/utils";
-import { Job, Shipment, AddAssignOptions, RemoveOptions, RoutingOptions, RoutePlannerResultResponseData } from "./models";
+import { Job, Shipment, AddAssignOptions, RemoveOptions, RoutingOptions, RoutePlannerResultResponseData, InvalidParameterType } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
 import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 
@@ -256,9 +256,7 @@ export class RoutePlannerResultEditor {
 
     private assertArray(array: any[], name: string): void {
         if (!Array.isArray(array)) {
-
-            // ToDo: We should throw only customer facing errors
-            throw new Error("Type error: " + name + " must be an array");
+            throw new InvalidParameterType(name + " must be an array", name);
         }
     }
 

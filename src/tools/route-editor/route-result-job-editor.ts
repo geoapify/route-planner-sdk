@@ -1,4 +1,12 @@
-import { Job, JobData, AddAssignOptions, RemoveOptions, REOPTIMIZE, ValidationErrors } from "../../models";
+import {
+    Job,
+    JobData,
+    AddAssignOptions,
+    RemoveOptions,
+    REOPTIMIZE,
+    ValidationErrors,
+    ItemAlreadyAssigned, JobNotFound
+} from "../../models";
 import { JobStrategyFactory } from "./strategies";
 import { RouteResultEditorBase } from "./route-result-editor-base";
 import { JobValidationHelper } from "./validations";
@@ -52,14 +60,19 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
             this.validateJobExists(jobIndex);
         }
         if (agentIndex !== undefined && jobAgentIndex === agentIndex) {
-            throw new Error(`Job with index ${jobIndex} already assigned to agent with index ${agentIndex}`);
+            throw new ItemAlreadyAssigned(
+                `Job with index ${jobIndex} already assigned to agent with index ${agentIndex}`,
+                'job',
+                jobIndex,
+                agentIndex
+            );
         }
     }
 
     private validateJobExists(jobIndex: number): void {
         const jobFound = this.rawData.properties.params.jobs[jobIndex];
         if (!jobFound) {
-            throw new Error(`Job with index ${jobIndex} not found`);
+            throw new JobNotFound(`Job with index ${jobIndex} not found`, jobIndex);
         }
     }
 

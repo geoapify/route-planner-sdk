@@ -1,5 +1,4 @@
-import { RoutePlannerResultResponseData } from "../models";
-import { RoutePlannerResultData } from "../models/interfaces/result/route-planner-result-data";
+import {RoutePlannerResultResponseData, AgentNotFound, JobNotFound, ShipmentNotFound} from "../models";
 
 /**
  * Helper class for converting IDs to indexes and vice versa
@@ -15,10 +14,7 @@ export class IndexConverter {
         let index = data.properties.params.agents.findIndex(agent => agent.id === agentIdOrIndex);
         if(index === -1) {
             if(throwExceptionIfNotFound) {
-
-                // ToDo: if we throw a customer facing error => then create a class for it. We will need to list them in docs.
-
-                throw new Error(`Agent with id ${agentIdOrIndex} not found`);
+                throw new AgentNotFound(`Agent with id ${agentIdOrIndex} not found`, agentIdOrIndex);
             }
             return -1;
         } else {
@@ -67,7 +63,7 @@ export class IndexConverter {
         jobIndexesOrIds.forEach(jobId => {
             let jobIndex = data.properties.params.jobs.findIndex(job => job.id === jobId);
             if (jobIndex < 0) {
-                throw new Error(`Job with id ${jobId} not found`);
+                throw new JobNotFound(`Job with id ${jobId} not found`, jobId);
             } else {
                 jobIndexes.push(jobIndex);
             }
@@ -86,7 +82,7 @@ export class IndexConverter {
         shipmentIds.forEach(shipmentId => {
             let shipmentIndex = data.properties.params.shipments.findIndex(shipment => shipment.id === shipmentId);
             if (shipmentIndex < 0) {
-                throw new Error(`Shipment with id ${shipmentId} not found`);
+                throw new ShipmentNotFound(`Shipment with id ${shipmentId} not found`, shipmentId);
             } else {
                 shipmentIndexes.push(shipmentIndex);
             }

@@ -1,5 +1,6 @@
 import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
 import { RoutingOptions } from '../../models/interfaces/route-planner-input-data';
+import {RouteMatrixApiError} from "../../models";
 
 export interface RouteMatrixSource {
     location: [number, number];
@@ -36,11 +37,13 @@ export class RouteMatrixHelper {
     private baseUrl: string;
     private apiKey: string;
     private mode: string;
+    private routingOptions: RoutingOptions;
+
 
     constructor(options: RoutePlannerCallOptions, routingOptions: RoutingOptions) {
         this.baseUrl = options.baseUrl || 'https://api.geoapify.com';
         this.apiKey = options.apiKey;
-        this.mode = routingOptions.mode || 'drive'; /* ToDo: use all routing options, keep it in routingOptions, don't create separate properties */
+        this.routingOptions = routingOptions;
     }
 
     /**
@@ -58,14 +61,23 @@ export class RouteMatrixHelper {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                mode: this.mode,
+                mode: this.routingOptions.mode || 'drive',
+                type: this.routingOptions.type,
+                avoid: this.routingOptions.avoid,
+                traffic: this.routingOptions.traffic,
+                max_speed: this.routingOptions.max_speed,
+                units: this.routingOptions.units,
                 sources,
                 targets
             })
         });
 
         if (!response.ok) {
-            throw new Error(`Route Matrix API failed: ${response.statusText}`);
+            throw new RouteMatrixApiError(
+                `Route Matrix API failed: ${response.statusText}`,
+                response.status,
+                response.statusText
+            );
         }
 
         return await response.json();

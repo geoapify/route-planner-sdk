@@ -1,5 +1,6 @@
 import { RouteMatrixHelper, RouteMatrixResponse } from "../../../src/tools/route-editor/route-matrix-helper";
 import TEST_API_KEY from "../../../env-variables";
+import {RoutingOptions} from "../../../src";
 
 const API_KEY = TEST_API_KEY;
 
@@ -195,6 +196,45 @@ describe('RouteMatrixHelper', () => {
       // Near A should have lower index than near C
       expect(insertNearA).toBeLessThanOrEqual(insertNearC);
     }, 30000); // Extended timeout for multiple API calls
+  });
+
+  test('should pass all routing options to Route Matrix API', async () => {
+    const routingOptions = {
+      mode: 'light_truck',
+      type: 'balanced',
+      avoid: [
+        {
+          type: 'tolls'
+        },
+        {
+          type: 'ferries'
+        }
+      ],
+      traffic: 'approximated',
+      max_speed: 90,
+      units: 'metric'
+    } as RoutingOptions;
+
+    const helper = new RouteMatrixHelper({ apiKey: API_KEY }, routingOptions);
+
+    const fetchSpy = jest.spyOn(global, 'fetch');
+
+    const sources = [{ location: [12.345, 67.890] as [number, number] }];
+    const targets = [{ location: [12.345, 67.890] as [number, number] }];
+
+    let matrixResponse: any = await helper.calculateMatrix(sources, targets);
+    // Didn't include parameter fields in RouteMatrixResponse as they are not documented here: https://apidocs.geoapify.com/docs/route-matrix/
+    expect(matrixResponse.mode).toBe('light_truck');
+    expect(matrixResponse.type).toBe('balanced');
+    expect(matrixResponse.avoid).toEqual([
+      { type: 'tolls' },
+      { type: 'ferries' }
+    ]);
+    expect(matrixResponse.traffic).toBe('approximated');
+    expect(matrixResponse.max_speed).toBe(90);
+    expect(matrixResponse.units).toBe('metric');
+
+    fetchSpy.mockRestore();
   });
 });
 
