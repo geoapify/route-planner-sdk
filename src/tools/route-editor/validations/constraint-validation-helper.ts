@@ -12,7 +12,7 @@ type TimeWindow = [number, number];
  */
 export class ConstraintValidationHelper {
 
-    static checkCapabilities(agent: AgentData, requirements: string[]): Error | null {
+    static checkCapabilities(agent: AgentData, requirements: string[], agentIndex: number): AgentMissingCapability | null {
         if (!requirements?.length) return null;
         
         const missing = requirements.filter(req => !agent.capabilities?.includes(req));
@@ -22,32 +22,32 @@ export class ConstraintValidationHelper {
                 ? `Agent is missing required capability: '${missing[0]}'`
                 : `Agent is missing required capabilities: ${missing.join(', ')}`;
             
-            return new AgentMissingCapability(message, agent.id);
+            return new AgentMissingCapability(message, agentIndex);
         }
         
         return null;
     }
 
-    static checkTimeWindowOverlap(agent: AgentData, itemWindows: TimeWindow[], context: string): Error | null {
+    static checkTimeWindowOverlap(agent: AgentData, itemWindows: TimeWindow[], context: string, agentIndex: number): TimeWindowViolation | null {
         if (!agent.time_windows?.length || !itemWindows?.length) return null;
         
         if (!this.hasOverlap(agent.time_windows, itemWindows)) {
             return new TimeWindowViolation(
                 `No overlap between agent and ${context} time windows`,
-                agent.id
+                agentIndex
             );
         }
         
         return null;
     }
 
-    static checkBreakConflict(agent: AgentData, itemWindows: TimeWindow[], context: string): Error | null {
+    static checkBreakConflict(agent: AgentData, itemWindows: TimeWindow[], context: string, agentIndex: number): BreakViolation | null {
         if (!agent.breaks?.length || !itemWindows?.length) return null;
         
         if (this.allWindowsInsideBreaks(itemWindows, agent.breaks)) {
             return new BreakViolation(
                 `All ${context} windows fall within agent break periods`,
-                agent.id
+                agentIndex
             );
         }
         

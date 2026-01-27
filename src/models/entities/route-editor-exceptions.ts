@@ -1,38 +1,42 @@
-export class AgentPickupCapacityExceeded extends Error {
-    constructor(message: string, public agentId?: string, public agentIndex?: number) {
+export class ViolationError extends Error {
+    constructor(message: string, public agentIndex: number) {
         super(message);
+        this.name = 'ViolationError';
     }
 }
 
-export class AgentDeliveryCapacityExceeded extends Error {
-    constructor(message: string, public agentId?: string, public agentIndex?: number) {
-        super(message);
+export class AgentPickupCapacityExceeded extends ViolationError {
+    constructor(message: string, agentIndex: number) {
+        super(message, agentIndex);
+        this.name = 'AgentPickupCapacityExceeded';
     }
 }
 
-export class AgentMissingCapability extends Error {
-    constructor(message: string, public agentId?: string, public agentIndex?: number) {
-        super(message);
+export class AgentDeliveryCapacityExceeded extends ViolationError {
+    constructor(message: string, agentIndex: number) {
+        super(message, agentIndex);
+        this.name = 'AgentDeliveryCapacityExceeded';
     }
 }
 
-export class TimeWindowViolation extends Error {
-    constructor(message: string, public agentId?: string, public agentIndex?: number) {
-        super(message);
+export class AgentMissingCapability extends ViolationError {
+    constructor(message: string, agentIndex: number) {
+        super(message, agentIndex);
+        this.name = 'AgentMissingCapability';
     }
 }
 
-export class BreakViolation extends Error {
-    constructor(message: string, public agentId?: string, public agentIndex?: number) {
-        super(message);
+export class TimeWindowViolation extends ViolationError {
+    constructor(message: string, agentIndex: number) {
+        super(message, agentIndex);
+        this.name = 'TimeWindowViolation';
     }
 }
 
-export class ValidationErrors extends Error {
-    constructor(public errors: Error[]) {
-        const messages = errors.map(e => e.message).join('; ');
-        super(`Validation failed: ${messages}`);
-        this.name = 'ValidationErrors';
+export class BreakViolation extends ViolationError {
+    constructor(message: string, agentIndex: number) {
+        super(message, agentIndex);
+        this.name = 'BreakViolation';
     }
 }
 

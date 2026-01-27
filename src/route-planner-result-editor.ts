@@ -2,7 +2,7 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { Utils } from "./tools/utils";
-import { Job, Shipment, AddAssignOptions, RemoveOptions, RoutingOptions, RoutePlannerResultResponseData, InvalidParameterType } from "./models";
+import { Job, Shipment, AddAssignOptions, RemoveOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidParameterType } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
 import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 
@@ -35,7 +35,7 @@ import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-
  * ```
  */
 export class RoutePlannerResultEditor {
-    private rawData: RoutePlannerResultResponseData;
+    private rawData: RoutePlannerResultResponseDataExtended;
     private callOptions: RoutePlannerCallOptions;
     private routingOptions: RoutingOptions;
 

@@ -1,4 +1,4 @@
-import { AddAssignOptions } from "../../../../models";
+import { AddAssignOptions, ViolationError } from "../../../../models";
 import { 
     AssignStrategy, 
     RouteEditorHelper,
@@ -7,6 +7,7 @@ import {
     WaypointBuilder
 } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
+import { ShipmentValidationHelper } from "../../validations";
 
 /**
  * Strategy that inserts shipments while preserving the order of existing stops.
@@ -25,6 +26,8 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
         shipmentIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
+        this.validateShipmentConstraints(context, agentIndex, shipmentIndexes);
+        
         RouteEditorHelper.removeShipmentsFromAgents(context, shipmentIndexes);
         
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
@@ -57,6 +60,39 @@ export class ShipmentPreserveOrderAssignStrategy implements AssignStrategy {
             RouteTimeCalculator.getShipmentActionLocation
         );
         return true;
+    }
+
+    private validateShipmentConstraints(
+        context: RouteResultEditorBase,
+        agentIndex: number,
+        shipmentIndexes: number[]
+    ): void {
+        const rawData = context.getRawData();
+        const agent = rawData.properties.params.agents[agentIndex];
+        
+        const existingShipmentIndexes = context.getAgentShipments(agentIndex);
+        const existingShipments = existingShipmentIndexes.map(i => rawData.properties.params.shipments[i]);
+        const newShipments = shipmentIndexes.map(i => rawData.properties.params.shipments[i]);
+        const allShipments = [...existingShipments, ...newShipments];
+        
+        const violations = ShipmentValidationHelper.validateAll(agent, allShipments, agentIndex);
+        this.addViolationsToResult(rawData, violations);
+    }
+
+    private addViolationsToResult(rawData: any, violations: ViolationError[]): void {
+        if (violations.length === 0) return;
+        
+        if (!rawData.properties.agentViolations) {
+            rawData.properties.agentViolations = {};
+        }
+        
+        violations.forEach(violation => {
+            const agentIndex = violation.agentIndex;
+            if (!rawData.properties.agentViolations![agentIndex]) {
+                rawData.properties.agentViolations![agentIndex] = [];
+            }
+            rawData.properties.agentViolations![agentIndex].push(violation);
+        });
     }
 
     private async determineShipmentInsertPositions(

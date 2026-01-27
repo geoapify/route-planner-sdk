@@ -1,7 +1,10 @@
 import { AgentData, ShipmentData } from '../../../models/interfaces';
 import { 
     AgentPickupCapacityExceeded, 
-    AgentDeliveryCapacityExceeded
+    AgentDeliveryCapacityExceeded,
+    TimeWindowViolation,
+    BreakViolation,
+    ViolationError
 } from '../../../models/entities/route-editor-exceptions';
 import { ConstraintValidationHelper } from './constraint-validation-helper';
 
@@ -11,88 +14,88 @@ import { ConstraintValidationHelper } from './constraint-validation-helper';
  */
 export class ShipmentValidationHelper {
 
-    static validateAll(agent: AgentData, shipments: ShipmentData[]): Error[] {
-        const issues: Error[] = [];
+    static validateAll(agent: AgentData, shipments: ShipmentData[], agentIndex: number): ViolationError[] {
+        const issues: ViolationError[] = [];
         
         for (const shipment of shipments) {
-            const shipmentIssues = this.validateSingle(agent, shipment);
+            const shipmentIssues = this.validateSingle(agent, shipment, agentIndex);
             issues.push(...shipmentIssues);
         }
         
-        const capacityIssues = this.validateCapacity(agent, shipments);
+        const capacityIssues = this.validateCapacity(agent, shipments, agentIndex);
         issues.push(...capacityIssues);
         
         return issues;
     }
 
-    static validateSingle(agent: AgentData, shipment: ShipmentData): Error[] {
-        const issues: Error[] = [];
+    static validateSingle(agent: AgentData, shipment: ShipmentData, agentIndex: number): ViolationError[] {
+        const issues: ViolationError[] = [];
         
-        const capabilityError = ConstraintValidationHelper.checkCapabilities(agent, shipment.requirements);
+        const capabilityError = ConstraintValidationHelper.checkCapabilities(agent, shipment.requirements, agentIndex);
         if (capabilityError) issues.push(capabilityError);
         
-        const pickupTimeError = this.checkPickupTimeWindows(agent, shipment);
+        const pickupTimeError = this.checkPickupTimeWindows(agent, shipment, agentIndex);
         if (pickupTimeError) issues.push(pickupTimeError);
         
-        const deliveryTimeError = this.checkDeliveryTimeWindows(agent, shipment);
+        const deliveryTimeError = this.checkDeliveryTimeWindows(agent, shipment, agentIndex);
         if (deliveryTimeError) issues.push(deliveryTimeError);
         
-        const pickupBreakError = this.checkPickupBreaks(agent, shipment);
+        const pickupBreakError = this.checkPickupBreaks(agent, shipment, agentIndex);
         if (pickupBreakError) issues.push(pickupBreakError);
         
-        const deliveryBreakError = this.checkDeliveryBreaks(agent, shipment);
+        const deliveryBreakError = this.checkDeliveryBreaks(agent, shipment, agentIndex);
         if (deliveryBreakError) issues.push(deliveryBreakError);
         
         return issues;
     }
 
-    static validateCapacity(agent: AgentData, shipments: ShipmentData[]): Error[] {
-        const issues: Error[] = [];
+    static validateCapacity(agent: AgentData, shipments: ShipmentData[], agentIndex: number): ViolationError[] {
+        const issues: ViolationError[] = [];
         const total = shipments.reduce((sum, s) => sum + (s.amount ?? 0), 0);
         
         if (agent.pickup_capacity !== undefined && total > agent.pickup_capacity) {
             issues.push(new AgentPickupCapacityExceeded(
                 `Total shipment amount (${total}) exceeds agent pickup capacity (${agent.pickup_capacity})`,
-                agent.id
+                agentIndex
             ));
         }
         
         if (agent.delivery_capacity !== undefined && total > agent.delivery_capacity) {
             issues.push(new AgentDeliveryCapacityExceeded(
                 `Total shipment amount (${total}) exceeds agent delivery capacity (${agent.delivery_capacity})`,
-                agent.id
+                agentIndex
             ));
         }
         
         return issues;
     }
 
-    private static checkPickupTimeWindows(agent: AgentData, shipment: ShipmentData): Error | null {
+    private static checkPickupTimeWindows(agent: AgentData, shipment: ShipmentData, agentIndex: number): TimeWindowViolation | null {
         const pickupWindows = shipment.pickup?.time_windows;
         if (!pickupWindows?.length) return null;
         
-        return ConstraintValidationHelper.checkTimeWindowOverlap(agent, pickupWindows, 'shipment pickup');
+        return ConstraintValidationHelper.checkTimeWindowOverlap(agent, pickupWindows, 'shipment pickup', agentIndex);
     }
 
-    private static checkDeliveryTimeWindows(agent: AgentData, shipment: ShipmentData): Error | null {
+    private static checkDeliveryTimeWindows(agent: AgentData, shipment: ShipmentData, agentIndex: number): TimeWindowViolation | null {
         const deliveryWindows = shipment.delivery?.time_windows;
         if (!deliveryWindows?.length) return null;
         
-        return ConstraintValidationHelper.checkTimeWindowOverlap(agent, deliveryWindows, 'shipment delivery');
+        return ConstraintValidationHelper.checkTimeWindowOverlap(agent, deliveryWindows, 'shipment delivery', agentIndex);
     }
 
-    private static checkPickupBreaks(agent: AgentData, shipment: ShipmentData): Error | null {
+    private static checkPickupBreaks(agent: AgentData, shipment: ShipmentData, agentIndex: number): BreakViolation | null {
         const pickupWindows = shipment.pickup?.time_windows;
         if (!pickupWindows?.length) return null;
         
-        return ConstraintValidationHelper.checkBreakConflict(agent, pickupWindows, 'shipment pickup');
+        return ConstraintValidationHelper.checkBreakConflict(agent, pickupWindows, 'shipment pickup', agentIndex);
     }
 
-    private static checkDeliveryBreaks(agent: AgentData, shipment: ShipmentData): Error | null {
+    private static checkDeliveryBreaks(agent: AgentData, shipment: ShipmentData, agentIndex: number): BreakViolation | null {
         const deliveryWindows = shipment.delivery?.time_windows;
         if (!deliveryWindows?.length) return null;
         
-        return ConstraintValidationHelper.checkBreakConflict(agent, deliveryWindows, 'shipment delivery');
+        return ConstraintValidationHelper.checkBreakConflict(agent, deliveryWindows, 'shipment delivery', agentIndex);
     }
 }
 

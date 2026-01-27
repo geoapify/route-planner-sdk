@@ -1,26 +1,16 @@
 import RoutePlanner, {
     RoutePlannerResultEditor,
-    Agent, Job, Shipment, ShipmentStep,
-    AgentMissingCapability,
-    AgentPickupCapacityExceeded,
-    AgentDeliveryCapacityExceeded,
-    TimeWindowViolation,
-    BreakViolation,
-    ValidationErrors
+    Agent, Job, Shipment, ShipmentStep
 } from "../../../src";
 import { Break } from "../../../src/models/entities/nested/input/break";
 import TEST_API_KEY from "../../../env-variables";
 
 const API_KEY = TEST_API_KEY;
 
-// Test helpers for validation
-const expectValidationErrors = (error: any, expectedErrors: Array<{ type: any, message: string }>) => {
-    expect(error).toBeInstanceOf(ValidationErrors);
-    expect(error.errors).toHaveLength(expectedErrors.length);
-    
-    expectedErrors.forEach((expected, index) => {
-        expect(error.errors[index]).toBeInstanceOf(expected.type);
-        expect(error.errors[index].message).toBe(expected.message);
+const expectViolations = (violations: string[], expectedMessages: string[]) => {
+    expect(violations).toHaveLength(expectedMessages.length);
+    expectedMessages.forEach((expectedMessage) => {
+        expect(violations).toContain(expectedMessage);
     });
 };
 
@@ -102,7 +92,7 @@ describe('Route Editor Validation - Real World Scenarios', () => {
 
     describe('AgentMissingCapability', () => {
 
-        test('should reject refrigerated delivery assigned to regular van', async () => {
+        test('should store violation when agent missing required capability', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -124,38 +114,11 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 requirements: ['refrigerated']
             });
 
-            const error = await editor.addNewJobs(0, [refrigeratedJob], { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewJobs(0, [refrigeratedJob]);
             
-            expectValidationErrors(error, [
-                { type: AgentMissingCapability, message: "Agent is missing required capability: 'refrigerated'" }
-            ]);
-        });
-
-        test('should reject hazmat without certification', async () => {
-            const planner = new RoutePlanner({ apiKey: API_KEY });
-            planner.setMode("drive");
-
-            planner.addAgent(createAgent({
-                id: 'uncertified-driver',
-                capabilities: ['standard_delivery']
-            }));
-
-            planner.addJob(createJob({ id: 'safe-job' }));
-
-            const result = await planner.plan();
-            const editor = new RoutePlannerResultEditor(result);
-
-            const hazmatJob = createJob({
-                id: 'dangerous-chemicals',
-                requirements: ['hazmat_certified']
-            });
-
-            const error = await editor.addNewJobs(0, [hazmatJob], { allowViolations: false })
-                .catch(e => e);
-            
-            expectValidationErrors(error, [
-                { type: AgentMissingCapability, message: "Agent is missing required capability: 'hazmat_certified'" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "Agent is missing required capability: 'refrigerated'"
             ]);
         });
 
@@ -186,7 +149,7 @@ describe('Route Editor Validation - Real World Scenarios', () => {
 
     describe('AgentPickupCapacityExceeded', () => {
 
-        test('should reject pickup exceeding van capacity', async () => {
+        test('should store violation when pickup exceeds capacity', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -208,42 +171,18 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 createJob({ id: 'heavy-3', pickupAmount: 200 })
             ];
 
-            const error = await editor.addNewJobs(0, heavyJobs, { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewJobs(0, heavyJobs);
             
-            expectValidationErrors(error, [
-                { type: AgentPickupCapacityExceeded, message: "Total pickup amount (800) exceeds agent capacity (500)" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "Total pickup amount (800) exceeds agent capacity (500)"
             ]);
-        });
-
-        test('should accept pickup within capacity', async () => {
-            const planner = new RoutePlanner({ apiKey: API_KEY });
-            planner.setMode("drive");
-
-            planner.addAgent(createAgent({
-                id: 'cargo-van',
-                pickupCapacity: 1000
-            }));
-
-            planner.addJob(createJob({ id: 'job-1', pickupAmount: 200 }));
-
-            const result = await planner.plan();
-            const editor = new RoutePlannerResultEditor(result);
-
-            const moreJobs = [
-                createJob({ id: 'job-2', pickupAmount: 300 }),
-                createJob({ id: 'job-3', pickupAmount: 300 })
-            ]; // Total: 800kg (within 1000kg)
-
-            await expect(
-                editor.addNewJobs(0, moreJobs)
-            ).resolves.toBe(true);
         });
     });
 
     describe('AgentDeliveryCapacityExceeded', () => {
 
-        test('should reject delivery exceeding truck capacity', async () => {
+        test('should store violation when delivery exceeds truck capacity', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -262,18 +201,18 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 createJob({ id: 'del-2', deliveryAmount: 400 })
             ]; // Total: 1100kg (300 existing + 800 new, exceeds 800kg)
 
-            const error = await editor.addNewJobs(0, heavyDeliveries, { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewJobs(0, heavyDeliveries);
             
-            expectValidationErrors(error, [
-                { type: AgentDeliveryCapacityExceeded, message: "Total delivery amount (1100) exceeds agent capacity (800)" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "Total delivery amount (1100) exceeds agent capacity (800)"
             ]);
         });
     });
 
     describe('TimeWindowViolation', () => {
 
-        test('should reject job outside agent work hours', async () => {
+        test('should store violation when job outside agent work hours', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -294,43 +233,18 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 timeWindows: [[64800, 72000]]
             });
 
-            const error = await editor.addNewJobs(0, [eveningJob], { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewJobs(0, [eveningJob]);
             
-            expectValidationErrors(error, [
-                { type: TimeWindowViolation, message: "No overlap between agent and job time windows" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "No overlap between agent and job time windows"
             ]);
-        });
-
-        test('should accept job with partial time window overlap', async () => {
-            const planner = new RoutePlanner({ apiKey: API_KEY });
-            planner.setMode("drive");
-
-            planner.addAgent(createAgent({
-                id: 'flexible-agent',
-                timeWindows: [[32400, 61200]] // 9am-5pm
-            }));
-
-            planner.addJob(createJob({ id: 'job-1', timeWindows: [[36000, 43200]] }));
-
-            const result = await planner.plan();
-            const editor = new RoutePlannerResultEditor(result);
-
-            // Job 4pm-6pm (overlaps 4pm-5pm)
-            const lateJob = createJob({
-                id: 'late-afternoon',
-                timeWindows: [[57600, 64800]]
-            });
-
-            await expect(
-                editor.addNewJobs(0, [lateJob])
-            ).resolves.toBe(true);
         });
     });
 
     describe('BreakViolation', () => {
 
-        test('should reject job that can only be done during lunch break', async () => {
+        test('should store violation when job can only be done during break', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -354,47 +268,18 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 timeWindows: [[43800, 45900]]
             });
 
-            const error = await editor.addNewJobs(0, [lunchOnlyJob], { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewJobs(0, [lunchOnlyJob]);
             
-            expectValidationErrors(error, [
-                { type: BreakViolation, message: "All job windows fall within agent break periods" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "All job windows fall within agent break periods"
             ]);
-        });
-
-        test('should accept job that spans across break period', async () => {
-            const planner = new RoutePlanner({ apiKey: API_KEY });
-            planner.setMode("drive");
-
-            const lunchBreak = new Break()
-                .addTimeWindow(43200, 46800); // 12pm-1pm
-
-            planner.addAgent(createAgent({
-                id: 'driver',
-                timeWindows: [[32400, 61200]],
-                breaks: [lunchBreak]
-            }));
-
-            planner.addJob(createJob({ id: 'job-1', timeWindows: [[36000, 39600]] }));
-
-            const result = await planner.plan();
-            const editor = new RoutePlannerResultEditor(result);
-
-            // Job 11:30am-1:30pm (spans lunch, can be done before or after)
-            const spanningJob = createJob({
-                id: 'flexible-job',
-                timeWindows: [[41400, 48600]]
-            });
-
-            await expect(
-                editor.addNewJobs(0, [spanningJob])
-            ).resolves.toBe(true);
         });
     });
 
     describe('Shipment validations', () => {
 
-        test('should reject shipment with missing capability', async () => {
+        test('should store violation when shipment has missing capabilities', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -421,15 +306,15 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             });
 
             // Should list ALL missing capabilities
-            const error = await editor.addNewShipments(0, [fragileShipment], { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewShipments(0, [fragileShipment]);
             
-            expectValidationErrors(error, [
-                { type: AgentMissingCapability, message: "Agent is missing required capabilities: fragile, careful_handling" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "Agent is missing required capabilities: fragile, careful_handling"
             ]);
         });
 
-        test('should reject shipment exceeding pickup capacity', async () => {
+        test('should store violation when shipment exceeds capacity', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -464,18 +349,18 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 })
             ]; // Total new: 60kg (exceeds 50kg pickup)
 
-            const error = await editor.addNewShipments(0, heavyShipments, { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewShipments(0, heavyShipments);
             
-            expectValidationErrors(error, [
-                { type: AgentPickupCapacityExceeded, message: "Total shipment amount (70) exceeds agent pickup capacity (50)" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "Total shipment amount (70) exceeds agent pickup capacity (50)"
             ]);
         });
     });
 
     describe('Multiple validation errors', () => {
 
-        test('should return all violations when job has multiple issues', async () => {
+        test('should store all violations when job has multiple issues', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -500,47 +385,17 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 deliveryAmount: 400 // 200 + 400 = 600, exceeds 500
             });
 
-            const error = await editor.addNewJobs(0, [problematicJob], { allowViolations: false })
-                .catch(e => e);
+            await editor.addNewJobs(0, [problematicJob]);
             
-            expectValidationErrors(error, [
-                { type: AgentMissingCapability, message: "Agent is missing required capabilities: refrigerated, hazmat_certified" },
-                { type: TimeWindowViolation, message: "No overlap between agent and job time windows" },
-                { type: AgentDeliveryCapacityExceeded, message: "Total delivery amount (600) exceeds agent capacity (500)" }
+            const violations = editor.getModifiedResult().getViolations();
+            expectViolations(violations, [
+                "Agent is missing required capabilities: refrigerated, hazmat_certified",
+                "No overlap between agent and job time windows",
+                "Total delivery amount (600) exceeds agent capacity (500)"
             ]);
         });
 
-        test('should add violations to issues when allowViolations is true (default)', async () => {
-            const planner = new RoutePlanner({ apiKey: API_KEY });
-            planner.setMode("drive");
-
-            planner.addAgent(createAgent({
-                id: 'basic-driver',
-                capabilities: ['standard'],
-                deliveryCapacity: 500
-            }));
-
-            planner.addJob(createJob({ id: 'job-1', deliveryAmount: 200 }));
-
-            const result = await planner.plan();
-            const editor = new RoutePlannerResultEditor(result);
-
-            // Job that exceeds capacity
-            const overloadedJob = createJob({
-                id: 'heavy-job',
-                deliveryAmount: 400 // 200 + 400 = 600, exceeds 500
-            });
-
-            // Default behavior: allowViolations = true
-            const success = await editor.addNewJobs(0, [overloadedJob]);
-            
-            expect(success).toBe(true);
-            expect(editor.getModifiedResult().getViolations()).toContain(
-                "Total delivery amount (600) exceeds agent capacity (500)"
-            );
-        });
-
-        test('should add multiple violations to issues by default', async () => {
+        test('should store multiple violations in result', async () => {
             const planner = new RoutePlanner({ apiKey: API_KEY });
             planner.setMode("drive");
 
@@ -565,7 +420,7 @@ describe('Route Editor Validation - Real World Scenarios', () => {
                 deliveryAmount: 400 // 200 + 400 = 600, exceeds 500
             });
 
-            // Default: don't pass allowViolations (defaults to true)
+            // All violations are stored in the result
             const success = await editor.addNewJobs(0, [multiIssueJob]);
             
             expect(success).toBe(true);

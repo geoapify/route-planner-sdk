@@ -9,6 +9,7 @@ export * from "./nested/input/shipment-step-data";
 
 export * from "./route-planner-input-data";
 export * from "./result/route-planner-result-response-data";
+export * from "./result/route-planner-result-response-data-extended";
 export * from "./result/route-planner-result-data";
 
 export * from "./nested/result/agent-plan-data";

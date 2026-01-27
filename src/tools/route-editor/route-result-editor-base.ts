@@ -1,7 +1,7 @@
 import {
     ActionResponseData,
     FeatureResponseData, RoutePlannerResult,
-    RoutePlannerResultResponseData,
+    RoutePlannerResultResponseDataExtended,
     RoutingOptions,
     WaypointData,
     AgentHasNoPlan, AgentNotFound, NoItemsProvided, ItemsNotUnique
@@ -16,7 +16,7 @@ import {Utils} from "../utils";
  */
 export abstract class RouteResultEditorBase {
 
-    constructor(protected readonly rawData: RoutePlannerResultResponseData, protected readonly callOptions: RoutePlannerCallOptions, protected readonly routingOptions: RoutingOptions) {
+    constructor(protected readonly rawData: RoutePlannerResultResponseDataExtended, protected readonly callOptions: RoutePlannerCallOptions, protected readonly routingOptions: RoutingOptions) {
         this.rawData = rawData;
     }
 
@@ -50,7 +50,7 @@ export abstract class RouteResultEditorBase {
         }
     }
 
-    getRawData(): RoutePlannerResultResponseData {
+    getRawData(): RoutePlannerResultResponseDataExtended {
         return this.rawData;
     }
 

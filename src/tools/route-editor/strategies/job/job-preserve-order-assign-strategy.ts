@@ -1,4 +1,4 @@
-import {ActionResponseData, AddAssignOptions} from "../../../../models";
+import {ActionResponseData, AddAssignOptions, ViolationError} from "../../../../models";
 import { 
     AssignStrategy, 
     RouteEditorHelper,
@@ -7,6 +7,7 @@ import {
     WaypointBuilder
 } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
+import { JobValidationHelper } from "../../validations";
 
 /**
  * Strategy that inserts jobs while preserving the order of existing stops.
@@ -24,6 +25,8 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
         jobIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
+        this.validateJobConstraints(context, agentIndex, jobIndexes);
+        
         RouteEditorHelper.removeJobsFromAgents(context, jobIndexes);
         
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
@@ -46,6 +49,39 @@ export class JobPreserveOrderAssignStrategy implements AssignStrategy {
         );
         
         return true;
+    }
+
+    private validateJobConstraints(
+        context: RouteResultEditorBase,
+        agentIndex: number,
+        jobIndexes: number[]
+    ): void {
+        const rawData = context.getRawData();
+        const agent = rawData.properties.params.agents[agentIndex];
+        
+        const existingJobIndexes = context.getAgentJobs(agentIndex);
+        const existingJobs = existingJobIndexes.map(i => rawData.properties.params.jobs[i]);
+        const newJobs = jobIndexes.map(i => rawData.properties.params.jobs[i]);
+        const allJobs = [...existingJobs, ...newJobs];
+        
+        const violations = JobValidationHelper.validateAll(agent, allJobs, agentIndex);
+        this.addViolationsToResult(rawData, violations);
+    }
+
+    private addViolationsToResult(rawData: any, violations: ViolationError[]): void {
+        if (violations.length === 0) return;
+        
+        if (!rawData.properties.agentViolations) {
+            rawData.properties.agentViolations = {};
+        }
+        
+        violations.forEach(violation => {
+            const agentIndex = violation.agentIndex;
+            if (!rawData.properties.agentViolations![agentIndex]) {
+                rawData.properties.agentViolations![agentIndex] = [];
+            }
+            rawData.properties.agentViolations![agentIndex].push(violation);
+        });
     }
 
     private async determineInsertPosition(
