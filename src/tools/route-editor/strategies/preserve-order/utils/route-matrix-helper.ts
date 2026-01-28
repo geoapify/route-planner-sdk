@@ -1,6 +1,6 @@
-import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
-import { RoutingOptions } from '../../models/interfaces/route-planner-input-data';
-import {RouteMatrixApiError} from "../../models";
+import { RoutePlannerCallOptions } from "../../../../../models/interfaces/route-planner-call-options";
+import { RoutingOptions } from '../../../../../models/interfaces/route-planner-input-data';
+import {RouteMatrixApiError} from "../../../../../models";
 
 export interface RouteMatrixSource {
     location: [number, number];
@@ -36,7 +36,6 @@ export interface RouteMatrixResponse {
 export class RouteMatrixHelper {
     private baseUrl: string;
     private apiKey: string;
-    private mode: string;
     private routingOptions: RoutingOptions;
 
 

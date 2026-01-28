@@ -5,7 +5,7 @@ import {RouteResultEditorBase} from "../../route-result-editor-base";
 /**
  * Strategy that removes jobs while preserving the order of remaining jobs
  */
-export class JobPreserveOrderStrategy implements IRemoveStrategy {
+export class JobRemovePreserveOrderStrategy implements IRemoveStrategy {
 
     async execute(
         context: RouteResultEditorBase,

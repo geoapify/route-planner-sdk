@@ -5,7 +5,7 @@ import { RouteResultEditorBase } from "../../route-result-editor-base";
 /**
  * Strategy that reoptimizes the entire route when assigning jobs
  */
-export class JobReoptimizeStrategy implements AssignStrategy {
+export class JobAssignReoptimizeStrategy implements AssignStrategy {
 
     async execute(
         context: RouteResultEditorBase,

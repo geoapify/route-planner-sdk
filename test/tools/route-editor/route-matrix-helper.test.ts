@@ -1,4 +1,4 @@
-import { RouteMatrixHelper, RouteMatrixResponse } from "../../../src/tools/route-editor/route-matrix-helper";
+import { RouteMatrixHelper, RouteMatrixResponse } from "../../../src/tools/route-editor/strategies/preserve-order/utils/route-matrix-helper";
 import TEST_API_KEY from "../../../env-variables";
 import {RoutingOptions} from "../../../src";
 

@@ -44,7 +44,7 @@ describe("AgentPlan", () => {
             baseUrl: 'https://api.geoapify.com'
         };
 
-        agentPlan = new AgentPlan(initialData, agentInputData, routingOptions, callOptions);
+        agentPlan = new AgentPlan(initialData, agentInputData, routingOptions, callOptions, []);
     });
 
     test("should return the raw data", () => {

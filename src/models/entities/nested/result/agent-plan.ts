@@ -3,12 +3,14 @@ import { AgentData, AgentPlanData, RoutingOptions, RoutingOptionsExtended } from
 import { RouteAction } from "./route-action";
 import { Waypoint } from "./waypoint";
 import { RoutePlannerCallOptions } from "../../../interfaces/route-planner-call-options";
+import { ViolationError } from "../../route-editor-exceptions";
 
 export class AgentPlan {
     constructor(private readonly raw: AgentPlanData,
                 private readonly agentInputData: AgentData,
                 private readonly routingOptions: RoutingOptions,
-                private readonly callOptions: RoutePlannerCallOptions) {
+                private readonly callOptions: RoutePlannerCallOptions,
+                private readonly violations: ViolationError[]) {
         if (!raw) {
             throw new Error("AgentSolutionData is undefined");
         }
@@ -82,6 +84,10 @@ export class AgentPlan {
     containsJob(jonIdOrIndex: string | number) {
         return this.getActions().some(action => action.getJobIndex() === jonIdOrIndex 
                     || action.getJobId() === jonIdOrIndex);
+    }
+
+    getViolations(): ViolationError[] {
+        return this.violations;
     }
 
     /**

@@ -7,7 +7,7 @@ import {
     AgentHasNoPlan, AgentNotFound, NoItemsProvided, ItemsNotUnique
 } from "../../models";
 import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
-import {RouteMatrixHelper} from "./route-matrix-helper";
+import {RouteMatrixHelper} from "./strategies/preserve-order/utils/route-matrix-helper";
 import {RoutePlanner} from "../../route-planner";
 import {Utils} from "../utils";
 

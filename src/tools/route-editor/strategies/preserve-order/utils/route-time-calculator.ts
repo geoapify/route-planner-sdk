@@ -1,7 +1,5 @@
-import {ActionResponseData, JobData, ShipmentData} from "../../../../models";
-import {RouteResultEditorBase} from "../../route-result-editor-base";
-
-export type LocationResolver = (context: RouteResultEditorBase, action: any) => [number, number] | null;
+import {ActionResponseData, JobData, ShipmentData} from "../../../../../models";
+import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
 interface LocationPair {
     from: [number, number];
@@ -14,12 +12,12 @@ export class RouteTimeCalculator {
     static async recalculateRouteTimes(
         context: RouteResultEditorBase,
         agentIndex: number,
-        locationResolver: LocationResolver
+        isJob: boolean
     ): Promise<void> {
         const agentFeature = context.getAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         
-        const locationPairs = this.extractLocationPairs(actions, context, locationResolver);
+        const locationPairs = this.extractLocationPairs(actions, context, isJob);
         const travelTimes = await this.batchCalculateTravelTimes(context, locationPairs);
         const pairIndices = locationPairs.map(pair => pair.actionIndex);
         this.applyCumulativeTimes(actions, pairIndices, travelTimes);
@@ -28,13 +26,13 @@ export class RouteTimeCalculator {
     private static extractLocationPairs(
         actions: ActionResponseData[],
         context: RouteResultEditorBase,
-        locationResolver: LocationResolver
+        isJob: boolean
     ): LocationPair[] {
         const pairs: LocationPair[] = [];
         
         for (let i = 0; i < actions.length - 1; i++) {
-            const currentLocation = locationResolver(context, actions[i]);
-            const nextLocation = locationResolver(context, actions[i + 1]);
+            const currentLocation = this.getActionLocation(context, actions[i], isJob);
+            const nextLocation = this.getActionLocation(context, actions[i + 1], isJob);
             
             if (currentLocation && nextLocation) {
                 pairs.push({ from: currentLocation, to: nextLocation, actionIndex: i });
@@ -76,21 +74,33 @@ export class RouteTimeCalculator {
         }
     }
 
-    static getJobActionLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
+    private static getActionLocation(
+        context: RouteResultEditorBase, 
+        action: any, 
+        isJob: boolean
+    ): [number, number] | null {
+        if (isJob) {
+            return this.getJobActionLocation(context, action);
+        } else {
+            return this.getShipmentActionLocation(context, action);
+        }
+    }
+
+    private static getJobActionLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
         if (action.job_index !== undefined) {
             const job: JobData = context.getRawData().properties.params.jobs[action.job_index];
             return job?.location || null;
         }
-        return RouteTimeCalculator.getAgentLocation(context, action);
+        return this.getAgentLocation(context, action);
     }
 
-    static getShipmentActionLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
+    private static getShipmentActionLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
         if (action.shipment_index !== undefined) {
             const shipment: ShipmentData = context.getRawData().properties.params.shipments[action.shipment_index];
             if (action.type === 'pickup') return shipment?.pickup?.location || null;
             if (action.type === 'delivery') return shipment?.delivery?.location || null;
         }
-        return RouteTimeCalculator.getAgentLocation(context, action);
+        return this.getAgentLocation(context, action);
     }
 
     private static getAgentLocation(context: RouteResultEditorBase, action: any): [number, number] | null {

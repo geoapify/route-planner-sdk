@@ -1,9 +1,9 @@
-import { AgentData } from '../../../models/interfaces';
+import { AgentData } from '../../../../../models/interfaces';
 import { 
     AgentMissingCapability,
     TimeWindowViolation,
     BreakViolation 
-} from '../../../models/entities/route-editor-exceptions';
+} from '../../../../../models/entities/route-editor-exceptions';
 
 type TimeWindow = [number, number];
 
@@ -22,7 +22,7 @@ export class ConstraintValidationHelper {
                 ? `Agent is missing required capability: '${missing[0]}'`
                 : `Agent is missing required capabilities: ${missing.join(', ')}`;
             
-            return new AgentMissingCapability(message, agentIndex);
+            return new AgentMissingCapability(message, agentIndex, missing);
         }
         
         return null;

@@ -1,9 +1,9 @@
 import {AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER, UnknownStrategy} from "../../../../models";
 import { AssignStrategy, RemoveStrategy as IRemoveStrategy } from "../base";
-import { JobReoptimizeStrategy } from "./job-reoptimize-strategy";
-import { JobPreserveOrderAssignStrategy } from "./job-preserve-order-assign-strategy";
+import { JobAssignReoptimizeStrategy } from "./job-assign-reoptimize-strategy";
+import { JobAssignPreserveOrderStrategy } from "./job-assign-preserve-order-strategy";
 import { JobRemoveReoptimizeStrategy } from "./job-remove-reoptimize-strategy";
-import { JobPreserveOrderStrategy } from "./job-preserve-order-strategy";
+import { JobRemovePreserveOrderStrategy } from "./job-remove-preserve-order-strategy";
 
 /**
  * Factory for creating job-related strategies
@@ -11,13 +11,13 @@ import { JobPreserveOrderStrategy } from "./job-preserve-order-strategy";
 export class JobStrategyFactory {
     
     private static readonly assignStrategies = new Map<AddAssignStrategy, AssignStrategy>([
-        [REOPTIMIZE, new JobReoptimizeStrategy()],
-        [PRESERVE_ORDER, new JobPreserveOrderAssignStrategy()],
+        [REOPTIMIZE, new JobAssignReoptimizeStrategy()],
+        [PRESERVE_ORDER, new JobAssignPreserveOrderStrategy()],
     ]);
 
     private static readonly removeStrategies = new Map<RemoveStrategy, IRemoveStrategy>([
         [REOPTIMIZE, new JobRemoveReoptimizeStrategy()],
-        [PRESERVE_ORDER, new JobPreserveOrderStrategy()],
+        [PRESERVE_ORDER, new JobRemovePreserveOrderStrategy()],
     ]);
 
     static createAssignStrategy(strategy: AddAssignStrategy): AssignStrategy {

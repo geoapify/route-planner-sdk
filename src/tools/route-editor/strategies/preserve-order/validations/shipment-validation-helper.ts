@@ -1,11 +1,11 @@
-import { AgentData, ShipmentData } from '../../../models/interfaces';
+import { AgentData, ShipmentData } from '../../../../../models/interfaces';
 import { 
     AgentPickupCapacityExceeded, 
     AgentDeliveryCapacityExceeded,
     TimeWindowViolation,
     BreakViolation,
     ViolationError
-} from '../../../models/entities/route-editor-exceptions';
+} from '../../../../../models/entities/route-editor-exceptions';
 import { ConstraintValidationHelper } from './constraint-validation-helper';
 
 /**
@@ -56,14 +56,18 @@ export class ShipmentValidationHelper {
         if (agent.pickup_capacity !== undefined && total > agent.pickup_capacity) {
             issues.push(new AgentPickupCapacityExceeded(
                 `Total shipment amount (${total}) exceeds agent pickup capacity (${agent.pickup_capacity})`,
-                agentIndex
+                agentIndex,
+                total,
+                agent.pickup_capacity
             ));
         }
         
         if (agent.delivery_capacity !== undefined && total > agent.delivery_capacity) {
             issues.push(new AgentDeliveryCapacityExceeded(
                 `Total shipment amount (${total}) exceeds agent delivery capacity (${agent.delivery_capacity})`,
-                agentIndex
+                agentIndex,
+                total,
+                agent.delivery_capacity
             ));
         }
         

@@ -1,9 +1,9 @@
 import {AddAssignStrategy, RemoveStrategy, REOPTIMIZE, PRESERVE_ORDER, UnknownStrategy} from "../../../../models";
 import { AssignStrategy, RemoveStrategy as IRemoveStrategy } from "../base";
-import { ShipmentReoptimizeStrategy } from "./shipment-reoptimize-strategy";
-import { ShipmentPreserveOrderAssignStrategy } from "./shipment-preserve-order-assign-strategy";
+import { ShipmentAssignReoptimizeStrategy } from "./shipment-assign-reoptimize-strategy";
+import { ShipmentAssignPreserveOrderStrategy } from "./shipment-assign-preserve-order-strategy";
 import { ShipmentRemoveReoptimizeStrategy } from "./shipment-remove-reoptimize-strategy";
-import { ShipmentPreserveOrderStrategy } from "./shipment-preserve-order-strategy";
+import { ShipmentRemovePreserveOrderStrategy } from "./shipment-remove-preserve-order-strategy";
 
 /**
  * Factory for creating shipment-related strategies
@@ -11,13 +11,13 @@ import { ShipmentPreserveOrderStrategy } from "./shipment-preserve-order-strateg
 export class ShipmentStrategyFactory {
     
     private static readonly assignStrategies = new Map<AddAssignStrategy, AssignStrategy>([
-        [REOPTIMIZE, new ShipmentReoptimizeStrategy()],
-        [PRESERVE_ORDER, new ShipmentPreserveOrderAssignStrategy()],
+        [REOPTIMIZE, new ShipmentAssignReoptimizeStrategy()],
+        [PRESERVE_ORDER, new ShipmentAssignPreserveOrderStrategy()],
     ]);
 
     private static readonly removeStrategies = new Map<RemoveStrategy, IRemoveStrategy>([
         [REOPTIMIZE, new ShipmentRemoveReoptimizeStrategy()],
-        [PRESERVE_ORDER, new ShipmentPreserveOrderStrategy()],
+        [PRESERVE_ORDER, new ShipmentRemovePreserveOrderStrategy()],
     ]);
 
     static createAssignStrategy(strategy: AddAssignStrategy): AssignStrategy {

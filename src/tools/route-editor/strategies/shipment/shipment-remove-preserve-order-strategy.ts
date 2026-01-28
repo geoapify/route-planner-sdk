@@ -5,7 +5,7 @@ import {RouteResultEditorBase} from "../../route-result-editor-base";
 /**
  * Strategy that removes shipments while preserving the order of remaining items
  */
-export class ShipmentPreserveOrderStrategy implements IRemoveStrategy {
+export class ShipmentRemovePreserveOrderStrategy implements IRemoveStrategy {
 
     async execute(
         context: RouteResultEditorBase,

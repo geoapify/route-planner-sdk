@@ -1,6 +1,6 @@
 import { RouteEditorHelper } from "./route-editor-helper";
-import {ActionResponseData, WaypointResponseData} from "../../../../models";
-import {RouteResultEditorBase} from "../../route-result-editor-base";
+import {ActionResponseData, WaypointResponseData} from "../../../../../models";
+import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
 /**
  * Builds/updates agent waypoints for preserveOrder edits, without calling the routing API.

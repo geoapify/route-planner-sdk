@@ -2,7 +2,7 @@ import {
     AgentData,
     JobData,
     RoutePlannerResultData,
-    RoutePlannerResultResponseData,
+    RoutePlannerResultResponseData, RoutePlannerResultResponseDataExtended,
     RoutingOptions,
     ShipmentData
 } from "../interfaces";
@@ -12,6 +12,7 @@ import { JobPlan } from "./nested/result/job-plan";
 import { ShipmentPlan } from "./nested/result/shipment-plan";
 import { IndexConverter } from "../../helpers/index-converter";
 import { RoutePlannerCallOptions } from "../interfaces/route-planner-call-options";
+import {ViolationError} from "./route-editor-exceptions";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -23,13 +24,14 @@ export class RoutePlannerResult {
     private shipmentPlans: ShipmentPlan[];
     private jobPlans: JobPlan[];
 
-    constructor(private readonly callOptions: RoutePlannerCallOptions, private readonly rawData: RoutePlannerResultResponseData) {
+    constructor(private readonly callOptions: RoutePlannerCallOptions,
+                private readonly rawData: RoutePlannerResultResponseData | RoutePlannerResultResponseDataExtended) {
         this.data = RoutePlannerResultConverter.generateRoutePlannerResultData(this.rawData);
 
         // generate agent plans
         this.agentPlans = new Array(this.data.inputData.agents.length).fill(undefined);
         this.data.agents.forEach((agentPlan) => {
-            this.agentPlans[agentPlan.agentIndex] = new AgentPlan(agentPlan, this.data.inputData.agents[agentPlan.agentIndex], this.getData().inputData, this.callOptions);
+            this.agentPlans[agentPlan.agentIndex] = new AgentPlan(agentPlan, this.data.inputData.agents[agentPlan.agentIndex], this.getData().inputData, this.callOptions, this.getAgentViolations(agentPlan.agentIndex));
         });
 
         // generate shipment plans
@@ -122,13 +124,6 @@ export class RoutePlannerResult {
     }
 
     /**
-     * Retrieves constraint validation violations.
-     */
-    getViolations(): string[] {
-        return this.rawData.properties.violations ?? [];
-    }
-
-    /**
      * Returns a list of all assigned jobs
      */
     getJobPlans(): JobPlan[] {
@@ -171,5 +166,10 @@ export class RoutePlannerResult {
 
     getRoutingOptions(): RoutingOptions {
         return this.data.inputData;
+    }
+
+    private getAgentViolations(agentIndex: number): ViolationError[] {
+        const extendedData = this.rawData as RoutePlannerResultResponseDataExtended;
+        return extendedData.properties.agentViolations?.[agentIndex] ?? [];
     }
 }

@@ -1,9 +1,9 @@
-import { AgentData, JobData } from '../../../models/interfaces';
+import { AgentData, JobData } from '../../../../../models/interfaces';
 import { 
     AgentPickupCapacityExceeded, 
     AgentDeliveryCapacityExceeded,
     ViolationError
-} from '../../../models/entities/route-editor-exceptions';
+} from '../../../../../models/entities/route-editor-exceptions';
 import { ConstraintValidationHelper } from './constraint-validation-helper';
 
 /**
@@ -61,7 +61,9 @@ export class JobValidationHelper {
         if (total > agent.pickup_capacity) {
             return new AgentPickupCapacityExceeded(
                 `Total pickup amount (${total}) exceeds agent capacity (${agent.pickup_capacity})`,
-                agentIndex
+                agentIndex,
+                total,
+                agent.pickup_capacity
             );
         }
         
@@ -76,7 +78,9 @@ export class JobValidationHelper {
         if (total > agent.delivery_capacity) {
             return new AgentDeliveryCapacityExceeded(
                 `Total delivery amount (${total}) exceeds agent capacity (${agent.delivery_capacity})`,
-                agentIndex
+                agentIndex,
+                total,
+                agent.delivery_capacity
             );
         }
         

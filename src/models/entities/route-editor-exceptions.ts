@@ -1,26 +1,44 @@
 export class ViolationError extends Error {
-    constructor(message: string, public agentIndex: number) {
+    constructor(message: string, public readonly agentIndex: number) {
         super(message);
         this.name = 'ViolationError';
+    }
+
+    toString(): string {
+        return this.message;
     }
 }
 
 export class AgentPickupCapacityExceeded extends ViolationError {
-    constructor(message: string, agentIndex: number) {
+    constructor(
+        message: string, 
+        agentIndex: number,
+        public readonly totalAmount: number,
+        public readonly capacity: number
+    ) {
         super(message, agentIndex);
         this.name = 'AgentPickupCapacityExceeded';
     }
 }
 
 export class AgentDeliveryCapacityExceeded extends ViolationError {
-    constructor(message: string, agentIndex: number) {
+    constructor(
+        message: string, 
+        agentIndex: number,
+        public readonly totalAmount: number,
+        public readonly capacity: number
+    ) {
         super(message, agentIndex);
         this.name = 'AgentDeliveryCapacityExceeded';
     }
 }
 
 export class AgentMissingCapability extends ViolationError {
-    constructor(message: string, agentIndex: number) {
+    constructor(
+        message: string, 
+        agentIndex: number,
+        public readonly missingCapabilities: string[]
+    ) {
         super(message, agentIndex);
         this.name = 'AgentMissingCapability';
     }

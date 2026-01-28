@@ -1,5 +1,5 @@
-import { JobData, ShipmentData } from "../../../../models";
-import {RouteResultEditorBase} from "../../route-result-editor-base";
+import { JobData, ShipmentData } from "../../../../../models";
+import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
 /**
  * Helper for route editing: create actions, retrieve job/shipment data, remove items from agents

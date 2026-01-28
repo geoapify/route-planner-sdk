@@ -3,8 +3,8 @@ import {
     AddAssignOptions,
     FeatureResponseData, InvalidInsertionPosition,
     WaypointResponseData
-} from "../../../../models";
-import {RouteResultEditorBase} from "../../route-result-editor-base";
+} from "../../../../../models";
+import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
 /**
  * Shared helper for resolving insert positions
