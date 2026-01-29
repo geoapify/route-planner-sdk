@@ -1,4 +1,4 @@
-import { JobData, ShipmentData } from "../../../../../models";
+import { JobData, ShipmentData, ShipmentStepData } from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
 /**
@@ -44,11 +44,8 @@ export class RouteEditorHelper {
         return context.getRawData().properties.params.shipments[shipmentIndex];
     }
 
-    // ===== Removal methods =====
-
     static removeJobsFromAgents(context: RouteResultEditorBase, jobIndexes: number[]): void {
         const rawData = context.getRawData();
-        
         for (const jobIndex of jobIndexes) {
             for (const feature of rawData.features) {
                 const actions = feature.properties.actions;
@@ -63,11 +60,9 @@ export class RouteEditorHelper {
 
     static removeShipmentsFromAgents(context: RouteResultEditorBase, shipmentIndexes: number[]): void {
         const rawData = context.getRawData();
-        
         for (const shipmentIndex of shipmentIndexes) {
             for (const feature of rawData.features) {
                 const actions = feature.properties.actions;
-                // Remove both pickup and delivery actions for this shipment
                 for (let i = actions.length - 1; i >= 0; i--) {
                     if (actions[i].shipment_index === shipmentIndex) {
                         actions.splice(i, 1);
@@ -76,6 +71,34 @@ export class RouteEditorHelper {
                 context.reindexActions(actions);
             }
         }
+    }
+
+    static resolveShipmentStepLocation(context: RouteResultEditorBase, step: ShipmentStepData): [number, number] {
+        if (step.location) {
+            return step.location;
+        }
+        
+        if (step.location_index !== undefined) {
+            const rawData = context.getRawData();
+            const locations = rawData.properties.params.locations;
+            return locations[step.location_index].location!;
+        }
+        
+        throw new Error('Shipment step must have either location or location_index');
+    }
+
+    static resolveJobLocation(context: RouteResultEditorBase, job: JobData): [number, number] {
+        if (job.location) {
+            return job.location;
+        }
+        
+        if (job.location_index !== undefined) {
+            const rawData = context.getRawData();
+            const locations = rawData.properties.params.locations;
+            return locations[job.location_index].location!;
+        }
+        
+        throw new Error('Job must have either location or location_index');
     }
 }
 

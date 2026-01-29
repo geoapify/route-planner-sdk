@@ -338,10 +338,6 @@ export function createModifyPanel(context: DemoModifyContext) {
     afterWaypointInput.type = "number";
     afterWaypointInput.placeholder = "e.g. 1";
 
-    const beforeIdInput = document.createElement("input");
-    beforeIdInput.type = "text";
-    beforeIdInput.placeholder = "job/shipment id";
-
     const afterIdInput = document.createElement("input");
     afterIdInput.type = "text";
     afterIdInput.placeholder = "job/shipment id";
@@ -353,14 +349,6 @@ export function createModifyPanel(context: DemoModifyContext) {
     appendToggle.appendChild(appendInput);
     appendToggle.appendChild(document.createTextNode("Append to end"));
 
-    const allowToggle = document.createElement("label");
-    allowToggle.className = "modify-toggle";
-    const allowInput = document.createElement("input");
-    allowInput.type = "checkbox";
-    allowInput.checked = true;
-    allowToggle.appendChild(allowInput);
-    allowToggle.appendChild(document.createTextNode("Allow violations"));
-
     const priorityInput = document.createElement("input");
     priorityInput.type = "number";
     priorityInput.placeholder = "priority";
@@ -371,11 +359,9 @@ export function createModifyPanel(context: DemoModifyContext) {
     optionsGrid.appendChild(createField("Remove strategy", removeStrategySelect));
     optionsGrid.appendChild(createField("Before waypoint", beforeWaypointInput));
     optionsGrid.appendChild(createField("After waypoint", afterWaypointInput));
-    optionsGrid.appendChild(createField("Before id", beforeIdInput));
     optionsGrid.appendChild(createField("After id", afterIdInput));
     optionsGrid.appendChild(createField("Priority", priorityInput));
     optionsGrid.appendChild(appendToggle);
-    optionsGrid.appendChild(allowToggle);
 
     const actionRow = document.createElement("div");
     actionRow.className = "modify-row";
@@ -385,30 +371,21 @@ export function createModifyPanel(context: DemoModifyContext) {
 
       const options: any = {
         strategy: strategySelect.value,
-        removeStrategy: removeStrategySelect.value,
-        allowViolations: allowInput.checked
+        removeStrategy: removeStrategySelect.value
       };
 
-      const beforeWaypointIndex = readNumberValue(beforeWaypointInput);
       const afterWaypointIndex = readNumberValue(afterWaypointInput);
       const priority = readNumberValue(priorityInput);
-      const beforeId = beforeIdInput.value.trim();
       const afterId = afterIdInput.value.trim();
 
-      if (beforeWaypointIndex !== undefined) {
-        options.beforeWaypointIndex = beforeWaypointIndex;
-      }
       if (afterWaypointIndex !== undefined) {
         options.afterWaypointIndex = afterWaypointIndex;
-      }
-      if (beforeId) {
-        options.beforeId = beforeId;
       }
       if (afterId) {
         options.afterId = afterId;
       }
       if (appendInput.checked) {
-        options.appendToEnd = true;
+        options.append = true;
       }
       if (priority !== undefined) {
         options.priority = priority;

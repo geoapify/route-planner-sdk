@@ -7,7 +7,7 @@
  * import { REOPTIMIZE, PRESERVE_ORDER } from '@geoapify/route-planner-sdk';
  * 
  * await editor.assignJobs('agent-A', ['job-1'], { strategy: REOPTIMIZE });
- * await editor.assignJobs('agent-A', ['job-1'], { strategy: PRESERVE_ORDER, appendToEnd: true });
+ * await editor.assignJobs('agent-A', ['job-1'], { strategy: PRESERVE_ORDER, append: true });
  * ```
  */
 export const REOPTIMIZE = 'reoptimize' as const;
@@ -20,8 +20,8 @@ export const PRESERVE_ORDER = 'preserveOrder' as const;
  *   Best for finding the most efficient route but involves an API call.
  * - `preserveOrder`: Insert without reordering existing stops.
  *   - Without position params: Uses Route Matrix API to find optimal insertion point.
- *   - With beforeId/afterId/insertAtIndex: Inserts at specified position (no API call).
- *   - With appendToEnd: true: Appends to end of route (no API call).
+ *   - With afterId/insertAtIndex: Inserts at specified position (no API call).
+ *   - With append: true: Appends to end of route (no API call).
  */
 export type AddAssignStrategy = typeof REOPTIMIZE | typeof PRESERVE_ORDER;
 
@@ -61,7 +61,7 @@ export type RemoveStrategy = typeof REOPTIMIZE | typeof PRESERVE_ORDER;
  * // Append to end of route (no API call)
  * await editor.assignJobs('agent-A', ['job-1'], { 
  *   strategy: 'preserveOrder', 
- *   appendToEnd: true 
+ *   append: true
  * });
  * ```
  */
@@ -88,20 +88,6 @@ export interface AddAssignOptions {
      */
     removeStrategy?: RemoveStrategy;
 
-    /**
-     * Insert before the waypoint at this index in the agent's route.
-     * Used with strategy: 'preserveOrder'.
-     * Waypoint index 0 is the start location, 1 is the first job/shipment stop, etc.
-     * 
-     * Note: Cannot use beforeWaypointIndex: 0 (cannot insert before start).
-     * Use afterWaypointIndex: 0 to insert at the beginning instead.
-     * 
-     * @example
-     * ```typescript
-     * { strategy: 'preserveOrder', beforeWaypointIndex: 2 } // Insert before waypoint 2 (second stop)
-     * ```
-     */
-    beforeWaypointIndex?: number;
 
     /**
      * Insert after the waypoint at this index in the agent's route.
@@ -109,7 +95,7 @@ export interface AddAssignOptions {
      * Waypoint index 0 is the start location, 1 is the first job/shipment stop, etc.
      * 
      * Note: Cannot use afterWaypointIndex for the last waypoint (end location).
-     * Use appendToEnd: true to append to the end of the route instead.
+     * Use append: true to append to the end of the route instead.
      * 
      * @example
      * ```typescript
@@ -118,18 +104,6 @@ export interface AddAssignOptions {
      * ```
      */
     afterWaypointIndex?: number;
-
-    /**
-     * Insert before the stop with this ID (job ID or shipment ID).
-     * Takes precedence over waypoint index options if both are provided.
-     * Used with strategy: 'preserveOrder'.
-     * 
-     * @example
-     * ```typescript
-     * { strategy: 'preserveOrder', beforeId: 'job-3' } // Insert before job-3
-     * ```
-     */
-    beforeId?: string;
 
     /**
      * Insert after the stop with this ID (job ID or shipment ID).
@@ -150,10 +124,10 @@ export interface AddAssignOptions {
      * 
      * @example
      * ```typescript
-     * { strategy: 'preserveOrder', appendToEnd: true } // Append to end
+     * { strategy: 'preserveOrder', append: true } // Append to end
      * ```
      */
-    appendToEnd?: boolean;
+    append?: boolean;
 
     /**
      * Priority for optimization.

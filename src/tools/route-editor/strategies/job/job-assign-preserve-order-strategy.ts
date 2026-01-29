@@ -10,8 +10,8 @@ import {PreserveOrderJobHelper} from "../preserve-order/helpers/preserve-order-j
  * Strategy that inserts jobs while preserving the order of existing stops.
  * 
  * Behavior:
- * - appendToEnd: true → Appends to end of route (no API call)
- * - beforeId/afterId/insertAtIndex → Inserts at specified position (no API call)
+ * - append: true → Appends to end of route (no API call)
+ * - afterId/insertAtIndex → Inserts at specified position (no API call)
  * - No position params → Uses Route Matrix API to find optimal insertion point
  */
 export class JobAssignPreserveOrderStrategy implements AssignStrategy {

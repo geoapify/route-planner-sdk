@@ -11,8 +11,8 @@ import {PreserveOrderShipmentHelper} from "../preserve-order/helpers/preserve-or
  * Considers pickup-delivery constraints (pickup must come before delivery).
  * 
  * Behavior:
- * - appendToEnd: true → Appends pickup and delivery to end of route (no API call)
- * - beforeId/afterId/insertAtIndex → Inserts at specified position (no API call)
+ * - append: true → Appends pickup and delivery to end of route (no API call)
+ * - afterId/insertAtIndex → Inserts at specified position (no API call)
  * - No position params → Uses Route Matrix API to find optimal insertion points
  */
 export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {

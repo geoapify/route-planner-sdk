@@ -12,27 +12,18 @@ import {RouteResultEditorBase} from "../../../route-result-editor-base";
 export class InsertPositionResolver {
 
     static hasExplicitInsertPosition(options: AddAssignOptions): boolean {
-        return (options.beforeId !== undefined && options.beforeId !== '') || 
-               (options.afterId !== undefined && options.afterId !== '') || 
-               options.beforeWaypointIndex !== undefined ||
+        return (options.afterId !== undefined && options.afterId !== '') ||
                options.afterWaypointIndex !== undefined ||
-               options.appendToEnd === true;
+               options.append === true;
     }
 
     static shouldAppendToEnd(options: AddAssignOptions): boolean {
-        return options.appendToEnd === true;
+        return options.append === true;
     }
 
     static resolveInsertPosition(context: RouteResultEditorBase, agentIndex: number, options: AddAssignOptions): number {
-        if (options.beforeId && options.beforeId !== '') {
-            return this.findActionPositionById(context, agentIndex, options.beforeId);
-        }
         if (options.afterId && options.afterId !== '') {
             return this.findActionPositionById(context, agentIndex, options.afterId) + 1;
-        }
-        if (options.beforeWaypointIndex !== undefined) {
-            this.validateBeforeWaypointIndex(agentIndex, options.beforeWaypointIndex);
-            return this.validateAndGetWaypointIndex(context, agentIndex, options.beforeWaypointIndex);
         }
         if (options.afterWaypointIndex !== undefined) {
             this.validateAfterWaypointIndex(context, agentIndex, options.afterWaypointIndex);
@@ -50,7 +41,7 @@ export class InsertPositionResolver {
         const waypoints = context.getAgentWaypoints(agentIndex);
 
         if (waypoints.length === 0) {
-            throw new InvalidInsertionPosition(`Agent ${agentIndex} has no route. Use appendToEnd: true for agents without routes.`, agentIndex);
+            throw new InvalidInsertionPosition(`Agent ${agentIndex} has no route. Use append: true for agents without routes.`, agentIndex);
         }
 
         if (waypointIndex < 0 || waypointIndex >= waypoints.length) {
@@ -69,23 +60,13 @@ export class InsertPositionResolver {
         return actionIndex;
     }
 
-    static validateBeforeWaypointIndex(agentIndex: number, waypointIndex: number): void {
-        if (waypointIndex === 0) {
-            throw new InvalidInsertionPosition(
-                `Cannot insert before waypoint 0 (start location). Use afterWaypointIndex: 0 to insert at the beginning.`,
-                agentIndex,
-                waypointIndex
-            );
-        }
-    }
-
     static validateAfterWaypointIndex(context: RouteResultEditorBase, agentIndex: number, waypointIndex: number): void {
         const waypoints = context.getAgentWaypoints(agentIndex);
         const lastWaypointIndex = waypoints.length - 1;
 
         if (waypointIndex === lastWaypointIndex) {
             throw new InvalidInsertionPosition(
-                `Cannot insert after waypoint ${waypointIndex} (end location). Use appendToEnd: true instead.`,
+                `Cannot insert after waypoint ${waypointIndex} (end location). Use append: true instead.`,
                 agentIndex,
                 waypointIndex
             );

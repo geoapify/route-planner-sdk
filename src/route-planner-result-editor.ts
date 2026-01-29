@@ -25,7 +25,7 @@ import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-
  * await editor.assignJobs('agent-A', ['job-2'], { strategy: PRESERVE_ORDER });
  * 
  * // Append job to end of route (no API call)
- * await editor.assignJobs('agent-A', ['job-2'], { strategy: PRESERVE_ORDER, appendToEnd: true });
+ * await editor.assignJobs('agent-A', ['job-2'], { strategy: PRESERVE_ORDER, append: true });
  * 
  * // Remove job while keeping route order
  * await editor.removeJobs(['job-3'], { strategy: PRESERVE_ORDER });
@@ -82,7 +82,7 @@ export class RoutePlannerResultEditor {
      * // Append to end of route (no API call)
      * await editor.assignJobs('agent-A', ['job-1'], { 
      *   strategy: 'preserveOrder', 
-     *   appendToEnd: true 
+     *   append: true
      * });
      * ```
      */
@@ -113,7 +113,7 @@ export class RoutePlannerResultEditor {
      * // Append pickup and delivery to end of route (no API call)
      * await editor.assignShipments('agent-A', ['shipment-1'], { 
      *   strategy: 'preserveOrder', 
-     *   appendToEnd: true 
+     *   append: true
      * });
      * ```
      */
@@ -191,7 +191,7 @@ export class RoutePlannerResultEditor {
      * await editor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder' });
      * 
      * // Append to end of route (no API call)
-     * await editor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder', appendToEnd: true });
+     * await editor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder', append: true });
      * ```
      */
     addNewJobs(agentIdOrIndex: string | number, jobs: Job[], options?: AddAssignOptions): Promise<boolean> {
@@ -225,7 +225,7 @@ export class RoutePlannerResultEditor {
      * // Append to end of route (no API call)
      * await editor.addNewShipments('agent-A', [newShipment], { 
      *   strategy: 'preserveOrder', 
-     *   appendToEnd: true 
+     *   append: true
      * });
      * ```
      */

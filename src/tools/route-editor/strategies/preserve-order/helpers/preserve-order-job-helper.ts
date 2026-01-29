@@ -29,12 +29,12 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         firstJobIndex: number,
         options: AddAssignOptions
     ): Promise<number> {
-        // appendToEnd: true → Append to end
+        // append: true → Append to end
         if (InsertPositionResolver.shouldAppendToEnd(options)) {
             return this.getEndPosition(context, agentIndex);
         }
 
-        // beforeId/afterId/insertAtIndex → Insert at specified position
+        // afterId/insertAtIndex → Insert at specified position
         if (InsertPositionResolver.hasExplicitInsertPosition(options)) {
             return InsertPositionResolver.resolveInsertPosition(context, agentIndex, options);
         }
@@ -61,7 +61,7 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         jobIndex: number
     ): Promise<number> {
         const job = RouteEditorHelper.getJobByIndex(context, jobIndex);
-        const jobLocation: [number, number] = job.location!;
+        const jobLocation = RouteEditorHelper.resolveJobLocation(context, job);
         const agentFeature = context.getAgentFeature(agentIndex);
 
         if (!agentFeature) {
@@ -69,7 +69,6 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         }
 
         const routeLocations = InsertPositionResolver.extractRouteLocations(agentFeature);
-
         if (routeLocations.length === 0) {
             return 1; // After start action
         }
@@ -77,6 +76,6 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         const matrixHelper = context.getMatrixHelper();
         const optimalIndex = await matrixHelper.findOptimalInsertionPoint(routeLocations, jobLocation);
 
-        return optimalIndex + 1; // +1 to account for 'start' action
+        return optimalIndex + 1;
     }
 }

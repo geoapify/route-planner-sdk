@@ -36,7 +36,7 @@ const summarizeArray = (values: unknown[], label?: string) => {
 const summarizeOptions = (value: unknown) => {
   if (!value || typeof value !== "object" || Array.isArray(value)) return "";
   const options = value as Record<string, unknown>;
-  const keys = ["strategy", "afterId", "priority", "allowViolations", "mode"];
+  const keys = ["strategy", "afterId", "priority", "mode"];
   const picked = keys
     .filter((key) => key in options)
     .map((key) => `${key}=${String(options[key])}`);

@@ -203,7 +203,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Move job-2 with preserveOrder + appendToEnd (should NOT call API)
-    await routeEditor.assignJobs('agent-B', ['job-2'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignJobs('agent-B', ['job-2'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called
     expectApiNotCalled();
@@ -227,7 +227,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Move job-2 from agent-A to agent-B with appendToEnd
-    await routeEditor.assignJobs('agent-B', ['job-2'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignJobs('agent-B', ['job-2'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -252,7 +252,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Move shipment-3 from agent-B to agent-A with appendToEnd
-    await routeEditor.assignShipments('agent-A', ['shipment-3'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignShipments('agent-A', ['shipment-3'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -284,7 +284,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
         .setPickupAmount(10)
         .setId("job-5");
     
-    await routeEditor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.addNewJobs('agent-A', [newJob], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -309,7 +309,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
         .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(500))
         .setDelivery(new ShipmentStep().setLocation(44.51, 40.19).setDuration(500));
     
-    await routeEditor.addNewShipments('agent-A', [newShipment], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.addNewShipments('agent-A', [newShipment], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -336,7 +336,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Assign unassigned job-1 to unassigned agent-B with appendToEnd strategy
-    await routeEditor.assignJobs('agent-B', ['job-1'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignJobs('agent-B', ['job-1'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -361,7 +361,7 @@ describe('RoutePlannerResultEditor PreserveOrder with AppendToEnd', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Assign unassigned shipment-3 to unassigned agent-B with appendToEnd strategy
-    await routeEditor.assignShipments('agent-B', ['shipment-3'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignShipments('agent-B', ['shipment-3'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -434,31 +434,6 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
     expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
     expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
-  });
-
-  test('assignJobs with preserveOrder + beforeId should place job before specified job', async () => {
-    // Initial state:
-    // agent-A: start(0) → job-3(1) → job-2(2) → end(3)
-    // agent-B: start(0) → job-1(1) → job-4(2) → end(3)
-    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
-
-    const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    
-    // Move job-2 from agent-A to agent-B, before job-4
-    await routeEditor.assignJobs('agent-B', ['job-2'], { strategy: 'preserveOrder', beforeId: 'job-4' });
-    
-    // Verify Route Planner API was NOT called (local manipulation)
-    expectApiNotCalled();
-    
-    let modifiedResult = routeEditor.getModifiedResult();
-    
-    // Expected state:
-    // agent-A: start(0) → job-3(1) → end(2)
-    // agent-B: start(0) → job-1(1) → job-2(2) → job-4(3) → end(4)
-    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentPlan('agent-A')!, ['start', 'job-3', 'end']);
-    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
   });
 
   test('assignJobs with preserveOrder + afterId should place job after specified job', async () => {
@@ -669,7 +644,7 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Assign unassigned job-1 to unassigned agent-B with preserveOrder + appendToEnd
     // (Can't use waypoint indexes on agents without routes)
-    await routeEditor.assignJobs('agent-B', ['job-1'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignJobs('agent-B', ['job-1'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Planner API was NOT called (local manipulation)
     expectApiNotCalled();
@@ -695,7 +670,7 @@ describe('RoutePlannerResultEditor PreserveOrder Strategy (Optimal Position)', (
     
     // Assign unassigned shipment-3 to unassigned agent-B with preserveOrder + appendToEnd
     // (No existing route, so just append)
-    await routeEditor.assignShipments('agent-B', ['shipment-3'], { strategy: 'preserveOrder', appendToEnd: true });
+    await routeEditor.assignShipments('agent-B', ['shipment-3'], { strategy: 'preserveOrder', append: true });
     
     // Verify Route Matrix API was NOT called (no existing route to optimize insertion point for)
     expectApiNotCalled();
@@ -925,29 +900,6 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-2', 'job-1', 'job-4', 'end']);
   });
 
-  test('assignJobs with empty beforeId should use afterWaypointIndex instead', async () => {
-    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
-
-    const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    
-    // Pass empty string for beforeId and valid afterWaypointIndex
-    // afterWaypointIndex: 1 means after waypoint 1 (first job)
-    await routeEditor.assignJobs('agent-B', ['job-2'], { 
-      strategy: 'preserveOrder', 
-      beforeId: '',  // Empty string - should be ignored
-      afterWaypointIndex: 1 
-    });
-    
-    expectApiNotCalled();
-    
-    let modifiedResult = routeEditor.getModifiedResult();
-    
-    // Should insert after waypoint 1 (job-1), ignoring empty beforeId
-    expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
-    expectActions(modifiedResult.getAgentPlan('agent-B')!, ['start', 'job-1', 'job-2', 'job-4', 'end']);
-  });
-
   test('assignJobs with all empty strings should use optimal insert via Route Matrix', async () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
@@ -957,7 +909,6 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     // All position options are empty strings - should fall back to optimal position
     await routeEditor.assignJobs('agent-B', ['job-2'], { 
       strategy: 'preserveOrder',
-      beforeId: '',
       afterId: ''
     });
     
@@ -977,7 +928,6 @@ describe('RoutePlannerResultEditor Empty String Handling', () => {
     // Empty strings should be ignored, fall back to optimal
     await routeEditor.assignShipments('agent-A', ['shipment-3'], { 
       strategy: 'preserveOrder',
-      beforeId: '',
       afterId: ''
     });
     
@@ -1022,23 +972,6 @@ describe('RoutePlannerResultEditor Error Handling', () => {
     }
   });
 
-  test('preserveOrder with invalid beforeId should throw error', async () => {
-    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
-
-    const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    
-    try {
-      await routeEditor.assignJobs('agent-B', ['job-2'], { 
-        strategy: 'preserveOrder', 
-        beforeId: 'non-existent-job' 
-      });
-      fail('Should have thrown an error');
-    } catch (error: any) {
-      expect(error.message).toContain('not found');
-    }
-  });
-
   test('assignJobs with empty job array should throw error', async () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
@@ -1064,23 +997,6 @@ describe('RoutePlannerResultEditor Error Handling', () => {
       fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.message).toBe('Jobs are not unique');
-    }
-  });
-
-  test('assignJobs with beforeWaypointIndex=0 should throw error', async () => {
-    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
-
-    const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    
-    try {
-      await routeEditor.assignJobs('agent-B', ['job-2'], { 
-        strategy: 'preserveOrder', 
-        beforeWaypointIndex: 0  // Cannot insert before start
-      });
-      fail('Should have thrown an error');
-    } catch (error: any) {
-      expect(error.message).toContain('Cannot insert before waypoint 0');
     }
   });
 
