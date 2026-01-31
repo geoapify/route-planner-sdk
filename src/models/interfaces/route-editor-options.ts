@@ -43,19 +43,33 @@ export type RemoveStrategy = typeof REOPTIMIZE | typeof PRESERVE_ORDER;
  * // Default behavior - full reoptimization (Route Planner API)
  * await editor.assignJobs('agent-A', ['job-1']);
  * 
- * // Find optimal insertion point without reordering (Route Matrix API)
+ * // Find optimal insertion point anywhere (Route Matrix API)
  * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'preserveOrder' });
  * 
- * // Insert at specific position (no API call)
+ * // Find optimal position after a specific waypoint (Route Matrix API)
  * await editor.assignJobs('agent-A', ['job-1'], { 
  *   strategy: 'preserveOrder', 
- *   insertAtIndex: 2 
+ *   afterWaypointIndex: 1 
  * });
  * 
- * // Insert after a specific job (no API call)
+ * // Insert directly after a specific waypoint (no API call)
+ * await editor.assignJobs('agent-A', ['job-1'], { 
+ *   strategy: 'preserveOrder', 
+ *   afterWaypointIndex: 1,
+ *   append: true 
+ * });
+ * 
+ * // Find optimal position after a specific job (Route Matrix API)
  * await editor.assignJobs('agent-A', ['job-2'], { 
  *   strategy: 'preserveOrder', 
  *   afterId: 'job-1' 
+ * });
+ * 
+ * // Insert directly after a specific job (no API call)
+ * await editor.assignJobs('agent-A', ['job-2'], { 
+ *   strategy: 'preserveOrder', 
+ *   afterId: 'job-1',
+ *   append: true 
  * });
  * 
  * // Append to end of route (no API call)
@@ -94,13 +108,20 @@ export interface AddAssignOptions {
      * Used with strategy: 'preserveOrder'.
      * Waypoint index 0 is the start location, 1 is the first job/shipment stop, etc.
      * 
+     * Behavior depends on the `append` flag:
+     * - `append: true`: Insert directly after this waypoint (no API call)
+     * - `append: false` or undefined: Find optimal position after this waypoint (Route Matrix API)
+     * 
      * Note: Cannot use afterWaypointIndex for the last waypoint (end location).
-     * Use append: true to append to the end of the route instead.
+     * Use append: true without position params to append to the end of the route.
      * 
      * @example
      * ```typescript
-     * { strategy: 'preserveOrder', afterWaypointIndex: 0 } // Insert after start (first position)
-     * { strategy: 'preserveOrder', afterWaypointIndex: 1 } // Insert after first stop
+     * // Find optimal position after first stop (Route Matrix API)
+     * { strategy: 'preserveOrder', afterWaypointIndex: 1 }
+     * 
+     * // Insert directly after start (no API call)
+     * { strategy: 'preserveOrder', afterWaypointIndex: 0, append: true }
      * ```
      */
     afterWaypointIndex?: number;
@@ -110,21 +131,43 @@ export interface AddAssignOptions {
      * Takes precedence over waypoint index options if both are provided.
      * Used with strategy: 'preserveOrder'.
      * 
+     * Behavior depends on the `append` flag:
+     * - `append: true`: Insert directly after this stop (no API call)
+     * - `append: false` or undefined: Find optimal position after this stop (Route Matrix API)
+     * 
      * @example
      * ```typescript
-     * { strategy: 'preserveOrder', afterId: 'job-1' } // Insert after job-1
+     * // Find optimal position after job-1 (Route Matrix API)
+     * { strategy: 'preserveOrder', afterId: 'job-1' }
+     * 
+     * // Insert directly after job-1 (no API call)
+     * { strategy: 'preserveOrder', afterId: 'job-1', append: true }
      * ```
      */
     afterId?: string;
 
     /**
-     * Append to the end of the agent's route.
+     * Controls insertion behavior.
      * Used with strategy: 'preserveOrder'.
-     * When true, items are added at the end without using Route Matrix API.
+     * 
+     * When used alone (no position params):
+     * - `true`: Append to the end of route (no API call)
+     * - `false` or undefined: Find optimal position anywhere (Route Matrix API)
+     * 
+     * When used with afterId or afterWaypointIndex:
+     * - `true`: Insert directly after the specified position (no API call)
+     * - `false` or undefined: Find optimal position after the specified position (Route Matrix API)
      * 
      * @example
      * ```typescript
-     * { strategy: 'preserveOrder', append: true } // Append to end
+     * // Append to end (no API call)
+     * { strategy: 'preserveOrder', append: true }
+     * 
+     * // Insert directly after job-1 (no API call)
+     * { strategy: 'preserveOrder', afterId: 'job-1', append: true }
+     * 
+     * // Find optimal position after job-1 (Route Matrix API)
+     * { strategy: 'preserveOrder', afterId: 'job-1' }
      * ```
      */
     append?: boolean;
@@ -164,4 +207,10 @@ export interface RemoveOptions {
      * @default 'reoptimize'
      */
     strategy?: RemoveStrategy;
+}
+
+export interface ReoptimizeOptions {
+    agentIdOrIndex?: string | number;
+    afterWaypointIndex?: number;
+    afterId?: string;
 }

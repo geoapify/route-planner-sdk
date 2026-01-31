@@ -29,17 +29,23 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         firstJobIndex: number,
         options: AddAssignOptions
     ): Promise<number> {
-        // append: true → Append to end
+        // append: true (no position) → Append to end
         if (InsertPositionResolver.shouldAppendToEnd(options)) {
             return this.getEndPosition(context, agentIndex);
         }
 
-        // afterId/insertAtIndex → Insert at specified position
+        // afterId/afterWaypointIndex + append: true → Insert at specified position
         if (InsertPositionResolver.hasExplicitInsertPosition(options)) {
             return InsertPositionResolver.resolveInsertPosition(context, agentIndex, options);
         }
 
-        // No position params → Use Route Matrix API to find optimal position
+        // afterId/afterWaypointIndex + append: false → Optimize after position
+        if (InsertPositionResolver.shouldOptimizeAfterPosition(options)) {
+            const minPosition = InsertPositionResolver.getMinimumWaypointPosition(context, agentIndex, options);
+            return await this.findOptimalInsertPositionAfter(context, agentIndex, firstJobIndex, minPosition);
+        }
+
+        // No position params → Use Route Matrix API to find optimal position anywhere
         return await this.findOptimalInsertPosition(context, agentIndex, firstJobIndex);
     }
 
@@ -77,5 +83,23 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         const optimalIndex = await matrixHelper.findOptimalInsertionPoint(routeLocations, jobLocation);
 
         return optimalIndex + 1;
+    }
+
+    static async findOptimalInsertPositionAfter(context: RouteResultEditorBase, agentIndex: number,
+                                                jobIndex: number, minPosition: number): Promise<number> {
+        const job = RouteEditorHelper.getJobByIndex(context, jobIndex);
+        const jobLocation = RouteEditorHelper.resolveJobLocation(context, job);
+        const agentFeature = context.getAgentFeature(agentIndex);
+        const allRouteLocations = InsertPositionResolver.extractRouteLocations(agentFeature);
+
+        const routeLocationsAfter = allRouteLocations.slice(Math.max(0, minPosition - 1));
+        if (routeLocationsAfter.length === 0) {
+            return minPosition;
+        }
+
+        const matrixHelper = context.getMatrixHelper();
+        const optimalIndex = await matrixHelper.findOptimalInsertionPoint(routeLocationsAfter, jobLocation);
+
+        return Math.max(0, minPosition - 1) + optimalIndex + 1;
     }
 }

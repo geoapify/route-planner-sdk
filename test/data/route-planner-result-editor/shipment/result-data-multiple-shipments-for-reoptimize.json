@@ -1,0 +1,1613 @@
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "mode": "drive",
+    "params": {
+      "agents": [
+        {
+          "capabilities": [
+            "group-A"
+          ],
+          "id": "agent-A",
+          "start_location": [
+            13.38886,
+            52.517037
+          ],
+          "end_location": [
+            13.397634,
+            52.529407
+          ]
+        },
+        {
+          "capabilities": [
+            "group-B"
+          ],
+          "id": "agent-B",
+          "start_location": [
+            13.40886,
+            52.557037
+          ],
+          "end_location": [
+            13.417634,
+            52.569407
+          ]
+        }
+      ],
+      "shipments": [
+        {
+          "requirements": [
+            "group-A"
+          ],
+          "id": "shipment-1",
+          "pickup": {
+            "location": [
+              13.398859999999999,
+              52.527037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.40386,
+              52.532037
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-A"
+          ],
+          "id": "shipment-2",
+          "pickup": {
+            "location": [
+              13.408859999999999,
+              52.537037000000005
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.41386,
+              52.54203700000001
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-A"
+          ],
+          "id": "shipment-3",
+          "pickup": {
+            "location": [
+              13.418859999999999,
+              52.547037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.42386,
+              52.552037000000006
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-A"
+          ],
+          "id": "shipment-4",
+          "pickup": {
+            "location": [
+              13.428859999999998,
+              52.557037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.43386,
+              52.562037000000004
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-A"
+          ],
+          "id": "shipment-5",
+          "pickup": {
+            "location": [
+              13.43886,
+              52.567037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.44386,
+              52.572037
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-B"
+          ],
+          "id": "shipment-6",
+          "pickup": {
+            "location": [
+              13.44886,
+              52.577037000000004
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.45386,
+              52.58203700000001
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-B"
+          ],
+          "id": "shipment-7",
+          "pickup": {
+            "location": [
+              13.45886,
+              52.587037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.46386,
+              52.592037000000005
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-B"
+          ],
+          "id": "shipment-8",
+          "pickup": {
+            "location": [
+              13.46886,
+              52.597037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.47386,
+              52.602037
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-B"
+          ],
+          "id": "shipment-9",
+          "pickup": {
+            "location": [
+              13.47886,
+              52.607037000000005
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.48386,
+              52.61203700000001
+            ],
+            "duration": 180
+          }
+        },
+        {
+          "requirements": [
+            "group-B"
+          ],
+          "id": "shipment-10",
+          "pickup": {
+            "location": [
+              13.488859999999999,
+              52.617037
+            ],
+            "duration": 180
+          },
+          "delivery": {
+            "location": [
+              13.49386,
+              52.622037000000006
+            ],
+            "duration": 180
+          }
+        }
+      ],
+      "mode": "drive"
+    }
+  },
+  "features": [
+    {
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              13.388823,
+              52.517009
+            ],
+            [
+              13.398967,
+              52.527241
+            ]
+          ],
+          [
+            [
+              13.398967,
+              52.527241
+            ],
+            [
+              13.403406,
+              52.532196
+            ]
+          ],
+          [
+            [
+              13.403406,
+              52.532196
+            ],
+            [
+              13.409204,
+              52.536875
+            ]
+          ],
+          [
+            [
+              13.409204,
+              52.536875
+            ],
+            [
+              13.413668,
+              52.54207
+            ]
+          ],
+          [
+            [
+              13.413668,
+              52.54207
+            ],
+            [
+              13.418848,
+              52.54707
+            ]
+          ],
+          [
+            [
+              13.418848,
+              52.54707
+            ],
+            [
+              13.424092,
+              52.551943
+            ]
+          ],
+          [
+            [
+              13.424092,
+              52.551943
+            ],
+            [
+              13.428904,
+              52.557041
+            ]
+          ],
+          [
+            [
+              13.428904,
+              52.557041
+            ],
+            [
+              13.438912,
+              52.567051
+            ]
+          ],
+          [
+            [
+              13.438912,
+              52.567051
+            ],
+            [
+              13.443729,
+              52.572068
+            ]
+          ],
+          [
+            [
+              13.443729,
+              52.572068
+            ],
+            [
+              13.434518,
+              52.561939
+            ]
+          ],
+          [
+            [
+              13.434518,
+              52.561939
+            ],
+            [
+              13.39763,
+              52.529432
+            ]
+          ]
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "agent_index": 0,
+        "agent_id": "agent-A",
+        "time": 3625,
+        "start_time": 0,
+        "end_time": 3625,
+        "distance": 17771,
+        "legs": [
+          {
+            "time": 259,
+            "distance": 1940,
+            "from_waypoint_index": 0,
+            "to_waypoint_index": 1,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 259,
+                "distance": 1940
+              }
+            ]
+          },
+          {
+            "time": 223,
+            "distance": 1540,
+            "from_waypoint_index": 1,
+            "to_waypoint_index": 2,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 223,
+                "distance": 1540
+              }
+            ]
+          },
+          {
+            "time": 205,
+            "distance": 1603,
+            "from_waypoint_index": 2,
+            "to_waypoint_index": 3,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 205,
+                "distance": 1603
+              }
+            ]
+          },
+          {
+            "time": 138,
+            "distance": 796,
+            "from_waypoint_index": 3,
+            "to_waypoint_index": 4,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 138,
+                "distance": 796
+              }
+            ]
+          },
+          {
+            "time": 56,
+            "distance": 675,
+            "from_waypoint_index": 4,
+            "to_waypoint_index": 5,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 56,
+                "distance": 675
+              }
+            ]
+          },
+          {
+            "time": 51,
+            "distance": 649,
+            "from_waypoint_index": 5,
+            "to_waypoint_index": 6,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 51,
+                "distance": 649
+              }
+            ]
+          },
+          {
+            "time": 118,
+            "distance": 1374,
+            "from_waypoint_index": 6,
+            "to_waypoint_index": 7,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 118,
+                "distance": 1374
+              }
+            ]
+          },
+          {
+            "time": 131,
+            "distance": 1543,
+            "from_waypoint_index": 7,
+            "to_waypoint_index": 8,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 131,
+                "distance": 1543
+              }
+            ]
+          },
+          {
+            "time": 71,
+            "distance": 761,
+            "from_waypoint_index": 8,
+            "to_waypoint_index": 9,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 71,
+                "distance": 761
+              }
+            ]
+          },
+          {
+            "time": 107,
+            "distance": 1392,
+            "from_waypoint_index": 9,
+            "to_waypoint_index": 10,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 107,
+                "distance": 1392
+              }
+            ]
+          },
+          {
+            "time": 466,
+            "distance": 5498,
+            "from_waypoint_index": 10,
+            "to_waypoint_index": 11,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 466,
+                "distance": 5498
+              }
+            ]
+          }
+        ],
+        "mode": "drive",
+        "actions": [
+          {
+            "index": 0,
+            "type": "start",
+            "start_time": 0,
+            "duration": 0,
+            "waypoint_index": 0
+          },
+          {
+            "index": 1,
+            "type": "pickup",
+            "start_time": 259,
+            "duration": 180,
+            "shipment_index": 0,
+            "shipment_id": "shipment-1",
+            "waypoint_index": 1
+          },
+          {
+            "index": 2,
+            "type": "delivery",
+            "start_time": 662,
+            "duration": 180,
+            "shipment_index": 0,
+            "shipment_id": "shipment-1",
+            "waypoint_index": 2
+          },
+          {
+            "index": 3,
+            "type": "pickup",
+            "start_time": 1047,
+            "duration": 180,
+            "shipment_index": 1,
+            "shipment_id": "shipment-2",
+            "waypoint_index": 3
+          },
+          {
+            "index": 4,
+            "type": "delivery",
+            "start_time": 1365,
+            "duration": 180,
+            "shipment_index": 1,
+            "shipment_id": "shipment-2",
+            "waypoint_index": 4
+          },
+          {
+            "index": 5,
+            "type": "pickup",
+            "start_time": 1601,
+            "duration": 180,
+            "shipment_index": 2,
+            "shipment_id": "shipment-3",
+            "waypoint_index": 5
+          },
+          {
+            "index": 6,
+            "type": "delivery",
+            "start_time": 1832,
+            "duration": 180,
+            "shipment_index": 2,
+            "shipment_id": "shipment-3",
+            "waypoint_index": 6
+          },
+          {
+            "index": 7,
+            "type": "pickup",
+            "start_time": 2130,
+            "duration": 180,
+            "shipment_index": 3,
+            "shipment_id": "shipment-4",
+            "waypoint_index": 7
+          },
+          {
+            "index": 8,
+            "type": "pickup",
+            "start_time": 2441,
+            "duration": 180,
+            "shipment_index": 4,
+            "shipment_id": "shipment-5",
+            "waypoint_index": 8
+          },
+          {
+            "index": 9,
+            "type": "delivery",
+            "start_time": 2692,
+            "duration": 180,
+            "shipment_index": 4,
+            "shipment_id": "shipment-5",
+            "waypoint_index": 9
+          },
+          {
+            "index": 10,
+            "type": "delivery",
+            "start_time": 2979,
+            "duration": 180,
+            "shipment_index": 3,
+            "shipment_id": "shipment-4",
+            "waypoint_index": 10
+          },
+          {
+            "index": 11,
+            "type": "end",
+            "start_time": 3625,
+            "duration": 0,
+            "waypoint_index": 11
+          }
+        ],
+        "waypoints": [
+          {
+            "original_location": [
+              13.38886,
+              52.517037
+            ],
+            "location": [
+              13.388823,
+              52.517009
+            ],
+            "start_time": 0,
+            "duration": 0,
+            "actions": [
+              {
+                "index": 0,
+                "type": "start",
+                "start_time": 0,
+                "duration": 0,
+                "waypoint_index": 0
+              }
+            ],
+            "next_leg_index": 0
+          },
+          {
+            "original_location": [
+              13.398859999999999,
+              52.527037
+            ],
+            "location": [
+              13.398967,
+              52.527241
+            ],
+            "start_time": 259,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 1,
+                "type": "pickup",
+                "start_time": 259,
+                "duration": 180,
+                "shipment_index": 0,
+                "shipment_id": "shipment-1",
+                "waypoint_index": 1
+              }
+            ],
+            "prev_leg_index": 0,
+            "next_leg_index": 1
+          },
+          {
+            "original_location": [
+              13.40386,
+              52.532037
+            ],
+            "location": [
+              13.403406,
+              52.532196
+            ],
+            "start_time": 662,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 2,
+                "type": "delivery",
+                "start_time": 662,
+                "duration": 180,
+                "shipment_index": 0,
+                "shipment_id": "shipment-1",
+                "waypoint_index": 2
+              }
+            ],
+            "prev_leg_index": 1,
+            "next_leg_index": 2
+          },
+          {
+            "original_location": [
+              13.408859999999999,
+              52.537037000000005
+            ],
+            "location": [
+              13.409204,
+              52.536875
+            ],
+            "start_time": 1047,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 3,
+                "type": "pickup",
+                "start_time": 1047,
+                "duration": 180,
+                "shipment_index": 1,
+                "shipment_id": "shipment-2",
+                "waypoint_index": 3
+              }
+            ],
+            "prev_leg_index": 2,
+            "next_leg_index": 3
+          },
+          {
+            "original_location": [
+              13.41386,
+              52.54203700000001
+            ],
+            "location": [
+              13.413668,
+              52.54207
+            ],
+            "start_time": 1365,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 4,
+                "type": "delivery",
+                "start_time": 1365,
+                "duration": 180,
+                "shipment_index": 1,
+                "shipment_id": "shipment-2",
+                "waypoint_index": 4
+              }
+            ],
+            "prev_leg_index": 3,
+            "next_leg_index": 4
+          },
+          {
+            "original_location": [
+              13.418859999999999,
+              52.547037
+            ],
+            "location": [
+              13.418848,
+              52.54707
+            ],
+            "start_time": 1601,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 5,
+                "type": "pickup",
+                "start_time": 1601,
+                "duration": 180,
+                "shipment_index": 2,
+                "shipment_id": "shipment-3",
+                "waypoint_index": 5
+              }
+            ],
+            "prev_leg_index": 4,
+            "next_leg_index": 5
+          },
+          {
+            "original_location": [
+              13.42386,
+              52.552037000000006
+            ],
+            "location": [
+              13.424092,
+              52.551943
+            ],
+            "start_time": 1832,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 6,
+                "type": "delivery",
+                "start_time": 1832,
+                "duration": 180,
+                "shipment_index": 2,
+                "shipment_id": "shipment-3",
+                "waypoint_index": 6
+              }
+            ],
+            "prev_leg_index": 5,
+            "next_leg_index": 6
+          },
+          {
+            "original_location": [
+              13.428859999999998,
+              52.557037
+            ],
+            "location": [
+              13.428904,
+              52.557041
+            ],
+            "start_time": 2130,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 7,
+                "type": "pickup",
+                "start_time": 2130,
+                "duration": 180,
+                "shipment_index": 3,
+                "shipment_id": "shipment-4",
+                "waypoint_index": 7
+              }
+            ],
+            "prev_leg_index": 6,
+            "next_leg_index": 7
+          },
+          {
+            "original_location": [
+              13.43886,
+              52.567037
+            ],
+            "location": [
+              13.438912,
+              52.567051
+            ],
+            "start_time": 2441,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 8,
+                "type": "pickup",
+                "start_time": 2441,
+                "duration": 180,
+                "shipment_index": 4,
+                "shipment_id": "shipment-5",
+                "waypoint_index": 8
+              }
+            ],
+            "prev_leg_index": 7,
+            "next_leg_index": 8
+          },
+          {
+            "original_location": [
+              13.44386,
+              52.572037
+            ],
+            "location": [
+              13.443729,
+              52.572068
+            ],
+            "start_time": 2692,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 9,
+                "type": "delivery",
+                "start_time": 2692,
+                "duration": 180,
+                "shipment_index": 4,
+                "shipment_id": "shipment-5",
+                "waypoint_index": 9
+              }
+            ],
+            "prev_leg_index": 8,
+            "next_leg_index": 9
+          },
+          {
+            "original_location": [
+              13.43386,
+              52.562037000000004
+            ],
+            "location": [
+              13.434518,
+              52.561939
+            ],
+            "start_time": 2979,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 10,
+                "type": "delivery",
+                "start_time": 2979,
+                "duration": 180,
+                "shipment_index": 3,
+                "shipment_id": "shipment-4",
+                "waypoint_index": 10
+              }
+            ],
+            "prev_leg_index": 9,
+            "next_leg_index": 10
+          },
+          {
+            "original_location": [
+              13.397634,
+              52.529407
+            ],
+            "location": [
+              13.39763,
+              52.529432
+            ],
+            "start_time": 3625,
+            "duration": 0,
+            "actions": [
+              {
+                "index": 11,
+                "type": "end",
+                "start_time": 3625,
+                "duration": 0,
+                "waypoint_index": 11
+              }
+            ],
+            "prev_leg_index": 10
+          }
+        ]
+      }
+    },
+    {
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              13.408797,
+              52.55666
+            ],
+            [
+              13.448807,
+              52.577058
+            ]
+          ],
+          [
+            [
+              13.448807,
+              52.577058
+            ],
+            [
+              13.454504,
+              52.582648
+            ]
+          ],
+          [
+            [
+              13.454504,
+              52.582648
+            ],
+            [
+              13.458338,
+              52.58743
+            ]
+          ],
+          [
+            [
+              13.458338,
+              52.58743
+            ],
+            [
+              13.463809,
+              52.591868
+            ]
+          ],
+          [
+            [
+              13.463809,
+              52.591868
+            ],
+            [
+              13.469012,
+              52.597004
+            ]
+          ],
+          [
+            [
+              13.469012,
+              52.597004
+            ],
+            [
+              13.473925,
+              52.602007
+            ]
+          ],
+          [
+            [
+              13.473925,
+              52.602007
+            ],
+            [
+              13.478845,
+              52.60721
+            ]
+          ],
+          [
+            [
+              13.478845,
+              52.60721
+            ],
+            [
+              13.483719,
+              52.612043
+            ]
+          ],
+          [
+            [
+              13.483719,
+              52.612043
+            ],
+            [
+              13.488939,
+              52.616885
+            ]
+          ],
+          [
+            [
+              13.488939,
+              52.616885
+            ],
+            [
+              13.493854,
+              52.622029
+            ]
+          ],
+          [
+            [
+              13.493854,
+              52.622029
+            ],
+            [
+              13.417377,
+              52.569626
+            ]
+          ]
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "agent_index": 1,
+        "agent_id": "agent-B",
+        "time": 5282,
+        "start_time": 0,
+        "end_time": 5282,
+        "distance": 28722,
+        "legs": [
+          {
+            "time": 625,
+            "distance": 5429,
+            "from_waypoint_index": 0,
+            "to_waypoint_index": 1,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 625,
+                "distance": 5429
+              }
+            ]
+          },
+          {
+            "time": 493,
+            "distance": 2200,
+            "from_waypoint_index": 1,
+            "to_waypoint_index": 2,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 493,
+                "distance": 2200
+              }
+            ]
+          },
+          {
+            "time": 339,
+            "distance": 1470,
+            "from_waypoint_index": 2,
+            "to_waypoint_index": 3,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 339,
+                "distance": 1470
+              }
+            ]
+          },
+          {
+            "time": 255,
+            "distance": 1945,
+            "from_waypoint_index": 3,
+            "to_waypoint_index": 4,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 255,
+                "distance": 1945
+              }
+            ]
+          },
+          {
+            "time": 165,
+            "distance": 928,
+            "from_waypoint_index": 4,
+            "to_waypoint_index": 5,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 165,
+                "distance": 928
+              }
+            ]
+          },
+          {
+            "time": 163,
+            "distance": 964,
+            "from_waypoint_index": 5,
+            "to_waypoint_index": 6,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 163,
+                "distance": 964
+              }
+            ]
+          },
+          {
+            "time": 93,
+            "distance": 842,
+            "from_waypoint_index": 6,
+            "to_waypoint_index": 7,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 93,
+                "distance": 842
+              }
+            ]
+          },
+          {
+            "time": 74,
+            "distance": 677,
+            "from_waypoint_index": 7,
+            "to_waypoint_index": 8,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 74,
+                "distance": 677
+              }
+            ]
+          },
+          {
+            "time": 123,
+            "distance": 842,
+            "from_waypoint_index": 8,
+            "to_waypoint_index": 9,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 123,
+                "distance": 842
+              }
+            ]
+          },
+          {
+            "time": 162,
+            "distance": 1327,
+            "from_waypoint_index": 9,
+            "to_waypoint_index": 10,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 162,
+                "distance": 1327
+              }
+            ]
+          },
+          {
+            "time": 990,
+            "distance": 12098,
+            "from_waypoint_index": 10,
+            "to_waypoint_index": 11,
+            "steps": [
+              {
+                "from_index": 0,
+                "to_index": 1,
+                "time": 990,
+                "distance": 12098
+              }
+            ]
+          }
+        ],
+        "mode": "drive",
+        "actions": [
+          {
+            "index": 0,
+            "type": "start",
+            "start_time": 0,
+            "duration": 0,
+            "waypoint_index": 0
+          },
+          {
+            "index": 1,
+            "type": "pickup",
+            "start_time": 625,
+            "duration": 180,
+            "shipment_index": 5,
+            "shipment_id": "shipment-6",
+            "waypoint_index": 1
+          },
+          {
+            "index": 2,
+            "type": "delivery",
+            "start_time": 1298,
+            "duration": 180,
+            "shipment_index": 5,
+            "shipment_id": "shipment-6",
+            "waypoint_index": 2
+          },
+          {
+            "index": 3,
+            "type": "pickup",
+            "start_time": 1817,
+            "duration": 180,
+            "shipment_index": 6,
+            "shipment_id": "shipment-7",
+            "waypoint_index": 3
+          },
+          {
+            "index": 4,
+            "type": "delivery",
+            "start_time": 2252,
+            "duration": 180,
+            "shipment_index": 6,
+            "shipment_id": "shipment-7",
+            "waypoint_index": 4
+          },
+          {
+            "index": 5,
+            "type": "pickup",
+            "start_time": 2597,
+            "duration": 180,
+            "shipment_index": 7,
+            "shipment_id": "shipment-8",
+            "waypoint_index": 5
+          },
+          {
+            "index": 6,
+            "type": "delivery",
+            "start_time": 2940,
+            "duration": 180,
+            "shipment_index": 7,
+            "shipment_id": "shipment-8",
+            "waypoint_index": 6
+          },
+          {
+            "index": 7,
+            "type": "pickup",
+            "start_time": 3213,
+            "duration": 180,
+            "shipment_index": 8,
+            "shipment_id": "shipment-9",
+            "waypoint_index": 7
+          },
+          {
+            "index": 8,
+            "type": "delivery",
+            "start_time": 3467,
+            "duration": 180,
+            "shipment_index": 8,
+            "shipment_id": "shipment-9",
+            "waypoint_index": 8
+          },
+          {
+            "index": 9,
+            "type": "pickup",
+            "start_time": 3770,
+            "duration": 180,
+            "shipment_index": 9,
+            "shipment_id": "shipment-10",
+            "waypoint_index": 9
+          },
+          {
+            "index": 10,
+            "type": "delivery",
+            "start_time": 4112,
+            "duration": 180,
+            "shipment_index": 9,
+            "shipment_id": "shipment-10",
+            "waypoint_index": 10
+          },
+          {
+            "index": 11,
+            "type": "end",
+            "start_time": 5282,
+            "duration": 0,
+            "waypoint_index": 11
+          }
+        ],
+        "waypoints": [
+          {
+            "original_location": [
+              13.40886,
+              52.557037
+            ],
+            "location": [
+              13.408797,
+              52.55666
+            ],
+            "start_time": 0,
+            "duration": 0,
+            "actions": [
+              {
+                "index": 0,
+                "type": "start",
+                "start_time": 0,
+                "duration": 0,
+                "waypoint_index": 0
+              }
+            ],
+            "next_leg_index": 0
+          },
+          {
+            "original_location": [
+              13.44886,
+              52.577037000000004
+            ],
+            "location": [
+              13.448807,
+              52.577058
+            ],
+            "start_time": 625,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 1,
+                "type": "pickup",
+                "start_time": 625,
+                "duration": 180,
+                "shipment_index": 5,
+                "shipment_id": "shipment-6",
+                "waypoint_index": 1
+              }
+            ],
+            "prev_leg_index": 0,
+            "next_leg_index": 1
+          },
+          {
+            "original_location": [
+              13.45386,
+              52.58203700000001
+            ],
+            "location": [
+              13.454504,
+              52.582648
+            ],
+            "start_time": 1298,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 2,
+                "type": "delivery",
+                "start_time": 1298,
+                "duration": 180,
+                "shipment_index": 5,
+                "shipment_id": "shipment-6",
+                "waypoint_index": 2
+              }
+            ],
+            "prev_leg_index": 1,
+            "next_leg_index": 2
+          },
+          {
+            "original_location": [
+              13.45886,
+              52.587037
+            ],
+            "location": [
+              13.458338,
+              52.58743
+            ],
+            "start_time": 1817,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 3,
+                "type": "pickup",
+                "start_time": 1817,
+                "duration": 180,
+                "shipment_index": 6,
+                "shipment_id": "shipment-7",
+                "waypoint_index": 3
+              }
+            ],
+            "prev_leg_index": 2,
+            "next_leg_index": 3
+          },
+          {
+            "original_location": [
+              13.46386,
+              52.592037000000005
+            ],
+            "location": [
+              13.463809,
+              52.591868
+            ],
+            "start_time": 2252,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 4,
+                "type": "delivery",
+                "start_time": 2252,
+                "duration": 180,
+                "shipment_index": 6,
+                "shipment_id": "shipment-7",
+                "waypoint_index": 4
+              }
+            ],
+            "prev_leg_index": 3,
+            "next_leg_index": 4
+          },
+          {
+            "original_location": [
+              13.46886,
+              52.597037
+            ],
+            "location": [
+              13.469012,
+              52.597004
+            ],
+            "start_time": 2597,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 5,
+                "type": "pickup",
+                "start_time": 2597,
+                "duration": 180,
+                "shipment_index": 7,
+                "shipment_id": "shipment-8",
+                "waypoint_index": 5
+              }
+            ],
+            "prev_leg_index": 4,
+            "next_leg_index": 5
+          },
+          {
+            "original_location": [
+              13.47386,
+              52.602037
+            ],
+            "location": [
+              13.473925,
+              52.602007
+            ],
+            "start_time": 2940,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 6,
+                "type": "delivery",
+                "start_time": 2940,
+                "duration": 180,
+                "shipment_index": 7,
+                "shipment_id": "shipment-8",
+                "waypoint_index": 6
+              }
+            ],
+            "prev_leg_index": 5,
+            "next_leg_index": 6
+          },
+          {
+            "original_location": [
+              13.47886,
+              52.607037000000005
+            ],
+            "location": [
+              13.478845,
+              52.60721
+            ],
+            "start_time": 3213,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 7,
+                "type": "pickup",
+                "start_time": 3213,
+                "duration": 180,
+                "shipment_index": 8,
+                "shipment_id": "shipment-9",
+                "waypoint_index": 7
+              }
+            ],
+            "prev_leg_index": 6,
+            "next_leg_index": 7
+          },
+          {
+            "original_location": [
+              13.48386,
+              52.61203700000001
+            ],
+            "location": [
+              13.483719,
+              52.612043
+            ],
+            "start_time": 3467,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 8,
+                "type": "delivery",
+                "start_time": 3467,
+                "duration": 180,
+                "shipment_index": 8,
+                "shipment_id": "shipment-9",
+                "waypoint_index": 8
+              }
+            ],
+            "prev_leg_index": 7,
+            "next_leg_index": 8
+          },
+          {
+            "original_location": [
+              13.488859999999999,
+              52.617037
+            ],
+            "location": [
+              13.488939,
+              52.616885
+            ],
+            "start_time": 3770,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 9,
+                "type": "pickup",
+                "start_time": 3770,
+                "duration": 180,
+                "shipment_index": 9,
+                "shipment_id": "shipment-10",
+                "waypoint_index": 9
+              }
+            ],
+            "prev_leg_index": 8,
+            "next_leg_index": 9
+          },
+          {
+            "original_location": [
+              13.49386,
+              52.622037000000006
+            ],
+            "location": [
+              13.493854,
+              52.622029
+            ],
+            "start_time": 4112,
+            "duration": 180,
+            "actions": [
+              {
+                "index": 10,
+                "type": "delivery",
+                "start_time": 4112,
+                "duration": 180,
+                "shipment_index": 9,
+                "shipment_id": "shipment-10",
+                "waypoint_index": 10
+              }
+            ],
+            "prev_leg_index": 9,
+            "next_leg_index": 10
+          },
+          {
+            "original_location": [
+              13.417634,
+              52.569407
+            ],
+            "location": [
+              13.417377,
+              52.569626
+            ],
+            "start_time": 5282,
+            "duration": 0,
+            "actions": [
+              {
+                "index": 11,
+                "type": "end",
+                "start_time": 5282,
+                "duration": 0,
+                "waypoint_index": 11
+              }
+            ],
+            "prev_leg_index": 10
+          }
+        ]
+      }
+    }
+  ]
+}

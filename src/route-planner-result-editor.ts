@@ -1,8 +1,9 @@
 import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
+import { AgentReoptimizeHelper, AgentTimeOffsetHelper } from "./tools/route-editor/helpers";
 import { Utils } from "./tools/utils";
-import { Job, Shipment, AddAssignOptions, RemoveOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidParameterType } from "./models";
+import { Job, Shipment, AddAssignOptions, RemoveOptions, ReoptimizeOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidParameterType } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
 import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 
@@ -236,22 +237,16 @@ export class RoutePlannerResultEditor {
         return this.getShipmentEditor().addNewShipments(agentIndex, shipments, this.normalizeAddAssignOptions(options));
     }
 
-    /**
-     * Returns the modified result.
-     * 
-     * @returns The modified RoutePlannerResult object
-     * 
-     * @example
-     * ```typescript
-     * await editor.assignJobs('agent-A', ['job-1']);
-     * const modifiedResult = editor.getModifiedResult();
-     * 
-     * // Use the modified result
-     * console.log(modifiedResult.getAgentSolutions());
-     * ```
-     */
     getModifiedResult(): RoutePlannerResult {
         return new RoutePlannerResult(this.callOptions, this.rawData);
+    }
+
+    async reoptimizeAgentPlan(options: ReoptimizeOptions): Promise<boolean> {
+        return AgentReoptimizeHelper.execute(this.getJobEditor(), options);
+    }
+
+    addTimeOffsetFromWaypoint(agentIdOrIndex: string | number, waypointIndex: number, offsetSeconds: number): void {
+        AgentTimeOffsetHelper.execute(this.getJobEditor(), agentIdOrIndex, waypointIndex, offsetSeconds);
     }
 
     private assertArray(array: any[], name: string): void {

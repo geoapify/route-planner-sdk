@@ -12,13 +12,21 @@ import {RouteResultEditorBase} from "../../../route-result-editor-base";
 export class InsertPositionResolver {
 
     static hasExplicitInsertPosition(options: AddAssignOptions): boolean {
-        return (options.afterId !== undefined && options.afterId !== '') ||
-               options.afterWaypointIndex !== undefined ||
+        return ((options.afterId !== undefined && options.afterId !== '') ||
+                options.afterWaypointIndex !== undefined) &&
                options.append === true;
     }
 
     static shouldAppendToEnd(options: AddAssignOptions): boolean {
-        return options.append === true;
+        return options.append === true &&
+               !options.afterId && 
+               options.afterWaypointIndex === undefined;
+    }
+
+    static shouldOptimizeAfterPosition(options: AddAssignOptions): boolean {
+        return ((options.afterId !== undefined && options.afterId !== '') ||
+                options.afterWaypointIndex !== undefined) &&
+               options.append !== true;
     }
 
     static resolveInsertPosition(context: RouteResultEditorBase, agentIndex: number, options: AddAssignOptions): number {
@@ -31,6 +39,17 @@ export class InsertPositionResolver {
         }
         const agentActions = context.getAgentActions(agentIndex);
         return agentActions ? agentActions.length : 0;
+    }
+
+    static getMinimumWaypointPosition(context: RouteResultEditorBase, agentIndex: number, options: AddAssignOptions): number {
+        if (options.afterId && options.afterId !== '') {
+            return this.findActionPositionById(context, agentIndex, options.afterId) + 1;
+        }
+        if (options.afterWaypointIndex !== undefined) {
+            this.validateAfterWaypointIndex(context, agentIndex, options.afterWaypointIndex);
+            return this.validateAndGetWaypointIndex(context, agentIndex, options.afterWaypointIndex) + 1;
+        }
+        return 0;
     }
 
     static validateAndGetWaypointIndex(
@@ -76,16 +95,20 @@ export class InsertPositionResolver {
     static findActionPositionById(context: RouteResultEditorBase, agentIndex: number, actionId: string): number {
         const actions = context.getAgentActions(agentIndex);
 
+        let lastMatchingIndex = -1;
         for (let i = 0; i < actions.length; i++) {
             const id = actions[i].job_id || actions[i].shipment_id;
             if (id === actionId) {
-                return i;
+                lastMatchingIndex = i;
             }
         }
 
-        throw new InvalidInsertionPosition(`Action '${actionId}' not found in agent ${agentIndex} route`, agentIndex,
-            undefined, actionId
-        );
+        if (lastMatchingIndex === -1) {
+            throw new InvalidInsertionPosition(`Action '${actionId}' not found in agent ${agentIndex} route`, agentIndex,
+                undefined, actionId
+            );
+        }
+        return lastMatchingIndex;
     }
 
     static extractRouteLocations(agentFeature: FeatureResponseData): [number, number][] {

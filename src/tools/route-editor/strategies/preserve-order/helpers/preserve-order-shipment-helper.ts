@@ -29,18 +29,24 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
         shipmentIndex: number,
         options: AddAssignOptions
     ): Promise<{ pickup: number; delivery: number }> {
-        // append: true → Append to end
+        // append: true (no position) → Append to end
         if (InsertPositionResolver.shouldAppendToEnd(options)) {
             return this.getEndPositions(context, agentIndex);
         }
 
-        // afterId/insertAtIndex → Insert at specified position
+        // afterId/afterWaypointIndex + append: true → Insert at specified position
         if (InsertPositionResolver.hasExplicitInsertPosition(options)) {
             const pickupPosition = InsertPositionResolver.resolveInsertPosition(context, agentIndex, options);
             return { pickup: pickupPosition, delivery: pickupPosition + 1 };
         }
 
-        // No position params → Use Route Matrix API to find optimal positions
+        // afterId/afterWaypointIndex + append: false → Optimize after position
+        if (InsertPositionResolver.shouldOptimizeAfterPosition(options)) {
+            const minPosition = InsertPositionResolver.getMinimumWaypointPosition(context, agentIndex, options);
+            return await this.findOptimalShipmentPositionsAfter(context, agentIndex, shipmentIndex, minPosition);
+        }
+
+        // No position params → Use Route Matrix API to find optimal positions anywhere
         return await this.findOptimalShipmentPositions(context, agentIndex, shipmentIndex);
     }
 
@@ -84,6 +90,41 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
         return {
             pickup: pickupIndex + 1,
             delivery: pickupIndex + 1 + deliveryIndex + 1 + 1
+        };
+    }
+
+    static async findOptimalShipmentPositionsAfter(context: RouteResultEditorBase, agentIndex: number,
+                                                   shipmentIndex: number, minPosition: number): Promise<{ pickup: number; delivery: number }> {
+        const shipment = RouteEditorHelper.getShipmentByIndex(context, shipmentIndex);
+        const pickupLocation = RouteEditorHelper.resolveShipmentStepLocation(context, shipment.pickup!);
+        const deliveryLocation = RouteEditorHelper.resolveShipmentStepLocation(context, shipment.delivery!);
+
+        const agentFeature = context.getAgentFeature(agentIndex);
+        const allRouteLocations = InsertPositionResolver.extractRouteLocations(agentFeature);
+
+        const routeLocationsAfter = allRouteLocations.slice(Math.max(0, minPosition - 1));
+        if (routeLocationsAfter.length === 0) {
+            return { pickup: minPosition, delivery: minPosition + 1 };
+        }
+
+        const matrixHelper = context.getMatrixHelper();
+        
+        // Find optimal pickup position after minPosition
+        const pickupIndex = await matrixHelper.findOptimalInsertionPoint(routeLocationsAfter, pickupLocation);
+        const absolutePickupPosition = Math.max(0, minPosition - 1) + pickupIndex + 1;
+
+        // Add pickup to the route and find optimal delivery position after it
+        const routeWithPickup = [...allRouteLocations];
+        routeWithPickup.splice(absolutePickupPosition - 1, 0, pickupLocation);
+
+        const deliveryIndex = await matrixHelper.findOptimalInsertionPoint(
+            routeWithPickup.slice(absolutePickupPosition),
+            deliveryLocation
+        );
+
+        return {
+            pickup: absolutePickupPosition,
+            delivery: absolutePickupPosition + deliveryIndex + 1
         };
     }
 }
