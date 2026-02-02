@@ -39,7 +39,7 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
             WaypointBuilder.insertJobWaypoint(context, agentIndex, jobIndexes[i], insertPosition + i);
         }
         
-        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex, true);
+        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex);
         
         return true;
     }

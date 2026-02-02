@@ -51,7 +51,7 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
             );
         }
 
-        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex, false);
+        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex);
         return true;
     }
 }

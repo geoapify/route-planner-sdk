@@ -11,13 +11,12 @@ export class RouteTimeCalculator {
 
     static async recalculateRouteTimes(
         context: RouteResultEditorBase,
-        agentIndex: number,
-        isJob: boolean
+        agentIndex: number
     ): Promise<void> {
         const agentFeature = context.getAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
         
-        const locationPairs = this.extractLocationPairs(actions, context, isJob);
+        const locationPairs = this.extractLocationPairs(actions, context);
         const travelTimes = await this.batchCalculateTravelTimes(context, locationPairs);
         const pairIndices = locationPairs.map(pair => pair.actionIndex);
         this.applyCumulativeTimes(actions, pairIndices, travelTimes);
@@ -25,14 +24,13 @@ export class RouteTimeCalculator {
 
     private static extractLocationPairs(
         actions: ActionResponseData[],
-        context: RouteResultEditorBase,
-        isJob: boolean
+        context: RouteResultEditorBase
     ): LocationPair[] {
         const pairs: LocationPair[] = [];
         
         for (let i = 0; i < actions.length - 1; i++) {
-            const currentLocation = this.getActionLocation(context, actions[i], isJob);
-            const nextLocation = this.getActionLocation(context, actions[i + 1], isJob);
+            const currentLocation = this.getActionLocation(context, actions[i]);
+            const nextLocation = this.getActionLocation(context, actions[i + 1]);
             
             if (currentLocation && nextLocation) {
                 pairs.push({ from: currentLocation, to: nextLocation, actionIndex: i });
@@ -76,37 +74,23 @@ export class RouteTimeCalculator {
 
     private static getActionLocation(
         context: RouteResultEditorBase, 
-        action: any, 
-        isJob: boolean
+        action: any
     ): [number, number] | null {
-        if (isJob) {
-            return this.getJobActionLocation(context, action);
-        } else {
-            return this.getShipmentActionLocation(context, action);
-        }
-    }
-
-    private static getJobActionLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
         if (action.job_index !== undefined) {
             const job: JobData = context.getRawData().properties.params.jobs[action.job_index];
             return job?.location || null;
         }
-        return this.getAgentLocation(context, action);
-    }
-
-    private static getShipmentActionLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
+        
         if (action.shipment_index !== undefined) {
             const shipment: ShipmentData = context.getRawData().properties.params.shipments[action.shipment_index];
             if (action.type === 'pickup') return shipment?.pickup?.location || null;
             if (action.type === 'delivery') return shipment?.delivery?.location || null;
         }
-        return this.getAgentLocation(context, action);
-    }
-
-    private static getAgentLocation(context: RouteResultEditorBase, action: any): [number, number] | null {
+        
         const agent = context.getRawData().properties.params.agents[action.agent_index || 0];
         if (action.type === 'start') return agent.start_location || null;
         if (action.type === 'end') return agent.end_location || null;
+        
         return null;
     }
 }

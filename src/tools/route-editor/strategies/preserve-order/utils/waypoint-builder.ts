@@ -111,7 +111,7 @@ export class WaypointBuilder {
         return waypoints.length;
     }
 
-    private static reindexWaypoints(waypoints: WaypointResponseData[], actions: ActionResponseData[]): void {
+    static reindexWaypoints(waypoints: WaypointResponseData[], actions: ActionResponseData[]): void {
         for (let wpIndex = 0; wpIndex < waypoints.length; wpIndex++) {
             const waypoint = waypoints[wpIndex];
             if (waypoint.actions) {
@@ -131,7 +131,7 @@ export class WaypointBuilder {
         }
     }
 
-    private static findWaypointIndexForActionInWaypoints(waypoints: WaypointResponseData[], targetAction: ActionResponseData): number {
+    static findWaypointIndexForActionInWaypoints(waypoints: WaypointResponseData[], targetAction: ActionResponseData): number {
         for (let i = 0; i < waypoints.length; i++) {
             const waypoint = waypoints[i];
             if (waypoint.actions) {
@@ -145,7 +145,7 @@ export class WaypointBuilder {
         return -1;
     }
 
-    private static actionsMatch(a: ActionResponseData, b: ActionResponseData): boolean {
+    static actionsMatch(a: ActionResponseData, b: ActionResponseData): boolean {
         if (a.type !== b.type) return false;
         if (a.type === 'job') return a.job_index === b.job_index;
         if (a.type === 'pickup' || a.type === 'delivery') return a.shipment_index === b.shipment_index;

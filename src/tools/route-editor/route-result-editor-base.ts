@@ -20,7 +20,7 @@ export abstract class RouteResultEditorBase {
         this.rawData = rawData;
     }
 
-    protected validateAgent(agentIndex: number): void {
+    validateAgent(agentIndex: number): void {
         const agentFound = this.rawData.properties.params.agents[agentIndex];
         if (!agentFound) {
             throw new AgentNotFound(`Agent with index ${agentIndex} not found`, agentIndex);

@@ -229,6 +229,38 @@ body {
   font-weight: 600;
 }
 
+.agent-card__violations {
+  padding: 8px;
+  background: #fff5f5;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  display: grid;
+  gap: 6px;
+}
+
+.violations-header {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #c0392b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.violations-list {
+  display: grid;
+  gap: 4px;
+}
+
+.violation-item {
+  font-size: 0.75rem;
+  color: #c0392b;
+  padding: 6px 8px;
+  background: #ffffff;
+  border-left: 3px solid #e74c3c;
+  border-radius: 2px;
+}
+
 .agent-card__stats {
   display: grid;
   gap: 6px;

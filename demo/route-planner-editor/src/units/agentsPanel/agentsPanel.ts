@@ -55,6 +55,36 @@ const buildStats = (agentPlan: AgentPlan, result: RoutePlannerResult) => {
   };
 };
 
+const buildViolationsElement = (agentPlan: AgentPlan): HTMLElement | null => {
+  const violations = agentPlan.getViolations();
+  
+  if (!violations || violations.length === 0) {
+    return null;
+  }
+
+  const violationsEl = document.createElement("div");
+  violationsEl.className = "agent-card__violations";
+  
+  const violationsHeader = document.createElement("div");
+  violationsHeader.className = "violations-header";
+  violationsHeader.textContent = `⚠️ ${violations.length} Violation${violations.length > 1 ? 's' : ''}`;
+  
+  const violationsList = document.createElement("div");
+  violationsList.className = "violations-list";
+  
+  violations.forEach((violation) => {
+    const violationItem = document.createElement("div");
+    violationItem.className = "violation-item";
+    violationItem.textContent = violation.toString();
+    violationsList.appendChild(violationItem);
+  });
+  
+  violationsEl.appendChild(violationsHeader);
+  violationsEl.appendChild(violationsList);
+  
+  return violationsEl;
+};
+
 export function createAgentsPanel(
   container: HTMLElement,
   metaEl: HTMLElement,
@@ -80,12 +110,19 @@ export function createAgentsPanel(
 
     metaEl.textContent = `${agentPlansAll.length} agents`;
 
-    const violations = result.getViolations?.() ?? [];
-    const unassignedAgents = result.getUnassignedAgents?.() ?? [];
-    const unassignedJobs = result.getUnassignedJobs?.() ?? [];
-    const unassignedShipments = result.getUnassignedShipments?.() ?? [];
+    const unassignedAgents = result.getUnassignedAgents();
+    const unassignedJobs = result.getUnassignedJobs();
+    const unassignedShipments = result.getUnassignedShipments();
+    
+    let violationsCount = 0;
+    agentPlansAll.forEach(agentPlan => {
+      if (agentPlan) {
+        violationsCount += agentPlan.getViolations().length;
+      }
+    });
+    
     const issueParts = [
-      `${violations.length} violations`,
+      `${violationsCount} violations`,
       `${unassignedAgents.length} unassigned agents`,
       `${unassignedJobs.length} unassigned jobs`,
       `${unassignedShipments.length} unassigned shipments`
@@ -150,9 +187,7 @@ export function createAgentsPanel(
       header.appendChild(title);
       header.appendChild(toggleButton);
 
-      /* 
-      ToDo: Add info about violations
-      */
+      const violationsEl = buildViolationsElement(agentPlan);
 
       const statsEl = document.createElement("div");
       statsEl.className = "agent-card__stats";
@@ -191,6 +226,9 @@ export function createAgentsPanel(
       actionsEl.appendChild(modifyButton);
 
       card.appendChild(header);
+      if (violationsEl) {
+        card.appendChild(violationsEl);
+      }
       card.appendChild(statsEl);
       card.appendChild(actionsEl);
       card.appendChild(modifyPanel);

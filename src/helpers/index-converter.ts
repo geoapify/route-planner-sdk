@@ -1,4 +1,5 @@
-import {RoutePlannerResultResponseData, AgentNotFound, JobNotFound, ShipmentNotFound} from "../models";
+import { RoutePlannerResultResponseData } from "../models/interfaces";
+import { AgentNotFound, JobNotFound, ShipmentNotFound } from "../models/entities/route-editor-exceptions";
 
 /**
  * Helper class for converting IDs to indexes and vice versa

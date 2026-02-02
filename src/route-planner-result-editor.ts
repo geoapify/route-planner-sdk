@@ -1,7 +1,7 @@
 import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
-import { AgentReoptimizeHelper, AgentTimeOffsetHelper } from "./tools/route-editor/helpers";
+import { AgentReoptimizeHelper, AgentTimeOffsetHelper, WaypointMoveHelper } from "./tools/route-editor/helpers";
 import { Utils } from "./tools/utils";
 import { Job, Shipment, AddAssignOptions, RemoveOptions, ReoptimizeOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidParameterType } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
@@ -247,6 +247,10 @@ export class RoutePlannerResultEditor {
 
     addTimeOffsetFromWaypoint(agentIdOrIndex: string | number, waypointIndex: number, offsetSeconds: number): void {
         AgentTimeOffsetHelper.execute(this.getJobEditor(), agentIdOrIndex, waypointIndex, offsetSeconds);
+    }
+
+    async moveWaypoint(agentIdOrIndex: string | number, fromWaypointIndex: number, toWaypointIndex: number): Promise<void> {
+        return WaypointMoveHelper.execute(this.getJobEditor(), agentIdOrIndex, fromWaypointIndex, toWaypointIndex);
     }
 
     private assertArray(array: any[], name: string): void {

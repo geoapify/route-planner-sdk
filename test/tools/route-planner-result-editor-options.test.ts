@@ -1584,3 +1584,137 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     }
   });
 });
+
+describe('RoutePlannerResultEditor moveWaypoint', () => {
+
+  test('moveWaypoint should move waypoint to new position', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    const originalJobs = getJobIds(plannerResult.getAgentPlan('agent-B')!);
+    
+    await routeEditor.moveWaypoint('agent-B', 2, 1);
+    
+    expectApiCalled(['routematrix']);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    const modifiedJobs = getJobIds(modifiedResult.getAgentPlan('agent-B')!);
+    
+    expect(modifiedJobs[0]).toBe(originalJobs[1]);
+    expect(modifiedJobs[1]).toBe(originalJobs[0]);
+  });
+
+  test('moveWaypoint should update waypoint indices', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    await routeEditor.moveWaypoint('agent-B', 2, 1);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    const waypoints = modifiedResult.getAgentPlan('agent-B')!.getWaypoints();
+    
+    for (let i = 0; i < waypoints.length; i++) {
+      const actions = waypoints[i].getActions();
+      for (const action of actions) {
+        expect(action.getRaw().waypoint_index).toBe(i);
+      }
+    }
+  });
+
+  test('moveWaypoint should throw error for start waypoint', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    await expect(routeEditor.moveWaypoint('agent-B', 0, 1)).rejects.toThrow('Cannot move waypoint containing start or end action');
+  });
+
+  test('moveWaypoint should allow moving last waypoint if it has no end action', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    const waypoints = plannerResult.getAgentPlan('agent-B')!.getWaypoints();
+    const originalJobs = getJobIds(plannerResult.getAgentPlan('agent-B')!);
+    
+    await routeEditor.moveWaypoint('agent-B', waypoints.length - 1, 1);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    const modifiedJobs = getJobIds(modifiedResult.getAgentPlan('agent-B')!);
+    
+    expect(modifiedJobs[0]).toBe(originalJobs[1]);
+    expect(modifiedJobs[1]).toBe(originalJobs[0]);
+  });
+
+  test('moveWaypoint should throw error for invalid waypoint index', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    await expect(routeEditor.moveWaypoint('agent-B', 99, 1)).rejects.toThrow('out of range');
+  });
+
+  test('moveWaypoint same position should do nothing', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    const originalJobs = getJobIds(plannerResult.getAgentPlan('agent-B')!);
+    
+    await routeEditor.moveWaypoint('agent-B', 1, 1);
+    
+    expectApiNotCalled();
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    const modifiedJobs = getJobIds(modifiedResult.getAgentPlan('agent-B')!);
+    
+    expect(modifiedJobs).toEqual(originalJobs);
+  });
+
+  test('moveWaypoint should not affect other agents', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    const originalJobsA = getJobIds(plannerResult.getAgentPlan('agent-A')!);
+    
+    await routeEditor.moveWaypoint('agent-B', 2, 1);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    const modifiedJobsA = getJobIds(modifiedResult.getAgentPlan('agent-A')!);
+    
+    expect(modifiedJobsA).toEqual(originalJobsA);
+  });
+
+  test('moveWaypoint should throw error for non-existent agent', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    
+    await expect(routeEditor.moveWaypoint(99, 1, 2)).rejects.toThrow('Agent with index 99 not found');
+  });
+
+  test('moveWaypoint should recalculate times', async () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    const originalTimes = plannerResult.getAgentPlan('agent-B')!.getActions().map(a => a.getStartTime());
+    
+    await routeEditor.moveWaypoint('agent-B', 2, 1);
+    
+    expectApiCalled(['routematrix']);
+    
+    let modifiedResult = routeEditor.getModifiedResult();
+    const modifiedTimes = modifiedResult.getAgentPlan('agent-B')!.getActions().map(a => a.getStartTime());
+    
+    expect(modifiedTimes[0]).toBe(0);
+    expect(modifiedTimes).not.toEqual(originalTimes);
+  });
+});
