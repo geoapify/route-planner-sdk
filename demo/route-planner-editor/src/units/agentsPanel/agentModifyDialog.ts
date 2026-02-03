@@ -1,6 +1,7 @@
 import { PRESERVE_ORDER, REOPTIMIZE } from "@sdk/index";
 import { AgentPlan, RoutePlannerResult } from "@sdk/models";
 import { getAgentColor } from "../../core/agentColors";
+import { buildAdvancedTabContent } from "./agentAdvancedTab";
 
 export type DemoModifyContext = {
   agentIndex: number;
@@ -246,8 +247,16 @@ export function createModifyPanel(context: DemoModifyContext) {
   assignTab.textContent = "Assign";
   assignTab.setAttribute("aria-pressed", "false");
 
+  const advancedTab = document.createElement("button");
+  advancedTab.className =
+    "button button--ghost modify-tab modify-tab--advanced";
+  advancedTab.type = "button";
+  advancedTab.textContent = "Advanced";
+  advancedTab.setAttribute("aria-pressed", "false");
+
   tabs.appendChild(removeTab);
   tabs.appendChild(assignTab);
+  tabs.appendChild(advancedTab);
   panel.appendChild(tabs);
 
   const removeContent = document.createElement("div");
@@ -460,21 +469,33 @@ export function createModifyPanel(context: DemoModifyContext) {
     assignContent.appendChild(empty.cloneNode(true));
   }
 
-  const setTab = (tab: "remove" | "assign") => {
+  const advancedContent = buildAdvancedTabContent(context, makeButton, createField, readNumberValue);
+
+  const setTab = (tab: "remove" | "assign" | "advanced") => {
     const isRemove = tab === "remove";
+    const isAssign = tab === "assign";
+    const isAdvanced = tab === "advanced";
+    
     removeTab.classList.toggle("modify-tab--active", isRemove);
-    assignTab.classList.toggle("modify-tab--active", !isRemove);
+    assignTab.classList.toggle("modify-tab--active", isAssign);
+    advancedTab.classList.toggle("modify-tab--active", isAdvanced);
+    
     removeTab.setAttribute("aria-pressed", String(isRemove));
-    assignTab.setAttribute("aria-pressed", String(!isRemove));
+    assignTab.setAttribute("aria-pressed", String(isAssign));
+    advancedTab.setAttribute("aria-pressed", String(isAdvanced));
+    
     removeContent.style.display = isRemove ? "grid" : "none";
-    assignContent.style.display = isRemove ? "none" : "grid";
+    assignContent.style.display = isAssign ? "grid" : "none";
+    advancedContent.style.display = isAdvanced ? "grid" : "none";
   };
 
   removeTab.addEventListener("click", () => setTab("remove"));
   assignTab.addEventListener("click", () => setTab("assign"));
+  advancedTab.addEventListener("click", () => setTab("advanced"));
 
   panel.appendChild(removeContent);
   panel.appendChild(assignContent);
+  panel.appendChild(advancedContent);
 
   return panel;
 }

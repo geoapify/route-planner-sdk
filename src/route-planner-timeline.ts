@@ -356,7 +356,7 @@ export class RoutePlannerTimeline {
             if (!agentPlan) {
                 return 0;
             }
-            return agentPlan.getTime() + agentPlan.getStartTime()
+            return agentPlan.getEndTime();
         }));
 
         if (this.options.showTimelineLabels) {
