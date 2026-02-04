@@ -4,6 +4,7 @@ import {PreserveOrderBaseHelper} from "./preserve-order-base-helper";
 import {ActionResponseData, AddAssignOptions} from "../../../../../models";
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
 import {RouteEditorHelper} from "../utils/route-editor-helper";
+import {InsertionCostCalculator} from "../utils/insertion-cost-calculator";
 
 export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
      static validateJobConstraints(
@@ -71,16 +72,20 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         const agentFeature = context.getAgentFeature(agentIndex);
 
         if (!agentFeature) {
-            return 1; // After start action
+            return 1;
         }
 
         const routeLocations = InsertPositionResolver.extractRouteLocations(agentFeature);
         if (routeLocations.length === 0) {
-            return 1; // After start action
+            return 1;
         }
 
-        const matrixHelper = context.getMatrixHelper();
-        const optimalIndex = await matrixHelper.findOptimalInsertionPoint(routeLocations, jobLocation);
+        const optimalIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
+            context,
+            agentIndex,
+            routeLocations,
+            jobLocation
+        );
 
         return optimalIndex + 1;
     }
@@ -97,8 +102,12 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
             return minPosition;
         }
 
-        const matrixHelper = context.getMatrixHelper();
-        const optimalIndex = await matrixHelper.findOptimalInsertionPoint(routeLocationsAfter, jobLocation);
+        const optimalIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
+            context,
+            agentIndex,
+            routeLocationsAfter,
+            jobLocation
+        );
 
         return Math.max(0, minPosition - 1) + optimalIndex + 1;
     }

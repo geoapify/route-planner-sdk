@@ -4,6 +4,7 @@ import {PreserveOrderBaseHelper} from "./preserve-order-base-helper";
 import { AddAssignOptions} from "../../../../../models";
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
 import {RouteEditorHelper} from "../utils/route-editor-helper";
+import {InsertionCostCalculator} from "../utils/insertion-cost-calculator";
 
 export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
      static validateShipmentConstraints(
@@ -68,23 +69,30 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
 
         const agentFeature = context.getAgentFeature(agentIndex);
         if (!agentFeature) {
-            return { pickup: 1, delivery: 2 }; // After start action
+            return { pickup: 1, delivery: 2 };
         }
 
         const routeLocations = InsertPositionResolver.extractRouteLocations(agentFeature);
         if (routeLocations.length === 0) {
-            return { pickup: 1, delivery: 2 }; // After start action
+            return { pickup: 1, delivery: 2 };
         }
 
-        const matrixHelper = context.getMatrixHelper();
-        const pickupIndex = await matrixHelper.findOptimalInsertionPoint(routeLocations, pickupLocation);
+        const pickupIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
+            context,
+            agentIndex,
+            routeLocations,
+            pickupLocation
+        );
 
         const routeWithPickup = [...routeLocations];
         routeWithPickup.splice(pickupIndex, 0, pickupLocation);
 
-        const deliveryIndex = await matrixHelper.findOptimalInsertionPoint(
+        const deliveryIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
+            context,
+            agentIndex,
             routeWithPickup.slice(pickupIndex + 1),
-            deliveryLocation
+            deliveryLocation,
+            false
         );
 
         return {
@@ -107,19 +115,23 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
             return { pickup: minPosition, delivery: minPosition + 1 };
         }
 
-        const matrixHelper = context.getMatrixHelper();
-        
-        // Find optimal pickup position after minPosition
-        const pickupIndex = await matrixHelper.findOptimalInsertionPoint(routeLocationsAfter, pickupLocation);
+        const pickupIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
+            context,
+            agentIndex,
+            routeLocationsAfter,
+            pickupLocation
+        );
         const absolutePickupPosition = Math.max(0, minPosition - 1) + pickupIndex + 1;
 
-        // Add pickup to the route and find optimal delivery position after it
         const routeWithPickup = [...allRouteLocations];
         routeWithPickup.splice(absolutePickupPosition - 1, 0, pickupLocation);
 
-        const deliveryIndex = await matrixHelper.findOptimalInsertionPoint(
+        const deliveryIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
+            context,
+            agentIndex,
             routeWithPickup.slice(absolutePickupPosition),
-            deliveryLocation
+            deliveryLocation,
+            false
         );
 
         return {

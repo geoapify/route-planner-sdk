@@ -132,70 +132,42 @@ describe('RouteMatrixHelper', () => {
     });
   });
 
-  describe('findOptimalInsertionPoint', () => {
-
-    test('should return 0 for empty route', async () => {
+  describe('calculateTimesToLocation', () => {
+    test('should calculate travel times from all route locations to a target', async () => {
       const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
       
-      const route: [number, number][] = [];
-      const newLocation: [number, number] = [13.388860, 52.517037];
-      
-      const insertIndex = await helper.findOptimalInsertionPoint(route, newLocation);
-      
-      expect(insertIndex).toBe(0);
-    });
-
-    test('should return 1 for single location route', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
-      
-      const route: [number, number][] = [[13.388860, 52.517037]];
-      const newLocation: [number, number] = [13.428555, 52.523219];
-      
-      const insertIndex = await helper.findOptimalInsertionPoint(route, newLocation);
-      
-      expect(insertIndex).toBe(1);
-    });
-
-    test('should find optimal insertion point in multi-location route', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
-      
-      // Route: West Berlin → East Berlin
       const route: [number, number][] = [
-        [13.3, 52.5],  // West
-        [13.5, 52.5]   // East
+        [13.3, 52.5],
+        [13.4, 52.5]
+      ];
+      const target: [number, number] = [13.5, 52.5];
+      
+      const times = await helper.calculateTimesToLocation(route, target);
+      
+      expect(times).toHaveLength(2);
+      times.forEach(time => {
+        expect(time).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('calculateTimesFromLocation', () => {
+    test('should calculate travel times from a source to all route locations', async () => {
+      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
+      
+      const source: [number, number] = [13.3, 52.5];
+      const route: [number, number][] = [
+        [13.4, 52.5],
+        [13.5, 52.5]
       ];
       
-      // New location: between West and East (should insert at position 1)
-      const newLocation: [number, number] = [13.4, 52.5];
+      const times = await helper.calculateTimesFromLocation(source, route);
       
-      const insertIndex = await helper.findOptimalInsertionPoint(route, newLocation);
-      
-      // Should return a valid index (1 or 2 - depends on actual travel times)
-      expect(insertIndex).toBeGreaterThanOrEqual(1);
-      expect(insertIndex).toBeLessThanOrEqual(2);
+      expect(times).toHaveLength(2);
+      times.forEach(time => {
+        expect(time).toBeGreaterThan(0);
+      });
     });
-
-    test('should minimize total route time increase', async () => {
-      const helper = new RouteMatrixHelper({ apiKey: API_KEY }, { mode: 'drive' });
-      
-      // Linear route: A → B → C
-      const route: [number, number][] = [
-        [13.3, 52.5],   // A - West
-        [13.4, 52.5],   // B - Middle
-        [13.5, 52.5]    // C - East
-      ];
-      
-      // New location near A (should insert near beginning)
-      const nearALocation: [number, number] = [13.32, 52.5];
-      const insertNearA = await helper.findOptimalInsertionPoint(route, nearALocation);
-      
-      // New location near C (should insert near end)
-      const nearCLocation: [number, number] = [13.48, 52.5];
-      const insertNearC = await helper.findOptimalInsertionPoint(route, nearCLocation);
-      
-      // Near A should have lower index than near C
-      expect(insertNearA).toBeLessThanOrEqual(insertNearC);
-    }, 30000); // Extended timeout for multiple API calls
   });
 
   test('should pass all routing options to Route Matrix API', async () => {

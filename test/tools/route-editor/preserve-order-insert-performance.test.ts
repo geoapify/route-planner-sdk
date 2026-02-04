@@ -1,19 +1,27 @@
 import { RoutePlannerResultEditor, Agent, Job, RoutePlanner, PRESERVE_ORDER } from '../../../src';
 import TEST_API_KEY from '../../../env-variables';
 
-// Mock fetch to count Matrix API requests
+// Mock fetch to count API requests
 let matrixApiCallCount = 0;
+let routingApiCallCount = 0;
 const originalFetch = global.fetch;
 
 function mockFetchWithCounter() {
     global.fetch = jest.fn(async (url: string | URL | Request, options?: any) => {
         const urlString = url.toString();
         
-        // Count Matrix API calls
+        // Count Matrix API calls (N→1 and 1→N for finding optimal insertion)
         if (urlString.includes('/routematrix')) {
             matrixApiCallCount++;
             console.log(`[Matrix API Call #${matrixApiCallCount}] ${urlString.substring(0, 80)}...`);
         }
+        
+        // Count Routing API calls (for consecutive travel times)
+        if (urlString.includes('/routing?') && !urlString.includes('/routematrix')) {
+            routingApiCallCount++;
+            console.log(`[Routing API Call #${routingApiCallCount}] ${urlString.substring(0, 80)}...`);
+        }
+        
         return originalFetch(url, options);
     }) as jest.Mock;
 }
@@ -24,25 +32,22 @@ function restoreFetch() {
 
 function resetCounter() {
     matrixApiCallCount = 0;
+    routingApiCallCount = 0;
 }
 
 function logPerformanceResults(params: {
-    actualRequests: number;
+    matrixRequests: number;
+    routingRequests: number;
     waypointCount: number;
-    expectedCurrent?: number;
-    optimizedRequests: number;
     operationDescription: string;
 }) {
-    console.log(`\n📊 Matrix API Requests Made: ${params.actualRequests}`);
+    const totalRequests = params.matrixRequests + params.routingRequests;
+    console.log(`\n📊 API Requests for ${params.operationDescription}:`);
+    console.log(`   - Matrix API (N→1, 1→N): ${params.matrixRequests} requests`);
+    console.log(`   - Routing API (consecutive times): ${params.routingRequests} requests`);
+    console.log(`   - Total: ${totalRequests} requests`);
     console.log(`📍 Route has ${params.waypointCount} waypoints`);
-    if (params.expectedCurrent) {
-        console.log(`⚠️  Expected with current implementation: ~${params.expectedCurrent} requests`);
-    }
-    console.log(`✅ Expected with optimization: ${params.optimizedRequests} requests (parallel)`);
-    
-    const reduction = Math.round((1 - params.optimizedRequests / params.actualRequests) * 100);
-    console.log(`\n❌ Issue confirmed: ${params.actualRequests} API requests for ${params.operationDescription}!`);
-    console.log(`💡 Potential savings: ${params.actualRequests - params.optimizedRequests} fewer requests (${reduction}% reduction)`);
+    console.log(`\n✅ Optimized: Reuses existing leg times when available, calls Routing API only when needed`);
 }
 
 describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
@@ -92,16 +97,15 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
         await editor.addNewJobs(0, [newJob], { strategy: PRESERVE_ORDER });
         
         logPerformanceResults({
-            actualRequests: matrixApiCallCount,
+            matrixRequests: matrixApiCallCount,
+            routingRequests: routingApiCallCount,
             waypointCount,
-            expectedCurrent: waypointCount - 1,
-            optimizedRequests: 4,
             operationDescription: 'inserting 1 job'
         });
         
-        // Optimized version should make ~4 requests (3 for insertion + 1 for time recalc)
-        expect(matrixApiCallCount).toBeLessThan(6);
-        expect(matrixApiCallCount).toBeGreaterThanOrEqual(3);
+        // Expected: 2 Matrix API (N→1, 1→N) + 1 Routing API (recalc only - existing times reused for find)
+        expect(matrixApiCallCount).toBe(2);
+        expect(routingApiCallCount).toBe(1);
     }, 60000);
 
     it('should count Matrix API requests when inserting a shipment (pickup + delivery)', async () => {
@@ -141,16 +145,16 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
         await editor.addNewShipments(0, [newShipment], { strategy: PRESERVE_ORDER });
         
         logPerformanceResults({
-            actualRequests: matrixApiCallCount,
+            matrixRequests: matrixApiCallCount,
+            routingRequests: routingApiCallCount,
             waypointCount,
-            expectedCurrent: (waypointCount - 1) * 2,
-            optimizedRequests: 5,
             operationDescription: 'inserting 1 shipment'
         });
         
-        // Optimized: 3 for pickup + 2 for delivery (reuses consecutiveTimes) + time recalc
-        expect(matrixApiCallCount).toBeLessThan(8);
-        expect(matrixApiCallCount).toBeGreaterThanOrEqual(4);
+        // Expected: 4 Matrix API (2 for pickup + 2 for delivery) + 2 Routing API (delivery + recalc)
+        // Pickup reuses existing times, delivery needs Routing (route changed), recalc needs Routing
+        expect(matrixApiCallCount).toBe(4);
+        expect(routingApiCallCount).toBe(2);
     }, 60000);
 
     it('should demonstrate the cost for multiple sequential inserts', async () => {
@@ -197,15 +201,17 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
         const finalWaypointCount = editor.getModifiedResult().getAgentPlans()[0]!.getWaypoints().length;
         
         logPerformanceResults({
-            actualRequests: matrixApiCallCount,
+            matrixRequests: matrixApiCallCount,
+            routingRequests: routingApiCallCount,
             waypointCount: finalWaypointCount,
-            optimizedRequests: 12,
             operationDescription: '3 sequential job inserts'
         });
         
-        // Optimized: ~4 requests per insert = 12 total
-        expect(matrixApiCallCount).toBeLessThan(15);
-        expect(matrixApiCallCount).toBeGreaterThanOrEqual(10);
+        // Expected: 6 Matrix API (2 per insert)
+        // Routing: 1st insert reuses existing, 2nd+ can't reuse (route changed), plus recalc each time
+        // So: 1st = 1 (recalc), 2nd = 2 (find + recalc), 3rd = 2 (find + recalc) = 5 total
+        expect(matrixApiCallCount).toBe(6);
+        expect(routingApiCallCount).toBe(5);
     }, 60000);
 });
 

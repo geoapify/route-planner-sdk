@@ -8,6 +8,7 @@ import {
 } from "../../models";
 import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
 import {RouteMatrixHelper} from "./strategies/preserve-order/utils/route-matrix-helper";
+import {RoutingHelper} from "./strategies/preserve-order/utils/routing-helper";
 import {RoutePlanner} from "../../route-planner";
 import {Utils} from "../utils";
 
@@ -72,6 +73,10 @@ export abstract class RouteResultEditorBase {
 
     getMatrixHelper(): RouteMatrixHelper {
         return new RouteMatrixHelper(this.callOptions, this.routingOptions);
+    }
+
+    getRoutingHelper(): RoutingHelper {
+        return new RoutingHelper(this.callOptions, this.routingOptions);
     }
 
     getAgentFeature(agentIndex: number): FeatureResponseData {
@@ -251,5 +256,17 @@ export abstract class RouteResultEditorBase {
         );
 
         return agentFeature ? agentFeature.properties.waypoints : [];
+    }
+
+    getExistingConsecutiveTravelTimes(agentIndex: number): number[] {
+        const agentFeature = this.getRawData().features.find(
+            feature => feature.properties.agent_index === agentIndex
+        );
+
+        if (!agentFeature?.properties?.legs) {
+            return [];
+        }
+
+        return agentFeature.properties.legs.map(leg => leg.time);
     }
 }

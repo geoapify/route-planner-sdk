@@ -1,6 +1,6 @@
 import { RoutePlannerCallOptions } from "../../../../../models/interfaces/route-planner-call-options";
 import { RoutingOptions } from '../../../../../models/interfaces/route-planner-input-data';
-import {RouteMatrixApiError} from "../../../../../models";
+import { RouteMatrixApiError } from "../../../../../models";
 
 export interface RouteMatrixSource {
     location: [number, number];
@@ -30,8 +30,8 @@ export interface RouteMatrixResponse {
 }
 
 /**
- * Helper class for Route Matrix API calls
- * Used to calculate travel times/distances between multiple locations
+ * Helper class for Route Matrix API calls.
+ * Used for 1→N and N→1 travel time calculations when finding optimal insertion points.
  */
 export class RouteMatrixHelper {
     private baseUrl: string;
@@ -45,9 +45,6 @@ export class RouteMatrixHelper {
         this.routingOptions = routingOptions;
     }
 
-    /**
-     * Calculate time/distance matrix between sources and targets
-     */
     async calculateMatrix(
         sources: RouteMatrixSource[],
         targets: RouteMatrixTarget[]
@@ -82,9 +79,6 @@ export class RouteMatrixHelper {
         return await response.json();
     }
 
-    /**
-     * Calculate travel time from one location to another
-     */
     async calculateTravelTime(
         from: [number, number],
         to: [number, number]
@@ -97,33 +91,7 @@ export class RouteMatrixHelper {
         return matrix.sources_to_targets[0][0].time;
     }
 
-    async findOptimalInsertionPoint(
-        route: [number, number][],
-        newLocation: [number, number]
-    ): Promise<number> {
-        if (route.length === 0) return 0;
-        if (route.length === 1) return 1;
-
-        const [timesToNew, timesFromNew, consecutiveTimes] = await Promise.all([
-            this.calculateTimesToLocation(route, newLocation),
-            this.calculateTimesFromLocation(newLocation, route),
-            this.calculateConsecutiveTravelTimes(route)
-        ]);
-
-        const costs: number[] = [];
-        for (let i = 0; i < timesToNew.length; i++) {
-            if (i === timesToNew.length - 1) {
-                costs.push(timesToNew[i]);
-            } else {
-                costs.push(timesToNew[i] + timesFromNew[i + 1] - consecutiveTimes[i]);
-            }
-        }
-
-        const minCost = Math.min(...costs);
-        return costs.indexOf(minCost) + 1;
-    }
-
-    private async calculateTimesToLocation(
+    async calculateTimesToLocation(
         routeLocations: [number, number][],
         targetLocation: [number, number]
     ): Promise<number[]> {
@@ -134,7 +102,7 @@ export class RouteMatrixHelper {
         return matrix.sources_to_targets.map(row => row[0].time);
     }
 
-    private async calculateTimesFromLocation(
+    async calculateTimesFromLocation(
         sourceLocation: [number, number],
         routeLocations: [number, number][]
     ): Promise<number[]> {
@@ -143,17 +111,6 @@ export class RouteMatrixHelper {
             this.toMatrixLocations(routeLocations)
         );
         return matrix.sources_to_targets[0].map(entry => entry.time);
-    }
-
-    async calculateConsecutiveTravelTimes(routeLocations: [number, number][]): Promise<number[]> {
-        if (routeLocations.length < 2) return [];
-
-        const matrix = await this.calculateMatrix(
-            this.toMatrixLocations(routeLocations.slice(0, -1)),
-            this.toMatrixLocations(routeLocations.slice(1))
-        );
-        
-        return matrix.sources_to_targets.map((row, i) => row[i].time);
     }
 
     private toMatrixLocations(locations: [number, number][]): RouteMatrixSource[] {

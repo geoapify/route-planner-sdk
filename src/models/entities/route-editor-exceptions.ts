@@ -134,3 +134,10 @@ export class RouteMatrixApiError extends Error {
         this.name = 'RouteMatrixApiError';
     }
 }
+
+export class RoutingApiError extends Error {
+    constructor(message: string, public statusCode?: number, public statusText?: string) {
+        super(message);
+        this.name = 'RoutingApiError';
+    }
+}

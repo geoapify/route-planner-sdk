@@ -46,11 +46,11 @@ export class RouteTimeCalculator {
     ): Promise<number[]> {
         if (locationPairs.length === 0) return [];
         
-        const matrixHelper = context.getMatrixHelper();
+        const routingHelper = context.getRoutingHelper();
         const locations = locationPairs.map(pair => pair.from);
         locations.push(locationPairs[locationPairs.length - 1].to);
         
-        return await matrixHelper.calculateConsecutiveTravelTimes(locations);
+        return await routingHelper.calculateConsecutiveTravelTimes(locations);
     }
 
     private static applyCumulativeTimes(
