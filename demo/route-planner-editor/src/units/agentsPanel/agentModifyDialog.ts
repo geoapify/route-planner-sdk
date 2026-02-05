@@ -339,10 +339,6 @@ export function createModifyPanel(context: DemoModifyContext) {
       <option value="${REOPTIMIZE}">remove: reoptimize</option>
     `;
 
-    const beforeWaypointInput = document.createElement("input");
-    beforeWaypointInput.type = "number";
-    beforeWaypointInput.placeholder = "e.g. 2";
-
     const afterWaypointInput = document.createElement("input");
     afterWaypointInput.type = "number";
     afterWaypointInput.placeholder = "e.g. 1";
@@ -356,7 +352,7 @@ export function createModifyPanel(context: DemoModifyContext) {
     const appendInput = document.createElement("input");
     appendInput.type = "checkbox";
     appendToggle.appendChild(appendInput);
-    appendToggle.appendChild(document.createTextNode("Append to end"));
+    appendToggle.appendChild(document.createTextNode("Append"));
 
     const priorityInput = document.createElement("input");
     priorityInput.type = "number";
@@ -366,7 +362,6 @@ export function createModifyPanel(context: DemoModifyContext) {
     optionsGrid.className = "modify-grid";
     optionsGrid.appendChild(createField("Strategy", strategySelect));
     optionsGrid.appendChild(createField("Remove strategy", removeStrategySelect));
-    optionsGrid.appendChild(createField("Before waypoint", beforeWaypointInput));
     optionsGrid.appendChild(createField("After waypoint", afterWaypointInput));
     optionsGrid.appendChild(createField("After id", afterIdInput));
     optionsGrid.appendChild(createField("Priority", priorityInput));
