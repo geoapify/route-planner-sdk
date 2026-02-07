@@ -3,7 +3,7 @@ import {
     AssignStrategy, 
 } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
-import {RouteEditorHelper, RouteTimeCalculator, WaypointBuilder} from "../preserve-order";
+import {RouteEditorHelper, RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
 import {PreserveOrderJobHelper} from "../preserve-order/helpers/preserve-order-job-helper";
 
 /**
@@ -34,12 +34,11 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
         PreserveOrderJobHelper.insertJobActionsAtPosition(context, actions, jobIndexes, insertPosition);
         context.reindexActions(actions);
         
-        // Create waypoints for the added jobs
         for (let i = 0; i < jobIndexes.length; i++) {
             WaypointBuilder.insertJobWaypoint(context, agentIndex, jobIndexes[i], insertPosition + i);
         }
         
-        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex);
+        await RouteTimeRecalculator.recalculate(context, agentIndex);
         
         return true;
     }

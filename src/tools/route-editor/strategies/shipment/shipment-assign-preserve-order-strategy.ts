@@ -3,7 +3,7 @@ import {
     AssignStrategy
 } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
-import {RouteEditorHelper, RouteTimeCalculator, WaypointBuilder} from "../preserve-order";
+import {RouteEditorHelper, RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
 import {PreserveOrderShipmentHelper} from "../preserve-order/helpers/preserve-order-shipment-helper";
 
 /**
@@ -41,7 +41,6 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
             
             context.reindexActions(actions);
             
-            // Create waypoints for the added shipment
             WaypointBuilder.insertShipmentWaypoints(
                 context, 
                 agentIndex, 
@@ -51,7 +50,7 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
             );
         }
 
-        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex);
+        await RouteTimeRecalculator.recalculate(context, agentIndex);
         return true;
     }
 }

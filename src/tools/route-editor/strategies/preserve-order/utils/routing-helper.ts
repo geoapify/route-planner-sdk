@@ -43,7 +43,33 @@ export class RoutingHelper {
         return feature.properties.legs.map((leg: { time: number }) => leg.time);
     }
 
-    private constructRoutingUrl(waypoints: string): string {
+    async calculateLegData(locations: [number, number][]): Promise<any[]> {
+        if (locations.length < 2) return [];
+
+        const waypoints = locations.map(loc => `lonlat:${loc[0]},${loc[1]}`).join('|');
+        const url = this.constructRoutingUrl(waypoints);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new RoutingApiError(
+                `Routing API failed: ${response.statusText}`,
+                response.status,
+                response.statusText
+            );
+        }
+
+        const result = await response.json();
+        const feature = result?.features?.[0];
+
+        if (!feature || !feature.properties?.legs) {
+            return [];
+        }
+
+        return feature.properties.legs;
+    }
+
+    constructRoutingUrl(waypoints: string): string {
         let url = `${this.baseUrl}/v1/routing?waypoints=${waypoints}&apiKey=${this.apiKey}`;
         
         if (this.routingOptions.mode) {

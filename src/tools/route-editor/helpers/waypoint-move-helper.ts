@@ -1,7 +1,7 @@
 import { IndexConverter } from "../../../helpers/index-converter";
 import {ActionResponseData, InvalidInsertionPosition} from "../../../models";
 import { RouteResultEditorBase } from "../route-result-editor-base";
-import { RouteTimeCalculator, WaypointBuilder } from "../strategies";
+import { RouteTimeRecalculator, WaypointBuilder } from "../strategies";
 import { WaypointResponseData } from "../../../models";
 
 export class WaypointMoveHelper {
@@ -38,9 +38,9 @@ export class WaypointMoveHelper {
         this.mergeAdjacentDuplicateLocations(waypoints, insertionIndex);
 
         context.reindexActions(actions);
-        WaypointBuilder.reindexWaypoints(waypoints, actions);
-
-        await RouteTimeCalculator.recalculateRouteTimes(context, agentIndex);
+        WaypointBuilder.reindexWaypointsActions(waypoints, actions);
+        
+        await RouteTimeRecalculator.recalculate(context, agentIndex);
     }
 
     private static validateWaypointIndex(waypoints: WaypointResponseData[], index: number, agentIndex: number, label: string): void {

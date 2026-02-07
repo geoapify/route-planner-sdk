@@ -31,7 +31,7 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
         options: AddAssignOptions
     ): Promise<{ pickup: number; delivery: number }> {
         // append: true (no position) → Append to end
-        if (InsertPositionResolver.shouldAppendToEnd(options)) {
+        if (InsertPositionResolver.shouldAppend(options)) {
             return this.getEndPositions(context, agentIndex);
         }
 

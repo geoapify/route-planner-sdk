@@ -30,8 +30,8 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         firstJobIndex: number,
         options: AddAssignOptions
     ): Promise<number> {
-        // append: true (no position) → Append to end
-        if (InsertPositionResolver.shouldAppendToEnd(options)) {
+        // append: true (no position) → Append
+        if (InsertPositionResolver.shouldAppend(options)) {
             return this.getEndPosition(context, agentIndex);
         }
 

@@ -17,7 +17,7 @@ export class InsertPositionResolver {
                options.append === true;
     }
 
-    static shouldAppendToEnd(options: AddAssignOptions): boolean {
+    static shouldAppend(options: AddAssignOptions): boolean {
         return options.append === true &&
                !options.afterId && 
                options.afterWaypointIndex === undefined;

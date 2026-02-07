@@ -112,5 +112,3 @@ export class AddJobModalComponent implements OnInit {
     this.cancel.emit();
   }
 }
-
-
