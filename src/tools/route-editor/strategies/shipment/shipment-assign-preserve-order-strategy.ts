@@ -5,6 +5,7 @@ import {
 import {RouteResultEditorBase} from "../../route-result-editor-base";
 import {RouteEditorHelper, RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
 import {PreserveOrderShipmentHelper} from "../preserve-order/helpers/preserve-order-shipment-helper";
+import {RouteViolationValidator} from "../preserve-order/validations";
 
 /**
  * Strategy that inserts shipments while preserving the order of existing stops.
@@ -23,8 +24,6 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
         shipmentIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
-        PreserveOrderShipmentHelper.validateShipmentConstraints(context, agentIndex, shipmentIndexes);
-        
         RouteEditorHelper.removeShipmentsFromAgents(context, shipmentIndexes);
         
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
@@ -51,6 +50,9 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
         }
 
         await RouteTimeRecalculator.recalculate(context, agentIndex);
+        
+        RouteViolationValidator.validate(context, agentIndex);
+        
         return true;
     }
 }

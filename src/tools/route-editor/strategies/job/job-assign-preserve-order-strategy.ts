@@ -5,6 +5,7 @@ import {
 import {RouteResultEditorBase} from "../../route-result-editor-base";
 import {RouteEditorHelper, RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
 import {PreserveOrderJobHelper} from "../preserve-order/helpers/preserve-order-job-helper";
+import {RouteViolationValidator} from "../preserve-order/validations";
 
 /**
  * Strategy that inserts jobs while preserving the order of existing stops.
@@ -22,8 +23,6 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
         jobIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
-        PreserveOrderJobHelper.validateJobConstraints(context, agentIndex, jobIndexes);
-        
         RouteEditorHelper.removeJobsFromAgents(context, jobIndexes);
         
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
@@ -39,6 +38,8 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
         }
         
         await RouteTimeRecalculator.recalculate(context, agentIndex);
+        
+        RouteViolationValidator.validate(context, agentIndex);
         
         return true;
     }

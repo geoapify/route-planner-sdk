@@ -248,9 +248,9 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             const agentPlan = modifiedResult.getAgentPlan(0);
             const violations = agentPlan!.getViolations();
             expectViolations(violations, [
-                "Total pickup amount (800) exceeds agent capacity (500)"
+                "Pickup capacity exceeded at action 3: load 600 > capacity 500"
             ]);
-            expect((violations[0] as AgentPickupCapacityExceeded).totalAmount).toBe(800);
+            expect((violations[0] as AgentPickupCapacityExceeded).totalAmount).toBe(600);
             expect((violations[0] as AgentPickupCapacityExceeded).capacity).toBe(500);
         });
     });
@@ -282,7 +282,7 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             const agentPlan = modifiedResult.getAgentPlan(0);
             const violations = agentPlan!.getViolations();
             expectViolations(violations, [
-                "Total delivery amount (1100) exceeds agent capacity (800)"
+                "Initial delivery load 1100 exceeds agent delivery capacity 800"
             ]);
             expect((violations[0] as AgentDeliveryCapacityExceeded).totalAmount).toBe(1100);
             expect((violations[0] as AgentDeliveryCapacityExceeded).capacity).toBe(800);
@@ -318,7 +318,7 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             const agentPlan = modifiedResult.getAgentPlan(0);
             const violations = agentPlan!.getViolations();
             expectViolations(violations, [
-                "No overlap between agent and job time windows"
+                "Action at time 36000.004 is outside job time windows"
             ]);
         });
     });
@@ -355,7 +355,9 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             const agentPlan = modifiedResult.getAgentPlan(0);
             const violations = agentPlan!.getViolations();
             expectViolations(violations, [
-                "All job windows fall within agent break periods"
+                "Action at time 39600.004 is outside job time windows",
+                "Action at time 39600.004 conflicts with agent break",
+                "Action at time 43200.004 conflicts with agent break"
             ]);
         });
     });
@@ -441,7 +443,7 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             const agentPlan = modifiedResult.getAgentPlan(0);
             const violations = agentPlan!.getViolations();
             expectViolations(violations, [
-                "Total shipment amount (70) exceeds agent pickup capacity (50)"
+                "Pickup capacity exceeded at action 3: load 70 > capacity 50"
             ]);
         });
     });
@@ -479,14 +481,14 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             const agentPlan = modifiedResult.getAgentPlan(0);
             const violations = agentPlan!.getViolations();
             expectViolations(violations, [
-                "Agent is missing required capabilities: refrigerated, hazmat_certified",
-                "No overlap between agent and job time windows",
-                "Total delivery amount (600) exceeds agent capacity (500)"
+                "Action at time 33059.004 is outside job time windows",
+                "Initial delivery load 600 exceeds agent delivery capacity 500",
+                "Agent is missing required capabilities: refrigerated, hazmat_certified"
             ]);
             
-            expect((violations[0] as AgentMissingCapability).missingCapabilities).toEqual(['refrigerated', 'hazmat_certified']);
-            expect((violations[2] as AgentDeliveryCapacityExceeded).totalAmount).toBe(600);
-            expect((violations[2] as AgentDeliveryCapacityExceeded).capacity).toBe(500);
+            expect((violations[1] as AgentDeliveryCapacityExceeded).totalAmount).toBe(600);
+            expect((violations[1] as AgentDeliveryCapacityExceeded).capacity).toBe(500);
+            expect((violations[2] as AgentMissingCapability).missingCapabilities).toEqual(['refrigerated', 'hazmat_certified']);
         });
 
         test('should store multiple violations in result', async () => {
@@ -525,8 +527,8 @@ describe('Route Editor Validation - Real World Scenarios', () => {
             expect(violations).toHaveLength(3);
             expectViolations(violations, [
                 "Agent is missing required capabilities: refrigerated, hazmat_certified",
-                "No overlap between agent and job time windows",
-                "Total delivery amount (600) exceeds agent capacity (500)"
+                "Action at time 33059.004 is outside job time windows",
+                "Initial delivery load 600 exceeds agent delivery capacity 500"
             ]);
         });
     });

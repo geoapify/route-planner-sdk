@@ -1,5 +1,4 @@
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
-import { ShipmentValidationHelper} from "../validations";
 import {PreserveOrderBaseHelper} from "./preserve-order-base-helper";
 import { AddAssignOptions} from "../../../../../models";
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
@@ -7,24 +6,8 @@ import {RouteEditorHelper} from "../utils/route-editor-helper";
 import {InsertionCostCalculator} from "../utils/insertion-cost-calculator";
 
 export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
-     static validateShipmentConstraints(
-        context: RouteResultEditorBase,
-        agentIndex: number,
-        shipmentIndexes: number[]
-    ): void {
-        const rawData = context.getRawData();
-        const agent = rawData.properties.params.agents[agentIndex];
 
-        const existingShipmentIndexes = context.getAgentShipments(agentIndex);
-        const existingShipments = existingShipmentIndexes.map(i => rawData.properties.params.shipments[i]);
-        const newShipments = shipmentIndexes.map(i => rawData.properties.params.shipments[i]);
-        const allShipments = [...existingShipments, ...newShipments];
-
-        const violations = ShipmentValidationHelper.validateAll(agent, allShipments, agentIndex);
-        this.addViolationsToResult(rawData, violations);
-    }
-
-     static async determineShipmentInsertPositions(
+    static async determineShipmentInsertPositions(
         context: RouteResultEditorBase,
         agentIndex: number,
         shipmentIndex: number,

@@ -207,11 +207,12 @@ describe('PreserveOrder Insert Performance - Matrix API Request Count', () => {
             operationDescription: '3 sequential job inserts'
         });
         
-        // Expected: 6 Matrix API (2 per insert)
-        // Routing: 1st insert reuses existing, 2nd+ can't reuse (route changed), plus recalc each time
-        // So: 1st = 1 (recalc), 2nd = 2 (find + recalc), 3rd = 2 (find + recalc) = 5 total
+        // Expected: 6 Matrix API (2 per insert for finding optimal position)
+        // Routing: With leg caching by location pairs, existing legs are reused
+        // Only new legs that don't exist in the cache need routing API calls
+        // Actual: 4 routing calls (batched calls for missing leg data across all 3 inserts)
         expect(matrixApiCallCount).toBe(6);
-        expect(routingApiCallCount).toBe(5);
+        expect(routingApiCallCount).toBe(4);
     }, 60000);
 });
 

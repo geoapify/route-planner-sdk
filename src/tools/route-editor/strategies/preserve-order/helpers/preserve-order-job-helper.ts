@@ -1,5 +1,4 @@
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
-import {JobValidationHelper} from "../validations";
 import {PreserveOrderBaseHelper} from "./preserve-order-base-helper";
 import {ActionResponseData, AddAssignOptions} from "../../../../../models";
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
@@ -7,22 +6,6 @@ import {RouteEditorHelper} from "../utils/route-editor-helper";
 import {InsertionCostCalculator} from "../utils/insertion-cost-calculator";
 
 export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
-     static validateJobConstraints(
-        context: RouteResultEditorBase,
-        agentIndex: number,
-        jobIndexes: number[]
-    ): void {
-        const rawData = context.getRawData();
-        const agent = rawData.properties.params.agents[agentIndex];
-
-        const existingJobIndexes = context.getAgentJobs(agentIndex);
-        const existingJobs = existingJobIndexes.map(i => rawData.properties.params.jobs[i]);
-        const newJobs = jobIndexes.map(i => rawData.properties.params.jobs[i]);
-        const allJobs = [...existingJobs, ...newJobs];
-
-        const violations = JobValidationHelper.validateAll(agent, allJobs, agentIndex);
-        this.addViolationsToResult(rawData, violations);
-    }
 
     static async determineInsertPosition(
         context: RouteResultEditorBase,
