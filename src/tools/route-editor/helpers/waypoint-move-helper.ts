@@ -1,10 +1,9 @@
 import { IndexConverter } from "../../../helpers/index-converter";
-import {ActionResponseData, InvalidInsertionPosition, LegResponseData} from "../../../models";
+import { ActionResponseData, InvalidInsertionPosition } from "../../../models";
 import { RouteResultEditorBase } from "../route-result-editor-base";
 import { RouteTimeRecalculator, WaypointBuilder } from "../strategies";
 import { WaypointResponseData } from "../../../models";
 import { RouteViolationValidator } from "../strategies/preserve-order/validations";
-import { MISSING_LEG_DATA } from "../strategies/preserve-order/utils/leg-builder";
 
 export class WaypointMoveHelper {
 
@@ -29,7 +28,7 @@ export class WaypointMoveHelper {
         }
 
         const existingLegs = agentFeature.properties.legs || [];
-        const legDataMap = this.buildLegDataMap(waypoints, existingLegs);
+        const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, existingLegs);
 
         const waypointToMove = waypoints[fromWaypointIndex];
         const actionsToMove = [...waypointToMove.actions];
@@ -46,8 +45,8 @@ export class WaypointMoveHelper {
         context.reindexActions(actions);
         WaypointBuilder.reindexWaypointsActions(waypoints, actions);
         
-        agentFeature.properties.legs = this.rebuildLegs(waypoints, legDataMap);
-        this.updateWaypointLegIndices(waypoints);
+        agentFeature.properties.legs = WaypointBuilder.rebuildLegs(waypoints, legDataMap);
+        WaypointBuilder.updateWaypointLegIndices(waypoints);
         
         await RouteTimeRecalculator.recalculate(context, agentIndex);
         
@@ -135,67 +134,6 @@ export class WaypointMoveHelper {
         keepWaypoint.duration += removeWaypoint.duration;
 
         waypoints.splice(removeIndex, 1);
-    }
-
-    private static buildLegDataMap(waypoints: WaypointResponseData[],
-                                   legs: LegResponseData[]): Map<string, LegResponseData> {
-        const result = new Map<string, LegResponseData>();
-
-        for (const leg of legs) {
-            const fromWaypoint = waypoints[leg.from_waypoint_index];
-            const toWaypoint = waypoints[leg.to_waypoint_index];
-            if (!fromWaypoint || !toWaypoint) {
-                continue;
-            }
-
-            const key = this.getLocationPairKey(fromWaypoint.location, toWaypoint.location);
-            result.set(key, leg);
-        }
-
-        return result;
-    }
-
-    private static rebuildLegs(waypoints: WaypointResponseData[],
-                               legDataMap: Map<string, LegResponseData>): LegResponseData[] {
-        const legs: LegResponseData[] = [];
-
-        for (let i = 0; i < waypoints.length - 1; i++) {
-            const fromWaypoint = waypoints[i];
-            const toWaypoint = waypoints[i + 1];
-            const key = this.getLocationPairKey(fromWaypoint.location, toWaypoint.location);
-            const existingLeg = legDataMap.get(key);
-
-            if (existingLeg) {
-                legs.push({
-                    from_waypoint_index: i,
-                    to_waypoint_index: i + 1,
-                    time: existingLeg.time,
-                    distance: existingLeg.distance,
-                    steps: existingLeg.steps || []
-                });
-            } else {
-                legs.push({
-                    from_waypoint_index: i,
-                    to_waypoint_index: i + 1,
-                    time: MISSING_LEG_DATA,
-                    distance: MISSING_LEG_DATA,
-                    steps: []
-                });
-            }
-        }
-
-        return legs;
-    }
-
-    private static getLocationPairKey(from: [number, number], to: [number, number]): string {
-        return `${from[0]},${from[1]}->${to[0]},${to[1]}`;
-    }
-
-    private static updateWaypointLegIndices(waypoints: WaypointResponseData[]): void {
-        for (let i = 0; i < waypoints.length; i++) {
-            waypoints[i].prev_leg_index = i > 0 ? i - 1 : undefined;
-            waypoints[i].next_leg_index = i < waypoints.length - 1 ? i : undefined;
-        }
     }
 }
 

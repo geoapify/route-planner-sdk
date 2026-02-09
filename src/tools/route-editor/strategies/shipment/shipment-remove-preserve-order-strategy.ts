@@ -1,9 +1,11 @@
-import { RemoveOptions } from "../../../../models";
+import {ActionResponseData, RemoveOptions} from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy } from "../base";
-import {RouteResultEditorBase} from "../../route-result-editor-base";
+import { RouteResultEditorBase } from "../../route-result-editor-base";
+import { RouteTimeRecalculator, WaypointBuilder } from "../preserve-order";
 
 /**
- * Strategy that removes shipments while preserving the order of remaining items
+ * Strategy that removes shipments while preserving the order of remaining items.
+ * Also removes waypoints and rebuilds legs.
  */
 export class ShipmentRemovePreserveOrderStrategy implements IRemoveStrategy {
 
@@ -12,34 +14,49 @@ export class ShipmentRemovePreserveOrderStrategy implements IRemoveStrategy {
         shipmentIndexes: number[],
         options: RemoveOptions
     ): Promise<boolean> {
+        const impactedAgentIndexes = new Set<number>();
+
         for (const shipmentIndex of shipmentIndexes) {
-            this.removeShipmentFromResult(context, shipmentIndex);
+            const agentIndex = this.removeShipmentFromResult(context, shipmentIndex);
+            if (agentIndex !== -1) {
+                impactedAgentIndexes.add(agentIndex);
+            }
         }
+
+        for (const agentIndex of impactedAgentIndexes) {
+            await RouteTimeRecalculator.recalculate(context, agentIndex);
+        }
+
         return true;
     }
 
-    private removeShipmentFromResult(context: RouteResultEditorBase, shipmentIndex: number): void {
-        const rawData = context.getRawData();
-        
-        for (const feature of rawData.features) {
-            const actions = feature.properties.actions;
-            
-            // Remove all actions for this shipment (pickup + delivery)
-            const actionsToRemove = actions
-                .map((a: any, idx: number) => ({ action: a, originalIdx: idx }))
-                .filter((item: any) => item.action.shipment_index === shipmentIndex);
-            
-            if (actionsToRemove.length > 0) {
-                // Remove in reverse order to preserve indexes
-                for (let i = actionsToRemove.length - 1; i >= 0; i--) {
-                    actions.splice(actionsToRemove[i].originalIdx, 1);
-                }
-                
-                context.reindexActions(actions);
-                this.addToUnassignedShipments(context, shipmentIndex);
-                break;
-            }
+    private removeShipmentFromResult(context: RouteResultEditorBase, shipmentIndex: number): number {
+        const agentIndex = context.getAgentIndexForShipment(shipmentIndex);
+        if (agentIndex === undefined) {
+            return -1;
         }
+
+        const feature = context.getAgentFeature(agentIndex);
+        const actions = feature.properties.actions;
+        const waypoints = feature.properties.waypoints;
+        const legs = feature.properties.legs || [];
+
+        const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, legs);
+
+        const filteredActions = actions.filter((action: ActionResponseData) => action.shipment_index !== shipmentIndex);
+        feature.properties.actions = filteredActions;
+        context.reindexActions(filteredActions);
+
+        WaypointBuilder.removeShipmentActionsFromWaypoints(waypoints, shipmentIndex);
+        const updatedWaypoints = WaypointBuilder.removeEmptyWaypoints(waypoints);
+        feature.properties.waypoints = updatedWaypoints;
+
+        WaypointBuilder.reindexWaypointsActions(updatedWaypoints, actions);
+        feature.properties.legs = WaypointBuilder.rebuildLegs(updatedWaypoints, legDataMap);
+        WaypointBuilder.updateWaypointLegIndices(updatedWaypoints);
+
+        this.addToUnassignedShipments(context, shipmentIndex);
+        return agentIndex;
     }
 
     private addToUnassignedShipments(context: RouteResultEditorBase, shipmentIndex: number): void {

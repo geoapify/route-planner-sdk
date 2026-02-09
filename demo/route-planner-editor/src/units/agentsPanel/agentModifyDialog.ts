@@ -87,7 +87,8 @@ const getShipmentWaypointInfo = (agentPlan: AgentPlan, shipmentIndex: number) =>
 
 const buildItemGroups = (
   result: RoutePlannerResult,
-  type: "job" | "shipment"
+  type: "job" | "shipment",
+  filterAgentIndex?: number
 ): DemoItemGroup[] => {
   const input = result.getRoutingOptions() as any;
   const items: any[] = type === "job" ? input?.jobs || [] : input?.shipments || [];
@@ -102,6 +103,11 @@ const buildItemGroups = (
     const plan =
       type === "job" ? result.getJobPlan(index) : result.getShipmentPlan(index);
     const agentIndex = plan?.getAgentIndex();
+    
+    if (filterAgentIndex !== undefined && agentIndex !== filterAgentIndex) {
+      return;
+    }
+
     const agentPlan = plan?.getAgentPlan();
     const agentLabel =
       agentIndex !== undefined
@@ -266,8 +272,11 @@ export function createModifyPanel(context: DemoModifyContext) {
   assignContent.className = "modify-tab-content";
   assignContent.style.display = "none";
 
-  const jobGroups = buildItemGroups(context.result, "job");
-  const shipmentGroups = buildItemGroups(context.result, "shipment");
+  const jobGroupsForRemove = buildItemGroups(context.result, "job", context.agentIndex);
+  const shipmentGroupsForRemove = buildItemGroups(context.result, "shipment", context.agentIndex);
+
+  const jobGroupsForAssign = buildItemGroups(context.result, "job");
+  const shipmentGroupsForAssign = buildItemGroups(context.result, "shipment");
 
   const buildRemoveSection = (label: string, groups: DemoItemGroup[], onRemove: (index: number, strategy: string) => Promise<void>) => {
     const section = document.createElement("div");
@@ -418,17 +427,17 @@ export function createModifyPanel(context: DemoModifyContext) {
     return section;
   };
 
-  if (jobGroups.length) {
+  if (jobGroupsForRemove.length) {
     removeContent.appendChild(
-      buildRemoveSection("Job", jobGroups, async (index, strategy) => {
+      buildRemoveSection("Job", jobGroupsForRemove, async (index, strategy) => {
         await context.editor.removeJobs([index], { strategy });
       })
     );
   }
 
-  if (shipmentGroups.length) {
+  if (shipmentGroupsForRemove.length) {
     removeContent.appendChild(
-      buildRemoveSection("Shipment", shipmentGroups, async (index, strategy) => {
+      buildRemoveSection("Shipment", shipmentGroupsForRemove, async (index, strategy) => {
         await context.editor.removeShipments([index], { strategy });
       })
     );
@@ -436,7 +445,7 @@ export function createModifyPanel(context: DemoModifyContext) {
 
   const assignJobSection = buildAssignSection(
     "Job",
-    jobGroups,
+    jobGroupsForAssign,
     async (index, agentIndex, options) => {
       await context.editor.assignJobs(agentIndex, [index], options);
     }
@@ -447,7 +456,7 @@ export function createModifyPanel(context: DemoModifyContext) {
 
   const assignShipmentSection = buildAssignSection(
     "Shipment",
-    shipmentGroups,
+    shipmentGroupsForAssign,
     async (index, agentIndex, options) => {
       await context.editor.assignShipments(agentIndex, [index], options);
     }
@@ -456,7 +465,7 @@ export function createModifyPanel(context: DemoModifyContext) {
     assignContent.appendChild(assignShipmentSection);
   }
 
-  if (!jobGroups.length && !shipmentGroups.length) {
+  if (!jobGroupsForAssign.length && !shipmentGroupsForAssign.length) {
     const empty = document.createElement("div");
     empty.className = "modify-empty";
     empty.textContent = "No jobs or shipments available.";

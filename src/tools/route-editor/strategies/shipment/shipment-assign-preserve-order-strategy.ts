@@ -1,4 +1,4 @@
-import { AddAssignOptions } from "../../../../models";
+import { AddAssignOptions, PRESERVE_ORDER, REOPTIMIZE, RemoveOptions } from "../../../../models";
 import { 
     AssignStrategy
 } from "../base";
@@ -6,6 +6,8 @@ import {RouteResultEditorBase} from "../../route-result-editor-base";
 import {RouteEditorHelper, RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
 import {PreserveOrderShipmentHelper} from "../preserve-order/helpers/preserve-order-shipment-helper";
 import {RouteViolationValidator} from "../preserve-order/validations";
+import {ShipmentRemovePreserveOrderStrategy} from "./shipment-remove-preserve-order-strategy";
+import {ShipmentRemoveReoptimizeStrategy} from "./shipment-remove-reoptimize-strategy";
 
 /**
  * Strategy that inserts shipments while preserving the order of existing stops.
@@ -24,7 +26,7 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
         shipmentIndexes: number[],
         options: AddAssignOptions
     ): Promise<boolean> {
-        RouteEditorHelper.removeShipmentsFromAgents(context, shipmentIndexes);
+        await this.removeShipmentsFromCurrentAgents(context, shipmentIndexes, options);
         
         const agentFeature = context.getOrCreateAgentFeature(agentIndex);
         const actions = agentFeature.properties.actions;
@@ -53,7 +55,30 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
         
         RouteViolationValidator.validate(context, agentIndex);
         
+        this.removeFromUnassignedShipments(context, shipmentIndexes);
+        
         return true;
+    }
+
+    private async removeShipmentsFromCurrentAgents(context: RouteResultEditorBase, shipmentIndexes: number[],
+                                                   options: AddAssignOptions): Promise<void> {
+        const removeStrategyType = options.removeStrategy ?? PRESERVE_ORDER;
+        const removeStrategy = removeStrategyType === REOPTIMIZE 
+            ? new ShipmentRemoveReoptimizeStrategy() 
+            : new ShipmentRemovePreserveOrderStrategy();
+        const removeOptions: RemoveOptions = { strategy: removeStrategyType };
+        await removeStrategy.execute(context, shipmentIndexes, removeOptions);
+    }
+
+    private removeFromUnassignedShipments(context: RouteResultEditorBase, shipmentIndexes: number[]): void {
+        const rawData = context.getRawData();
+        const issues = rawData.properties.issues;
+        if (!issues?.unassigned_shipments) {
+            return;
+        }
+
+        issues.unassigned_shipments = issues.unassigned_shipments
+            .filter((shipmentIndex: number) => !shipmentIndexes.includes(shipmentIndex));
     }
 }
 

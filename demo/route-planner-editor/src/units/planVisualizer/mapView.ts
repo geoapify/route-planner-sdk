@@ -173,6 +173,27 @@ export function createMapView(container: HTMLElement): DemoMapView {
       }
     | null = null;
 
+  const getLocationKey = (location: [number, number]): string => {
+    return `${location[0].toFixed(6)},${location[1].toFixed(6)}`;
+  };
+
+  const calculateOffsetLocation = (originalLocation: [number, number], overlapCount: number): [number, number] => {
+    if (overlapCount === 0) {
+      return originalLocation;
+    }
+
+    const OFFSET_DISTANCE = 0.0002;
+    const CIRCLE_SEGMENTS = 8;
+    
+    const angleInRadians = (overlapCount * 360 / CIRCLE_SEGMENTS) * (Math.PI / 180);
+    const distance = OFFSET_DISTANCE * overlapCount;
+
+    const longitude = originalLocation[0] + Math.cos(angleInRadians) * distance;
+    const latitude = originalLocation[1] + Math.sin(angleInRadians) * distance;
+
+    return [longitude, latitude];
+  };
+
   const setMarkers = (
     routes: DemoAgentRoute[],
     hiddenAgentIndexes: Set<number>
@@ -180,12 +201,23 @@ export function createMapView(container: HTMLElement): DemoMapView {
     markers.forEach((marker) => marker.remove());
     markers.length = 0;
 
+    const locationOverlapCount = new Map<string, number>();
+
     routes.forEach((route) => {
       if (hiddenAgentIndexes.has(route.agentPlan.getAgentIndex())) {
         return;
       }
+
       const waypoints = route.agentPlan.getWaypoints();
       waypoints.forEach((waypoint, index) => {
+        const originalLocation = waypoint.getLocation();
+        const locationKey = getLocationKey(originalLocation);
+
+        const currentOverlapCount = locationOverlapCount.get(locationKey) || 0;
+        locationOverlapCount.set(locationKey, currentOverlapCount + 1);
+
+        const displayLocation = calculateOffsetLocation(originalLocation, currentOverlapCount);
+
         const img = document.createElement("img");
         img.src = getMarkerIconUrl(String(index + 1), route.color);
         img.alt = `Waypoint ${index + 1}`;
@@ -196,7 +228,7 @@ export function createMapView(container: HTMLElement): DemoMapView {
           element: img,
           anchor: "center"
         })
-          .setLngLat(waypoint.getLocation())
+          .setLngLat(displayLocation)
           .addTo(map);
 
         const popup = new maplibre.Popup({
