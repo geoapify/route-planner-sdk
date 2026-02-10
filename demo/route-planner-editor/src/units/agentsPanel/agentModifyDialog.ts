@@ -371,7 +371,7 @@ export function createModifyPanel(context: DemoModifyContext) {
     optionsGrid.className = "modify-grid";
     optionsGrid.appendChild(createField("Strategy", strategySelect));
     optionsGrid.appendChild(createField("Remove strategy", removeStrategySelect));
-    optionsGrid.appendChild(createField("After waypoint", afterWaypointInput));
+    optionsGrid.appendChild(createField("After waypoint index", afterWaypointInput));
     optionsGrid.appendChild(createField("After id", afterIdInput));
     optionsGrid.appendChild(createField("Priority", priorityInput));
     optionsGrid.appendChild(appendToggle);

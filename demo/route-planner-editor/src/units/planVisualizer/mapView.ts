@@ -174,7 +174,7 @@ export function createMapView(container: HTMLElement): DemoMapView {
     | null = null;
 
   const getLocationKey = (location: [number, number]): string => {
-    return `${location[0].toFixed(6)},${location[1].toFixed(6)}`;
+    return `${location[0].toFixed(4)},${location[1].toFixed(4)}`;
   };
 
   const calculateOffsetLocation = (originalLocation: [number, number], overlapCount: number): [number, number] => {
@@ -196,12 +196,11 @@ export function createMapView(container: HTMLElement): DemoMapView {
 
   const setMarkers = (
     routes: DemoAgentRoute[],
-    hiddenAgentIndexes: Set<number>
+    hiddenAgentIndexes: Set<number>,
+    locationOverlapCount: Map<string, number>
   ) => {
     markers.forEach((marker) => marker.remove());
     markers.length = 0;
-
-    const locationOverlapCount = new Map<string, number>();
 
     routes.forEach((route) => {
       if (hiddenAgentIndexes.has(route.agentPlan.getAgentIndex())) {
@@ -271,12 +270,23 @@ export function createMapView(container: HTMLElement): DemoMapView {
     return container;
   };
 
-  const setUnassignedMarkers = (markersData: DemoUnassignedMarker[]) => {
+  const setUnassignedMarkers = (
+    markersData: DemoUnassignedMarker[],
+    locationOverlapCount: Map<string, number>
+  ) => {
     alertMarkers.forEach((marker) => marker.remove());
     alertMarkers.length = 0;
     lastUnassigned = markersData;
 
     markersData.forEach((markerData) => {
+      const originalLocation = markerData.location;
+      const locationKey = getLocationKey(originalLocation);
+
+      const currentOverlapCount = locationOverlapCount.get(locationKey) || 0;
+      locationOverlapCount.set(locationKey, currentOverlapCount + 1);
+
+      const displayLocation = calculateOffsetLocation(originalLocation, currentOverlapCount);
+
       const img = document.createElement("img");
       img.src = getAlertIconUrl();
       img.alt = "Unassigned";
@@ -287,7 +297,7 @@ export function createMapView(container: HTMLElement): DemoMapView {
         element: img,
         anchor: "center"
       })
-        .setLngLat(markerData.location)
+        .setLngLat(displayLocation)
         .addTo(map);
 
       const popup = new maplibre.Popup({
@@ -363,8 +373,9 @@ export function createMapView(container: HTMLElement): DemoMapView {
       source.setData({ type: "FeatureCollection", features });
     }
 
-    setMarkers(routes, hiddenAgentIndexes);
-    setUnassignedMarkers(unassignedMarkers);
+    const locationOverlapCount = new Map<string, number>();
+    setMarkers(routes, hiddenAgentIndexes, locationOverlapCount);
+    setUnassignedMarkers(unassignedMarkers, locationOverlapCount);
   };
 
   const collectAllCoordinates = (
@@ -462,7 +473,6 @@ export function createMapView(container: HTMLElement): DemoMapView {
         focusAgent(pendingFocusIndex);
         pendingFocusIndex = null;
       } else {
-        console.log("fit to route");
         fitToCoordinates(collectAllCoordinates(routes, unassignedMarkers));
       }
     },
