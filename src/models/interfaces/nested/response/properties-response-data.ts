@@ -2,7 +2,7 @@ import { LegResponseData } from "./leg-response-data";
 import { ActionResponseData } from "./action-response-data";
 import { WaypointResponseData } from "./waypoint-response-data";
 
-export interface PropertiesResponseData {
+export interface AgentPlanResponceData {
     agent_index: number;
     agent_id: string;
     time: number;

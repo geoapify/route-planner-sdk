@@ -9,16 +9,20 @@
             "request": "launch",
             "name": "Demo: Route Planner Editor (Vite)",
             "url": "http://localhost:5173/",
-            "webRoot": "${workspaceFolder}/demo/route-planner-editor",
+            "webRoot": "${workspaceFolder}",
             "sourceMaps": true,
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
+                "http://localhost:5173/**",
                 "!**/node_modules/**"
             ],
             "sourceMapPathOverrides": {
-                "/@fs/*": "${workspaceFolder}/*",
-                "vite:///*": "${workspaceFolder}/*",
-                "file:///*": "${workspaceFolder}/*"
+                "/src/*": "${workspaceFolder}/demo/route-planner-editor/src/*",
+                "http://localhost:5173/src/*": "${workspaceFolder}/demo/route-planner-editor/src/*",
+                "/@fs/*": "/*",
+                "http://localhost:5173/@fs/*": "/*",
+                "vite:///*": "/*",
+                "file:///*": "/*"
             }
         },
         {

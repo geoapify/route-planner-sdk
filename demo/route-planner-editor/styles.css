@@ -131,6 +131,44 @@ body {
   margin-bottom: 12px;
 }
 
+.issues-panel {
+  border: 1px solid var(--border);
+  background: #fafafa;
+  padding: 10px;
+  margin-bottom: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.issues-panel__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.issues-panel__content {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.issues-panel__group {
+  display: grid;
+  gap: 2px;
+}
+
+.issues-panel__label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.issues-panel__value {
+  color: var(--muted);
+  word-break: break-word;
+}
+
 .panel--preview {
   min-height: 520px;
 }
@@ -394,6 +432,10 @@ body {
   gap: 8px;
   font-size: 0.8rem;
   line-height: 1.2;
+}
+
+.log__entry--error {
+  color: #ff8a8a;
 }
 
 .log__timestamp {

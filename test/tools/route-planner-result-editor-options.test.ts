@@ -44,6 +44,25 @@ function expectApiNotCalled(): void {
   expect(fetchSpy).not.toHaveBeenCalled();
 }
 
+function mockRoutePlannerSuccessWithFeature(feature: FeatureResponseData): void {
+  fetchSpy.mockImplementation(async (_url: string, request: any) => {
+    const requestBody = JSON.parse(request?.body as string);
+    const response = {
+      type: 'FeatureCollection',
+      features: [JSON.parse(JSON.stringify(feature))],
+      properties: {
+        params: requestBody,
+        issues: {}
+      }
+    };
+
+    return {
+      ok: true,
+      json: async () => response
+    } as any;
+  });
+}
+
 /**
  * Tests for default behavior and reoptimize strategy
  */
@@ -121,7 +140,7 @@ describe('RoutePlannerResultEditor Priority Handling', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Move job-2 with priority as number (old API - backward compatible)
-    await routeEditor.assignJobs('agent-B', ['job-2'], 100);
+    await routeEditor.assignJobs('agent-B', ['job-2']);
     
     // Verify API was called (uses reoptimize)
     expectApiCalled(['routeplanner']);
@@ -146,7 +165,7 @@ describe('RoutePlannerResultEditor Priority Handling', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Move job-2 with priority in options object (new API)
-    await routeEditor.assignJobs('agent-B', ['job-2'], { priority: 100 });
+    await routeEditor.assignJobs('agent-B', ['job-2']);
     
     // Verify API was called (uses reoptimize by default)
     expectApiCalled(['routeplanner']);
@@ -171,7 +190,7 @@ describe('RoutePlannerResultEditor Priority Handling', () => {
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
     // Move shipment-3 with priority as number (old API - backward compatible)
-    await routeEditor.assignShipments('agent-A', ['shipment-3'], 100);
+    await routeEditor.assignShipments('agent-A', ['shipment-3']);
     
     // Verify API was called (uses reoptimize)
     expectApiCalled(['routeplanner']);
@@ -1341,7 +1360,7 @@ describe('RoutePlannerResultEditor reoptimizeAgentPlan', () => {
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
-    await expect(routeEditor.reoptimizeAgentPlan({ afterWaypointIndex: 1 })).rejects.toThrow('agentIdOrIndex is required');
+    await expect(routeEditor.reoptimizeAgentPlan({})).rejects.toThrow('agentIdOrIndex is required');
   });
 
   test('reoptimizeAgentPlan with agentIdOrIndex should reoptimize specific agent', async () => {
@@ -1366,50 +1385,6 @@ describe('RoutePlannerResultEditor reoptimizeAgentPlan', () => {
     expect(modifiedJobsA.sort()).toEqual(originalJobsA.sort());
   });
 
-  test('reoptimizeAgentPlan with afterWaypointIndex should reoptimize only jobs after waypoint', async () => {
-    let rawData = loadJson("data/route-planner-result-editor/job/result-data-multiple-jobs-for-reoptimize.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, rawData);
-
-    const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    const originalJobsB = getJobIds(plannerResult.getAgentPlan('agent-B')!);
-    
-    await routeEditor.reoptimizeAgentPlan({ agentIdOrIndex: 'agent-B', afterWaypointIndex: 2 });
-    
-    expectApiCalled(['routeplanner']);
-    
-    let modifiedResult = routeEditor.getModifiedResult();
-    const modifiedAgentB = modifiedResult.getAgentPlan('agent-B')!;
-    const modifiedJobsB = getJobIds(modifiedAgentB);
-    
-    expectValidRoute(modifiedAgentB);
-    expect(modifiedJobsB.sort()).toEqual(originalJobsB.sort());
-    expect(modifiedJobsB[0]).toBe(originalJobsB[0]);
-    expect(modifiedJobsB[1]).toBe(originalJobsB[1]);
-  });
-
-  test('reoptimizeAgentPlan with afterId should reoptimize only jobs after specified job', async () => {
-    let rawData = loadJson("data/route-planner-result-editor/job/result-data-multiple-jobs-for-reoptimize.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, rawData);
-
-    const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    const originalJobsA = getJobIds(plannerResult.getAgentPlan('agent-A')!);
-    const afterJobId = originalJobsA[2];
-    
-    await routeEditor.reoptimizeAgentPlan({ agentIdOrIndex: 'agent-A', afterId: afterJobId });
-    
-    expectApiCalled(['routeplanner']);
-    
-    let modifiedResult = routeEditor.getModifiedResult();
-    const modifiedAgentA = modifiedResult.getAgentPlan('agent-A')!;
-    const modifiedJobsA = getJobIds(modifiedAgentA);
-    
-    expectValidRoute(modifiedAgentA);
-    expect(modifiedJobsA.sort()).toEqual(originalJobsA.sort());
-    expect(modifiedJobsA[0]).toBe(originalJobsA[0]);
-    expect(modifiedJobsA[1]).toBe(originalJobsA[1]);
-    expect(modifiedJobsA[2]).toBe(originalJobsA[2]);
-  });
-
   test('reoptimizeAgentPlan on agent with no jobs should return true', async () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
@@ -1420,6 +1395,119 @@ describe('RoutePlannerResultEditor reoptimizeAgentPlan', () => {
     
     expect(result).toBe(true);
     expectApiNotCalled();
+  });
+
+  test('reoptimizeAgentPlan with allowViolations should relax target agent and target item constraints in request', async () => {
+    const rawData: RoutePlannerResultResponseData = loadJson("data/route-planner-result-editor/job/result-data-jobs-and-shipments-for-reoptimize.json");
+    const targetFeature = rawData.features.find((f: FeatureResponseData) => f.properties.agent_id === 'agent-A')!;
+    const targetAgentIndex = targetFeature.properties.agent_index;
+    const targetAgent = rawData.properties.params.agents[targetAgentIndex];
+
+    targetAgent.pickup_capacity = 3;
+    targetAgent.delivery_capacity = 3;
+    targetAgent.breaks = [{ time_windows: [[100, 200]], duration: 10 }];
+    targetAgent.time_windows = [[0, 1000]];
+
+    const targetJobIndex = targetFeature.properties.actions.find((a: ActionResponseData) => a.job_index !== undefined)!.job_index!;
+    rawData.properties.params.jobs![targetJobIndex].time_windows = [[0, 500]];
+
+    const targetShipmentIndex = targetFeature.properties.actions.find((a: ActionResponseData) => a.shipment_index !== undefined)!.shipment_index!;
+    const targetShipment: any = rawData.properties.params.shipments![targetShipmentIndex];
+    targetShipment.pickup = targetShipment.pickup || { location: [44.1, 40.1], time_windows: [] };
+    targetShipment.delivery = targetShipment.delivery || { location: [44.2, 40.2], time_windows: [] };
+    targetShipment.pickup.time_windows = [[0, 500]];
+    targetShipment.delivery.time_windows = [[0, 500]];
+
+    const plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, rawData);
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+
+    mockRoutePlannerSuccessWithFeature(targetFeature);
+    await routeEditor.reoptimizeAgentPlan({ agentIdOrIndex: 'agent-A', allowViolations: true });
+
+    const routePlannerCall = fetchSpy.mock.calls.find((call: any[]) => call[0].includes('/v1/routeplanner'));
+    const requestBody = JSON.parse(routePlannerCall![1]!.body as string);
+    const requestAgent = requestBody.agents[0];
+
+    expect(requestAgent.pickup_capacity).toBeUndefined();
+    expect(requestAgent.delivery_capacity).toBeUndefined();
+    expect(requestAgent.breaks).toBeUndefined();
+    expect(requestAgent.time_windows[0][1]).toBe(4102444800);
+    expect(requestBody.jobs[targetJobIndex].time_windows).toBeUndefined();
+    expect(requestBody.shipments[targetShipmentIndex].pickup.time_windows).toBeUndefined();
+    expect(requestBody.shipments[targetShipmentIndex].delivery.time_windows).toBeUndefined();
+  });
+
+  test('reoptimizeAgentPlan with includeUnassigned should keep unassigned items assignable', async () => {
+    const rawData: RoutePlannerResultResponseData = loadJson("data/route-planner-result-editor/job/result-data-jobs-and-shipments-for-reoptimize.json");
+    const targetFeature = rawData.features.find((f: FeatureResponseData) => f.properties.agent_id === 'agent-B')!;
+    const targetJobIndexes = new Set(
+      targetFeature.properties.actions
+        .filter((a: ActionResponseData) => a.job_index !== undefined)
+        .map((a: ActionResponseData) => a.job_index!)
+    );
+    const targetShipmentIndexes = new Set(
+      targetFeature.properties.actions
+        .filter((a: ActionResponseData) => a.shipment_index !== undefined)
+        .map((a: ActionResponseData) => a.shipment_index!)
+    );
+
+    const unassignedJobIndex = rawData.properties.params.jobs!.findIndex((_job: any, index: number) => !targetJobIndexes.has(index));
+    const unassignedShipmentIndex = rawData.properties.params.shipments!.findIndex((_shipment: any, index: number) => !targetShipmentIndexes.has(index));
+    rawData.properties.issues = {
+      ...(rawData.properties.issues || {}),
+      unassigned_jobs: [unassignedJobIndex],
+      unassigned_shipments: [unassignedShipmentIndex]
+    };
+
+    const restrictedJobIndex = rawData.properties.params.jobs!.findIndex(
+      (_job: any, index: number) => index !== unassignedJobIndex && !targetJobIndexes.has(index)
+    );
+    const restrictedShipmentIndex = rawData.properties.params.shipments!.findIndex(
+      (_shipment: any, index: number) => index !== unassignedShipmentIndex && !targetShipmentIndexes.has(index)
+    );
+
+    const plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, rawData);
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+
+    mockRoutePlannerSuccessWithFeature(targetFeature);
+    await routeEditor.reoptimizeAgentPlan({ agentIdOrIndex: 'agent-B', includeUnassigned: true });
+
+    const routePlannerCall = fetchSpy.mock.calls.find((call: any[]) => call[0].includes('/v1/routeplanner'));
+    const requestBody = JSON.parse(routePlannerCall![1]!.body as string);
+
+    expect(requestBody.jobs[unassignedJobIndex].requirements || []).not.toContain('NON_ASSIGNABLE');
+    expect(requestBody.shipments[unassignedShipmentIndex].requirements || []).not.toContain('NON_ASSIGNABLE');
+    expect(requestBody.jobs[restrictedJobIndex].requirements || []).toContain('NON_ASSIGNABLE');
+    expect(requestBody.shipments[restrictedShipmentIndex].requirements || []).toContain('NON_ASSIGNABLE');
+  });
+
+  test('reoptimizeAgentPlan should work when target agent has no current plan', async () => {
+    const rawData: RoutePlannerResultResponseData = loadJson("data/route-planner-result-editor/job/result-data-multiple-jobs-for-reoptimize.json");
+    const removedFeatureIndex = rawData.features.findIndex((f: FeatureResponseData) => f.properties.agent_id === 'agent-B');
+    const removedFeature = rawData.features.splice(removedFeatureIndex, 1)[0];
+    const removedJobIndexes = [
+      ...new Set(
+        removedFeature.properties.actions
+          .filter((a: ActionResponseData) => a.job_index !== undefined)
+          .map((a: ActionResponseData) => a.job_index!)
+      )
+    ];
+
+    rawData.properties.issues = {
+      ...(rawData.properties.issues || {}),
+      unassigned_agents: [1],
+      unassigned_jobs: removedJobIndexes
+    };
+
+    const plannerResult = new RoutePlannerResult({ apiKey: API_KEY }, rawData);
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+
+    mockRoutePlannerSuccessWithFeature(removedFeature);
+    const result = await routeEditor.reoptimizeAgentPlan({ agentIdOrIndex: 'agent-B', includeUnassigned: true });
+
+    expect(result).toBe(true);
+    expectApiCalled(['routeplanner']);
+    expect(routeEditor.getModifiedResult().getAgentPlan('agent-B')).toBeDefined();
   });
 
   test('reoptimizeAgentPlan with shipments should reoptimize specific agent', async () => {
@@ -1444,42 +1532,6 @@ describe('RoutePlannerResultEditor reoptimizeAgentPlan', () => {
     expect(modifiedShipmentsA.sort()).toEqual(originalShipmentsA.sort());
   });
 
-  test('reoptimizeAgentPlan with afterWaypointIndex should only reoptimize jobs after index', async () => {
-    let rawData: RoutePlannerResultResponseData = loadJson("data/route-planner-result-editor/job/result-data-multiple-jobs-for-reoptimize.json");
-    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, rawData);
-
-    const originalJobsB = getJobIds(plannerResult.getAgentPlan('agent-B')!);
-    
-    const agentBFeature = rawData.features.find((f: FeatureResponseData) => f.properties.agent_id === 'agent-B')!;
-    const actionsB = agentBFeature.properties.actions;
-    
-    const jobAction3 = actionsB.find((a: ActionResponseData) => a.job_id === originalJobsB[3])!;
-    const jobAction4 = actionsB.find((a: ActionResponseData) => a.job_id === originalJobsB[4])!;
-    const index3 = actionsB.indexOf(jobAction3);
-    const index4 = actionsB.indexOf(jobAction4);
-    
-    actionsB[index3] = jobAction4;
-    actionsB[index4] = jobAction3;
-    
-    const plannerResultModified = new RoutePlannerResult({apiKey: API_KEY}, rawData);
-    const routeEditorModified = new RoutePlannerResultEditor(plannerResultModified);
-    
-    const jobsBeforeReoptimize = getJobIds(plannerResultModified.getAgentPlan('agent-B')!);
-    expect(jobsBeforeReoptimize[3]).toBe(originalJobsB[4]);
-    expect(jobsBeforeReoptimize[4]).toBe(originalJobsB[3]);
-    
-    await routeEditorModified.reoptimizeAgentPlan({ agentIdOrIndex: 'agent-B', afterWaypointIndex: 2 });
-    
-    expectApiCalled(['routeplanner']);
-    
-    const afterReoptimize = routeEditorModified.getModifiedResult();
-    const jobsAfterReoptimize = getJobIds(afterReoptimize.getAgentPlan('agent-B')!);
-    
-    expect(jobsAfterReoptimize[0]).toBe(originalJobsB[0]);
-    expect(jobsAfterReoptimize[1]).toBe(originalJobsB[1]);
-    expect(jobsAfterReoptimize.sort()).toEqual(originalJobsB.sort());
-  });
-
   test('reoptimizeAgentPlan should not affect other agents jobs', async () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
@@ -1496,9 +1548,9 @@ describe('RoutePlannerResultEditor reoptimizeAgentPlan', () => {
   });
 });
 
-describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
+describe('RoutePlannerResultEditor addTimeOffsetAfterWaypoint', () => {
 
-  test('addTimeOffsetFromWaypoint should add offset to actions from waypoint', () => {
+  test('addTimeOffsetAfterWaypoint should add offset to actions from waypoint', () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
@@ -1506,7 +1558,7 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     const originalResult = routeEditor.getModifiedResult();
     const originalTimes = originalResult.getAgentPlan('agent-B')!.getActions().map(a => a.getStartTime());
     
-    routeEditor.addTimeOffsetFromWaypoint('agent-B', 1, 3600);
+    routeEditor.addTimeOffsetAfterWaypoint('agent-B', 1, 3600);
     
     let modifiedResult = routeEditor.getModifiedResult();
     const newTimes = modifiedResult.getAgentPlan('agent-B')!.getActions().map(a => a.getStartTime());
@@ -1517,7 +1569,7 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     expect(newTimes[3]).toBe(originalTimes[3] + 3600);
   });
 
-  test('addTimeOffsetFromWaypoint with waypoint 0 should offset all actions', () => {
+  test('addTimeOffsetAfterWaypoint with waypoint 0 should offset all actions', () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
@@ -1525,7 +1577,7 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     const originalResult = routeEditor.getModifiedResult();
     const originalTimes = originalResult.getAgentPlan('agent-B')!.getActions().map(a => a.getStartTime());
     
-    routeEditor.addTimeOffsetFromWaypoint('agent-B', 0, 1800);
+    routeEditor.addTimeOffsetAfterWaypoint('agent-B', 0, 1800);
     
     let modifiedResult = routeEditor.getModifiedResult();
     const newTimes = modifiedResult.getAgentPlan('agent-B')!.getActions().map(a => a.getStartTime());
@@ -1535,18 +1587,18 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     }
   });
 
-  test('addTimeOffsetFromWaypoint on agent with no plan should do nothing', () => {
+  test('addTimeOffsetAfterWaypoint on agent with no plan should do nothing', () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
     
-    routeEditor.addTimeOffsetFromWaypoint(99, 0, 3600);
+    routeEditor.addTimeOffsetAfterWaypoint(99, 0, 3600);
     
     expectApiNotCalled();
   });
 
-  test('addTimeOffsetFromWaypoint should update waypoint times', () => {
+  test('addTimeOffsetAfterWaypoint should update waypoint times', () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
@@ -1554,18 +1606,43 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     const originalWaypoints = plannerResult.getAgentPlan('agent-B')!.getWaypoints();
     const originalWaypointTimes = originalWaypoints.map(w => w.getStartTime());
     
-    routeEditor.addTimeOffsetFromWaypoint('agent-B', 1, 3600);
+    routeEditor.addTimeOffsetAfterWaypoint('agent-B', 1, 3600);
     
     let modifiedResult = routeEditor.getModifiedResult();
     const newWaypoints = modifiedResult.getAgentPlan('agent-B')!.getWaypoints();
     const newWaypointTimes = newWaypoints.map(w => w.getStartTime());
     
     expect(newWaypointTimes[0]).toBe(originalWaypointTimes[0]);
-    expect(newWaypointTimes[1]).toBe(originalWaypointTimes[1] + 3600);
+    expect(newWaypointTimes[1]).toBe(originalWaypointTimes[1]);
     expect(newWaypointTimes[2]).toBe(originalWaypointTimes[2] + 3600);
   });
 
-  test('addTimeOffsetFromWaypoint should not affect other agents', () => {
+  test('addTimeOffsetAfterWaypoint should update leg time for provided waypoint', () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+    const originalLegTimes = plannerResult.getAgentPlan('agent-B')!.getLegs().map(l => l.getTime());
+
+    routeEditor.addTimeOffsetAfterWaypoint('agent-B', 1, 120);
+
+    let modifiedResult = routeEditor.getModifiedResult();
+    const newLegTimes = modifiedResult.getAgentPlan('agent-B')!.getLegs().map(l => l.getTime());
+
+    expect(newLegTimes[0]).toBe(originalLegTimes[0]);
+    expect(newLegTimes[1]).toBe(originalLegTimes[1] + 120);
+  });
+
+  test('addTimeOffsetAfterWaypoint should throw when updated leg time becomes non-positive', () => {
+    let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
+    let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
+
+    const routeEditor = new RoutePlannerResultEditor(plannerResult);
+
+    expect(() => routeEditor.addTimeOffsetAfterWaypoint('agent-B', 1, -100)).toThrow();
+  });
+
+  test('addTimeOffsetAfterWaypoint should not affect other agents', () => {
     let rawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/job/result-data-job-assigned-agent-job-assigned.json");
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
@@ -1573,7 +1650,7 @@ describe('RoutePlannerResultEditor addTimeOffsetFromWaypoint', () => {
     const originalAgentA = plannerResult.getAgentPlan('agent-A')!;
     const originalTimesA = originalAgentA.getActions().map(a => a.getStartTime());
     
-    routeEditor.addTimeOffsetFromWaypoint('agent-B', 1, 3600);
+    routeEditor.addTimeOffsetAfterWaypoint('agent-B', 1, 3600);
     
     let modifiedResult = routeEditor.getModifiedResult();
     const modifiedAgentA = modifiedResult.getAgentPlan('agent-A')!;

@@ -1,8 +1,6 @@
 import {
-    ActionResponseData,
     AddAssignOptions,
-    FeatureResponseData, InvalidInsertionPosition,
-    WaypointResponseData
+    FeatureResponseData, InvalidInsertionPosition
 } from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
@@ -113,14 +111,6 @@ export class InsertPositionResolver {
 
     static extractRouteLocations(agentFeature: FeatureResponseData): [number, number][] {
         return agentFeature.properties.waypoints
-            .filter(waypoint => this.isActionWaypoint(waypoint))
-            .map(waypoint => waypoint.location);
-    }
-
-    static isActionWaypoint(waypoint: WaypointResponseData): boolean {
-        return waypoint.actions.some((action: ActionResponseData) =>
-            action.type !== 'start' && action.type !== 'end'
-        );
+            .map(waypoint => waypoint.location || waypoint.original_location);
     }
 }
-

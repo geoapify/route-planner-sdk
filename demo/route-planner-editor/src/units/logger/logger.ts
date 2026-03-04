@@ -80,8 +80,9 @@ export function bindLoggerPanel(
     container.innerHTML = entries
       .map((entry) => {
         const detail = entry.detail ? ` - ${entry.detail}` : "";
+        const levelClass = entry.level === "error" ? " log__entry--error" : "";
         return `
-          <div class="log__entry">
+          <div class="log__entry${levelClass}">
             <span class="log__timestamp">${formatTime(entry.timestamp)}</span>
             <span class="log__message">${entry.method}${detail}</span>
           </div>

@@ -3,7 +3,6 @@ import { ViolationError } from "../../entities/route-editor-exceptions";
 
 export interface RoutePlannerResultResponseDataExtended extends RoutePlannerResultResponseData {
     properties: RoutePlannerResultResponseData['properties'] & {
-        agentViolations?: { [agentIndex: number]: ViolationError[] };
+        violations?: ViolationError[];
     }
 }
-

@@ -65,6 +65,74 @@ const getActionTargetLabel = (action: any) => {
   return "";
 };
 
+const getWaypointMarkerLocation = (waypoint: any): [number, number] => {
+  const originalLocation = waypoint.getOriginalLocation?.();
+  if (Array.isArray(originalLocation) && originalLocation.length === 2) {
+    return originalLocation as [number, number];
+  }
+
+  return waypoint.getLocation();
+};
+
+const getWaypointActualLocation = (waypoint: any): [number, number] | undefined => {
+  const rawLocation = waypoint.getRaw?.()?.location;
+  if (Array.isArray(rawLocation) && rawLocation.length === 2) {
+    return rawLocation as [number, number];
+  }
+  return undefined;
+};
+
+const isValidLocation = (location: any): location is [number, number] =>
+  Array.isArray(location) &&
+  location.length === 2 &&
+  Number.isFinite(location[0]) &&
+  Number.isFinite(location[1]);
+
+const getWaypointLocationsFromGeometry = (
+  geometry: any,
+  waypointCount: number
+): Array<[number, number] | undefined> => {
+  const fallbackLocations: Array<[number, number] | undefined> = new Array(
+    waypointCount
+  ).fill(undefined);
+
+  if (!geometry || waypointCount === 0) {
+    return fallbackLocations;
+  }
+
+  if (geometry.type === "LineString") {
+    const coordinates = geometry.coordinates || [];
+    for (let index = 0; index < waypointCount; index += 1) {
+      const coord = coordinates[index];
+      if (isValidLocation(coord)) {
+        fallbackLocations[index] = coord;
+      }
+    }
+    return fallbackLocations;
+  }
+
+  if (geometry.type === "MultiLineString") {
+    const lines = geometry.coordinates || [];
+    const first = lines[0]?.[0];
+    if (isValidLocation(first)) {
+      fallbackLocations[0] = first;
+    }
+
+    for (let index = 1; index < waypointCount; index += 1) {
+      const segment = lines[index - 1];
+      const coord =
+        Array.isArray(segment) && segment.length
+          ? segment[segment.length - 1]
+          : undefined;
+      if (isValidLocation(coord)) {
+        fallbackLocations[index] = coord;
+      }
+    }
+  }
+
+  return fallbackLocations;
+};
+
 const buildWaypointPopup = (
   waypoint: any,
   index: number,
@@ -84,7 +152,7 @@ const buildWaypointPopup = (
   title.innerHTML = `
     <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${color};margin-right:6px"></span>
     <span style="color:${color}">${agentLabel}</span>
-    <span style="color:#555;margin-left:6px">#${index + 1}</span>
+    <span style="color:#555;margin-left:6px">#${index}</span>
   `;
   container.appendChild(title);
 
@@ -173,34 +241,13 @@ export function createMapView(container: HTMLElement): DemoMapView {
       }
     | null = null;
 
-  const getLocationKey = (location: [number, number]): string => {
-    return `${location[0].toFixed(4)},${location[1].toFixed(4)}`;
-  };
-
-  const calculateOffsetLocation = (originalLocation: [number, number], overlapCount: number): [number, number] => {
-    if (overlapCount === 0) {
-      return originalLocation;
-    }
-
-    const OFFSET_DISTANCE = 0.0002;
-    const CIRCLE_SEGMENTS = 8;
-    
-    const angleInRadians = (overlapCount * 360 / CIRCLE_SEGMENTS) * (Math.PI / 180);
-    const distance = OFFSET_DISTANCE * overlapCount;
-
-    const longitude = originalLocation[0] + Math.cos(angleInRadians) * distance;
-    const latitude = originalLocation[1] + Math.sin(angleInRadians) * distance;
-
-    return [longitude, latitude];
-  };
-
   const setMarkers = (
     routes: DemoAgentRoute[],
-    hiddenAgentIndexes: Set<number>,
-    locationOverlapCount: Map<string, number>
+    hiddenAgentIndexes: Set<number>
   ) => {
     markers.forEach((marker) => marker.remove());
     markers.length = 0;
+    const locationUsage = new Map<string, number>();
 
     routes.forEach((route) => {
       if (hiddenAgentIndexes.has(route.agentPlan.getAgentIndex())) {
@@ -208,26 +255,81 @@ export function createMapView(container: HTMLElement): DemoMapView {
       }
 
       const waypoints = route.agentPlan.getWaypoints();
+      const geometryLocations = getWaypointLocationsFromGeometry(
+        route.agentRoute?.geometry,
+        waypoints.length
+      );
       waypoints.forEach((waypoint, index) => {
-        const originalLocation = waypoint.getLocation();
-        const locationKey = getLocationKey(originalLocation);
+        const waypointLocation = getWaypointMarkerLocation(waypoint);
+        const originalLocation = isValidLocation(waypointLocation)
+          ? waypointLocation
+          : geometryLocations[index];
+        if (!originalLocation) {
+          return;
+        }
 
-        const currentOverlapCount = locationOverlapCount.get(locationKey) || 0;
-        locationOverlapCount.set(locationKey, currentOverlapCount + 1);
+        const locationKey = `${originalLocation[0].toFixed(6)}:${originalLocation[1].toFixed(6)}`;
+        const usageIndex = locationUsage.get(locationKey) || 0;
+        locationUsage.set(locationKey, usageIndex + 1);
+        const angle = usageIndex * (Math.PI / 3);
+        const radius = usageIndex === 0 ? 0 : 14;
+        const markerOffset: [number, number] = [
+          Math.round(Math.cos(angle) * radius),
+          Math.round(Math.sin(angle) * radius)
+        ];
 
-        const displayLocation = calculateOffsetLocation(originalLocation, currentOverlapCount);
+        const actualLocation = getWaypointActualLocation(waypoint);
+        if (actualLocation) {
+          const point = document.createElement("div");
+          point.style.width = "12px";
+          point.style.height = "12px";
+          point.style.borderRadius = "50%";
+          point.style.background = "#ffffff";
+          point.style.border = `2px solid ${route.color}`;
+          point.style.boxSizing = "border-box";
+          point.style.display = "flex";
+          point.style.alignItems = "center";
+          point.style.justifyContent = "center";
+          point.style.zIndex = "0";
+          point.title = "Actual waypoint location";
+
+          const innerPoint = document.createElement("div");
+          innerPoint.style.width = "4px";
+          innerPoint.style.height = "4px";
+          innerPoint.style.borderRadius = "50%";
+          innerPoint.style.background = route.color;
+          point.appendChild(innerPoint);
+
+          const pointMarker = new maplibre.Marker({
+            element: point,
+            anchor: "center"
+          })
+            .setLngLat(actualLocation)
+            .addTo(map);
+
+          pointMarker.setPopup(
+            new maplibre.Popup({
+              offset: 10,
+              closeButton: false
+            }).setText("Actual waypoint location")
+          );
+
+          markers.push(pointMarker);
+        }
 
         const img = document.createElement("img");
-        img.src = getMarkerIconUrl(String(index + 1), route.color);
-        img.alt = `Waypoint ${index + 1}`;
+        img.src = getMarkerIconUrl(String(index), route.color);
+        img.alt = `Waypoint ${index}`;
         img.width = 26;
         img.height = 26;
+        img.style.zIndex = "2";
 
         const marker = new maplibre.Marker({
           element: img,
-          anchor: "center"
+          anchor: "center",
+          offset: markerOffset
         })
-          .setLngLat(displayLocation)
+          .setLngLat(originalLocation)
           .addTo(map);
 
         const popup = new maplibre.Popup({
@@ -270,22 +372,13 @@ export function createMapView(container: HTMLElement): DemoMapView {
     return container;
   };
 
-  const setUnassignedMarkers = (
-    markersData: DemoUnassignedMarker[],
-    locationOverlapCount: Map<string, number>
-  ) => {
+  const setUnassignedMarkers = (markersData: DemoUnassignedMarker[]) => {
     alertMarkers.forEach((marker) => marker.remove());
     alertMarkers.length = 0;
     lastUnassigned = markersData;
 
     markersData.forEach((markerData) => {
       const originalLocation = markerData.location;
-      const locationKey = getLocationKey(originalLocation);
-
-      const currentOverlapCount = locationOverlapCount.get(locationKey) || 0;
-      locationOverlapCount.set(locationKey, currentOverlapCount + 1);
-
-      const displayLocation = calculateOffsetLocation(originalLocation, currentOverlapCount);
 
       const img = document.createElement("img");
       img.src = getAlertIconUrl();
@@ -297,7 +390,7 @@ export function createMapView(container: HTMLElement): DemoMapView {
         element: img,
         anchor: "center"
       })
-        .setLngLat(displayLocation)
+        .setLngLat(originalLocation)
         .addTo(map);
 
       const popup = new maplibre.Popup({
@@ -373,9 +466,8 @@ export function createMapView(container: HTMLElement): DemoMapView {
       source.setData({ type: "FeatureCollection", features });
     }
 
-    const locationOverlapCount = new Map<string, number>();
-    setMarkers(routes, hiddenAgentIndexes, locationOverlapCount);
-    setUnassignedMarkers(unassignedMarkers, locationOverlapCount);
+    setMarkers(routes, hiddenAgentIndexes);
+    setUnassignedMarkers(unassignedMarkers);
   };
 
   const collectAllCoordinates = (
@@ -385,7 +477,9 @@ export function createMapView(container: HTMLElement): DemoMapView {
     const coords: [number, number][] = [];
     routes.forEach((route) => {
         coords.push(
-          ...route.agentPlan.getWaypoints().map((waypoint) => waypoint.getLocation())
+          ...route.agentPlan
+            .getWaypoints()
+            .map((waypoint) => getWaypointMarkerLocation(waypoint))
         );
     });
     unassignedMarkers.forEach((marker) => {
@@ -407,7 +501,7 @@ export function createMapView(container: HTMLElement): DemoMapView {
 
     const waypointCoords = route.agentPlan
       .getWaypoints()
-      .map((waypoint) => waypoint.getLocation());
+      .map((waypoint) => getWaypointMarkerLocation(waypoint));
     fitToCoordinates(waypointCoords);
   };
 

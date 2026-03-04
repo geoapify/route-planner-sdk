@@ -1,7 +1,8 @@
 import {ActionResponseData, RemoveOptions} from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy } from "../base";
 import { RouteResultEditorBase } from "../../route-result-editor-base";
-import { RouteTimeRecalculator, WaypointBuilder } from "../preserve-order";
+import { AgentPlanRecalculator, WaypointBuilder } from "../preserve-order";
+import { RouteViolationValidator } from "../preserve-order/validations";
 
 /**
  * Strategy that removes shipments while preserving the order of remaining items.
@@ -24,7 +25,8 @@ export class ShipmentRemovePreserveOrderStrategy implements IRemoveStrategy {
         }
 
         for (const agentIndex of impactedAgentIndexes) {
-            await RouteTimeRecalculator.recalculate(context, agentIndex);
+            await AgentPlanRecalculator.recalculate(context, agentIndex);
+            RouteViolationValidator.validate(context, agentIndex);
         }
 
         return true;
@@ -37,40 +39,17 @@ export class ShipmentRemovePreserveOrderStrategy implements IRemoveStrategy {
         }
 
         const feature = context.getAgentFeature(agentIndex);
-        const actions = feature.properties.actions;
         const waypoints = feature.properties.waypoints;
         const legs = feature.properties.legs || [];
 
-        const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, legs);
-
-        const filteredActions = actions.filter((action: ActionResponseData) => action.shipment_index !== shipmentIndex);
-        feature.properties.actions = filteredActions;
-        context.reindexActions(filteredActions);
-
         WaypointBuilder.removeShipmentActionsFromWaypoints(waypoints, shipmentIndex);
-        const updatedWaypoints = WaypointBuilder.removeEmptyWaypoints(waypoints);
-        feature.properties.waypoints = updatedWaypoints;
+        const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, legs);
+        const cleanupResult = WaypointBuilder.removeEmptyWaypoints(waypoints, legDataMap);
+        feature.properties.waypoints = cleanupResult.waypoints;
+        if (cleanupResult.legs) {
+            feature.properties.legs = cleanupResult.legs;
+        }
 
-        WaypointBuilder.reindexWaypointsActions(updatedWaypoints, actions);
-        feature.properties.legs = WaypointBuilder.rebuildLegs(updatedWaypoints, legDataMap);
-        WaypointBuilder.updateWaypointLegIndices(updatedWaypoints);
-
-        this.addToUnassignedShipments(context, shipmentIndex);
         return agentIndex;
     }
-
-    private addToUnassignedShipments(context: RouteResultEditorBase, shipmentIndex: number): void {
-        const rawData = context.getRawData();
-        if (!rawData.properties.issues) {
-            rawData.properties.issues = {};
-        }
-        const issues = rawData.properties.issues;
-        if (!issues.unassigned_shipments) {
-            issues.unassigned_shipments = [];
-        }
-        if (!issues.unassigned_shipments.includes(shipmentIndex)) {
-            issues.unassigned_shipments.push(shipmentIndex);
-        }
-    }
 }
-

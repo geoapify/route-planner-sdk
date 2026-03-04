@@ -27,6 +27,7 @@ const timelineMeta = document.getElementById("timeline-meta") as HTMLElement;
 const agentsList = document.getElementById("agents-list") as HTMLElement;
 const agentsMeta = document.getElementById("agents-meta") as HTMLElement;
 const agentsIssues = document.getElementById("agents-issues") as HTMLElement;
+const issuesPanelContent = document.getElementById("issues-panel-content") as HTMLElement;
 const logList = document.getElementById("log-list") as HTMLElement;
 const logClear = document.getElementById("log-clear") as HTMLButtonElement;
 const logCopy = document.getElementById("log-copy") as HTMLButtonElement;
@@ -58,6 +59,8 @@ initTaskSelector(taskSelect, taskLoad, demoTasks, async (taskId) => {
     console.log(planner);
 
     const editor = new RoutePlannerResultEditor(result);
+    const initialResultCopy = JSON.parse(JSON.stringify(result.getRaw()));
+    console.log("Initial result snapshot:", initialResultCopy);
     
     store.setState({
       planner,
@@ -107,6 +110,7 @@ createAgentsPanel(
   agentsList,
   agentsMeta,
   agentsIssues,
+  issuesPanelContent,
   store,
   (agentIndex) => planVisualizer.focusAgent(agentIndex),
   (agentIndex, hidden) => {
@@ -120,7 +124,11 @@ createAgentsPanel(
       hiddenAgentIndexes: Array.from(current).sort((a, b) => a - b)
     });
   },
-  (result) => store.setState({ result })
+  (result) => {
+    const resultCopy = JSON.parse(JSON.stringify(result.getRaw()));
+    console.log("Modified result snapshot:", resultCopy);
+    store.setState({ result });
+  }
 );
 
 store.subscribe((state) => {

@@ -1,7 +1,8 @@
 import {ActionResponseData, RemoveOptions} from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy } from "../base";
 import { RouteResultEditorBase } from "../../route-result-editor-base";
-import { RouteTimeRecalculator, WaypointBuilder } from "../preserve-order";
+import { AgentPlanRecalculator, WaypointBuilder } from "../preserve-order";
+import { RouteViolationValidator } from "../preserve-order/validations";
 
 /**
  * Strategy that removes jobs while preserving the order of remaining jobs.
@@ -24,7 +25,8 @@ export class JobRemovePreserveOrderStrategy implements IRemoveStrategy {
         }
 
         for (const agentIndex of impactedAgentIndexes) {
-            await RouteTimeRecalculator.recalculate(context, agentIndex);
+            await AgentPlanRecalculator.recalculate(context, agentIndex, );
+            RouteViolationValidator.validate(context, agentIndex);
         }
 
         return true;
@@ -48,13 +50,11 @@ export class JobRemovePreserveOrderStrategy implements IRemoveStrategy {
         context.reindexActions(actions);
 
         WaypointBuilder.removeJobActionFromWaypoints(waypoints, jobIndex);
-        const updatedWaypoints = WaypointBuilder.removeEmptyWaypoints(waypoints);
-        feature.properties.waypoints = updatedWaypoints;
-
-        WaypointBuilder.reindexWaypointsActions(updatedWaypoints, actions);
-        feature.properties.legs = WaypointBuilder.rebuildLegs(updatedWaypoints, legDataMap);
-        WaypointBuilder.updateWaypointLegIndices(updatedWaypoints);
-
+        const cleanupResult = WaypointBuilder.removeEmptyWaypoints(waypoints, legDataMap);
+        feature.properties.waypoints = cleanupResult.waypoints;
+        if (cleanupResult.legs) {
+            feature.properties.legs = cleanupResult.legs;
+        }
         this.addToUnassignedJobs(context, jobIndex);
         return agentIndex;
     }

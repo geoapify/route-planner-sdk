@@ -44,7 +44,14 @@ export class RoutingHelper {
     }
 
     async calculateLegData(locations: [number, number][]): Promise<any[]> {
-        if (locations.length < 2) return [];
+        const routeData = await this.calculateRouteData(locations);
+        return routeData.legs;
+    }
+
+    async calculateRouteData(locations: [number, number][]): Promise<{ legs: any[]; waypoints: any[] }> {
+        if (locations.length < 2) {
+            return { legs: [], waypoints: [] };
+        }
 
         const waypoints = locations.map(loc => `lonlat:${loc[0]},${loc[1]}`).join('|');
         const url = this.constructRoutingUrl(waypoints);
@@ -63,10 +70,13 @@ export class RoutingHelper {
         const feature = result?.features?.[0];
 
         if (!feature || !feature.properties?.legs) {
-            return [];
+            return { legs: [], waypoints: [] };
         }
 
-        return feature.properties.legs;
+        return {
+            legs: feature.properties.legs || [],
+            waypoints: feature.properties.waypoints || []
+        };
     }
 
     constructRoutingUrl(waypoints: string): string {
@@ -94,4 +104,3 @@ export class RoutingHelper {
         return url;
     }
 }
-

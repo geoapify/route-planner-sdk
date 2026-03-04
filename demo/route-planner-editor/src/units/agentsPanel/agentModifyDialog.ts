@@ -33,7 +33,7 @@ const formatShipmentLabel = (shipment: any, index: number) =>
   shipment?.id ? String(shipment.id) : `#${index}`;
 
 const formatWaypointList = (waypoints: number[]) =>
-  waypoints.map((value) => value + 1).join(", ");
+  waypoints.join(", ");
 
 const getJobWaypointInfo = (agentPlan: AgentPlan, jobIndex: number) => {
   const waypoints = agentPlan
@@ -350,7 +350,7 @@ export function createModifyPanel(context: DemoModifyContext) {
 
     const afterWaypointInput = document.createElement("input");
     afterWaypointInput.type = "number";
-    afterWaypointInput.placeholder = "e.g. 1";
+    afterWaypointInput.placeholder = "e.g. 0";
 
     const afterIdInput = document.createElement("input");
     afterIdInput.type = "text";
@@ -363,17 +363,12 @@ export function createModifyPanel(context: DemoModifyContext) {
     appendToggle.appendChild(appendInput);
     appendToggle.appendChild(document.createTextNode("Append"));
 
-    const priorityInput = document.createElement("input");
-    priorityInput.type = "number";
-    priorityInput.placeholder = "priority";
-
     const optionsGrid = document.createElement("div");
     optionsGrid.className = "modify-grid";
     optionsGrid.appendChild(createField("Strategy", strategySelect));
     optionsGrid.appendChild(createField("Remove strategy", removeStrategySelect));
     optionsGrid.appendChild(createField("After waypoint index", afterWaypointInput));
     optionsGrid.appendChild(createField("After id", afterIdInput));
-    optionsGrid.appendChild(createField("Priority", priorityInput));
     optionsGrid.appendChild(appendToggle);
 
     const actionRow = document.createElement("div");
@@ -388,7 +383,6 @@ export function createModifyPanel(context: DemoModifyContext) {
       };
 
       const afterWaypointIndex = readNumberValue(afterWaypointInput);
-      const priority = readNumberValue(priorityInput);
       const afterId = afterIdInput.value.trim();
 
       if (afterWaypointIndex !== undefined) {
@@ -400,10 +394,6 @@ export function createModifyPanel(context: DemoModifyContext) {
       if (appendInput.checked) {
         options.append = true;
       }
-      if (priority !== undefined) {
-        options.priority = priority;
-      }
-
       await onAssign(selectedIndex, context.agentIndex, options);
       context.onResult(context.editor.getModifiedResult());
     });

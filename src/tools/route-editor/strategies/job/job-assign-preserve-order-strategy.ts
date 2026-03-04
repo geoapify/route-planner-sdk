@@ -3,8 +3,8 @@ import {
     AssignStrategy, 
 } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
-import {RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
-import {PreserveOrderJobHelper} from "../preserve-order/helpers/preserve-order-job-helper";
+import {AgentPlanRecalculator, WaypointBuilder} from "../preserve-order";
+import {JobInsertPosition, PreserveOrderJobHelper} from "../preserve-order/helpers/preserve-order-job-helper";
 import {RouteViolationValidator} from "../preserve-order/validations";
 import {JobRemovePreserveOrderStrategy} from "./job-remove-preserve-order-strategy";
 import {JobRemoveReoptimizeStrategy} from "./job-remove-reoptimize-strategy";
@@ -26,25 +26,17 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
         options: AddAssignOptions
     ): Promise<boolean> {
         await this.removeJobsFromCurrentAgents(context, jobIndexes, options);
-        
-        const agentFeature = context.getOrCreateAgentFeature(agentIndex);
-        const actions = agentFeature.properties.actions;
-        
-        const insertPosition = await PreserveOrderJobHelper.determineInsertPosition(context, agentIndex, jobIndexes[0], options);
-        
-        PreserveOrderJobHelper.insertJobActionsAtPosition(context, actions, jobIndexes, insertPosition);
-        context.reindexActions(actions);
-        
+                
         for (let i = 0; i < jobIndexes.length; i++) {
-            WaypointBuilder.insertJobWaypoint(context, agentIndex, jobIndexes[i], insertPosition + i);
+            const insertPosition: JobInsertPosition =
+                await PreserveOrderJobHelper.determineInsertPosition(context, agentIndex, jobIndexes[i], options);
+            WaypointBuilder.insertJobWaypoint(context, agentIndex, jobIndexes[i], insertPosition);
         }
         
-        await RouteTimeRecalculator.recalculate(context, agentIndex);
+        await AgentPlanRecalculator.recalculate(context, agentIndex);
         
         RouteViolationValidator.validate(context, agentIndex);
-        
-        this.removeFromUnassignedJobs(context, jobIndexes);
-        
+                
         return true;
     }
 
@@ -57,16 +49,4 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
         const removeOptions: RemoveOptions = { strategy: removeStrategyType };
         await removeStrategy.execute(context, jobIndexes, removeOptions);
     }
-
-    private removeFromUnassignedJobs(context: RouteResultEditorBase, jobIndexes: number[]): void {
-        const rawData = context.getRawData();
-        const issues = rawData.properties.issues;
-        if (!issues?.unassigned_jobs) {
-            return;
-        }
-
-        issues.unassigned_jobs = issues.unassigned_jobs
-            .filter((jobIndex: number) => !jobIndexes.includes(jobIndex));
-    }
 }
-

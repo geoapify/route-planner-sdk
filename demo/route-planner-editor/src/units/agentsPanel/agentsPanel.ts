@@ -89,14 +89,61 @@ export function createAgentsPanel(
   container: HTMLElement,
   metaEl: HTMLElement,
   issuesEl: HTMLElement,
+  issuesPanelEl: HTMLElement,
   store: { subscribe: (listener: (state: DemoRoutePlannerState) => void) => void },
   onFocusAgent: (agentIndex: number) => void,
   onToggleAgent: (agentIndex: number, hidden: boolean) => void,
   onUpdateResult: (result: any) => void
 ) {
+  const renderIssuesPanel = (result: RoutePlannerResult | null) => {
+    if (!result) {
+      issuesPanelEl.textContent = "No result loaded.";
+      return;
+    }
+
+    const rawIssues = (result.getRaw() as any)?.properties?.issues || {};
+    const inputData = result.getRoutingOptions() as any;
+    const unassignedAgents: number[] = rawIssues.unassigned_agents || [];
+    const unassignedJobs: number[] = rawIssues.unassigned_jobs || [];
+    const unassignedShipments: number[] = rawIssues.unassigned_shipments || [];
+    const unassignedJobIds = unassignedJobs.map((jobIndex) => {
+      const job = inputData?.jobs?.[jobIndex];
+      return job?.id ? String(job.id) : `#${jobIndex}`;
+    });
+    const unassignedShipmentIds = unassignedShipments.map((shipmentIndex) => {
+      const shipment = inputData?.shipments?.[shipmentIndex];
+      return shipment?.id ? String(shipment.id) : `#${shipmentIndex}`;
+    });
+
+    const renderLine = (label: string, values: Array<string | number>) => {
+      if (!values.length) {
+        return `
+          <div class="issues-panel__group">
+            <div class="issues-panel__label">${label}</div>
+            <div class="issues-panel__value">none</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="issues-panel__group">
+          <div class="issues-panel__label">${label}</div>
+          <div class="issues-panel__value">${values.join(", ")}</div>
+        </div>
+      `;
+    };
+
+    issuesPanelEl.innerHTML = `
+      ${renderLine("Unassigned agents", unassignedAgents)}
+      ${renderLine("Unassigned jobs", unassignedJobIds)}
+      ${renderLine("Unassigned shipments", unassignedShipmentIds)}
+    `;
+  };
+
   store.subscribe((state) => {
-    const result: RoutePlannerResult = state.result;
+    const result: RoutePlannerResult | null = state.result;
     container.innerHTML = "";
+    renderIssuesPanel(result);
 
     if (!result) {
       container.innerHTML =

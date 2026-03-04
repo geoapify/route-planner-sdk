@@ -60,16 +60,13 @@ export class RoutePlannerResultEditor {
      * 
      * @param agentIdOrIndex - The ID or index of the agent
      * @param jobIndexesOrIds - Array of job IDs or indexes to assign
-     * @param options - Assignment options or priority number (for backward compatibility)
+     * @param options - Assignment options
      * @returns Promise resolving to true if successful
      * 
      * @example
      * ```typescript
      * // Default: full reoptimization (Route Planner API)
      * await editor.assignJobs('agent-A', ['job-1', 'job-2']);
-     * 
-     * // With priority (backward compatible)
-     * await editor.assignJobs('agent-A', ['job-1'], 100);
      * 
      * // Find optimal insertion point (Route Matrix API)
      * await editor.assignJobs('agent-A', ['job-1'], { strategy: 'preserveOrder' });
@@ -87,7 +84,7 @@ export class RoutePlannerResultEditor {
      * });
      * ```
      */
-    async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[], options?: number | AddAssignOptions): Promise<boolean> {
+    async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
         const normalizedOptions = this.normalizeAddAssignOptions(options);
         let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
@@ -100,7 +97,7 @@ export class RoutePlannerResultEditor {
      * 
      * @param agentIdOrIndex - The ID or index of the agent
      * @param shipmentIndexesOrIds - Array of shipment IDs or indexes to assign
-     * @param options - Assignment options or priority number (for backward compatibility)
+     * @param options - Assignment options
      * @returns Promise resolving to true if successful
      * 
      * @example
@@ -118,7 +115,7 @@ export class RoutePlannerResultEditor {
      * });
      * ```
      */
-    async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], options?: number | AddAssignOptions): Promise<boolean> {
+    async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexesOrIds");
         const normalizedOptions = this.normalizeAddAssignOptions(options);
         let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.rawData, shipmentIndexesOrIds);
@@ -245,8 +242,8 @@ export class RoutePlannerResultEditor {
         return AgentReoptimizeHelper.execute(this.getJobEditor(), options);
     }
 
-    addTimeOffsetFromWaypoint(agentIdOrIndex: string | number, waypointIndex: number, offsetSeconds: number): void {
-        AgentTimeOffsetHelper.execute(this.getJobEditor(), agentIdOrIndex, waypointIndex, offsetSeconds);
+    addTimeOffsetAfterWaypoint(agentIdOrIndex: string | number, waypointIndex: number, offsetSeconds: number): void {
+        return AgentTimeOffsetHelper.execute(this.getJobEditor(), agentIdOrIndex, waypointIndex, offsetSeconds);
     }
 
     async moveWaypoint(agentIdOrIndex: string | number, fromWaypointIndex: number, toWaypointIndex: number): Promise<void> {
@@ -259,14 +256,7 @@ export class RoutePlannerResultEditor {
         }
     }
 
-    /**
-     * Normalizes options parameter for backward compatibility.
-     * If a number is passed, it's treated as priority (old API).
-     */
-    private normalizeAddAssignOptions(options?: number | AddAssignOptions): AddAssignOptions {
-        if (typeof options === 'number') {
-            return { priority: options };
-        }
+    private normalizeAddAssignOptions(options?: AddAssignOptions): AddAssignOptions {
         return options ?? {};
     }
 

@@ -1,6 +1,12 @@
 import { JobData, ShipmentData, ShipmentStepData } from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
+export interface WaypointLocationSourceData {
+    location: [number, number];
+    locationIndex?: number;
+    locationId?: string;
+}
+
 /**
  * Helper for route editing: create actions, retrieve job/shipment data, remove items from agents
  */
@@ -44,61 +50,65 @@ export class RouteEditorHelper {
         return context.getRawData().properties.params.shipments[shipmentIndex];
     }
 
-    static removeJobsFromAgents(context: RouteResultEditorBase, jobIndexes: number[]): void {
-        const rawData = context.getRawData();
-        for (const jobIndex of jobIndexes) {
-            for (const feature of rawData.features) {
-                const actions = feature.properties.actions;
-                const jobActionIndex = actions.findIndex((a: any) => a.job_index === jobIndex);
-                if (jobActionIndex !== -1) {
-                    actions.splice(jobActionIndex, 1);
-                    context.reindexActions(actions);
-                }
-            }
-        }
-    }
-
-    static removeShipmentsFromAgents(context: RouteResultEditorBase, shipmentIndexes: number[]): void {
-        const rawData = context.getRawData();
-        for (const shipmentIndex of shipmentIndexes) {
-            for (const feature of rawData.features) {
-                const actions = feature.properties.actions;
-                for (let i = actions.length - 1; i >= 0; i--) {
-                    if (actions[i].shipment_index === shipmentIndex) {
-                        actions.splice(i, 1);
-                    }
-                }
-                context.reindexActions(actions);
-            }
-        }
-    }
-
     static resolveShipmentStepLocation(context: RouteResultEditorBase, step: ShipmentStepData): [number, number] {
+        return this.resolveShipmentStepWaypointLocationData(context, step).location;
+    }
+
+    static resolveShipmentStepWaypointLocationData(
+        context: RouteResultEditorBase,
+        step: ShipmentStepData
+    ): WaypointLocationSourceData {
         if (step.location) {
-            return step.location;
+            return { location: step.location };
         }
         
         if (step.location_index !== undefined) {
             const rawData = context.getRawData();
             const locations = rawData.properties.params.locations;
-            return locations[step.location_index].location!;
+            const indexedLocation = locations[step.location_index];
+
+            if (!indexedLocation?.location) {
+                throw new Error(`Shipment step has invalid location_index ${step.location_index}`);
+            }
+
+            return {
+                location: indexedLocation.location,
+                locationIndex: step.location_index,
+                locationId: indexedLocation.id
+            };
         }
         
         throw new Error('Shipment step must have either location or location_index');
     }
 
     static resolveJobLocation(context: RouteResultEditorBase, job: JobData): [number, number] {
+        return this.resolveJobWaypointLocationData(context, job).location;
+    }
+
+    static resolveJobWaypointLocationData(
+        context: RouteResultEditorBase,
+        job: JobData
+    ): WaypointLocationSourceData {
         if (job.location) {
-            return job.location;
+            return { location: job.location };
         }
         
         if (job.location_index !== undefined) {
             const rawData = context.getRawData();
             const locations = rawData.properties.params.locations;
-            return locations[job.location_index].location!;
+            const indexedLocation = locations[job.location_index];
+
+            if (!indexedLocation?.location) {
+                throw new Error(`Job has invalid location_index ${job.location_index}`);
+            }
+
+            return {
+                location: indexedLocation.location,
+                locationIndex: job.location_index,
+                locationId: indexedLocation.id
+            };
         }
         
         throw new Error('Job must have either location or location_index');
     }
 }
-

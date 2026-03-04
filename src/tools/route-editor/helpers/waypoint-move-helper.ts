@@ -1,7 +1,7 @@
 import { IndexConverter } from "../../../helpers/index-converter";
 import { ActionResponseData, InvalidInsertionPosition } from "../../../models";
 import { RouteResultEditorBase } from "../route-result-editor-base";
-import { RouteTimeRecalculator, WaypointBuilder } from "../strategies";
+import { AgentPlanRecalculator, WaypointBuilder } from "../strategies";
 import { WaypointResponseData } from "../../../models";
 import { RouteViolationValidator } from "../strategies/preserve-order/validations";
 
@@ -22,6 +22,7 @@ export class WaypointMoveHelper {
 
         this.validateWaypointIndex(waypoints, fromWaypointIndex, agentIndex, 'from');
         this.validateWaypointIndex(waypoints, toWaypointIndex, agentIndex, 'to');
+        this.validatePickupDeliveryOrder(waypoints, fromWaypointIndex, toWaypointIndex, agentIndex);
 
         if (fromWaypointIndex === toWaypointIndex) {
             return;
@@ -31,24 +32,13 @@ export class WaypointMoveHelper {
         const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, existingLegs);
 
         const waypointToMove = waypoints[fromWaypointIndex];
-        const actionsToMove = [...waypointToMove.actions];
+        waypoints.splice(fromWaypointIndex, 1);
+        waypoints.splice(toWaypointIndex, 0, waypointToMove);
 
-        this.removeWaypointFromList(waypoints, fromWaypointIndex);
-        const insertionIndex = this.calculateInsertionIndex(toWaypointIndex, fromWaypointIndex);
-
-        this.removeActionsFromList(actions, actionsToMove);
-        this.insertActionsAtPosition(actions, actionsToMove, waypoints, insertionIndex);
-        this.insertWaypointAtPosition(waypoints, waypointToMove, insertionIndex);
-
-        this.mergeAdjacentDuplicateLocations(waypoints, insertionIndex);
-
-        context.reindexActions(actions);
-        WaypointBuilder.reindexWaypointsActions(waypoints, actions);
+        this.mergeAdjacentDuplicateLocations(waypoints, toWaypointIndex);
         
         agentFeature.properties.legs = WaypointBuilder.rebuildLegs(waypoints, legDataMap);
-        WaypointBuilder.updateWaypointLegIndices(waypoints);
-        
-        await RouteTimeRecalculator.recalculate(context, agentIndex);
+        await AgentPlanRecalculator.recalculate(context, agentIndex);
         
         RouteViolationValidator.validate(context, agentIndex);
     }
@@ -65,42 +55,50 @@ export class WaypointMoveHelper {
         }
     }
 
-    private static removeWaypointFromList(waypoints: WaypointResponseData[], index: number): void {
-        waypoints.splice(index, 1);
-    }
+    private static validatePickupDeliveryOrder(
+        waypoints: WaypointResponseData[],
+        fromWaypointIndex: number,
+        toWaypointIndex: number,
+        agentIndex: number
+    ): void {
+        const fromWaypoint = waypoints[fromWaypointIndex];
+        const shipmentIndexes = new Set<number>();
 
-    private static calculateInsertionIndex(toIndex: number, fromIndex: number): number {
-        return toIndex > fromIndex ? toIndex - 1 : toIndex;
-    }
+        for (const action of fromWaypoint.actions) {
+            if (typeof action.shipment_index === "number") {
+                shipmentIndexes.add(action.shipment_index);
+            }
+        }
 
-    private static removeActionsFromList(actions: ActionResponseData[], actionsToRemove: ActionResponseData[]): void {
-        for (const actionToRemove of actionsToRemove) {
-            const index = actions.findIndex(a => WaypointBuilder.actionsMatch(a, actionToRemove));
-            if (index !== -1) {
-                actions.splice(index, 1);
+        if (shipmentIndexes.size === 0) {
+            return;
+        }
+
+        for (const shipmentIndex of shipmentIndexes) {
+            let pickupWaypointIndex = -1;
+
+            for (let waypointIndex = 0; waypointIndex < waypoints.length; waypointIndex++) {
+                const hasPickup = waypoints[waypointIndex].actions.some(
+                    (action: ActionResponseData) =>
+                        action.type === "pickup" && action.shipment_index === shipmentIndex
+                );
+
+                if (hasPickup) {
+                    pickupWaypointIndex = waypointIndex;
+                    break;
+                }
+            }
+
+            if (pickupWaypointIndex !== -1 && pickupWaypointIndex >= toWaypointIndex) {
+                throw new InvalidInsertionPosition(
+                    `Cannot move waypoint ${fromWaypointIndex} before pickup for shipment ${shipmentIndex}`,
+                    agentIndex,
+                    toWaypointIndex
+                );
             }
         }
     }
 
-   private static insertActionsAtPosition(actions: ActionResponseData[], actionsToInsert: ActionResponseData[],
-                                          waypoints: WaypointResponseData[], waypointIndex: number): void {
-        const targetActionIndex = this.calculateActionIndexForWaypoint(waypoints, waypointIndex);
-        for (let i = 0; i < actionsToInsert.length; i++) {
-            actions.splice(targetActionIndex + i, 0, actionsToInsert[i]);
-        }
-    }
-
-    private static insertWaypointAtPosition(waypoints: WaypointResponseData[], waypoint: WaypointResponseData, index: number): void {
-        waypoints.splice(index, 0, waypoint);
-    }
-
-    private static calculateActionIndexForWaypoint(waypoints: WaypointResponseData[], waypointIndex: number): number {
-        let actionIndex = 0;
-        for (let i = 0; i < waypointIndex; i++) {
-            actionIndex += waypoints[i].actions.length;
-        }
-        return actionIndex;
-    }
 
     private static mergeAdjacentDuplicateLocations(waypoints: WaypointResponseData[], movedIndex: number): void {
         const hasPreviousMatch = movedIndex > 0 &&
@@ -136,4 +134,3 @@ export class WaypointMoveHelper {
         waypoints.splice(removeIndex, 1);
     }
 }
-

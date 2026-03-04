@@ -209,6 +209,7 @@ export class RoutePlannerTimeline {
 
     public setResult(value: RoutePlannerResult) {
         this.result = value;
+        this.inputData = value.getRoutingOptions() as RoutePlannerInputData;
         this.generateAgentTimeline();
         this.initializeThreeDotMenus();
     }
@@ -755,8 +756,12 @@ export class RoutePlannerTimeline {
         this.waypointPopupContainer.innerHTML = '';
         this.waypointPopupContainer.appendChild(contentElement);
         const rect = triggerElement.getBoundingClientRect();
-        this.waypointPopupContainer.style.top = `${rect.bottom + window.scrollY + 10}px`;
-        let left = rect.left + window.scrollX + (rect.width / 2) - (this.waypointPopupContainer.offsetWidth / 2);
+        const popupPosition = window.getComputedStyle(this.waypointPopupContainer).position;
+        const offsetY = popupPosition === 'fixed' ? 0 : window.scrollY;
+        const offsetX = popupPosition === 'fixed' ? 0 : window.scrollX;
+
+        this.waypointPopupContainer.style.top = `${rect.bottom + offsetY + 10}px`;
+        let left = rect.left + offsetX + (rect.width / 2) - (this.waypointPopupContainer.offsetWidth / 2);
 
         const viewportWidth = window.innerWidth;
         const popupWidth = this.waypointPopupContainer.offsetWidth;

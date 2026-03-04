@@ -38,7 +38,7 @@ export class RouteViolationValidator {
         let capabilityViolations = this.validateCapabilities(context, agent, actions, agentIndex);
         violations.push(...capabilityViolations);
 
-        this.addViolationsToResult(rawData, violations);
+        this.addViolationsToResult(rawData, agentIndex, violations);
     }
 
     private static validateTimeWindows(context: RouteResultEditorBase, agent: AgentData,
@@ -249,20 +249,18 @@ export class RouteViolationValidator {
         );
     }
 
-    private static addViolationsToResult(rawData: any, violations: ViolationError[]): void {
-        if (violations.length === 0) return;
+    private static addViolationsToResult(rawData: any, agentIndex: number, violations: ViolationError[]): void {
+        rawData.properties.violations = (rawData.properties.violations || []).filter(
+            (violation: ViolationError) => violation.agentIndex !== agentIndex
+        );
 
-        if (!rawData.properties.agentViolations) {
-            rawData.properties.agentViolations = {};
-        }
-
-        for (const violation of violations) {
-            const agentIndex = violation.agentIndex;
-            if (!rawData.properties.agentViolations[agentIndex]) {
-                rawData.properties.agentViolations[agentIndex] = [];
+        if (violations.length === 0) {
+            if (!rawData.properties.violations.length) {
+                delete rawData.properties.violations;
             }
-            rawData.properties.agentViolations[agentIndex].push(violation);
+            return;
         }
+
+        rawData.properties.violations.push(...violations);
     }
 }
-

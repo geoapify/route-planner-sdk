@@ -17,17 +17,20 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
     async assignJobs(agentIndex: number, jobIndexes: number[], options: AddAssignOptions = {}): Promise<boolean> {
         this.validateAgent(agentIndex);
         this.validateJobs(jobIndexes, agentIndex);
-        this.applyPriority(jobIndexes, options.priority);
         
         const strategy = JobStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this, agentIndex, jobIndexes, options);
+        const result = await strategy.execute(this, agentIndex, jobIndexes, options);
+        this.updateIssues();
+        return result;
     }
 
     async removeJobs(jobIndexes: number[], options: RemoveOptions = {}): Promise<boolean> {
         this.validateJobs(jobIndexes);
         
         const strategy = JobStrategyFactory.createRemoveStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this, jobIndexes, options);
+        const result = await strategy.execute(this, jobIndexes, options);
+        this.updateIssues();
+        return result;
     }
 
     async addNewJobs(agentIndex: number, jobs: Job[], options: AddAssignOptions = {}): Promise<boolean> {
@@ -38,7 +41,9 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         const newJobIndexes = this.appendJobsToInput(jobsRaw);
         
         const strategy = JobStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this, agentIndex, newJobIndexes, options);
+        const result = await strategy.execute(this, agentIndex, newJobIndexes, options);
+        this.updateIssues();
+        return result;
     }
 
     private validateJobs(jobIndexes: number[], agentIndex?: number): void {
@@ -82,10 +87,4 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         return jobsRaw.map((_, i) => startIndex + i);
     }
 
-    private applyPriority(jobIndexes: number[], priority?: number): void {
-        if (priority === undefined) return;
-        for (const jobIndex of jobIndexes) {
-            this.rawData.properties.params.jobs[jobIndex].priority = priority;
-        }
-    }
 }

@@ -1,7 +1,9 @@
 import { RouteEditorHelper } from "./route-editor-helper";
-import { LegBuilder, MISSING_LEG_DATA } from "./leg-builder";
+import { LegRecalculator, MISSING_LEG_DATA } from "./leg-recalculator";
 import {ActionResponseData, LegResponseData, WaypointResponseData} from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
+import {ShipmentInsertPositions} from "../helpers/preserve-order-shipment-helper";
+import { JobInsertPosition } from "../helpers/preserve-order-job-helper";
 
 /**
  * Builds/updates agent waypoints for preserveOrder edits, without calling the routing API.
@@ -14,36 +16,34 @@ export class WaypointBuilder {
         context: RouteResultEditorBase,
         agentIndex: number,
         jobIndex: number,
-        actionIndex: number
+        position: JobInsertPosition
     ): void {
         const agentFeature = context.getAgentFeature(agentIndex);
         const waypoints = agentFeature.properties.waypoints;
-        const actions = agentFeature.properties.actions;
         
-        const job = RouteEditorHelper.getJobByIndex(context, jobIndex);
-        const action = actions.find((a: ActionResponseData) => a.job_index === jobIndex);
+        const job = RouteEditorHelper.getJobByIndex(context, jobIndex);    
+        const jobLocationData = RouteEditorHelper.resolveJobWaypointLocationData(context, job);
         
-        if (!action) {
-            return;
+        const action = RouteEditorHelper.createJobAction(context, jobIndex, position.position); 
+
+        if (position.createWaypoint) {
+
+            const newWaypoint: WaypointResponseData = {
+                original_location: jobLocationData.location,
+                original_location_index: jobLocationData.locationIndex,
+                original_location_id: jobLocationData.locationId,
+                start_time: action.start_time || 0,
+                duration: action.duration || 0,
+                actions: [action],
+                prev_leg_index: undefined,
+                next_leg_index: undefined
+            };
+
+            waypoints.splice(position.position, 0, newWaypoint);
+            LegRecalculator.replaceLegsForInsertedWaypoint(context, agentIndex, position.position);
+        } else {
+            this.addActionToWaypoint(waypoints[position.position], action);
         }
-
-        const jobLocation = RouteEditorHelper.resolveJobLocation(context, job);
-
-        const waypointIndex = this.findWaypointIndexForAction(waypoints, actionIndex);
-        
-        const newWaypoint: WaypointResponseData = {
-            original_location: jobLocation,
-            location: jobLocation,
-            start_time: action.start_time || 0,
-            duration: action.duration || 0,
-            actions: [{ ...action, waypoint_index: waypointIndex }],
-            prev_leg_index: undefined,
-            next_leg_index: undefined
-        };
-
-        waypoints.splice(waypointIndex, 0, newWaypoint);
-        this.createAndAssignLegs(context, agentIndex, waypointIndex, newWaypoint);
-        this.reindexWaypointsActions(waypoints, actions);
     }
 
     /**
@@ -53,100 +53,66 @@ export class WaypointBuilder {
         context: RouteResultEditorBase,
         agentIndex: number,
         shipmentIndex: number,
-        pickupActionIndex: number,
-        deliveryActionIndex: number
+        positions: ShipmentInsertPositions
     ): void {
         const agentFeature = context.getAgentFeature(agentIndex);
         const waypoints = agentFeature.properties.waypoints;
-        const actions = agentFeature.properties.actions;
-        
         const shipment = RouteEditorHelper.getShipmentByIndex(context, shipmentIndex);
-        
-        const pickupAction = actions.find((a: ActionResponseData) =>
-            a.shipment_index === shipmentIndex && a.type === 'pickup'
-        );
-        const deliveryAction = actions.find((a: ActionResponseData) =>
-            a.shipment_index === shipmentIndex && a.type === 'delivery'
-        );
 
-        if (!pickupAction || !deliveryAction) {
+        const pickupAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'pickup', positions.pickup);
+        const deliveryAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'delivery', positions.delivery);    
+
+        if (positions.createPickupWaypoint) {
+            const pickupLocationData = RouteEditorHelper.resolveShipmentStepWaypointLocationData(context, shipment.pickup!);
+            const pickupWaypoint: WaypointResponseData = {
+                original_location: pickupLocationData.location,
+                original_location_index: pickupLocationData.locationIndex,
+                original_location_id: pickupLocationData.locationId,
+                start_time: pickupAction.start_time || 0,
+                duration: pickupAction.duration || 0,
+                actions: [{ ...pickupAction, waypoint_index: positions.pickup }],
+                prev_leg_index: undefined,
+                next_leg_index: undefined
+            };
+            waypoints.splice(positions.pickup, 0, pickupWaypoint);
+            LegRecalculator.replaceLegsForInsertedWaypoint(context, agentIndex, positions.pickup);
+        } else {
+            const existingPickupWaypoint = waypoints[positions.pickup];
+            if (existingPickupWaypoint) {
+                this.addActionToWaypoint(existingPickupWaypoint, pickupAction);
+            }
+        }
+
+        if (positions.createDeliveryWaypoint) {
+            const deliveryLocationData = RouteEditorHelper.resolveShipmentStepWaypointLocationData(context, shipment.delivery!);
+            const deliveryWaypoint: WaypointResponseData = {
+                original_location: deliveryLocationData.location,
+                original_location_index: deliveryLocationData.locationIndex,
+                original_location_id: deliveryLocationData.locationId,
+                start_time: deliveryAction.start_time || 0,
+                duration: deliveryAction.duration || 0,
+                actions: [{ ...deliveryAction, waypoint_index: positions.delivery }],
+                prev_leg_index: undefined,
+                next_leg_index: undefined
+            };
+            waypoints.splice(positions.delivery, 0, deliveryWaypoint);
+            LegRecalculator.replaceLegsForInsertedWaypoint(context, agentIndex, positions.delivery);
+        } else {
+            const existingDeliveryWaypoint = waypoints[positions.delivery];
+            if (existingDeliveryWaypoint) {
+                this.addActionToWaypoint(existingDeliveryWaypoint, deliveryAction);
+            }
+        }
+    }
+
+    private static addActionToWaypoint(waypoint: WaypointResponseData, action: ActionResponseData): void {
+        const endActionIndex = waypoint.actions.findIndex(existingAction => existingAction.type === "end");
+        if (endActionIndex >= 0) {
+            waypoint.actions.splice(endActionIndex, 0, { ...action });
             return;
         }
 
-        const pickupLocation = RouteEditorHelper.resolveShipmentStepLocation(context, shipment.pickup!);
-        const pickupWaypointIndex = this.findWaypointIndexForAction(waypoints, pickupActionIndex);
-        const pickupWaypoint: WaypointResponseData = {
-            original_location: pickupLocation,
-            location: pickupLocation,
-            start_time: pickupAction.start_time || 0,
-            duration: pickupAction.duration || 0,
-            actions: [{ ...pickupAction, waypoint_index: pickupWaypointIndex }],
-            prev_leg_index: undefined,
-            next_leg_index: undefined
-        };
-        waypoints.splice(pickupWaypointIndex, 0, pickupWaypoint);
-
-        const deliveryLocation = RouteEditorHelper.resolveShipmentStepLocation(context, shipment.delivery!);
-        const deliveryWaypointIndex = this.findWaypointIndexForAction(waypoints, deliveryActionIndex);
-        const deliveryWaypoint: WaypointResponseData = {
-            original_location: deliveryLocation,
-            location: deliveryLocation,
-            start_time: deliveryAction.start_time || 0,
-            duration: deliveryAction.duration || 0,
-            actions: [{ ...deliveryAction, waypoint_index: deliveryWaypointIndex }],
-            prev_leg_index: undefined,
-            next_leg_index: undefined
-        };
-        waypoints.splice(deliveryWaypointIndex, 0, deliveryWaypoint);
-
-        this.createAndAssignLegs(context, agentIndex, pickupWaypointIndex, pickupWaypoint);
-        this.createAndAssignLegs(context, agentIndex, deliveryWaypointIndex, deliveryWaypoint);
-        
-        this.reindexWaypointsActions(waypoints, actions);
-    }
-
-    private static findWaypointIndexForAction(waypoints: WaypointResponseData[], actionIndex: number): number {
-        let cumulativeActions = 0;
-        for (let i = 0; i < waypoints.length; i++) {
-            const waypointActions = waypoints[i].actions || [];
-            cumulativeActions += waypointActions.length;
-            if (cumulativeActions >= actionIndex) {
-                return i + 1;
-            }
-        }
-        return waypoints.length;
-    }
-
-    static reindexWaypointsActions(waypoints: WaypointResponseData[], actions: ActionResponseData[]): void {
-        for (let wpIndex = 0; wpIndex < waypoints.length; wpIndex++) {
-            const waypoint = waypoints[wpIndex];
-            if (waypoint.actions) {
-                for (const action of waypoint.actions) {
-                    action.waypoint_index = wpIndex;
-                }
-            }
-        }
-
-        for (const action of actions) {
-            const waypointIndex = this.findWaypointIndexForActionInWaypoints(waypoints, action);
-            if (waypointIndex !== -1) {
-                action.waypoint_index = waypointIndex;
-            }
-        }
-    }
-
-    static findWaypointIndexForActionInWaypoints(waypoints: WaypointResponseData[], targetAction: ActionResponseData): number {
-        for (let i = 0; i < waypoints.length; i++) {
-            const waypoint = waypoints[i];
-            if (waypoint.actions) {
-                for (const action of waypoint.actions) {
-                    if (this.actionsMatch(action, targetAction)) {
-                        return i;
-                    }
-                }
-            }
-        }
-        return -1;
+        waypoint.actions.push({ ...action });
     }
 
     static actionsMatch(a: ActionResponseData, b: ActionResponseData): boolean {
@@ -155,13 +121,6 @@ export class WaypointBuilder {
         if (a.type === 'pickup' || a.type === 'delivery') return a.shipment_index === b.shipment_index;
         if (a.type === 'start' || a.type === 'end') return true;
         return false;
-    }
-
-    private static createAndAssignLegs(context: RouteResultEditorBase, agentIndex: number,
-                                       waypointIndex: number, waypoint: WaypointResponseData): void {
-        const legIndices = LegBuilder.insertPlaceholderLeg(context, agentIndex, waypointIndex);
-        waypoint.prev_leg_index = legIndices.prevLegIndex;
-        waypoint.next_leg_index = legIndices.nextLegIndex;
     }
 
     static removeJobActionFromWaypoints(waypoints: WaypointResponseData[], jobIndex: number): void {
@@ -176,8 +135,30 @@ export class WaypointBuilder {
         }
     }
 
-    static removeEmptyWaypoints(waypoints: WaypointResponseData[]): WaypointResponseData[] {
-        return waypoints.filter(wp => wp.actions.length > 0);
+    static removeEmptyWaypoints(
+        waypoints: WaypointResponseData[],
+        legDataMap?: Map<string, LegResponseData>
+    ): { waypoints: WaypointResponseData[]; legs?: LegResponseData[]; removedWaypointIndices: number[] } {
+        const updatedWaypoints: WaypointResponseData[] = [];
+        const removedWaypointIndices: number[] = [];
+
+        for (let i = 0; i < waypoints.length; i++) {
+            if (waypoints[i].actions.length > 0) {
+                updatedWaypoints.push(waypoints[i]);
+            } else {
+                removedWaypointIndices.push(i);
+            }
+        }
+
+        if (!legDataMap || removedWaypointIndices.length === 0) {
+            return { waypoints: updatedWaypoints, removedWaypointIndices };
+        }
+
+        return {
+            waypoints: updatedWaypoints,
+            legs: this.rebuildLegs(updatedWaypoints, legDataMap),
+            removedWaypointIndices
+        };
     }
 
     static buildLegDataMap(waypoints: WaypointResponseData[],
@@ -191,7 +172,10 @@ export class WaypointBuilder {
                 continue;
             }
 
-            const key = this.getLocationPairKey(fromWaypoint.location, toWaypoint.location);
+            const key = this.getLocationPairKey(
+                this.getWaypointLocation(fromWaypoint),
+                this.getWaypointLocation(toWaypoint)
+            );
             result.set(key, leg);
         }
 
@@ -205,7 +189,10 @@ export class WaypointBuilder {
         for (let i = 0; i < waypoints.length - 1; i++) {
             const fromWaypoint = waypoints[i];
             const toWaypoint = waypoints[i + 1];
-            const key = this.getLocationPairKey(fromWaypoint.location, toWaypoint.location);
+            const key = this.getLocationPairKey(
+                this.getWaypointLocation(fromWaypoint),
+                this.getWaypointLocation(toWaypoint)
+            );
             const existingLeg = legDataMap.get(key);
 
             if (existingLeg) {
@@ -234,10 +221,7 @@ export class WaypointBuilder {
         return `${from[0]},${from[1]}->${to[0]},${to[1]}`;
     }
 
-    static updateWaypointLegIndices(waypoints: WaypointResponseData[]): void {
-        for (let i = 0; i < waypoints.length; i++) {
-            waypoints[i].prev_leg_index = i > 0 ? i - 1 : undefined;
-            waypoints[i].next_leg_index = i < waypoints.length - 1 ? i : undefined;
-        }
+    private static getWaypointLocation(waypoint: WaypointResponseData): [number, number] {
+        return waypoint.location || waypoint.original_location;
     }
 }

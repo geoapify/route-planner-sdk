@@ -172,17 +172,6 @@ export interface AddAssignOptions {
      */
     append?: boolean;
 
-    /**
-     * Priority for optimization.
-     * Higher values indicate higher priority.
-     * Used with strategy: 'reoptimize' to influence the optimizer.
-     * 
-     * @example
-     * ```typescript
-     * { strategy: 'reoptimize', priority: 100 } // High priority job
-     * ```
-     */
-    priority?: number;
 }
 
 /**
@@ -211,6 +200,6 @@ export interface RemoveOptions {
 
 export interface ReoptimizeOptions {
     agentIdOrIndex?: string | number;
-    afterWaypointIndex?: number;
-    afterId?: string;
+    includeUnassigned?: boolean;
+    allowViolations?: boolean;
 }

@@ -36,7 +36,7 @@ const summarizeArray = (values: unknown[], label?: string) => {
 const summarizeOptions = (value: unknown) => {
   if (!value || typeof value !== "object" || Array.isArray(value)) return "";
   const options = value as Record<string, unknown>;
-  const keys = ["strategy", "afterId", "priority", "mode"];
+  const keys = ["strategy", "afterId", "afterWaypointIndex", "includeUnassigned", "allowViolations", "mode"];
   const picked = keys
     .filter((key) => key in options)
     .map((key) => `${key}=${String(options[key])}`);
@@ -112,6 +112,16 @@ const summarizeArgsForMethod = (methodName: string, args: unknown[]) => {
   }
 };
 
+const isPromiseLike = (value: unknown): value is Promise<unknown> =>
+  !!value && typeof (value as { then?: unknown }).then === "function";
+
+const summarizeError = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+};
+
 export function createRoutePlannerLoggerProxy<T extends object>(
   target: T,
   logger: DemoLogger,
@@ -129,9 +139,31 @@ export function createRoutePlannerLoggerProxy<T extends object>(
       return (...args: unknown[]) => {
         logger.log({
           method: `${label}.${String(prop)}`,
-          detail: summarizeArgsForMethod(String(prop), args)
+          detail: summarizeArgsForMethod(String(prop), args),
+          level: "info"
         });
-        return value.apply(obj, args);
+        try {
+          const result = value.apply(obj, args);
+          if (!isPromiseLike(result)) {
+            return result;
+          }
+
+          return result.catch((error: unknown) => {
+            logger.log({
+              method: `${label}.${String(prop)}.error`,
+              detail: summarizeError(error),
+              level: "error"
+            });
+            throw error;
+          });
+        } catch (error) {
+          logger.log({
+            method: `${label}.${String(prop)}.error`,
+            detail: summarizeError(error),
+            level: "error"
+          });
+          throw error;
+        }
       };
     }
   });

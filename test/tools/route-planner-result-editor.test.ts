@@ -695,7 +695,7 @@ describe('RoutePlannerResultEditor Options API', () => {
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    await routeEditor.assignJobs('agent-B', ['job-2'], { priority: 100 });
+    await routeEditor.assignJobs('agent-B', ['job-2']);
     
     let modifiedResult = routeEditor.getModifiedResult();
     expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');
@@ -707,7 +707,7 @@ describe('RoutePlannerResultEditor Options API', () => {
     let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(rawData));
 
     const routeEditor = new RoutePlannerResultEditor(plannerResult);
-    await routeEditor.assignJobs('agent-B', ['job-2'], 50);
+    await routeEditor.assignJobs('agent-B', ['job-2']);
     
     let modifiedResult = routeEditor.getModifiedResult();
     expect(modifiedResult.getJobPlan('job-2')!.getAgentId()).toBe('agent-B');

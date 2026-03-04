@@ -1,16 +1,27 @@
 import {
     ActionResponseData,
+    AgentData,
     FeatureResponseData, RoutePlannerResult,
     RoutePlannerResultResponseDataExtended,
     RoutingOptions,
     WaypointData,
-    AgentHasNoPlan, AgentNotFound, NoItemsProvided, ItemsNotUnique
+    AgentHasNoPlan, AgentNotFound, NoItemsProvided, ItemsNotUnique,
+    RoutePlannerInputData
 } from "../../models";
 import { RoutePlannerCallOptions } from "../../models/interfaces/route-planner-call-options";
 import {RouteMatrixHelper} from "./strategies/preserve-order/utils/route-matrix-helper";
 import {RoutingHelper} from "./strategies/preserve-order/utils/routing-helper";
 import {RoutePlanner} from "../../route-planner";
 import {Utils} from "../utils";
+import { LegRecalculator } from "./strategies";
+
+const MISSING_ROUTE_METRIC = -1;
+
+type AgentLocationData = {
+    location: [number, number];
+    locationIndex?: number;
+    locationId?: string;
+};
 
 /**
  * Base class for route result editors with shared functionality
@@ -66,6 +77,85 @@ export abstract class RouteResultEditorBase {
         return true;
     }
 
+    async executeAgentPlan(agentIndex: number, inputData: RoutePlannerInputData): Promise<boolean> {
+
+        if (!inputData.shipments?.length && !inputData.jobs?.length) {
+            this.updateAgentAsUnassigned(agentIndex)
+        } else {
+            const planner = new RoutePlanner(this.callOptions, inputData);
+            const newResult = await planner.plan();
+
+            if (newResult.getRaw().features?.length === 0) {
+                this.updateAgentAsUnassigned(agentIndex);
+                return true;
+            }
+
+            const newAgentData = newResult.getRaw().features?.[0];
+            newAgentData.properties.agent_index = agentIndex;
+            const featureIndex = this.rawData.features.findIndex(
+                (feature) => feature.properties.agent_index === agentIndex
+            );
+            if (featureIndex === -1) {
+                this.rawData.features.push(newAgentData);
+            } else {
+                this.rawData.features[featureIndex] = newAgentData;
+            }
+        }
+
+        return true;
+    }
+
+    public updateIssues(): void {
+        const issues = this.rawData.properties.issues || (this.rawData.properties.issues = {});
+        const params = this.rawData.properties.params;
+
+        const assignedAgentIndexes = new Set<number>();
+        const assignedJobIndexes = new Set<number>();
+        const assignedShipmentIndexes = new Set<number>();
+
+        for (const feature of this.rawData.features || []) {
+            const agentIndex = feature?.properties?.agent_index;
+            if (typeof agentIndex === "number") {
+                assignedAgentIndexes.add(agentIndex);
+            }
+
+            for (const action of feature?.properties?.actions || []) {
+                if (typeof action.job_index === "number") {
+                    assignedJobIndexes.add(action.job_index);
+                }
+                if (typeof action.shipment_index === "number") {
+                    assignedShipmentIndexes.add(action.shipment_index);
+                }
+            }
+        }
+
+        issues.unassigned_agents = this.getUnassignedIndexes(params.agents.length, assignedAgentIndexes);
+        issues.unassigned_jobs = this.getUnassignedIndexes((params.jobs || []).length, assignedJobIndexes);
+        issues.unassigned_shipments = this.getUnassignedIndexes((params.shipments || []).length, assignedShipmentIndexes);
+    }
+
+    private updateAgentAsUnassigned(agentIndex: number): void {
+        const featureIndex = this.rawData.features.findIndex(
+            (feature: FeatureResponseData) => feature.properties.agent_index === agentIndex
+        );
+
+        if (featureIndex !== -1) {
+            this.rawData.features.splice(featureIndex, 1);
+        }
+    }
+
+    private getUnassignedIndexes(totalCount: number, assignedIndexes: Set<number>): number[] {
+        const unassigned: number[] = [];
+
+        for (let index = 0; index < totalCount; index++) {
+            if (!assignedIndexes.has(index)) {
+                unassigned.push(index);
+            }
+        }
+
+        return unassigned;
+    }
+
     private updateResult(newResult: RoutePlannerResult): void {
         this.rawData.features = newResult.getRaw().features;
         this.rawData.properties.issues = newResult.getRaw().properties.issues;
@@ -90,14 +180,17 @@ export abstract class RouteResultEditorBase {
         return agentFeature;
     }
 
-    getOrCreateAgentFeature(agentIndex: number): FeatureResponseData {
+    async getOrCreateAgentFeature(agentIndex: number): Promise<FeatureResponseData> {
         const rawData = this.rawData;
         let agentFeature = rawData.features.find((f: any) => f.properties.agent_index === agentIndex);
+        let isNewAgentFeature = false;
 
         if (!agentFeature) {
             // Create a minimal feature structure for unassigned agents
             const agent = rawData.properties.params.agents[agentIndex];
+
             agentFeature = this.createEmptyAgentFeature(agentIndex, agent);
+            isNewAgentFeature = true;
             rawData.features.push(agentFeature);
 
             // Remove from unassigned list if present
@@ -109,48 +202,154 @@ export abstract class RouteResultEditorBase {
             }
         }
 
+        if (isNewAgentFeature) {
+            await LegRecalculator.fillMissingLegData(this, agentFeature);
+        }
+
         return agentFeature;
     }
 
-    private createEmptyAgentFeature(agentIndex: number, agent: any): FeatureResponseData {
+    private createEmptyAgentFeature(agentIndex: number, agent: AgentData & { mode?: string }): FeatureResponseData {
         const startTime = (agent.time_windows && agent.time_windows.length > 0 && agent.time_windows[0].length > 0)
             ? agent.time_windows[0][0]
             : 0;
+
+        const startLocation = this.resolveAgentLocation(agentIndex, agent, "start");
+        const endLocation = this.resolveAgentLocation(agentIndex, agent, "end");
+        const hasStartLocation = !!startLocation;
+        const hasEndLocation = !!endLocation;
+        const hasSeparateStartEnd = hasStartLocation && hasEndLocation;
+
+        const effectiveStart = startLocation ?? endLocation;
+        const effectiveEnd = endLocation ?? startLocation;
+
+        if (!effectiveStart || !effectiveEnd) {
+            throw new Error(`Agent ${agentIndex} must have start_location(_index) or end_location(_index)`);
+        }
+
+        const startAction = {
+            type: "start",
+            index: 0,
+            start_time: startTime,
+            duration: 0,
+            location_index: effectiveStart.locationIndex,
+            location_id: effectiveStart.locationId,
+            waypoint_index: 0
+        };
+
+        const endAction = hasEndLocation
+            ? {
+                type: "end",
+                index: 1,
+                start_time: startTime,
+                duration: 0,
+                location_index: effectiveEnd.locationIndex,
+                location_id: effectiveEnd.locationId,
+                waypoint_index: hasSeparateStartEnd ? 1 : 0
+            }
+            : undefined;
+
+        const waypoints = hasSeparateStartEnd
+            ? [
+                {
+                    original_location: effectiveStart.location,
+                    original_location_index: effectiveStart.locationIndex,
+                    original_location_id: effectiveStart.locationId,
+                    start_time: startTime,
+                    duration: 0,
+                    actions: [{ ...startAction }],
+                    prev_leg_index: undefined,
+                    next_leg_index: 0
+                },
+                {
+                    original_location: effectiveEnd.location,
+                    original_location_index: effectiveEnd.locationIndex,
+                    original_location_id: effectiveEnd.locationId,
+                    start_time: startTime,
+                    duration: 0,
+                    actions: endAction ? [{ ...endAction }] : [],
+                    prev_leg_index: 0,
+                    next_leg_index: undefined
+                }
+            ]
+            : [
+                {
+                    original_location: effectiveStart.location,
+                    original_location_index: effectiveStart.locationIndex,
+                    original_location_id: effectiveStart.locationId,
+                    start_time: startTime,
+                    duration: 0,
+                    actions: endAction ? [{ ...startAction }, { ...endAction }] : [{ ...startAction }],
+                    prev_leg_index: undefined,
+                    next_leg_index: undefined
+                }
+            ];
+
+        const legs = hasSeparateStartEnd
+            ? [
+                {
+                    from_waypoint_index: 0,
+                    to_waypoint_index: 1,
+                    time: MISSING_ROUTE_METRIC,
+                    distance: MISSING_ROUTE_METRIC,
+                    steps: []
+                }
+            ]
+            : [];
+        const geometryCoordinates = hasSeparateStartEnd
+            ? [[effectiveStart.location, effectiveEnd.location]] // this should be overwritten later by locations from Routing API
+            : [];
+
         return {
             type: 'Feature',
             geometry: {
-                type: 'LineString',
-                coordinates: []
+                type: 'MultiLineString',
+                coordinates: geometryCoordinates
             },
             properties: {
                 agent_index: agentIndex,
                 agent_id: agent.id || `agent-${agentIndex}`,
-                mode: agent.mode || 'drive',
-                waypoints: [],
+                mode: agent.mode || this.rawData.properties.params.mode || 'drive',
+                waypoints,
+                legs,
                 time: 0,
                 start_time: startTime,
                 end_time: startTime,
                 distance: 0,
-                actions: [
-                    {
-                        type: 'start',
-                        index: 0,
-                        start_time: startTime,
-                        duration: 0,
-                        location_index: agent.start_location_index,
-                        waypoint_index: 0
-                    },
-                    {
-                        type: 'end',
-                        index: 1,
-                        start_time: startTime,
-                        duration: 0,
-                        location_index: agent.end_location_index !== undefined ? agent.end_location_index : agent.start_location_index,
-                        waypoint_index: 1
-                    }
-                ]
+                actions: endAction ? [startAction, endAction] : [startAction]
             }
         };
+    }
+
+    private resolveAgentLocation(
+        agentIndex: number,
+        agent: AgentData,
+        boundary: "start" | "end"
+    ): AgentLocationData | undefined {
+        const locationIndex = boundary === "start" ? agent.start_location_index : agent.end_location_index;
+
+        if (locationIndex !== undefined) {
+            const indexedLocation = this.rawData.properties.params.locations[locationIndex];
+
+            if (!indexedLocation || !indexedLocation.location) {
+                throw new Error(
+                    `Agent ${agentIndex} has invalid ${boundary}_location_index ${locationIndex}`
+                );
+            }
+
+            return {
+                location: indexedLocation.location,
+                locationIndex,
+                locationId: indexedLocation.id
+            };
+        }
+
+        const location = boundary === "start" ? agent.start_location : agent.end_location;
+        if (location) {
+            return { location };
+        }
+
+        return undefined;
     }
 
     findEndActionIndex(actions: ActionResponseData[]): number {

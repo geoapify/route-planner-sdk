@@ -17,17 +17,20 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
     async assignShipments(agentIndex: number, shipmentIndexes: number[], options: AddAssignOptions = {}): Promise<boolean> {
         this.validateAgent(agentIndex);
         this.validateShipments(shipmentIndexes, agentIndex);
-        this.applyPriority(shipmentIndexes, options.priority);
         
         const strategy = ShipmentStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this, agentIndex, shipmentIndexes, options);
+        const result = await strategy.execute(this, agentIndex, shipmentIndexes, options);
+        this.updateIssues();
+        return result;
     }
 
     async removeShipments(shipmentIndexes: number[], options: RemoveOptions = {}): Promise<boolean> {
         this.validateShipments(shipmentIndexes);
         
         const strategy = ShipmentStrategyFactory.createRemoveStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this, shipmentIndexes, options);
+        const result = await strategy.execute(this, shipmentIndexes, options);
+        this.updateIssues();
+        return result;
     }
 
     async addNewShipments(agentIndex: number, shipments: Shipment[], options: AddAssignOptions = {}): Promise<boolean> {
@@ -38,7 +41,9 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         const newShipmentIndexes = this.appendShipmentsToInput(shipmentsRaw);
         
         const strategy = ShipmentStrategyFactory.createAssignStrategy(options.strategy ?? REOPTIMIZE);
-        return strategy.execute(this, agentIndex, newShipmentIndexes, options);
+        const result = await strategy.execute(this, agentIndex, newShipmentIndexes, options);
+        this.updateIssues();
+        return result;
     }
 
     private validateShipments(shipmentIndexes: number[], agentIndex?: number): void {
@@ -80,10 +85,4 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         return shipmentsRaw.map((_, i) => startIndex + i);
     }
 
-    private applyPriority(shipmentIndexes: number[], priority?: number): void {
-        if (priority === undefined) return;
-        for (const shipmentIndex of shipmentIndexes) {
-            this.rawData.properties.params.shipments[shipmentIndex].priority = priority;
-        }
-    }
 }

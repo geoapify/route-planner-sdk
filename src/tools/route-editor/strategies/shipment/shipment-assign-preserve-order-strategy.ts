@@ -3,8 +3,11 @@ import {
     AssignStrategy
 } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
-import {RouteEditorHelper, RouteTimeRecalculator, WaypointBuilder} from "../preserve-order";
-import {PreserveOrderShipmentHelper} from "../preserve-order/helpers/preserve-order-shipment-helper";
+import {AgentPlanRecalculator, WaypointBuilder} from "../preserve-order";
+import {
+    PreserveOrderShipmentHelper,
+    ShipmentInsertPositions
+} from "../preserve-order/helpers/preserve-order-shipment-helper";
 import {RouteViolationValidator} from "../preserve-order/validations";
 import {ShipmentRemovePreserveOrderStrategy} from "./shipment-remove-preserve-order-strategy";
 import {ShipmentRemoveReoptimizeStrategy} from "./shipment-remove-reoptimize-strategy";
@@ -28,34 +31,20 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
     ): Promise<boolean> {
         await this.removeShipmentsFromCurrentAgents(context, shipmentIndexes, options);
         
-        const agentFeature = context.getOrCreateAgentFeature(agentIndex);
-        const actions = agentFeature.properties.actions;
-        
         for (const shipmentIndex of shipmentIndexes) {
-            const positions = await PreserveOrderShipmentHelper.determineShipmentInsertPositions(context, agentIndex, shipmentIndex, options);
-            
-            const pickupAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'pickup', positions.pickup);
-            const deliveryAction = RouteEditorHelper.createShipmentAction(context, shipmentIndex, 'delivery', positions.delivery);
-            
-            actions.splice(positions.pickup, 0, pickupAction);
-            actions.splice(positions.delivery, 0, deliveryAction);
-            
-            context.reindexActions(actions);
-            
+            const positions: ShipmentInsertPositions =
+                await PreserveOrderShipmentHelper.determineShipmentInsertPositions(context, agentIndex, shipmentIndex, options);
+                        
             WaypointBuilder.insertShipmentWaypoints(
                 context, 
                 agentIndex, 
                 shipmentIndex, 
-                positions.pickup, 
-                positions.delivery
+                positions
             );
         }
 
-        await RouteTimeRecalculator.recalculate(context, agentIndex);
-        
+        await AgentPlanRecalculator.recalculate(context, agentIndex);
         RouteViolationValidator.validate(context, agentIndex);
-        
-        this.removeFromUnassignedShipments(context, shipmentIndexes);
         
         return true;
     }
@@ -69,16 +58,4 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
         const removeOptions: RemoveOptions = { strategy: removeStrategyType };
         await removeStrategy.execute(context, shipmentIndexes, removeOptions);
     }
-
-    private removeFromUnassignedShipments(context: RouteResultEditorBase, shipmentIndexes: number[]): void {
-        const rawData = context.getRawData();
-        const issues = rawData.properties.issues;
-        if (!issues?.unassigned_shipments) {
-            return;
-        }
-
-        issues.unassigned_shipments = issues.unassigned_shipments
-            .filter((shipmentIndex: number) => !shipmentIndexes.includes(shipmentIndex));
-    }
 }
-

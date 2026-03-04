@@ -24,12 +24,12 @@ export class Waypoint {
         return this.raw.original_location_index;
     }
 
-    getOriginalLocationId(): number | undefined {
+    getOriginalLocationId(): string | undefined {
         return this.raw.original_location_id;
     }
 
     getLocation(): [number, number] {
-        return this.raw.location;
+        return this.raw.location || this.raw.original_location;
     }
 
     getStartTime(): number {

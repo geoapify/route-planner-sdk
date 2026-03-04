@@ -2,6 +2,7 @@ import { JobData, ShipmentData } from "../../../../models";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
 
 type ItemWithRequirements = { requirements?: string[] };
+type AgentWithTimeWindows = { time_windows?: [number, number][] };
 
 /**
  * Shared helper for managing requirements on jobs and shipments
@@ -9,6 +10,8 @@ type ItemWithRequirements = { requirements?: string[] };
 export class RequirementHelper {
     static readonly UNASSIGNED_REQ = "unassigned";
     static readonly ASSIGN_AGENT_PREFIX = "assign-agent-";
+    // TODO optimize: replace NON_ASSIGNABLE marker-based filtering with a cheaper scoped planning input.
+    static readonly NON_ASSIGNABLE_REQUIREMENT = "NON_ASSIGNABLE";
 
     static createAssignAgentRequirement(agentIndex: number): string {
         return `${this.ASSIGN_AGENT_PREFIX}${agentIndex}`;
@@ -96,6 +99,31 @@ export class RequirementHelper {
             if (agentIndexForShipment === undefined) continue;
             
             this.assignToAgent(shipments[i], agentIndexForShipment!);
+        }
+    }
+
+    static extendAgentTimeWindows(agent: AgentWithTimeWindows): void {
+        const startTime = agent?.time_windows?.[0]?.[0] ?? 0;
+        agent.time_windows = [[startTime, 4102444800]];
+    }
+
+    static restrictAssignmentsToTargetSet<T extends ItemWithRequirements>(
+        items: T[],
+        targetIndexes: Set<number>
+    ): void {
+        for (let index = 0; index < items.length; index++) {
+            const item = items[index];
+            if (!item) {
+                continue;
+            }
+
+            if (targetIndexes.has(index)) {
+                delete item.requirements;
+                continue;
+            }
+
+            this.ensureRequirementsArray(item);
+            this.addRequirement(item.requirements!, this.NON_ASSIGNABLE_REQUIREMENT);
         }
     }
 }

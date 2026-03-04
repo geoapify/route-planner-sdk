@@ -1,113 +1,193 @@
-import {LegResponseData, WaypointResponseData} from "../../../../../models";
+import {FeatureResponseData, LegResponseData, WaypointResponseData} from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
-import {MISSING_LEG_DATA} from "./leg-builder";
 
+export const MISSING_LEG_DATA = -1;
+
+export interface WaypointLegIndices {
+    prevLegIndex: number | undefined;
+    nextLegIndex: number | undefined;
+}
 export class LegRecalculator {
 
-    static async fillMissingLegData(context: RouteResultEditorBase, waypoints: WaypointResponseData[],
-                                    legs: LegResponseData[]): Promise<void> {
-        const missingLegIndices = this.findLegsWithMissingData(legs);
+    static replaceLegsForInsertedWaypoint(context: RouteResultEditorBase, agentIndex: number,
+                                          waypointIndex: number) {
+        const agentFeature = context.getAgentFeature(agentIndex);
+        const properties = agentFeature.properties;
+        
+        if (!properties.legs) {
+            properties.legs = [];
+        }
 
-        if (missingLegIndices.length === 0) {
+        const legs = properties.legs;
+        const waypoints = properties.waypoints;
+
+        const leg1 = {
+            from_waypoint_index: waypointIndex - 1,
+            to_waypoint_index: waypointIndex,
+            time: MISSING_LEG_DATA,
+            distance: MISSING_LEG_DATA,
+            steps: []
+        }
+
+        const leg2 = {
+            from_waypoint_index: waypointIndex,
+            to_waypoint_index: waypointIndex + 1,
+            time: MISSING_LEG_DATA,
+            distance: MISSING_LEG_DATA,
+            steps: []
+        }        
+
+        if (waypoints.length <= 1) {
+            // do nothing, no legs
             return;
         }
 
-        const legDataMap = await this.fetchLegDataMap(context, missingLegIndices, legs, waypoints);
-        this.applyLegDataFromMap(missingLegIndices, legs, waypoints, legDataMap);
-    }
-
-    private static async fetchLegDataMap(context: RouteResultEditorBase, missingLegIndices: number[],
-                                         legs: LegResponseData[], waypoints: WaypointResponseData[]): Promise<Map<string, any>> {
-        const locations = this.buildLocationList(missingLegIndices, legs, waypoints);
-
-        if (locations.length === 0) {
-            return new Map();
+        if (waypointIndex === 0) {
+            legs.splice(waypointIndex, 0, leg2);
+        } else if (waypointIndex === waypoints.length - 1) {
+            legs.splice(waypointIndex, 0, leg1);
+        } else {
+            // Middle insertion, first remove the existing leg and add 2
+            legs.splice(waypointIndex - 1, 1, leg1, leg2);
         }
 
+        // reindex waypoints
+        legs.forEach((leg, index) => {
+            leg.from_waypoint_index = index;
+            leg.to_waypoint_index = index + 1;
+        });
+    }
+
+    static async fillMissingLegData(context: RouteResultEditorBase, agentFeature: FeatureResponseData): Promise<void> {
+        const waypoints = agentFeature.properties.waypoints || [];
+        const legs = agentFeature.properties.legs || [];
+
+        const missingLegIndices = this.findMissingLegIndices(legs);
+        if (missingLegIndices.length > 0) {
+            await this.fillMissingOrderedLegs(context, waypoints, legs, missingLegIndices);
+        }
+
+        this.recreateGeometry(agentFeature, waypoints, legs);
+    }
+
+    private static async fillMissingOrderedLegs(
+        context: RouteResultEditorBase,
+        waypoints: WaypointResponseData[],
+        legs: LegResponseData[],
+        missingLegIndices: number[]
+    ): Promise<void> {
         const routingHelper = context.getRoutingHelper();
+        const routeResults = await Promise.all(
+            missingLegIndices.map(async (legIndex) => {
+                const fromWaypoint = waypoints[legIndex];
+                const toWaypoint = waypoints[legIndex + 1];
+                const fromLocation = this.getWaypointLocation(fromWaypoint);
+                const toLocation = this.getWaypointLocation(toWaypoint);
 
-        try {
-            const allLegsData = await routingHelper.calculateLegData(locations);
-            return this.buildLegDataMap(locations, allLegsData);
-        } catch (error) {
-            return new Map();
-        }
-    }
+                if (!fromLocation || !toLocation) {
+                    return { legIndex, routeData: null };
+                }
 
-    private static buildLocationList(missingLegIndices: number[], legs: LegResponseData[],
-                                     waypoints: WaypointResponseData[]): [number, number][] {
-        const locations: [number, number][] = [];
+                try {
+                    const routeData = await routingHelper.calculateRouteData([fromLocation, toLocation]);
+                    return { legIndex, routeData };
+                } catch (_error) {
+                    return { legIndex, routeData: null };
+                }
+            })
+        );
 
-        for (const legIndex of missingLegIndices) {
-            const leg = legs[legIndex];
-            const fromWaypoint = waypoints[leg.from_waypoint_index];
-            const toWaypoint = waypoints[leg.to_waypoint_index];
-
-            if (fromWaypoint && toWaypoint) {
-                locations.push(fromWaypoint.location, toWaypoint.location);
-            }
-        }
-
-        return locations;
-    }
-
-    private static buildLegDataMap(locations: [number, number][], allLegsData: any[]): Map<string, any> {
-        const result = new Map<string, any>();
-
-        // We iterate only through even routes.
-        // We need P1 -> P2 , P5 -> P6
-        // We get P1 -> P2 -> P5 -> P6
-        // And skip P2 -> P5
-        for (let legDataIndex = 0; legDataIndex < locations.length; legDataIndex += 2) {
-            const from = locations[legDataIndex];
-            const to = locations[legDataIndex + 1];
-            const key = this.getLocationPairKey(from, to);
-            result.set(key, allLegsData[legDataIndex]);
-        }
-
-        return result;
-    }
-
-    private static applyLegDataFromMap(missingLegIndices: number[], legs: LegResponseData[],
-                                       waypoints: WaypointResponseData[], legDataMap: Map<string, any>): void {
-        for (const legIndex of missingLegIndices) {
-            const leg = legs[legIndex];
-            const fromWaypoint = waypoints[leg.from_waypoint_index];
-            const toWaypoint = waypoints[leg.to_waypoint_index];
-
-            if (!fromWaypoint || !toWaypoint) {
+        for (const result of routeResults) {
+            const leg = legs[result.legIndex];
+            if (!leg) {
                 continue;
             }
 
-            const key = this.getLocationPairKey(fromWaypoint.location, toWaypoint.location);
-            const legData = legDataMap.get(key);
-
-            if (legData) {
-                leg.time = legData.time || 0;
-                leg.distance = legData.distance || 0;
-                leg.steps = legData.steps || [];
+            const routeLeg = result.routeData?.legs?.[0];
+            if (routeLeg) {
+                leg.time = routeLeg.time ?? 0;
+                leg.distance = routeLeg.distance ?? 0;
+                leg.steps = [{
+                    distance: leg.distance,
+                    time: routeLeg.time,
+                    from_index: 0,
+                    to_index: 1
+                }];
             } else {
                 leg.time = 0;
                 leg.distance = 0;
                 leg.steps = [];
             }
+
+            const fromLocation = this.getMappedRouteWaypointLocation(result.routeData?.waypoints, 0);
+            const toLocation = this.getMappedRouteWaypointLocation(result.routeData?.waypoints, 1);
+            if (fromLocation) {
+                waypoints[result.legIndex].location = fromLocation;
+            }
+            if (toLocation) {
+                waypoints[result.legIndex + 1].location = toLocation;
+            }
         }
     }
 
-    private static getLocationPairKey(from: [number, number], to: [number, number]): string {
-        return `${from[0]},${from[1]}->${to[0]},${to[1]}`;
-    }
-
-    private static findLegsWithMissingData(legs: LegResponseData[]): number[] {
-        const missingLegs: number[] = [];
+    private static recreateGeometry(
+        agentFeature: FeatureResponseData,
+        waypoints: WaypointResponseData[],
+        legs: LegResponseData[]
+    ): void {
+        const coordinates: [number, number][][] = [];
 
         for (let i = 0; i < legs.length; i++) {
-            if (legs[i].time === MISSING_LEG_DATA || legs[i].distance === MISSING_LEG_DATA) {
+            const fromLocation = this.getWaypointLocation(waypoints[i]);
+            const toLocation = this.getWaypointLocation(waypoints[i + 1]);
+            if (!fromLocation || !toLocation) {
+                continue;
+            }
+
+            legs[i].from_waypoint_index = i;
+            legs[i].to_waypoint_index = i + 1;
+            coordinates.push([fromLocation, toLocation]);
+        }
+
+        agentFeature.geometry = {
+            ...agentFeature.geometry,
+            type: "MultiLineString",
+            coordinates
+        };
+    }
+
+    private static getMappedRouteWaypointLocation(
+        routeWaypoints: any[] | undefined,
+        originalIndex: number
+    ): [number, number] | undefined {
+        if (!routeWaypoints || routeWaypoints.length === 0) {
+            return undefined;
+        }
+
+        const mappedWaypoint = routeWaypoints.find((waypoint: any) => waypoint?.original_index === originalIndex);
+        return mappedWaypoint?.location || routeWaypoints[originalIndex]?.location;
+    }
+
+    private static getWaypointLocation(waypoint: WaypointResponseData | undefined): [number, number] | undefined {
+        if (!waypoint) {
+            return undefined;
+        }
+        return waypoint.location || waypoint.original_location;
+    }
+
+    private static findMissingLegIndices(legs: LegResponseData[]): number[] {
+        const missingLegs: number[] = [];
+        for (let i = 0; i < legs.length; i++) {
+            const leg = legs[i];
+            if (!leg) {
+                continue;
+            }
+
+            if (leg.time === undefined || leg.time === MISSING_LEG_DATA || leg.time < 0 ||
+                leg.distance === undefined || leg.distance === MISSING_LEG_DATA || leg.distance < 0) {
                 missingLegs.push(i);
             }
         }
         return missingLegs;
     }
-
 }
-

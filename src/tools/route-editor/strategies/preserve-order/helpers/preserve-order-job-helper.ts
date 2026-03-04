@@ -1,9 +1,14 @@
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
 import {PreserveOrderBaseHelper} from "./preserve-order-base-helper";
-import {ActionResponseData, AddAssignOptions} from "../../../../../models";
+import {AddAssignOptions} from "../../../../../models";
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
 import {RouteEditorHelper} from "../utils/route-editor-helper";
 import {InsertionCostCalculator} from "../utils/insertion-cost-calculator";
+
+export interface JobInsertPosition {
+    position: number;
+    createWaypoint: boolean;
+}
 
 export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
 
@@ -12,37 +17,31 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
         agentIndex: number,
         firstJobIndex: number,
         options: AddAssignOptions
-    ): Promise<number> {
+    ): Promise<JobInsertPosition> {
+        let position: number;
+
         // append: true (no position) → Append
         if (InsertPositionResolver.shouldAppend(options)) {
-            return this.getEndPosition(context, agentIndex);
+            position = await this.getEndPosition(context, agentIndex);
+            return { position, createWaypoint: true };
         }
 
         // afterId/afterWaypointIndex + append: true → Insert at specified position
         if (InsertPositionResolver.hasExplicitInsertPosition(options)) {
-            return InsertPositionResolver.resolveInsertPosition(context, agentIndex, options);
+            position = InsertPositionResolver.resolveInsertPosition(context, agentIndex, options);
+            return { position, createWaypoint: true };
         }
 
         // afterId/afterWaypointIndex + append: false → Optimize after position
         if (InsertPositionResolver.shouldOptimizeAfterPosition(options)) {
             const minPosition = InsertPositionResolver.getMinimumWaypointPosition(context, agentIndex, options);
-            return await this.findOptimalInsertPositionAfter(context, agentIndex, firstJobIndex, minPosition);
+            position = await this.findOptimalInsertPositionAfter(context, agentIndex, firstJobIndex, minPosition);
+            return { position, createWaypoint: true };
         }
 
         // No position params → Use Route Matrix API to find optimal position anywhere
-        return await this.findOptimalInsertPosition(context, agentIndex, firstJobIndex);
-    }
-
-    static insertJobActionsAtPosition(
-        context: RouteResultEditorBase,
-        actions: ActionResponseData[],
-        jobIndexes: number[],
-        insertPosition: number
-    ): void {
-        for (let i = 0; i < jobIndexes.length; i++) {
-            const newAction = RouteEditorHelper.createJobAction(context, jobIndexes[i], insertPosition + i);
-            actions.splice(insertPosition + i, 0, newAction);
-        }
+        position = await this.findOptimalInsertPosition(context, agentIndex, firstJobIndex);
+        return { position, createWaypoint: true };
     }
 
     static async findOptimalInsertPosition(
@@ -67,7 +66,11 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
             context,
             agentIndex,
             routeLocations,
-            jobLocation
+            jobLocation,
+            {
+                canInsertBeforeFirst: this.hasAgentStartLocation(context, agentIndex),
+                canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex)
+            }
         );
 
         return optimalIndex + 1;
@@ -89,7 +92,10 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
             context,
             agentIndex,
             routeLocationsAfter,
-            jobLocation
+            jobLocation,
+            { canInsertBeforeFirst: minPosition === 0 ? this.hasAgentStartLocation(context, agentIndex) : true,
+              canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex)
+            }
         );
 
         return Math.max(0, minPosition - 1) + optimalIndex + 1;

@@ -1,8 +1,8 @@
-import {ReoptimizeOptions, InvalidParameterType} from "../../../models";
+import { AgentData, InvalidParameterType, ReoptimizeOptions } from "../../../models";
 import { IndexConverter } from "../../../helpers/index-converter";
 import { RequirementHelper } from "../strategies/base/requirement-helper";
-import { InsertPositionResolver } from "../strategies/preserve-order/utils/insert-position-resolver";
 import { RouteResultEditorBase } from "../route-result-editor-base";
+import { RouteViolationValidator } from "../strategies/preserve-order/validations";
 
 export class AgentReoptimizeHelper {
 
@@ -12,49 +12,85 @@ export class AgentReoptimizeHelper {
         }
 
         const agentIndex = IndexConverter.convertAgentToIndex(context.getRawData(), options.agentIdOrIndex, true);
+        const targetJobIndexes = new Set<number>(context.getAgentJobs(agentIndex));
+        const targetShipmentIndexes = new Set<number>(context.getAgentShipments(agentIndex));
 
-        const jobIndexes = this.getItemIndexesToReoptimize(context, agentIndex, options, true);
-        const shipmentIndexes = this.getItemIndexesToReoptimize(context, agentIndex, options, false);
+        if (options.includeUnassigned) {
+            this.addUnassignedIndexes(targetJobIndexes, context.getRawData().properties.issues?.unassigned_jobs);
+            this.addUnassignedIndexes(targetShipmentIndexes, context.getRawData().properties.issues?.unassigned_shipments);
+        }
 
-        if (jobIndexes.length === 0 && shipmentIndexes.length === 0) {
+        if (targetJobIndexes.size === 0 && targetShipmentIndexes.size === 0) {
             return true;
         }
 
         const inputData = context.cloneInputData();
+        const targetAgent = inputData.agents[agentIndex] as AgentData;
+        if (!targetAgent) {
+            return true;
+        }
 
-        RequirementHelper.assignItemsToAgent(inputData.jobs || [], jobIndexes, agentIndex);
-        RequirementHelper.assignItemsToAgent(inputData.shipments || [], shipmentIndexes, agentIndex);
-        RequirementHelper.markRemainingJobsWithAgentRequirement(context, inputData.jobs || [], jobIndexes);
-        RequirementHelper.markRemainingShipmentsWithAgentRequirement(context, inputData.shipments || [], shipmentIndexes);
-        context.addAgentCapabilities(inputData.agents);
+        if (options.allowViolations) {
+            this.removeViolationsFromInput(
+                targetAgent,
+                inputData.jobs || [],
+                inputData.shipments || [],
+                targetJobIndexes,
+                targetShipmentIndexes
+            );
+        }
 
-        return context.executePlan(inputData);
+        inputData.agents = [targetAgent];
+        RequirementHelper.restrictAssignmentsToTargetSet(inputData.jobs || [], targetJobIndexes);
+        RequirementHelper.restrictAssignmentsToTargetSet(inputData.shipments || [], targetShipmentIndexes);
+
+        await context.executeAgentPlan(agentIndex, inputData);
+        RouteViolationValidator.validate(context, agentIndex);
+        context.updateIssues();
+        return true;
     }
 
-    private static getItemIndexesToReoptimize(context: RouteResultEditorBase, agentIndex: number,
-                                              options: ReoptimizeOptions, isJob: boolean): number[] {
-        const actions = context.getAgentActions(agentIndex);
-        if (actions.length === 0) {
-            return [];
+    private static addUnassignedIndexes(targetIndexes: Set<number>, unassignedIndexes?: number[]): void {
+        if (!unassignedIndexes?.length) {
+            return;
         }
 
-        let startActionIndex = 0;
-        if (options.afterId) {
-            startActionIndex = InsertPositionResolver.findActionPositionById(context, agentIndex, options.afterId) + 1;
-        } else if (options.afterWaypointIndex !== undefined) {
-            startActionIndex = InsertPositionResolver.validateAndGetWaypointIndex(context, agentIndex, options.afterWaypointIndex) + 1;
+        for (const index of unassignedIndexes) {
+            targetIndexes.add(index);
         }
+    }
 
-        const indexes: number[] = [];
-        for (let i = startActionIndex; i < actions.length; i++) {
-            const action = actions[i];
-            const itemIndex = isJob ? action.job_index : action.shipment_index;
-            if (itemIndex !== undefined && !indexes.includes(itemIndex)) {
-                indexes.push(itemIndex);
+    private static removeViolationsFromInput(
+        targetAgent: any,
+        jobs: any[],
+        shipments: any[],
+        targetJobIndexes: Set<number>,
+        targetShipmentIndexes: Set<number>
+    ): void {
+        RequirementHelper.extendAgentTimeWindows(targetAgent);
+        delete targetAgent.breaks;
+        delete targetAgent.pickup_capacity;
+        delete targetAgent.delivery_capacity;
+
+        for (const jobIndex of targetJobIndexes) {
+            const job = jobs[jobIndex];
+            if (job) {
+                delete job.time_windows;
             }
         }
 
-        return indexes;
+        for (const shipmentIndex of targetShipmentIndexes) {
+            const shipment = shipments[shipmentIndex];
+            if (!shipment) {
+                continue;
+            }
+
+            if (shipment.pickup) {
+                delete shipment.pickup.time_windows;
+            }
+            if (shipment.delivery) {
+                delete shipment.delivery.time_windows;
+            }
+        }
     }
 }
-

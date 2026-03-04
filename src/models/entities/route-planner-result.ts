@@ -170,6 +170,6 @@ export class RoutePlannerResult {
 
     private getAgentViolations(agentIndex: number): ViolationError[] {
         const extendedData = this.rawData as RoutePlannerResultResponseDataExtended;
-        return extendedData.properties.agentViolations?.[agentIndex] ?? [];
+        return extendedData.properties.violations?.filter(violation => violation.agentIndex === agentIndex) ?? [];
     }
 }

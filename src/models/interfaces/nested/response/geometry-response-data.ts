@@ -1,4 +1,4 @@
 export interface GeometryResponseData {
     type: string;
-    coordinates: [number, number][];
+    coordinates: [number, number][][];
 }
