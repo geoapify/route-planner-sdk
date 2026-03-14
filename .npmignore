@@ -7,7 +7,8 @@ src
 tsconfig.json
 rollup-config.mjs
 env-variables.ts
-demo-env-variables.mjs
+demo/demo-env-variables.mjs
+test-env-variables.mjs
 .idea
 coverage
 package

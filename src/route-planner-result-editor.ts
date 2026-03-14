@@ -2,8 +2,9 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 import { RouteResultJobEditor } from "./tools/route-editor/route-result-job-editor";
 import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shipment-editor";
 import { AgentReoptimizeHelper, AgentTimeOffsetHelper, WaypointMoveHelper } from "./tools/route-editor/helpers";
+import { InsertPositionResolver } from "./tools/route-editor/strategies/preserve-order/utils/insert-position-resolver";
 import { Utils } from "./tools/utils";
-import { Job, Shipment, AddAssignOptions, RemoveOptions, ReoptimizeOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidParameterType } from "./models";
+import { Job, Shipment, AddAssignOptions, RemoveOptions, ReoptimizeOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidInsertionPosition, InvalidParameterType } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
 import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 
@@ -86,8 +87,8 @@ export class RoutePlannerResultEditor {
      */
     async assignJobs(agentIdOrIndex: string | number, jobIndexesOrIds: number[] | string[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(jobIndexesOrIds, "jobIndexesOrIds");
-        const normalizedOptions = this.normalizeAddAssignOptions(options);
         let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        const normalizedOptions = this.normalizeAddAssignOptions(agentIndex, options);
         let jobIndexes = IndexConverter.convertJobsToIndexes(this.rawData, jobIndexesOrIds);
         return this.getJobEditor().assignJobs(agentIndex, jobIndexes, normalizedOptions)
     }
@@ -117,9 +118,9 @@ export class RoutePlannerResultEditor {
      */
     async assignShipments(agentIdOrIndex: string | number, shipmentIndexesOrIds: number[] | string[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(shipmentIndexesOrIds, "shipmentIndexesOrIds");
-        const normalizedOptions = this.normalizeAddAssignOptions(options);
-        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.rawData, shipmentIndexesOrIds);
         let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        const normalizedOptions = this.normalizeAddAssignOptions(agentIndex, options);
+        let shipmentIndexes = IndexConverter.convertShipmentsToIndexes(this.rawData, shipmentIndexesOrIds);
         return this.getShipmentEditor().assignShipments(agentIndex, shipmentIndexes, normalizedOptions);
     }
 
@@ -195,8 +196,9 @@ export class RoutePlannerResultEditor {
     addNewJobs(agentIdOrIndex: string | number, jobs: Job[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(jobs, "jobs");
         let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
-        
-        return this.getJobEditor().addNewJobs(agentIndex, jobs, this.normalizeAddAssignOptions(options));
+        const normalizedOptions = this.normalizeAddAssignOptions(agentIndex, options);
+
+        return this.getJobEditor().addNewJobs(agentIndex, jobs, normalizedOptions);
     }
 
     /**
@@ -230,8 +232,9 @@ export class RoutePlannerResultEditor {
     addNewShipments(agentIdOrIndex: string | number, shipments: Shipment[], options?: AddAssignOptions): Promise<boolean> {
         this.assertArray(shipments, "shipments");
         let agentIndex = IndexConverter.convertAgentToIndex(this.rawData, agentIdOrIndex, true);
+        const normalizedOptions = this.normalizeAddAssignOptions(agentIndex, options);
         /* ToDo No need to create an object here, use functions */
-        return this.getShipmentEditor().addNewShipments(agentIndex, shipments, this.normalizeAddAssignOptions(options));
+        return this.getShipmentEditor().addNewShipments(agentIndex, shipments, normalizedOptions);
     }
 
     getModifiedResult(): RoutePlannerResult {
@@ -256,8 +259,50 @@ export class RoutePlannerResultEditor {
         }
     }
 
-    private normalizeAddAssignOptions(options?: AddAssignOptions): AddAssignOptions {
-        return options ?? {};
+    private normalizeAddAssignOptions(agentIndex: number, options?: AddAssignOptions): AddAssignOptions {
+        const normalizedOptions: AddAssignOptions = { ...(options ?? {}) };
+
+        if (normalizedOptions.afterId && normalizedOptions.afterId !== "") {
+            const insertPosition = this.resolveInsertPosition(agentIndex, normalizedOptions.afterId);
+            normalizedOptions.afterWaypointIndex = insertPosition;
+            delete normalizedOptions.afterId;
+        }
+
+        this.validateAfterWaypointIndex(agentIndex, normalizedOptions);
+
+        return normalizedOptions;
+    }
+
+    private resolveInsertPosition(agentIndex: number, afterId: string): number {
+        const waypoints = this.getJobEditor().getAgentWaypoints(agentIndex);
+        let lastMatchingIndex = -1;
+
+        for (let i = 0; i < waypoints.length; i++) {
+            const hasMatchedAction = waypoints[i].actions.some(
+                (action) => action.job_id === afterId || action.shipment_id === afterId
+            );
+            if (hasMatchedAction) {
+                lastMatchingIndex = i;
+            }
+        }
+
+        if (lastMatchingIndex === -1) {
+            throw new InvalidInsertionPosition(
+                `Shipment or Job '${afterId}' not found in agent ${agentIndex} route`,
+                agentIndex,
+                undefined,
+                afterId
+            );
+        }
+
+        return lastMatchingIndex;
+    }
+
+    private validateAfterWaypointIndex(agentIndex: number, options: AddAssignOptions): void {
+        if (options.afterWaypointIndex === undefined) {
+            return;
+        }
+        InsertPositionResolver.validateAfterWaypointIndex(this.getJobEditor(), agentIndex, options.afterWaypointIndex);
     }
 
     private normalizeRemoveOptions(options?: RemoveOptions): RemoveOptions {

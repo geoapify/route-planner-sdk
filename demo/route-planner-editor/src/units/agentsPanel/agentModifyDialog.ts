@@ -166,9 +166,14 @@ const buildItemGroups = (
   return orderedGroups;
 };
 
-const createGroupedSelect = (groups: DemoItemGroup[]) => {
+const createGroupedSelect = (groups: DemoItemGroup[], multiple = false) => {
   const select = document.createElement("select");
   select.className = "modify-select";
+  if (multiple) {
+    select.multiple = true;
+    const totalOptions = groups.reduce((sum, group) => sum + group.options.length, 0);
+    select.size = Math.max(4, Math.min(12, totalOptions));
+  }
   groups.forEach((group) => {
     const optgroup = document.createElement("optgroup");
     optgroup.label = group.label;
@@ -189,6 +194,11 @@ const createGroupedSelect = (groups: DemoItemGroup[]) => {
   });
   return select;
 };
+
+const getSelectedIndexes = (select: HTMLSelectElement): number[] =>
+  Array.from(select.selectedOptions)
+    .map((option) => Number(option.value))
+    .filter((value) => !Number.isNaN(value));
 
 const createField = (labelText: string, element: HTMLElement) => {
   const field = document.createElement("div");
@@ -278,7 +288,11 @@ export function createModifyPanel(context: DemoModifyContext) {
   const jobGroupsForAssign = buildItemGroups(context.result, "job");
   const shipmentGroupsForAssign = buildItemGroups(context.result, "shipment");
 
-  const buildRemoveSection = (label: string, groups: DemoItemGroup[], onRemove: (index: number, strategy: string) => Promise<void>) => {
+  const buildRemoveSection = (
+    label: string,
+    groups: DemoItemGroup[],
+    onRemove: (indexes: number[], strategy: string) => Promise<void>
+  ) => {
     const section = document.createElement("div");
     section.className = "modify-section";
 
@@ -287,7 +301,7 @@ export function createModifyPanel(context: DemoModifyContext) {
     header.textContent = label;
     section.appendChild(header);
 
-    const select = createGroupedSelect(groups);
+    const select = createGroupedSelect(groups, true);
     const strategySelect = document.createElement("select");
     strategySelect.className = "modify-select";
     strategySelect.innerHTML = `
@@ -298,14 +312,14 @@ export function createModifyPanel(context: DemoModifyContext) {
     const actionRow = document.createElement("div");
     actionRow.className = "modify-row";
     const removeButton = makeButton(`Remove ${label.toLowerCase()}`, async () => {
-      const selectedIndex = Number(select.value);
-      if (Number.isNaN(selectedIndex)) return;
-      await onRemove(selectedIndex, strategySelect.value);
+      const selectedIndexes = getSelectedIndexes(select);
+      if (!selectedIndexes.length) return;
+      await onRemove(selectedIndexes, strategySelect.value);
       context.onResult(context.editor.getModifiedResult());
     });
     actionRow.appendChild(removeButton);
 
-    section.appendChild(createField("Item", select));
+    section.appendChild(createField("Items", select));
     section.appendChild(createField("Strategy", strategySelect));
     section.appendChild(actionRow);
 
@@ -321,7 +335,7 @@ export function createModifyPanel(context: DemoModifyContext) {
   const buildAssignSection = (
     label: string,
     groups: DemoItemGroup[],
-    onAssign: (index: number, agentIndex: number, options: any) => Promise<void>
+    onAssign: (indexes: number[], agentIndex: number, options: any) => Promise<void>
   ) => {
     if (!groups.length) return null;
 
@@ -333,7 +347,7 @@ export function createModifyPanel(context: DemoModifyContext) {
     header.textContent = label;
     section.appendChild(header);
 
-    const select = createGroupedSelect(groups);
+    const select = createGroupedSelect(groups, true);
     const strategySelect = document.createElement("select");
     strategySelect.className = "modify-select";
     strategySelect.innerHTML = `
@@ -371,11 +385,29 @@ export function createModifyPanel(context: DemoModifyContext) {
     optionsGrid.appendChild(createField("After id", afterIdInput));
     optionsGrid.appendChild(appendToggle);
 
+    const updateAppendVisibility = () => {
+      const isReoptimize = strategySelect.value === REOPTIMIZE;
+      appendToggle.style.display = isReoptimize ? "none" : "";
+      if (isReoptimize) {
+        appendInput.checked = false;
+      }
+    };
+    strategySelect.addEventListener("change", updateAppendVisibility);
+    updateAppendVisibility();
+
     const actionRow = document.createElement("div");
     actionRow.className = "modify-row";
     const assignButton = makeButton(`Assign ${label.toLowerCase()}`, async () => {
-      const selectedIndex = Number(select.value);
-      if (Number.isNaN(selectedIndex)) return;
+      const selectedOptions = Array.from(select.selectedOptions);
+      if (!selectedOptions.length) return;
+      const selectedIndexes = selectedOptions
+        .filter((option) => {
+          const assignedAgent = option.dataset.agentIndex;
+          return assignedAgent === undefined || Number(assignedAgent) !== Number(context.agentIndex);
+        })
+        .map((option) => Number(option.value))
+        .filter((value) => !Number.isNaN(value));
+      if (!selectedIndexes.length) return;
 
       const options: any = {
         strategy: strategySelect.value,
@@ -394,23 +426,24 @@ export function createModifyPanel(context: DemoModifyContext) {
       if (appendInput.checked) {
         options.append = true;
       }
-      await onAssign(selectedIndex, context.agentIndex, options);
+      await onAssign(selectedIndexes, context.agentIndex, options);
       context.onResult(context.editor.getModifiedResult());
     });
     actionRow.appendChild(assignButton);
 
     const updateAssignDisabled = () => {
-      const selectedOption = select.options[select.selectedIndex];
-      const assignedAgent = selectedOption?.dataset.agentIndex;
+      const selectedOptions = Array.from(select.selectedOptions);
+      const hasAssignableSelection = selectedOptions.some((option) => {
+        const assignedAgent = option.dataset.agentIndex;
+        return assignedAgent === undefined || Number(assignedAgent) !== Number(context.agentIndex);
+      });
       assignButton.disabled =
-        !select.options.length ||
-        (assignedAgent !== undefined &&
-          Number(assignedAgent) === Number(context.agentIndex));
+        !select.options.length || !hasAssignableSelection;
     };
     select.addEventListener("change", updateAssignDisabled);
     updateAssignDisabled();
 
-    section.appendChild(createField("Item", select));
+    section.appendChild(createField("Items", select));
     section.appendChild(optionsGrid);
     section.appendChild(actionRow);
 
@@ -419,16 +452,16 @@ export function createModifyPanel(context: DemoModifyContext) {
 
   if (jobGroupsForRemove.length) {
     removeContent.appendChild(
-      buildRemoveSection("Job", jobGroupsForRemove, async (index, strategy) => {
-        await context.editor.removeJobs([index], { strategy });
+      buildRemoveSection("Job", jobGroupsForRemove, async (indexes, strategy) => {
+        await context.editor.removeJobs(indexes, { strategy });
       })
     );
   }
 
   if (shipmentGroupsForRemove.length) {
     removeContent.appendChild(
-      buildRemoveSection("Shipment", shipmentGroupsForRemove, async (index, strategy) => {
-        await context.editor.removeShipments([index], { strategy });
+      buildRemoveSection("Shipment", shipmentGroupsForRemove, async (indexes, strategy) => {
+        await context.editor.removeShipments(indexes, { strategy });
       })
     );
   }
@@ -436,8 +469,8 @@ export function createModifyPanel(context: DemoModifyContext) {
   const assignJobSection = buildAssignSection(
     "Job",
     jobGroupsForAssign,
-    async (index, agentIndex, options) => {
-      await context.editor.assignJobs(agentIndex, [index], options);
+    async (indexes, agentIndex, options) => {
+      await context.editor.assignJobs(agentIndex, indexes, options);
     }
   );
   if (assignJobSection) {
@@ -447,8 +480,8 @@ export function createModifyPanel(context: DemoModifyContext) {
   const assignShipmentSection = buildAssignSection(
     "Shipment",
     shipmentGroupsForAssign,
-    async (index, agentIndex, options) => {
-      await context.editor.assignShipments(agentIndex, [index], options);
+    async (indexes, agentIndex, options) => {
+      await context.editor.assignShipments(agentIndex, indexes, options);
     }
   );
   if (assignShipmentSection) {

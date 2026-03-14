@@ -3,6 +3,7 @@ export interface TimelineItem {
   actualWidth: string;
   minWidth: string;
   form: 'full' | 'standard' | 'minimal';
-  type: 'start' | 'job' | 'end';
+  // ToDo: add breaks support to the "preserveOrder" strategy
+  type: 'start' | 'job' | 'end' | 'break';
   description: string;
 }

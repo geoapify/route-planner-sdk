@@ -2,6 +2,12 @@ import { RouteResultEditorBase } from "../../../route-result-editor-base";
 
 const LOCATION_EPSILON = 1e-6;
 
+export type InsertionTravelTimes = {
+    locationFrom: [number, number];
+    locationTo: [number, number];
+    time: number;
+}[];
+
 /**
  * Calculates optimal insertion points for new locations in existing routes.
  * Uses existing leg data only.
@@ -13,6 +19,7 @@ export class InsertionCostCalculator {
                                            options?: {
                                                canInsertBeforeFirst?: boolean;
                                                canInsertAfterLast?: boolean;
+                                               travelTimes?: InsertionTravelTimes;
                                            }): Promise<number> {
         if (route.length === 0) {
             return 0;
@@ -24,19 +31,14 @@ export class InsertionCostCalculator {
             return insertionPositions[0];
         }
 
-        const matrixHelper = context.getMatrixHelper();
-        const [timesToNew, timesFromNew] = await Promise.all([
-            matrixHelper.calculateTimesToLocation(route, newLocation),
-            matrixHelper.calculateTimesFromLocation(newLocation, route)
-        ]);
-
-        const consecutiveTimes = this.getConsecutiveTimes(context, agentIndex, route);
+        const travelTimeMap = this.buildTravelTimeMap(options?.travelTimes || []);
+        const consecutiveTimes = await this.getConsecutiveTimes(context, agentIndex, route, travelTimeMap);
 
         let bestPosition = insertionPositions[0];
         let minCost = Number.POSITIVE_INFINITY;
 
         for (const position of insertionPositions) {
-            const cost = this.calculateInsertionCost(position, route, timesToNew, timesFromNew, consecutiveTimes);
+            const cost = this.calculateInsertionCost(position, route, newLocation, travelTimeMap, consecutiveTimes);
             if (cost < minCost) {
                 minCost = cost;
                 bestPosition = position;
@@ -46,82 +48,73 @@ export class InsertionCostCalculator {
         return bestPosition;
     }
 
-    protected static getConsecutiveTimes(context: RouteResultEditorBase, agentIndex: number,
-                                       routeLocations: [number, number][]): number[] {
+    protected static async getConsecutiveTimes(
+        context: RouteResultEditorBase,
+        agentIndex: number,
+        routeLocations: [number, number][],
+        travelTimeMap: Map<string, number>
+    ): Promise<number[]> {
         if (routeLocations.length < 2) {
             return [];
         }
 
-        const existingTimes = this.getExistingConsecutiveTimes(context, agentIndex, routeLocations);
-        if (existingTimes) {
-            return existingTimes;
-        }
-
-        throw new Error(
-            `Missing consecutive leg times for agent ${agentIndex}. Ensure legs are recalculated when legs are modified.`
-        );
-    }
-
-    protected static getExistingConsecutiveTimes(
-        context: RouteResultEditorBase,
-        agentIndex: number,
-        routeLocations: [number, number][]
-    ): number[] | null {
         const agentFeature = context.getAgentFeature(agentIndex);
-        const waypoints = agentFeature.properties.waypoints || [];
         const legs = agentFeature.properties.legs || [];
-
-        if (routeLocations.length < 2 || waypoints.length < 2 || legs.length === 0) {
-            return null;
-        }
-
-        const waypointLocations = waypoints.map((waypoint) => waypoint.location || waypoint.original_location);
-        const startIndex = this.findSubRouteStartIndex(waypointLocations, routeLocations);
-        if (startIndex === -1) {
-            return null;
-        }
+        const waypointLocations = (agentFeature.properties.waypoints || []).map((waypoint) => waypoint.location || waypoint.original_location);
 
         const result: number[] = [];
         for (let i = 0; i < routeLocations.length - 1; i++) {
-            const fromWaypointIndex = startIndex + i;
-            const toWaypointIndex = fromWaypointIndex + 1;
-            const leg = legs.find((candidate) =>
-                candidate.from_waypoint_index === fromWaypointIndex &&
-                candidate.to_waypoint_index === toWaypointIndex
-            );
+            const fromLocation = routeLocations[i];
+            const toLocation = routeLocations[i + 1];
 
-            if (!leg || leg.time === undefined || leg.time < 0) {
-                return null;
+            if (this.sameLocation(fromLocation, toLocation)) {
+                result.push(0);
+                continue;
             }
 
-            result.push(leg.time);
-        }
+            const fromWaypointIndex = waypointLocations.findIndex((waypointLocation) =>
+                waypointLocation && this.sameLocation(waypointLocation, fromLocation)
+            );
 
-        return result;
-    }
+            const toWaypointIndex = waypointLocations.findIndex((waypointLocation) =>
+                waypointLocation && this.sameLocation(waypointLocation, toLocation)
+            );
 
-    private static findSubRouteStartIndex(
-        waypointLocations: [number, number][],
-        routeLocations: [number, number][]
-    ): number {
-        const maxStart = waypointLocations.length - routeLocations.length;
+            // 1. try to get from existing legs
+            if (fromWaypointIndex >= 0 && toWaypointIndex >= 0) {
+                const leg = legs.find((candidate) =>
+                    candidate.from_waypoint_index === fromWaypointIndex &&
+                    candidate.to_waypoint_index === toWaypointIndex
+                );
 
-        for (let start = 0; start <= maxStart; start++) {
-            let matches = true;
-
-            for (let offset = 0; offset < routeLocations.length; offset++) {
-                if (!this.sameLocation(waypointLocations[start + offset], routeLocations[offset])) {
-                    matches = false;
-                    break;
+                if (leg) {
+                    result.push(leg.time);
+                    continue;
                 }
             }
 
-            if (matches) {
-                return start;
+            // 2. try to get from matrix
+            const key = this.getTravelTimeKey(fromLocation, toLocation);
+            const time = travelTimeMap.get(key);
+            if (time) {
+                result.push(time);
+                continue;
             }
+
+            // 3. get from RoutingHelper (single pair)
+            const calculatedTimes = await context.getRoutingHelper().calculateConsecutiveTravelTimes([fromLocation, toLocation]);
+            const computedTime = calculatedTimes[0];
+
+            if (typeof computedTime !== "number") {
+                throw new Error(
+                    `Unable to calculate travel time between ${fromLocation[0]},${fromLocation[1]} and ${toLocation[0]},${toLocation[1]}.`
+                );
+            }
+
+            result.push(computedTime);
         }
 
-        return -1;
+        return result;
     }
 
     private static sameLocation(a: [number, number], b: [number, number]): boolean {
@@ -132,20 +125,47 @@ export class InsertionCostCalculator {
     private static calculateInsertionCost(
         insertionPosition: number,
         route: [number, number][],
-        timesToNew: number[],
-        timesFromNew: number[],
+        newLocation: [number, number],
+        travelTimeMap: Map<string, number>,
         consecutiveTimes: number[]
     ): number {
         if (insertionPosition <= 0) {
-            return timesFromNew[0];
+            return this.getTravelTime(travelTimeMap, newLocation, route[0]);
         }
 
         if (insertionPosition >= route.length) {
-            return timesToNew[route.length - 1];
+            return this.getTravelTime(travelTimeMap, route[route.length - 1], newLocation);
         }
 
         const fromIndex = insertionPosition - 1;
-        return timesToNew[fromIndex] + timesFromNew[insertionPosition] - consecutiveTimes[fromIndex];
+        return this.getTravelTime(travelTimeMap, route[fromIndex], newLocation)
+            + this.getTravelTime(travelTimeMap, newLocation, route[insertionPosition])
+            - consecutiveTimes[fromIndex];
+    }
+
+    private static buildTravelTimeMap(travelTimes: InsertionTravelTimes): Map<string, number> {
+        const map = new Map<string, number>();
+        for (const travelTime of travelTimes) {
+            map.set(this.getTravelTimeKey(travelTime.locationFrom, travelTime.locationTo), travelTime.time);
+        }
+        return map;
+    }
+
+    private static getTravelTime(
+        travelTimeMap: Map<string, number>,
+        locationFrom: [number, number],
+        locationTo: [number, number]
+    ): number {
+        const key = this.getTravelTimeKey(locationFrom, locationTo);
+        const travelTime = travelTimeMap.get(key);
+        if (travelTime === undefined) {
+            throw new Error(`Missing travel time for pair ${key}.`);
+        }
+        return travelTime;
+    }
+
+    private static getTravelTimeKey(locationFrom: [number, number], locationTo: [number, number]): string {
+        return `${locationFrom[0]},${locationFrom[1]}->${locationTo[0]},${locationTo[1]}`;
     }
 
     private static getInsertionPositions(

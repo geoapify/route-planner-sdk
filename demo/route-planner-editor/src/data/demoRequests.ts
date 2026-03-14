@@ -29,6 +29,12 @@ export const demoTaskMap: Record<string, DemoTaskMeta> = {
     filename: "bulky-items-houston.json",
     label: "Bulky Items Houston",
     description: "Capacity-aware bulky delivery set in Houston."
+  },
+  "kitchen-repair-miami": {
+    id: "kitchen-repair-miami",
+    filename: "kitchen-repair-miami.json",
+    label: "Kitchen Repair Miami",
+    description: "Field-service jobs in Miami with capability constraints."
   }
 };
 

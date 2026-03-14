@@ -1,8 +1,8 @@
-import { RouteAction, RouteActionData } from "../../../../../src";
+import { ActionResponseData, RouteAction } from "../../../../../src";
 
 describe("RouteAction", () => {
     let routeAction: RouteAction;
-    let initialData: RouteActionData;
+    let initialData: ActionResponseData;
 
     beforeEach(() => {
         initialData = {
@@ -23,7 +23,7 @@ describe("RouteAction", () => {
     });
 
     test("should throw an error if no data is provided", () => {
-        expect(() => new RouteAction(undefined as any)).toThrow("RouteActionData is undefined");
+        expect(() => new RouteAction(undefined as any)).toThrow("ActionResponseData is undefined");
     });
 
     test("should return the raw data", () => {
@@ -75,10 +75,11 @@ describe("RouteAction", () => {
     });
 
     test("should return undefined for optional fields if not provided", () => {
-        const partialData: RouteActionData = {
+        const partialData: ActionResponseData = {
             type: "dropoff",
             start_time: 700,
             duration: 40,
+            index: 0,
             waypoint_index: 1
         };
         const partialRouteAction = new RouteAction(partialData);
@@ -89,6 +90,6 @@ describe("RouteAction", () => {
         expect(partialRouteAction.getLocationId()).toBeUndefined();
         expect(partialRouteAction.getJobIndex()).toBeUndefined();
         expect(partialRouteAction.getJobId()).toBeUndefined();
-        expect(partialRouteAction.getActionIndex()).toBeUndefined();
+        expect(partialRouteAction.getActionIndex()).toBe(0);
     });
 });

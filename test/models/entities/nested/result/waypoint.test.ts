@@ -1,19 +1,19 @@
-import { RouteAction, Waypoint, WaypointData } from "../../../../../src";
+import { RouteAction, Waypoint, WaypointResponseData } from "../../../../../src";
 
 describe("Waypoint", () => {
     let waypoint: Waypoint;
-    let initialData: WaypointData;
+    let initialData: WaypointResponseData;
 
     beforeEach(() => {
         initialData = {
             original_location: [40.712776, -74.005974],
             original_location_index: 0,
-            original_location_id: 100,
+            original_location_id: "100",
             location: [34.052235, -118.243683],
             start_time: 500,
             duration: 100,
             actions: [
-                { type: "pickup", start_time: 600, duration: 30, job_id: "J1", shipment_id: "S1", waypoint_index: 1 },
+                { type: "pickup", start_time: 600, duration: 30, job_id: "J1", shipment_id: "S1", waypoint_index: 1, index: 1 },
             ],
             prev_leg_index: 1,
             next_leg_index: 2,
@@ -39,11 +39,20 @@ describe("Waypoint", () => {
     });
 
     test("should return original location ID", () => {
-        expect(waypoint.getOriginalLocationId()).toBe(100);
+        expect(waypoint.getOriginalLocationId()).toBe("100");
     });
 
     test("should return location", () => {
         expect(waypoint.getLocation()).toEqual([34.052235, -118.243683]);
+    });
+
+    test("should fallback to original location when location is missing", () => {
+        const noResolvedLocation: WaypointResponseData = {
+            ...initialData,
+            location: undefined
+        };
+        const noResolvedLocationWaypoint = new Waypoint(noResolvedLocation);
+        expect(noResolvedLocationWaypoint.getLocation()).toEqual(noResolvedLocation.original_location);
     });
 
     test("should return start time", () => {
@@ -69,7 +78,7 @@ describe("Waypoint", () => {
     });
 
     test("should return an empty array if no actions are provided", () => {
-        const emptyActionsData: WaypointData = {
+        const emptyActionsData: WaypointResponseData = {
             ...initialData,
             actions: [],
         };

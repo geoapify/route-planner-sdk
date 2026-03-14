@@ -1,9 +1,9 @@
-import { RouteLegStepData } from "../../../interfaces";
+import { LegStepResponseData } from "../../../interfaces";
 
 export class RouteLegStep {
-    private readonly raw: RouteLegStepData;
+    private readonly raw: LegStepResponseData;
 
-    constructor(raw?: RouteLegStepData) {
+    constructor(raw?: LegStepResponseData) {
         if (raw) {
             this.raw = raw;
         } else {
@@ -11,7 +11,7 @@ export class RouteLegStep {
         }
     }
 
-    getRaw(): RouteLegStepData {
+    getRaw(): LegStepResponseData {
         return this.raw;
     }
 

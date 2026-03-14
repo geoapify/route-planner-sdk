@@ -1,4 +1,4 @@
-import TEST_API_KEY from "../../../../demo-env-variables.mjs";
+import TEST_API_KEY from "../../../demo-env-variables.mjs";
 
 const myAPIKey = TEST_API_KEY;
 

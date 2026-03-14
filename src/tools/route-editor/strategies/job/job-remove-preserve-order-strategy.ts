@@ -1,4 +1,4 @@
-import {ActionResponseData, RemoveOptions} from "../../../../models";
+import { RemoveOptions} from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy } from "../base";
 import { RouteResultEditorBase } from "../../route-result-editor-base";
 import { AgentPlanRecalculator, WaypointBuilder } from "../preserve-order";
@@ -39,17 +39,12 @@ export class JobRemovePreserveOrderStrategy implements IRemoveStrategy {
         }
 
         const feature = context.getAgentFeature(agentIndex);
-        const actions = feature.properties.actions;
         const waypoints = feature.properties.waypoints;
         const legs = feature.properties.legs || [];
 
         const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, legs);
 
-        const jobActionIndex = actions.findIndex((action: ActionResponseData) => action.job_index === jobIndex);
-        actions.splice(jobActionIndex, 1);
-        context.reindexActions(actions);
-
-        WaypointBuilder.removeJobActionFromWaypoints(waypoints, jobIndex);
+        WaypointBuilder.removeJobsFromWaypoints(waypoints, jobIndex);
         const cleanupResult = WaypointBuilder.removeEmptyWaypoints(waypoints, legDataMap);
         feature.properties.waypoints = cleanupResult.waypoints;
         if (cleanupResult.legs) {

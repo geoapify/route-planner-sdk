@@ -63,7 +63,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('assignShipments should work "AgentSolution for provided agentId is found and the shipment is assigned to someone else."', async () => {
-        let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+        let assignShipmentRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
         // Initially we have
         // Shipment 1 -> Agent A, Shipment 2 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -82,7 +82,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
      test('assignShipments should change priority if its passed', async () => {
-        let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
+        let assignShipmentRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
         let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
 
         const routeEditor = new RoutePlannerResultEditor(plannerResult);
@@ -96,7 +96,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('assignShipments should work "AgentSolution for provided agentId is found. But the shipment is not assigned to anyone."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -117,7 +117,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('assignShipments should work "AgentSolution for provided agentId is not found and the shipment is assigned to someone."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -141,7 +141,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('assignShipments should work "AgentSolution for provided agentId is not found and the shipment is not assigned to anyone."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -163,7 +163,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('assignShipments should work "Shipment with provided shipmentId already assigned to provided agentId."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -181,7 +181,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('assignShipments should work "Shipment with provided shipmentId not found."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -199,7 +199,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('removeShipments should work "Shipment is assigned."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -223,7 +223,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('removeShipments should work "Shipment is not assigned."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -245,7 +245,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('removeShipments should work "Shipment not found."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -262,7 +262,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('removeShipments should work "No shipments provided."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -279,7 +279,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('removeShipments should work "Shipments are not unique."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
         // Initially we have
         // Shipment 1 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -296,7 +296,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('addNewShipments should work "Shipment assigned to agent, that has existing AgentSolution."', async () => {
-        let assignShipmentRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-add-shipment-success-assigned-agent.json");
+        let assignShipmentRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-add-shipment-success-assigned-agent.json");
         // Initially we have
         // Shipment 1 -> Agent A, Shipment 2 -> Agent A
         // Shipment 3 -> Agent B, Shipment 4 -> Agent B
@@ -322,7 +322,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('addNewShipments should work "Shipment assigned to agent without existing AgentSolution."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -353,7 +353,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('addNewShipments should work "No shipments provided."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -371,7 +371,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('addNewShipments should work "Shipments are not unique."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -393,7 +393,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('addNewShipments should work "Shipment id is undefined."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
+        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
         // Initially we have
         // Shipment 1 -> A, Shipment 2 -> Agent A
         // Shipment 3 -> unassigned, Shipment 4 -> unassigned
@@ -413,7 +413,7 @@ describe('RoutePlannerResultShipmentEditor', () => {
     });
 
     test('removeShipments should work "API Docs scenario where we want to unassign all"', async () => {
-        let plannerResultData: RoutePlannerResultData = loadJson("data/route-planner-result-editor/shipment/result-data-api-docs-simple-delivery-sample.json");
+        let plannerResultData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-api-docs-simple-delivery-sample.json");
         let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(plannerResultData));
         // All 73 shipments are assigned
         const routeEditor = new RoutePlannerResultEditor(plannerResult);

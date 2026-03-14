@@ -123,13 +123,13 @@ export class WaypointBuilder {
         return false;
     }
 
-    static removeJobActionFromWaypoints(waypoints: WaypointResponseData[], jobIndex: number): void {
+    static removeJobsFromWaypoints(waypoints: WaypointResponseData[], jobIndex: number): void {
         for (const waypoint of waypoints) {
             waypoint.actions = waypoint.actions.filter(a => a.job_index !== jobIndex);
         }
     }
 
-    static removeShipmentActionsFromWaypoints(waypoints: WaypointResponseData[], shipmentIndex: number): void {
+    static removeShipmentsFromWaypoints(waypoints: WaypointResponseData[], shipmentIndex: number): void {
         for (const waypoint of waypoints) {
             waypoint.actions = waypoint.actions.filter(a => a.shipment_index !== shipmentIndex);
         }

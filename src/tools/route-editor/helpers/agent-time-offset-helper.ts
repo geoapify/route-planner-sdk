@@ -16,7 +16,8 @@ export class AgentTimeOffsetHelper {
             return;
         }
 
-        const actionStartIndex = InsertPositionResolver.validateAndGetWaypointIndex(context, agentIndex, waypointIndex);
+        InsertPositionResolver.validateAfterWaypointIndex(context, agentIndex, waypointIndex);
+
         const agentFeature = context.getRawData().features.find(
             (feature) => feature.properties.agent_index === agentIndex
         );
@@ -35,15 +36,12 @@ export class AgentTimeOffsetHelper {
             }
         }
 
-        for (let i = actionStartIndex; i < actions.length; i++) {
-            actions[i].start_time = (actions[i].start_time || 0) + offsetSeconds;
-        }
-
         for (let i = waypointIndex + 1 /* after */; i < waypoints.length; i++) {
             waypoints[i].start_time = (waypoints[i].start_time || 0) + offsetSeconds;
             if (waypoints[i].actions) {
                 for (const action of waypoints[i].actions) {
                     action.start_time = (action.start_time || 0) + offsetSeconds;
+                    actions[action.index].start_time = action.start_time;
                 }
             }
         }

@@ -1,4 +1,6 @@
-export const geoapifyApiKey = "2637972f7da045ca8089265acdbbc1d0";
+import TEST_API_KEY from "../../../demo-env-variables.mjs";
+
+export const geoapifyApiKey = TEST_API_KEY;
 
 export const mapStyleUrl =
   "https://maps.geoapify.com/v1/styles/osm-bright/style.json";

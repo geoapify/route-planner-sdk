@@ -19,13 +19,12 @@ import { RoutePlannerResult } from "./models/entities/route-planner-result";
 export class RoutePlanner {
     private raw: RoutePlannerInputData;
     private options: RoutePlannerCallOptions;
+    private baseUrl: string;
 
     constructor(options: RoutePlannerCallOptions,
                 raw?: RoutePlannerInputData) {
         this.options = options;
-        if(!this.options.baseUrl) {
-            this.options.baseUrl = 'https://api.geoapify.com';
-        }
+        this.baseUrl = options.baseUrl || 'https://api.geoapify.com';        
         if(raw) {
             this.raw = raw;
         } else {
@@ -116,7 +115,7 @@ export class RoutePlanner {
     private async callPlan() {
         const requestBody = Utils.cleanObject(this.raw);
 
-        const response = await universalFetch(`${this.options.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {
+        const response = await universalFetch(`${this.baseUrl}/v1/routeplanner?apiKey=${this.options.apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

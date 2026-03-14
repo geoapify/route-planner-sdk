@@ -41,9 +41,10 @@ export class ShipmentAssignPreserveOrderStrategy implements AssignStrategy {
                 shipmentIndex, 
                 positions
             );
+
+            await AgentPlanRecalculator.recalculate(context, agentIndex);
         }
 
-        await AgentPlanRecalculator.recalculate(context, agentIndex);
         RouteViolationValidator.validate(context, agentIndex);
         
         return true;

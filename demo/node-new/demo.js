@@ -1,5 +1,5 @@
 import RoutePlanner, {Agent, Job, Shipment, ShipmentStep, RoutePlannerResultEditor} from "../../dist/index.min.esm.js";
-import TEST_API_KEY from "../../demo-env-variables.mjs";
+import TEST_API_KEY from "../demo-env-variables.mjs";
 
 const apiKey = TEST_API_KEY;
 

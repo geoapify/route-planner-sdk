@@ -1,0 +1,273 @@
+{
+    "mode": "drive",
+    "type": "balanced",
+    "traffic": "free_flow",
+    "agents": [
+        {
+            "start_location": [
+                -80.14258955579626,
+                26.0029576
+            ],
+            "capabilities": [
+                "Cooling system tester",
+                "Motor locking tool",
+                "Electrician"
+            ],
+            "time_windows": [
+                [
+                    0,
+                    7200
+                ]
+            ],
+            "breaks": [],
+            "end_location": [
+                -80.14258955579626,
+                26.0029576
+            ]
+        },
+        {
+            "start_location": [
+                -80.1425932774194,
+                26.00259025
+            ],
+            "capabilities": [
+                "Welding machine",
+                "Motor locking tool",
+                "Electrician"
+            ],
+            "time_windows": [
+                [
+                    3600,
+                    10800
+                ]
+            ],
+            "breaks": [],
+            "end_location": [
+                -80.1425932774194,
+                26.00259025
+            ]
+        },
+        {
+            "start_location": [
+                -80.1425932774194,
+                26.00259025
+            ],
+            "capabilities": [
+                "Welding machine"
+            ],
+            "time_windows": [
+                [
+                    3600,
+                    10800
+                ]
+            ],
+            "breaks": [],
+            "end_location": [
+                -80.1425932774194,
+                26.00259025
+            ]
+        },
+        {
+            "start_location": [
+                -80.14258955579626,
+                26.0029576
+            ],
+            "capabilities": [
+                "Welding machine"
+            ],
+            "time_windows": [
+                [
+                    3600,
+                    10800
+                ]
+            ],
+            "breaks": [],
+            "end_location": [
+                -80.14258955579626,
+                26.0029576
+            ]
+        },
+        {
+            "start_location": [
+                -80.14258955579626,
+                26.0029576
+            ],
+            "capabilities": [
+                "Cooling system tester",
+                "Motor locking tool"
+            ],
+            "time_windows": [
+                [
+                    0,
+                    7200
+                ]
+            ],
+            "breaks": [],
+            "end_location": [
+                -80.14258955579626,
+                26.0029576
+            ]
+        }
+    ],
+    "jobs": [
+        {
+            "location": [
+                -80.13407354296797,
+                26.002572966595363
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13402454302339,
+                26.001650070680693
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13379888257997,
+                26.001657821551262
+            ],
+            "requirements": [
+                "Cooling system tester"
+            ],
+            "time_windows": [],
+            "duration": 3600
+        },
+        {
+            "location": [
+                -80.1335819560376,
+                26.001665272434224
+            ],
+            "requirements": [
+                "Motor locking tool"
+            ],
+            "time_windows": [],
+            "duration": 3600
+        },
+        {
+            "location": [
+                -80.13386322745215,
+                26.00257966004069
+            ],
+            "requirements": [
+                "Cooling system tester"
+            ],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13368550327216,
+                26.002585316242886
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13349902291648,
+                26.002591251116783
+            ],
+            "requirements": [
+                "Motor locking tool"
+            ],
+            "time_windows": [],
+            "duration": 3600
+        },
+        {
+            "location": [
+                -80.13331123302943,
+                26.00259722766748
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13334926109614,
+                26.001673264922168
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13419901854887,
+                26.0025689732431
+            ],
+            "requirements": [
+                "Electrician"
+            ],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13403269197372,
+                26.00281160016395
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.1338541490935,
+                26.002820400163962
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.1336767899652,
+                26.00282755016395
+            ],
+            "requirements": [
+                "Electrician"
+            ],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.13348514732053,
+                26.002811550163962
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 3600
+        },
+        {
+            "location": [
+                -80.1332888301427,
+                26.002858300163947
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        },
+        {
+            "location": [
+                -80.14250980074932,
+                26.0020094
+            ],
+            "requirements": [],
+            "time_windows": [],
+            "duration": 1800
+        }
+    ],
+    "shipments": [],
+    "locations": [],
+    "avoid": []
+}

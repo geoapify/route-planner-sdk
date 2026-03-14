@@ -3,7 +3,7 @@ import {PreserveOrderBaseHelper} from "./preserve-order-base-helper";
 import {AddAssignOptions} from "../../../../../models";
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
 import {RouteEditorHelper} from "../utils/route-editor-helper";
-import {InsertionCostCalculator} from "../utils/insertion-cost-calculator";
+import {InsertionCostCalculator, InsertionTravelTimes} from "../utils/insertion-cost-calculator";
 
 export interface JobInsertPosition {
     position: number;
@@ -28,13 +28,13 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
 
         // afterId/afterWaypointIndex + append: true → Insert at specified position
         if (InsertPositionResolver.hasExplicitInsertPosition(options)) {
-            position = InsertPositionResolver.resolveInsertPosition(context, agentIndex, options);
+            position = InsertPositionResolver.resolveInsertPosition(options);
             return { position, createWaypoint: true };
         }
 
         // afterId/afterWaypointIndex + append: false → Optimize after position
-        if (InsertPositionResolver.shouldOptimizeAfterPosition(options)) {
-            const minPosition = InsertPositionResolver.getMinimumWaypointPosition(context, agentIndex, options);
+        if (options.afterWaypointIndex && !options.append) {
+            const minPosition = options.afterWaypointIndex;
             position = await this.findOptimalInsertPositionAfter(context, agentIndex, firstJobIndex, minPosition);
             return { position, createWaypoint: true };
         }
@@ -62,6 +62,7 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
             return 1;
         }
 
+        const travelTimes = await this.calculateTravelTimes(context, routeLocations, jobLocation);
         const optimalIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
             context,
             agentIndex,
@@ -69,11 +70,12 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
             jobLocation,
             {
                 canInsertBeforeFirst: this.hasAgentStartLocation(context, agentIndex),
-                canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex)
+                canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex),
+                travelTimes
             }
         );
 
-        return optimalIndex + 1;
+        return optimalIndex;
     }
 
     static async findOptimalInsertPositionAfter(context: RouteResultEditorBase, agentIndex: number,
@@ -88,16 +90,46 @@ export class PreserveOrderJobHelper extends PreserveOrderBaseHelper {
             return minPosition;
         }
 
+        const travelTimes = await this.calculateTravelTimes(context, routeLocationsAfter, jobLocation);
         const optimalIndex = await InsertionCostCalculator.findOptimalInsertionPoint(
             context,
             agentIndex,
             routeLocationsAfter,
             jobLocation,
-            { canInsertBeforeFirst: minPosition === 0 ? this.hasAgentStartLocation(context, agentIndex) : true,
-              canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex)
+            { canInsertBeforeFirst: false,
+              canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex),
+              travelTimes
             }
         );
 
         return Math.max(0, minPosition - 1) + optimalIndex + 1;
+    }
+
+    private static async calculateTravelTimes(
+        context: RouteResultEditorBase,
+        route: [number, number][],
+        newLocation: [number, number]
+    ): Promise<InsertionTravelTimes> {
+        const matrixHelper = context.getMatrixHelper();
+        const [timesToNew, timesFromNew] = await Promise.all([
+            matrixHelper.calculateTimesToLocation(route, newLocation),
+            matrixHelper.calculateTimesFromLocation(newLocation, route)
+        ]);
+
+        const travelTimes: InsertionTravelTimes = [];
+        for (let i = 0; i < route.length; i++) {
+            travelTimes.push({
+                locationFrom: route[i],
+                locationTo: newLocation,
+                time: timesToNew[i]
+            });
+            travelTimes.push({
+                locationFrom: newLocation,
+                locationTo: route[i],
+                time: timesFromNew[i]
+            });
+        }
+
+        return travelTimes;
     }
 }

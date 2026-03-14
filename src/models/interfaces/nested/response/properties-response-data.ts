@@ -10,7 +10,7 @@ export interface AgentPlanResponceData {
     end_time: number;
     distance: number;
     mode: string;
-    legs?: LegResponseData[];
+    legs: LegResponseData[];
     actions: ActionResponseData[];
     waypoints: WaypointResponseData[];
 }

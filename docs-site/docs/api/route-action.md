@@ -22,7 +22,7 @@ Each action is tied to a specific waypoint and contributes to the route's struct
 ## Constructor
 
 ```ts
-new RouteAction(raw: RouteActionData)
+new RouteAction(raw: ActionResponseData)
 ```
 
 Creates a `RouteAction` from raw result data. Throws an error if no data is provided.

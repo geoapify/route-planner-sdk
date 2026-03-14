@@ -1,6 +1,3 @@
-export interface RouteLegStepData {
-    distance: number;
-    time: number;
-    from_index: number;
-    to_index: number;
-}
+import { LegStepResponseData } from "../response/leg-step-response-data";
+
+export type RouteLegStepData = LegStepResponseData;

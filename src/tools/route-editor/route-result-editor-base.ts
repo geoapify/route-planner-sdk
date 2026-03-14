@@ -4,7 +4,7 @@ import {
     FeatureResponseData, RoutePlannerResult,
     RoutePlannerResultResponseDataExtended,
     RoutingOptions,
-    WaypointData,
+    WaypointResponseData,
     AgentHasNoPlan, AgentNotFound, NoItemsProvided, ItemsNotUnique,
     RoutePlannerInputData
 } from "../../models";
@@ -449,7 +449,7 @@ export abstract class RouteResultEditorBase {
         return agentFeature ? agentFeature.properties.actions : [];
     }
 
-    getAgentWaypoints(agentIndex: number): WaypointData[] {
+    getAgentWaypoints(agentIndex: number): WaypointResponseData[] {
         const agentFeature = this.getRawData().features.find(
             feature => feature.properties.agent_index === agentIndex
         );

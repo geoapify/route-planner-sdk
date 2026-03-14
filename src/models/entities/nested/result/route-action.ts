@@ -1,17 +1,17 @@
-import { RouteActionData } from "../../../interfaces";
+import { ActionResponseData } from "../../../interfaces";
 
 export class RouteAction {
-    private readonly raw: RouteActionData;
+    private readonly raw: ActionResponseData;
 
-    constructor(raw?: RouteActionData) {
+    constructor(raw?: ActionResponseData) {
         if (raw) {
             this.raw = raw;
         } else {
-            throw new Error("RouteActionData is undefined");
+            throw new Error("ActionResponseData is undefined");
         }
     }
 
-    getRaw(): RouteActionData {
+    getRaw(): ActionResponseData {
         return this.raw;
     }
 
@@ -42,7 +42,7 @@ export class RouteAction {
     getJobId(): string | undefined {
         return this.raw.job_id;
     }
-    getActionIndex(): number | undefined {
+    getActionIndex(): number {
         return this.raw.index;
     }
     getWaypointIndex(): number | undefined {

@@ -1,18 +1,18 @@
 import { RouteLegStep } from "./route-leg-step";
-import { RouteLegData, RouteLegStepData } from "../../../interfaces";
+import { LegResponseData, LegStepResponseData } from "../../../interfaces";
 
 export class RouteLeg {
-    private readonly raw: RouteLegData;
+    private readonly raw: LegResponseData;
 
-    constructor(raw?: RouteLegData) {
+    constructor(raw?: LegResponseData) {
         if (raw) {
             this.raw = raw;
         } else {
-            throw new Error("RouteLegData is undefined");
+            throw new Error("LegResponseData is undefined");
         }
     }
 
-    getRaw(): RouteLegData {
+    getRaw(): LegResponseData {
         return this.raw;
     }
 
@@ -25,7 +25,7 @@ export class RouteLeg {
     }
 
     getSteps(): RouteLegStep[] {
-        return this.raw.steps.map((step: RouteLegStepData) => new RouteLegStep(step));
+        return this.raw.steps.map((step: LegStepResponseData) => new RouteLegStep(step));
     }
 
     getFromWaypointIndex(): number {

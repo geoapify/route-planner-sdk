@@ -31,9 +31,9 @@ export class JobAssignPreserveOrderStrategy implements AssignStrategy {
             const insertPosition: JobInsertPosition =
                 await PreserveOrderJobHelper.determineInsertPosition(context, agentIndex, jobIndexes[i], options);
             WaypointBuilder.insertJobWaypoint(context, agentIndex, jobIndexes[i], insertPosition);
+
+            await AgentPlanRecalculator.recalculate(context, agentIndex);
         }
-        
-        await AgentPlanRecalculator.recalculate(context, agentIndex);
         
         RouteViolationValidator.validate(context, agentIndex);
                 

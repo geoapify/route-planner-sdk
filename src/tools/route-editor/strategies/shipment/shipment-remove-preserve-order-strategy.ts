@@ -1,4 +1,4 @@
-import {ActionResponseData, RemoveOptions} from "../../../../models";
+import { RemoveOptions} from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy } from "../base";
 import { RouteResultEditorBase } from "../../route-result-editor-base";
 import { AgentPlanRecalculator, WaypointBuilder } from "../preserve-order";
@@ -42,7 +42,7 @@ export class ShipmentRemovePreserveOrderStrategy implements IRemoveStrategy {
         const waypoints = feature.properties.waypoints;
         const legs = feature.properties.legs || [];
 
-        WaypointBuilder.removeShipmentActionsFromWaypoints(waypoints, shipmentIndex);
+        WaypointBuilder.removeShipmentsFromWaypoints(waypoints, shipmentIndex);
         const legDataMap = WaypointBuilder.buildLegDataMap(waypoints, legs);
         const cleanupResult = WaypointBuilder.removeEmptyWaypoints(waypoints, legDataMap);
         feature.properties.waypoints = cleanupResult.waypoints;

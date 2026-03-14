@@ -7,7 +7,8 @@
 /demo/react-demo/src/dist/
 /coverage/
 /demo/react-demo/src/env-variables.ts
-/demo-env-variables.mjs
+/demo/demo-env-variables.mjs
+/test-env-variables.mjs
 .DS_Store
 docs-site/site
 node_modules

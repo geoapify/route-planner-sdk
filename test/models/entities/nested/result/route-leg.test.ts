@@ -1,8 +1,8 @@
-import { RouteLeg, RouteLegData, RouteLegStep } from "../../../../../src";
+import { LegResponseData, RouteLeg, RouteLegStep } from "../../../../../src";
 
 describe("RouteLeg", () => {
     let routeLeg: RouteLeg;
-    let initialData: RouteLegData;
+    let initialData: LegResponseData;
 
     beforeEach(() => {
         initialData = {
@@ -19,7 +19,7 @@ describe("RouteLeg", () => {
     });
 
     test("should throw an error if no data is provided", () => {
-        expect(() => new RouteLeg(undefined as any)).toThrow("RouteLegData is undefined");
+        expect(() => new RouteLeg(undefined as any)).toThrow("LegResponseData is undefined");
     });
 
     test("should return the raw data", () => {
@@ -49,7 +49,7 @@ describe("RouteLeg", () => {
     });
 
     test("should return an empty array if no steps are provided", () => {
-        const emptyLegData: RouteLegData = {
+        const emptyLegData: LegResponseData = {
             time: 400,
             distance: 6000,
             steps: [],
