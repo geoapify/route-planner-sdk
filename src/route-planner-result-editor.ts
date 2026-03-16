@@ -4,7 +4,7 @@ import { RouteResultShipmentEditor } from "./tools/route-editor/route-result-shi
 import { AgentReoptimizeHelper, AgentTimeOffsetHelper, WaypointMoveHelper } from "./tools/route-editor/helpers";
 import { InsertPositionResolver } from "./tools/route-editor/strategies/preserve-order/utils/insert-position-resolver";
 import { Utils } from "./tools/utils";
-import { Job, Shipment, AddAssignOptions, RemoveOptions, ReoptimizeOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidInsertionPosition, InvalidParameterType } from "./models";
+import { Job, Shipment, AddAssignOptions, RemoveOptions, ReoptimizeOptions, RoutingOptions, RoutePlannerResultResponseDataExtended, InvalidInsertionPosition, InvalidParameter } from "./models";
 import { IndexConverter } from "./helpers/index-converter";
 import { RoutePlannerCallOptions } from "./models/interfaces/route-planner-call-options";
 
@@ -255,7 +255,7 @@ export class RoutePlannerResultEditor {
 
     private assertArray(array: any[], name: string): void {
         if (!Array.isArray(array)) {
-            throw new InvalidParameterType(name + " must be an array", name);
+            throw new InvalidParameter(name + " must be an array", name);
         }
     }
 

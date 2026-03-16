@@ -1,7 +1,7 @@
 import { RemoveOptions } from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy, RequirementHelper } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
-import { RouteViolationValidator } from "../preserve-order/validations";
+import { RouteViolationValidator } from "../../validations";
 
 /**
  * Strategy that reoptimizes the route after removing shipments

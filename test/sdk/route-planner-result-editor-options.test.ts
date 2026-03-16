@@ -1,7 +1,7 @@
 import {
     AgentHasNoPlan,
     AgentNotFound,
-    InvalidParameterType,
+    InvalidParameter,
     InvalidInsertionPosition,
     ItemAlreadyAssigned,
     ItemsNotUnique,
@@ -161,43 +161,62 @@ describe("RoutePlannerResultEditor options and non-API behavior", () => {
     test("assignJobs should validate array parameter", async () => {
         const editor = createJobsEditor();
 
-        await expect(editor.assignJobs(0, "invalid" as any)).rejects.toBeInstanceOf(InvalidParameterType);
+        await expect(editor.assignJobs(0, "invalid" as any)).rejects.toBeInstanceOf(InvalidParameter);
         await expect(editor.assignJobs(0, "invalid" as any)).rejects.toThrow("jobIndexesOrIds must be an array");
     });
 
     test("assignShipments should validate array parameter", async () => {
         const editor = createShipmentsEditor();
 
-        await expect(editor.assignShipments(0, "invalid" as any)).rejects.toBeInstanceOf(InvalidParameterType);
+        await expect(editor.assignShipments(0, "invalid" as any)).rejects.toBeInstanceOf(InvalidParameter);
         await expect(editor.assignShipments(0, "invalid" as any)).rejects.toThrow("shipmentIndexesOrIds must be an array");
     });
 
     test("removeJobs should validate array parameter", async () => {
         const editor = createJobsEditor();
 
-        await expect(editor.removeJobs("invalid" as any)).rejects.toBeInstanceOf(InvalidParameterType);
+        await expect(editor.removeJobs("invalid" as any)).rejects.toBeInstanceOf(InvalidParameter);
         await expect(editor.removeJobs("invalid" as any)).rejects.toThrow("jobIndexesOrIds must be an array");
     });
 
     test("removeShipments should validate array parameter", async () => {
         const editor = createShipmentsEditor();
 
-        await expect(editor.removeShipments("invalid" as any)).rejects.toBeInstanceOf(InvalidParameterType);
+        await expect(editor.removeShipments("invalid" as any)).rejects.toBeInstanceOf(InvalidParameter);
         await expect(editor.removeShipments("invalid" as any)).rejects.toThrow("shipmentIndexes must be an array");
     });
 
     test("addNewJobs should validate array parameter", async () => {
         const editor = createJobsEditor();
 
-        expect(() => editor.addNewJobs(0, "invalid" as any)).toThrow(InvalidParameterType);
+        expect(() => editor.addNewJobs(0, "invalid" as any)).toThrow(InvalidParameter);
         expect(() => editor.addNewJobs(0, "invalid" as any)).toThrow("jobs must be an array");
     });
 
     test("addNewShipments should validate array parameter", async () => {
         const editor = createShipmentsEditor();
 
-        expect(() => editor.addNewShipments(0, "invalid" as any)).toThrow(InvalidParameterType);
+        expect(() => editor.addNewShipments(0, "invalid" as any)).toThrow(InvalidParameter);
         expect(() => editor.addNewShipments(0, "invalid" as any)).toThrow("shipments must be an array");
+    });
+
+    test("addNewJobs should validate new job location", async () => {
+        const editor = createJobsEditor();
+        const invalidJob = new Job().setId("job-no-location").setDuration(30);
+
+        await expect(editor.addNewJobs(0, [invalidJob])).rejects.toBeInstanceOf(InvalidParameter);
+        await expect(editor.addNewJobs(0, [invalidJob])).rejects.toThrow("must have either location or location_index");
+    });
+
+    test("addNewShipments should validate pickup and delivery locations", async () => {
+        const editor = createShipmentsEditor();
+        const invalidShipment = new Shipment()
+            .setId("shipment-no-delivery-location")
+            .setPickup(new ShipmentStep().setLocation(1, 1).setDuration(10))
+            .setDelivery(new ShipmentStep().setDuration(10));
+
+        await expect(editor.addNewShipments(0, [invalidShipment])).rejects.toBeInstanceOf(InvalidParameter);
+        await expect(editor.addNewShipments(0, [invalidShipment])).rejects.toThrow("without location or location_index");
     });
 });
 

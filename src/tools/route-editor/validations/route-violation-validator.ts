@@ -9,8 +9,8 @@ import {
     AgentPickupCapacityExceeded,
     AgentDeliveryCapacityExceeded,
     AgentMissingCapability, RoutePlannerResultResponseDataExtended
-} from '../../../../../models';
-import {RouteResultEditorBase} from "../../../route-result-editor-base";
+} from '../../../models';
+import {RouteResultEditorBase} from "../route-result-editor-base";
 
 type TimeWindow = [number, number];
 
@@ -20,34 +20,38 @@ export class RouteViolationValidator {
     private static readonly ACTION_TYPE_DELIVERY = 'delivery';
     private static readonly ACTION_TYPE_START = 'start';
     private static readonly ACTION_TYPE_END = 'end';
+    private static readonly ACTION_TYPE_BREAK = 'break';
     private static readonly ACTION_TYPE_JOB = 'job';
 
     static validate(context: RouteResultEditorBase, agentIndex: number): void {
         const rawData = context.getRawData();
-        const agent = rawData.properties.params.agents[agentIndex];
-        const actions = context.getAgentActions(agentIndex);
 
         const violations: ViolationError[] = [];
 
-        let timeWindowViolations = this.validateTimeWindows(context, agent, actions, agentIndex);
+        let timeWindowViolations = this.validateTimeWindows(context, agentIndex);
         violations.push(...timeWindowViolations);
-        let breakViolations = this.validateBreaks(agent, actions, agentIndex);
+        let breakViolations = this.validateBreaks(context, agentIndex);
         violations.push(...breakViolations);
-        let capacityViolations = this.validateCapacity(context, agent, actions, agentIndex);
+        let capacityViolations = this.validateCapacity(context, agentIndex);
         violations.push(...capacityViolations);
-        let capabilityViolations = this.validateCapabilities(context, agent, actions, agentIndex);
+        let capabilityViolations = this.validateCapabilities(context, agentIndex);
         violations.push(...capabilityViolations);
 
         this.addViolationsToResult(rawData, agentIndex, violations);
     }
 
-    private static validateTimeWindows(context: RouteResultEditorBase, agent: AgentData,
-                                       actions: ActionResponseData[], agentIndex: number): ViolationError[] {
+    private static validateTimeWindows(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
         const result: ViolationError[] = [];
         const rawData = context.getRawData();
+        const agent = rawData.properties.params.agents[agentIndex];
+        const actions = context.getAgentActions(agentIndex);
 
         for (const action of actions) {
-            if (action.type === this.ACTION_TYPE_START || action.type === this.ACTION_TYPE_END) {
+            if (
+                action.type === this.ACTION_TYPE_START ||
+                action.type === this.ACTION_TYPE_END ||
+                action.type === this.ACTION_TYPE_BREAK
+            ) {
                 continue;
             }
 
@@ -66,16 +70,22 @@ export class RouteViolationValidator {
         return result;
     }
 
-    private static validateBreaks(agent: AgentData, actions: ActionResponseData[],
-                                  agentIndex: number): ViolationError[] {
+    private static validateBreaks(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
         const result: ViolationError[] = [];
+        const rawData = context.getRawData();
+        const agent = rawData.properties.params.agents[agentIndex];
+        const actions = context.getAgentActions(agentIndex);
 
         if (!agent.breaks?.length) {
             return result;
         }
 
         for (const action of actions) {
-            if (action.type === this.ACTION_TYPE_START || action.type === this.ACTION_TYPE_END) {
+            if (
+                action.type === this.ACTION_TYPE_START ||
+                action.type === this.ACTION_TYPE_END ||
+                action.type === this.ACTION_TYPE_BREAK
+            ) {
                 continue;
             }
 
@@ -92,98 +102,103 @@ export class RouteViolationValidator {
         return result;
     }
 
-    private static validateCapacity(context: RouteResultEditorBase, agent: AgentData,
-                                    actions: ActionResponseData[], agentIndex: number): ViolationError[] {
+    private static validateCapacity(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
         const violations: ViolationError[] = [];
         const rawData = context.getRawData();
-
-        const initialDeliveryLoad = this.calculateInitialDeliveryLoad(rawData, actions);
-
-        if (agent.delivery_capacity !== undefined && initialDeliveryLoad > agent.delivery_capacity) {
-            violations.push(new AgentDeliveryCapacityExceeded(`Initial delivery load ${initialDeliveryLoad} exceeds agent delivery capacity ${agent.delivery_capacity}`,
-                agentIndex, initialDeliveryLoad, agent.delivery_capacity));
-        }
-
-        let currentPickupLoad = 0;
-        let pickupViolationAdded = false;
+        const agent = rawData.properties.params.agents[agentIndex];
+        const actions = context.getAgentActions(agentIndex);
+        let totalPickupAmount = 0;
+        let totalDeliveryAmount = 0;
 
         for (const action of actions) {
             if (action.type === this.ACTION_TYPE_PICKUP) {
-                const amount = this.getActionAmount(rawData, action);
-                currentPickupLoad += amount;
+                totalPickupAmount += this.getActionAmount(rawData, action);
             } else if (action.type === this.ACTION_TYPE_DELIVERY) {
-                const amount = this.getActionAmount(rawData, action);
-                currentPickupLoad -= amount;
+                totalDeliveryAmount += this.getActionAmount(rawData, action);
             } else if (action.type === this.ACTION_TYPE_JOB) {
-                currentPickupLoad += this.getJobPickupAmount(rawData, action);
+                totalPickupAmount += this.getJobPickupAmount(rawData, action);
+                totalDeliveryAmount += this.getJobDeliveryAmount(rawData, action);
             }
+        }
 
-            if (!pickupViolationAdded && agent.pickup_capacity !== undefined &&
-                currentPickupLoad > agent.pickup_capacity) {
-                violations.push(new AgentPickupCapacityExceeded(`Pickup capacity exceeded at action ${action.index}: load ${currentPickupLoad} > capacity ${agent.pickup_capacity}`,
-                    agentIndex, currentPickupLoad, agent.pickup_capacity));
-                pickupViolationAdded = true;
-            }
+        const pickupCapacity = this.normalizeCapacity(agent.pickup_capacity);
+        if (agent.pickup_capacity !== undefined && pickupCapacity === undefined) {
+            violations.push(new AgentPickupCapacityExceeded(
+                `Agent pickup capacity is invalid (${String(agent.pickup_capacity)})`,
+                agentIndex,
+                totalPickupAmount,
+                0
+            ));
+        } else if (pickupCapacity !== undefined && totalPickupAmount > pickupCapacity) {
+            violations.push(new AgentPickupCapacityExceeded(
+                `Total pickup amount (${totalPickupAmount}) exceeds agent pickup capacity (${pickupCapacity})`,
+                agentIndex,
+                totalPickupAmount,
+                pickupCapacity
+            ));
+        }
+
+        const deliveryCapacity = this.normalizeCapacity(agent.delivery_capacity);
+        if (agent.delivery_capacity !== undefined && deliveryCapacity === undefined) {
+            violations.push(new AgentDeliveryCapacityExceeded(
+                `Agent delivery capacity is invalid (${String(agent.delivery_capacity)})`,
+                agentIndex,
+                totalDeliveryAmount,
+                0
+            ));
+        } else if (deliveryCapacity !== undefined && totalDeliveryAmount > deliveryCapacity) {
+            violations.push(new AgentDeliveryCapacityExceeded(
+                `Total delivery amount (${totalDeliveryAmount}) exceeds agent delivery capacity (${deliveryCapacity})`,
+                agentIndex,
+                totalDeliveryAmount,
+                deliveryCapacity
+            ));
         }
 
         return violations;
     }
 
-    private static calculateInitialDeliveryLoad(rawData: any, actions: ActionResponseData[]): number {
-        let totalDeliveryLoad = 0;
-
-        for (const action of actions) {
-            if (action.type === this.ACTION_TYPE_JOB) {
-                totalDeliveryLoad += this.getJobDeliveryAmount(rawData, action);
-            }
-        }
-
-        return totalDeliveryLoad;
-    }
-
-    private static validateCapabilities(context: RouteResultEditorBase, agent: AgentData,
-                                        actions: ActionResponseData[], agentIndex: number): ViolationError[] {
+    private static validateCapabilities(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
         const violations: ViolationError[] = [];
         const rawData = context.getRawData();
+        const agent = rawData.properties.params.agents[agentIndex];
+        const actions = context.getAgentActions(agentIndex);
 
-        const jobIndexes = new Set<number>();
-        const shipmentIndexes = new Set<number>();
+        const missingCapabilities = new Set<string>();
 
         for (const action of actions) {
             if (action.job_index !== undefined) {
-                jobIndexes.add(action.job_index);
+                const job = rawData.properties.params.jobs?.[action.job_index];
+                this.collectMissingRequirements(agent, job?.requirements, missingCapabilities);
             }
             if (action.shipment_index !== undefined) {
-                shipmentIndexes.add(action.shipment_index);
+                const shipment = rawData.properties.params.shipments?.[action.shipment_index];
+                this.collectMissingRequirements(agent, shipment?.requirements, missingCapabilities);
             }
         }
 
-        for (const jobIndex of jobIndexes) {
-            const job = rawData.properties.params.jobs[jobIndex];
-            if (!job.requirements?.length) {
-                continue;
-            }
-            this.checkRequirements(agent, job.requirements, agentIndex, violations);
+        if (missingCapabilities.size === 0) {
+            return violations;
         }
 
-        for (const shipmentIndex of shipmentIndexes) {
-            const shipment = rawData.properties.params.shipments[shipmentIndex];
-            if (!shipment.requirements?.length) {
-                continue;
-            }
-            this.checkRequirements(agent, shipment.requirements, agentIndex, violations);
-        }
+        const missing = Array.from(missingCapabilities);
+        const message = missing.length === 1
+            ? `Agent is missing required capability: '${missing[0]}'`
+            : `Agent is missing required capabilities: ${missing.join(', ')}`;
+        violations.push(new AgentMissingCapability(message, agentIndex, missing));
 
         return violations;
     }
 
-    private static checkRequirements(agent: AgentData, requirements: string[], agentIndex: number,
-                                     violations: ViolationError[]): void {
-        const missing = requirements.filter(req => !agent.capabilities?.includes(req));
-        if (missing.length > 0) {
-            const message = missing.length === 1 ? `Agent is missing required capability: '${missing[0]}'` :
-                `Agent is missing required capabilities: ${missing.join(', ')}`;
-            violations.push(new AgentMissingCapability(message, agentIndex, missing));
+    private static collectMissingRequirements(agent: AgentData, requirements: string[] | undefined, target: Set<string>): void {
+        if (!requirements?.length) {
+            return;
+        }
+
+        for (const requirement of requirements) {
+            if (!agent.capabilities?.includes(requirement)) {
+                target.add(requirement);
+            }
         }
     }
 
@@ -214,7 +229,7 @@ export class RouteViolationValidator {
     private static getActionAmount(rawData: any, action: ActionResponseData): number {
         if (action.shipment_index !== undefined) {
             const shipment: ShipmentData = rawData.properties.params.shipments[action.shipment_index];
-            return shipment?.amount || 0;
+            return this.normalizeAmount(shipment?.amount);
         }
         return 0;
     }
@@ -222,7 +237,7 @@ export class RouteViolationValidator {
     private static getJobPickupAmount(rawData: any, action: ActionResponseData): number {
         if (action.job_index !== undefined) {
             const job: JobData = rawData.properties.params.jobs[action.job_index];
-            return job?.pickup_amount || 0;
+            return this.normalizeAmount(job?.pickup_amount);
         }
         return 0;
     }
@@ -230,9 +245,26 @@ export class RouteViolationValidator {
     private static getJobDeliveryAmount(rawData: any, action: ActionResponseData): number {
         if (action.job_index !== undefined) {
             const job: JobData = rawData.properties.params.jobs[action.job_index];
-            return job?.delivery_amount || 0;
+            return this.normalizeAmount(job?.delivery_amount);
         }
         return 0;
+    }
+
+    private static normalizeAmount(value: unknown): number {
+        if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+            return 0;
+        }
+        return value;
+    }
+
+    private static normalizeCapacity(value: unknown): number | undefined {
+        if (value === undefined) {
+            return undefined;
+        }
+        if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+            return undefined;
+        }
+        return value;
     }
 
     private static isWithinAnyTimeWindow(actionWindow: TimeWindow, timeWindows: TimeWindow[]): boolean {

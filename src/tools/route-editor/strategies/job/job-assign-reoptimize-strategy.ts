@@ -1,7 +1,7 @@
 import { AddAssignOptions, PRESERVE_ORDER, REOPTIMIZE, RemoveOptions } from "../../../../models";
 import { AssignStrategy, RequirementHelper } from "../base";
 import { RouteResultEditorBase } from "../../route-result-editor-base";
-import { RouteViolationValidator } from "../preserve-order/validations";
+import { RouteViolationValidator } from "../../validations";
 import { JobRemovePreserveOrderStrategy } from "./job-remove-preserve-order-strategy";
 import { JobRemoveReoptimizeStrategy } from "./job-remove-reoptimize-strategy";
 

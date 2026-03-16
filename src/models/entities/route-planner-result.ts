@@ -144,7 +144,7 @@ export class RoutePlannerResult {
     /**
      * Returns a list of all shipments
      */
-    getShipmentPlans(): (ShipmentPlan | undefined)[] {
+    getShipmentPlans(): (ShipmentPlan)[] {
         return this.shipmentPlans;
     }
 

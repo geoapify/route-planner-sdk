@@ -2,7 +2,7 @@ import { IndexConverter } from "../../../helpers/index-converter";
 import { InvalidInsertionPosition } from "../../../models";
 import { InsertPositionResolver } from "../strategies";
 import { RouteResultEditorBase } from "../route-result-editor-base";
-import { RouteViolationValidator } from "../strategies/preserve-order/validations";
+import { RouteViolationValidator } from "../validations";
 
 export class AgentTimeOffsetHelper {
 

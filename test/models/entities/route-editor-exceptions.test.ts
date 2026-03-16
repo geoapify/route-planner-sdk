@@ -6,7 +6,7 @@ import {
     AgentPickupCapacityExceeded,
     BreakViolation,
     InvalidInsertionPosition,
-    InvalidParameterType,
+    InvalidParameter,
     ItemAlreadyAssigned,
     ItemsNotUnique,
     JobNotFound,
@@ -54,8 +54,8 @@ describe("route-editor-exceptions", () => {
     });
 
     test("other editor errors should preserve constructor fields", () => {
-        const invalidParam = new InvalidParameterType("bad type", "agentIndex");
-        expect(invalidParam.name).toBe("InvalidParameterType");
+        const invalidParam = new InvalidParameter("bad type", "agentIndex");
+        expect(invalidParam.name).toBe("InvalidParameter");
         expect(invalidParam.parameterName).toBe("agentIndex");
 
         const agentNotFound = new AgentNotFound("missing agent", "agent-1");

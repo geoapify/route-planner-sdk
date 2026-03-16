@@ -5,7 +5,7 @@ import {
 import {RouteResultEditorBase} from "../../route-result-editor-base";
 import {AgentPlanRecalculator, WaypointBuilder} from "../preserve-order";
 import {JobInsertPosition, PreserveOrderJobHelper} from "../preserve-order/helpers/preserve-order-job-helper";
-import {RouteViolationValidator} from "../preserve-order/validations";
+import {RouteViolationValidator} from "../../validations";
 import {JobRemovePreserveOrderStrategy} from "./job-remove-preserve-order-strategy";
 import {JobRemoveReoptimizeStrategy} from "./job-remove-reoptimize-strategy";
 

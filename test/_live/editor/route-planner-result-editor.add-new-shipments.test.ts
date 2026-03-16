@@ -22,4 +22,7 @@ describe("RoutePlannerResultEditor.addNewShipments (live)", () => {
         expect(modified.getShipmentPlan(newShipmentId)).toBeDefined();
         expect(modified.getShipmentPlan(newShipmentId)?.getAgentIndex()).toBe(0);
     });
+
+    test.todo("addNewShipments + simple + single");
+    test.todo("addNewShipments + simple + multiple");
 });

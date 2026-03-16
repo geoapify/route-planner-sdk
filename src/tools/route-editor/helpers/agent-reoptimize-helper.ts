@@ -1,14 +1,15 @@
-import { AgentData, InvalidParameterType, ReoptimizeOptions } from "../../../models";
+import { AgentData, InvalidParameter, ReoptimizeOptions } from "../../../models";
 import { IndexConverter } from "../../../helpers/index-converter";
 import { RequirementHelper } from "../strategies/base/requirement-helper";
 import { RouteResultEditorBase } from "../route-result-editor-base";
-import { RouteViolationValidator } from "../strategies/preserve-order/validations";
+import { RouteViolationValidator } from "../validations";
 
 export class AgentReoptimizeHelper {
+    private static readonly MAX_CAPACITY = 2147483647;
 
     static async execute(context: RouteResultEditorBase, options: ReoptimizeOptions): Promise<boolean> {
         if (options.agentIdOrIndex === undefined) {
-            throw new InvalidParameterType("agentIdOrIndex is required", "agentIdOrIndex");
+            throw new InvalidParameter("agentIdOrIndex is required", "agentIdOrIndex");
         }
 
         const agentIndex = IndexConverter.convertAgentToIndex(context.getRawData(), options.agentIdOrIndex, true);
@@ -69,8 +70,12 @@ export class AgentReoptimizeHelper {
     ): void {
         RequirementHelper.extendAgentTimeWindows(targetAgent);
         delete targetAgent.breaks;
-        delete targetAgent.pickup_capacity;
-        delete targetAgent.delivery_capacity;
+        if (Object.prototype.hasOwnProperty.call(targetAgent, "pickup_capacity")) {
+            targetAgent.pickup_capacity = this.MAX_CAPACITY;
+        }
+        if (Object.prototype.hasOwnProperty.call(targetAgent, "delivery_capacity")) {
+            targetAgent.delivery_capacity = this.MAX_CAPACITY;
+        }
 
         for (const jobIndex of targetJobIndexes) {
             const job = jobs[jobIndex];

@@ -1,427 +1,64 @@
-import RoutePlanner, {
-    RoutePlannerResultEditor,
-    RoutePlannerResultData, Agent, Job, Shipment, ShipmentStep,
-} from "../../../src";
+import { RoutePlannerResultEditor, Shipment, ShipmentStep } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
 import { loadJson } from "../../utils.helper";
-import TEST_API_KEY from "../../../env-variables";
-import {RoutePlannerResultReverseConverter} from "../../route-planner-result-reverse-converter";
 
-const API_KEY = TEST_API_KEY;
+function buildEditor(): RoutePlannerResultEditor {
+    const raw = loadJson(
+        "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-result.json"
+    );
+    const result = new RoutePlannerResult({ apiKey: "test-key" }, raw);
+    return new RoutePlannerResultEditor(result);
+}
 
-describe('RoutePlannerResultShipmentEditor', () => {
+describe("RoutePlannerResultShipmentEditor", () => {
+    test("assignShipments throws when shipment is already assigned to target agent", async () => {
+        const editor = buildEditor();
+        const result = editor.getModifiedResult();
+        const assignedShipmentPlan = result
+            .getShipmentPlans()
+            .find((shipmentPlan) => shipmentPlan?.getAgentIndex() !== undefined);
 
-    test('assignShipments should work as expected for simple case"', async () => {
-        const planner = new RoutePlanner({apiKey: API_KEY});
+        expect(assignedShipmentPlan).toBeDefined();
 
-        planner.setMode("drive");
+        const shipmentIndex = assignedShipmentPlan!.getShipmentIndex();
+        const agentIndex = assignedShipmentPlan!.getAgentIndex() as number;
 
-        planner.addAgent(new Agent()
-            .setStartLocation(44.50932929564537, 40.18686625)
-            .addCapability('heavy-items')
-            .setId("agent-A"));
-
-        planner.addAgent(new Agent()
-            .setStartLocation(44.400450399509495,40.153735600000005)
-            .addCapability('small-items')
-            .setId("agent-B"));
-
-        planner.addShipment(new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('heavy-items')
-            .setId("shipment-1"));
-        planner.addShipment(new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.511160727462574, 40.1816037).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('heavy-items')
-            .setId("shipment-2"));
-        planner.addShipment(new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.517954005538606, 40.18518455).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('small-items')
-            .setId("shipment-3"));
-        planner.addShipment(new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.5095432, 40.18665755000001).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('small-items')
-            .setId("shipment-4"));
-
-        const result = await planner.plan();
-        expect(result).toBeDefined();
-        expect(result.getAgentPlans().length).toBe(2);
-        expect(result.getData().inputData).toBeDefined();
-
-        const routeEditor = new RoutePlannerResultEditor(result);
-        let modifiedResult = routeEditor.getModifiedResult();
-        modifiedResult.getRaw().properties.params.agents.forEach(agent => {
-            agent.capabilities = ['heavy-items', 'small-items'];
-        })
-        let agentToAssignTheShipment = result.getShipmentPlan('shipment-2')!.getAgentId() == 'agent-B' ? 'agent-A' : 'agent-B';
-        await routeEditor.assignShipments(agentToAssignTheShipment, ['shipment-2']);
-        expect(routeEditor.getModifiedResult().getShipmentPlan('shipment-2')!.getAgentId()).toBe(agentToAssignTheShipment);
+        await expect(editor.assignShipments(agentIndex, [shipmentIndex])).rejects.toThrow(
+            "already assigned to agent with index"
+        );
     });
 
-    test('assignShipments should work "AgentSolution for provided agentId is found and the shipment is assigned to someone else."', async () => {
-        let assignShipmentRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A, Shipment 2 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.assignShipments('agent-A', ['shipment-3']);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After assignment we should have
-        // Shipment 1 -> Agent A, Shipment 2 -> Agent A
-        // Shipment 3 -> Agent A, Shipment 4 -> Agent B
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-B');
+    test("assignShipments throws when shipment id is not found", async () => {
+        const editor = buildEditor();
+        await expect(editor.assignShipments(0, ["shipment-does-not-exist"])).rejects.toThrow(
+            "Shipment with id shipment-does-not-exist not found"
+        );
     });
 
-     test('assignShipments should change priority if its passed', async () => {
-        let assignShipmentRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-assigned.json");
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.assignShipments('agent-A', ['shipment-3'], 100);
-        let modifiedResult = routeEditor.getModifiedResult();
-
-        expect(modifiedResult.getRaw().properties.params.shipments[0].priority).toBeUndefined();
-        expect(modifiedResult.getRaw().properties.params.shipments[1].priority).toBeUndefined();
-        expect(modifiedResult.getRaw().properties.params.shipments[2].priority).toBe(100);
-        expect(modifiedResult.getRaw().properties.params.shipments[3].priority).toBeUndefined();
+    test("removeShipments throws when no shipments provided", async () => {
+        const editor = buildEditor();
+        await expect(editor.removeShipments([])).rejects.toThrow("No shipments provided");
     });
 
-    test('assignShipments should work "AgentSolution for provided agentId is found. But the shipment is not assigned to anyone."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.assignShipments('agent-A', ['shipment-2']);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After assignment we should have
-        // Shipment 1 -> Agent A, Shipment 2 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getUnassignedShipments().length).toBe(0);
+    test("removeShipments throws when shipment list is not unique", async () => {
+        const editor = buildEditor();
+        await expect(editor.removeShipments([0, 0])).rejects.toThrow("Shipments are not unique");
     });
 
-    test('assignShipments should work "AgentSolution for provided agentId is not found and the shipment is assigned to someone."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.assignShipments('agent-B', ['shipment-2']);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After assignment we should have
-        // Shipment 1 -> A, Shipment 2 -> Agent B
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-3')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getShipmentPlan('shipment-4')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-        expect(modifiedResult.getUnassignedShipments().length).toBe(2);
-        expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[2]);
-        expect(modifiedResult.getUnassignedShipments()[1]).toEqual(modifiedResult.getRaw().properties.params.shipments[3]);
+    test("addNewShipments throws when no shipments provided", async () => {
+        const editor = buildEditor();
+        await expect(editor.addNewShipments(0, [])).rejects.toThrow("No shipments provided");
     });
 
-    test('assignShipments should work "AgentSolution for provided agentId is not found and the shipment is not assigned to anyone."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
+    test("addNewShipments throws when shipment list is not unique", async () => {
+        const editor = buildEditor();
+        const shipment = new Shipment()
+            .setPickup(new ShipmentStep().setLocation(13.404954, 52.520008).setDuration(120))
+            .setDelivery(new ShipmentStep().setLocation(13.401, 52.53).setDuration(120))
+            .setId("duplicate-shipment");
 
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.assignShipments('agent-B', ['shipment-3']);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> B, Shipment 4 -> unassigned
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-4')?.getAgentId()).toBeUndefined();
-        expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-        expect(modifiedResult.getUnassignedShipments().length).toBe(1);
-        expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[3]);
+        await expect(editor.addNewShipments(0, [shipment, shipment])).rejects.toThrow(
+            "Shipments are not unique"
+        );
     });
-
-    test('assignShipments should work "Shipment with provided shipmentId already assigned to provided agentId."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-
-        try {
-            await routeEditor.assignShipments('agent-A', ['shipment-1']);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('Shipment with index 0 already assigned to agent with index 0');
-        }
-    });
-
-    test('assignShipments should work "Shipment with provided shipmentId not found."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-not-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-
-        try {
-            await routeEditor.assignShipments('agent-A', ['shipment-6']);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('Shipment with id shipment-6 not found');
-        }
-    });
-
-    test('removeShipments should work "Shipment is assigned."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.removeShipments(['shipment-4']);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After removal we should have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B
-        // Shipment 2 -> unassigned
-        // Shipment 4 -> unassigned
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-4')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getUnassignedShipments().length).toBe(2);
-        expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[1]);
-    });
-
-    test('removeShipments should work "Shipment is not assigned."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        await routeEditor.removeShipments(['shipment-2']);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After removal we should have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getUnassignedShipments().length).toBe(1);
-    });
-
-    test('removeShipments should work "Shipment not found."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        try {
-            await routeEditor.removeShipments(['shipment-5']);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('Shipment with id shipment-5 not found');
-        }
-    });
-
-    test('removeShipments should work "No shipments provided."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        try {
-            await routeEditor.removeShipments([]);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('No shipments provided');
-        }
-    });
-
-    test('removeShipments should work "Shipments are not unique."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-assigned-agent-shipment-unassigned.json");
-        // Initially we have
-        // Shipment 1 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 2 -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        try {
-            await routeEditor.removeShipments(['shipment-3', 'shipment-3']);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('Shipments are not unique');
-        }
-    });
-
-    test('addNewShipments should work "Shipment assigned to agent, that has existing AgentSolution."', async () => {
-        let assignShipmentRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-add-shipment-success-assigned-agent.json");
-        // Initially we have
-        // Shipment 1 -> Agent A, Shipment 2 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        let newShipment = new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('heavy-items')
-            .setId("shipment-5");
-        await routeEditor.addNewShipments('agent-A', [newShipment]);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After adding we should have
-        // Shipment 1 -> Agent A, Shipment 2 -> Agent A
-        // Shipment 3 -> Agent B, Shipment 4 -> Agent B
-        // Shipment 5 -> Agent A
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-3')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-4')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getShipmentPlan('shipment-5')!.getAgentId()).toBe('agent-A');
-    });
-
-    test('addNewShipments should work "Shipment assigned to agent without existing AgentSolution."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        let newShipment = new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('heavy-items')
-            .setId("shipment-5");
-        await routeEditor.addNewShipments('agent-B', [newShipment]);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After adding we should have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Shipment 5 -> Agent B
-        expect(modifiedResult.getShipmentPlan('shipment-1')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-2')!.getAgentId()).toBe('agent-A');
-        expect(modifiedResult.getShipmentPlan('shipment-3')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getShipmentPlan('shipment-4')?.getAgentId()).toBeUndefined()
-        expect(modifiedResult.getShipmentPlan('shipment-5')!.getAgentId()).toBe('agent-B');
-        expect(modifiedResult.getUnassignedAgents().length).toBe(0);
-        expect(modifiedResult.getUnassignedShipments().length).toBe(2);
-        expect(modifiedResult.getUnassignedShipments()[0]).toEqual(modifiedResult.getRaw().properties.params.shipments[2]);
-        expect(modifiedResult.getUnassignedShipments()[1]).toEqual(modifiedResult.getRaw().properties.params.shipments[3]);
-    });
-
-    test('addNewShipments should work "No shipments provided."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-
-        try {
-            await routeEditor.addNewShipments('agent-B', []);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('No shipments provided');
-        }
-    });
-
-    test('addNewShipments should work "Shipments are not unique."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        let newShipment = new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('heavy-items')
-            .setId("shipment-5");
-        try {
-            await routeEditor.addNewShipments('agent-B', [newShipment, newShipment]);
-            fail();
-        } catch (error: any) {
-            expect(error.message).toBe('Shipments are not unique');
-        }
-    });
-
-    test('addNewShipments should work "Shipment id is undefined."', async () => {
-        let assignShipmentsRawData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-shipment-unassigned-agent-shipment-assigned.json");
-        // Initially we have
-        // Shipment 1 -> A, Shipment 2 -> Agent A
-        // Shipment 3 -> unassigned, Shipment 4 -> unassigned
-        // Agent B -> unassigned
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(assignShipmentsRawData));
-
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        let newShipment = new Shipment()
-            .setPickup(new ShipmentStep().setLocation(44.50932929564537, 40.18686625).setDuration(1000))
-            .setDelivery(new ShipmentStep().setLocation(44.50932929564537, 40.18686625))
-            .addRequirement('heavy-items');
-        try {
-            await routeEditor.addNewShipments('agent-B', [newShipment]);
-        } catch (error: any) {
-            fail();
-        }
-    });
-
-    test('removeShipments should work "API Docs scenario where we want to unassign all"', async () => {
-        let plannerResultData: RoutePlannerResultData = loadJson("_data/route-planner-result-editor/shipment/result-data-api-docs-simple-delivery-sample.json");
-        let plannerResult = new RoutePlannerResult({apiKey: API_KEY}, RoutePlannerResultReverseConverter.convert(plannerResultData));
-        // All 73 shipments are assigned
-        const routeEditor = new RoutePlannerResultEditor(plannerResult);
-        const shipmentsToRemove = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72];
-        await routeEditor.removeShipments(shipmentsToRemove);
-        let modifiedResult = routeEditor.getModifiedResult();
-        // After assignment we should have
-        expect(modifiedResult.getUnassignedAgents().length).toBe(3);
-        expect(modifiedResult.getUnassignedShipments().length).toBe(73);
-    }, 1000000);
 });

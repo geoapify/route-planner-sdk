@@ -3,7 +3,7 @@ import { AssignStrategy, RequirementHelper } from "../base";
 import {RouteResultEditorBase} from "../../route-result-editor-base";
 import { ShipmentRemovePreserveOrderStrategy } from "./shipment-remove-preserve-order-strategy";
 import { ShipmentRemoveReoptimizeStrategy } from "./shipment-remove-reoptimize-strategy";
-import { RouteViolationValidator } from "../preserve-order/validations";
+import { RouteViolationValidator } from "../../validations";
 
 /**
  * Strategy that reoptimizes only the target agent when assigning shipments

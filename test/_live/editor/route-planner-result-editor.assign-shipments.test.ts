@@ -1,6 +1,7 @@
-import { PRESERVE_ORDER, REOPTIMIZE, RoutePlannerResultEditor } from "../../../src";
-import { buildShipmentsResult, hasLiveApiKey } from "./editor-live.helper";
+import RoutePlanner, { PRESERVE_ORDER, REOPTIMIZE, RoutePlannerInputData, RoutePlannerResultEditor } from "../../../src";
+import { buildShipmentsResult, hasLiveApiKey, LIVE_TEST_API_KEY } from "./editor-live.helper";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
+import { loadJson } from "../../utils.helper";
 
 jest.setTimeout(120000);
 
@@ -308,46 +309,546 @@ describe("RoutePlannerResultEditor.assignShipments (live)", () => {
     });
 
     liveTest("preserveOrder + end position + exception + deletion + reoptimize", async () => {
-        fail("TODO");
+        const inputData = loadJson(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        ) as RoutePlannerInputData;
+
+        for (const agent of inputData.agents || []) {
+            if (!agent.end_location && agent.start_location) {
+                agent.end_location = [...agent.start_location] as [number, number];
+            }
+        }
+
+        const planner = new RoutePlanner({ apiKey: LIVE_TEST_API_KEY }, inputData);
+        const result = await planner.plan();
+        const editor = new RoutePlannerResultEditor(result);
+
+        const targetAgentIndex = result
+            .getAgentPlans()
+            .findIndex((agentPlan) =>
+                !!agentPlan &&
+                agentPlan.getWaypoints().some((waypoint) =>
+                    waypoint.getActions().some((action) => action.getType() === "end")
+                )
+            );
+
+        expect(targetAgentIndex).toBeGreaterThanOrEqual(0);
+
+        const targetAgentPlan = result.getAgentPlan(targetAgentIndex);
+        expect(targetAgentPlan).toBeDefined();
+
+        const endWaypointIndex = targetAgentPlan!.getWaypoints().findIndex((waypoint) =>
+            waypoint.getActions().some((action) => action.getType() === "end")
+        );
+        expect(endWaypointIndex).toBeGreaterThanOrEqual(0);
+
+        const shipmentToAssign = result
+            .getShipmentPlans()
+            .find((shipmentPlan) =>
+                shipmentPlan &&
+                shipmentPlan.getAgentIndex() !== undefined &&
+                shipmentPlan.getAgentIndex() !== targetAgentIndex
+            )
+            ?.getShipmentIndex();
+
+        expect(shipmentToAssign).toBeDefined();
+
+        await expect(
+            editor.assignShipments(targetAgentIndex, [shipmentToAssign as number], {
+                strategy: PRESERVE_ORDER,
+                removeStrategy: REOPTIMIZE,
+                afterWaypointIndex: endWaypointIndex,
+                append: true
+            })
+        ).rejects.toThrow(`Cannot change the route after waypoint ${endWaypointIndex}`);
     });
 
     liveTest("preserveOrder + midle position + append + deletion + reoptimize", async () => {
-        fail("TODO");
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 2;
+        const afterWaypointIndex = 3;
+
+        const shipmentToMove = result
+            .getShipmentPlans()
+            .find((shipmentPlan) => {
+                const agentIndex = shipmentPlan?.getAgentIndex();
+                return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+            });
+
+        expect(shipmentToMove).toBeDefined();
+        const shipmentIndex = shipmentToMove!.getShipmentIndex();
+        const sourceAgentIndex = shipmentToMove!.getAgentIndex() as number;
+
+        await editor.assignShipments(targetAgentIndex, [shipmentIndex], {
+            strategy: PRESERVE_ORDER,
+            removeStrategy: REOPTIMIZE,
+            afterWaypointIndex,
+            append: true
+        });
+
+        const modified = editor.getModifiedResult();
+        const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+        expect(shipmentPlan).toBeDefined();
+        expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+        const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+        const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+        expect(pickupAction).toBeDefined();
+        expect(deliveryAction).toBeDefined();
+
+        // append + afterWaypointIndex should place shipment directly after the anchor waypoint
+        expect(pickupAction!.getWaypointIndex()).toBe(afterWaypointIndex + 1);
+        expect(deliveryAction!.getWaypointIndex()).toBe(afterWaypointIndex + 2);
+        expect(pickupAction!.getWaypointIndex()).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+
+        const sourcePlanAfter = modified.getAgentPlan(sourceAgentIndex);
+        if (sourcePlanAfter) {
+            expect(sourcePlanAfter.containsShipment(shipmentIndex)).toBe(false);
+        }
     });
 
     liveTest("preserveOrder + append + deletion + reoptimize", async () => {
-        fail("TODO");
+        const baseInputFile =
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json";
+        const targetAgentIndex = 2;
+
+        const runAppendCase = async (result: any, expectEndWaypoint: boolean) => {
+            const editor = new RoutePlannerResultEditor(result);
+
+            const shipmentToMove = result
+                .getShipmentPlans()
+                .find((shipmentPlan: any) => {
+                    const agentIndex = shipmentPlan?.getAgentIndex();
+                    return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+                });
+            expect(shipmentToMove).toBeDefined();
+
+            const shipmentIndex = shipmentToMove!.getShipmentIndex();
+            const sourceAgentIndex = shipmentToMove!.getAgentIndex() as number;
+
+            await editor.assignShipments(targetAgentIndex, [shipmentIndex], {
+                strategy: PRESERVE_ORDER,
+                removeStrategy: REOPTIMIZE,
+                append: true
+            });
+
+            const modified = editor.getModifiedResult();
+            const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect(pickupAction!.getWaypointIndex()).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+
+            if (sourceAgentIndex !== targetAgentIndex) {
+                const sourcePlanAfter = modified.getAgentPlan(sourceAgentIndex);
+                if (sourcePlanAfter) {
+                    expect(sourcePlanAfter.containsShipment(shipmentIndex)).toBe(false);
+                }
+            }
+
+            const targetPlan = modified.getAgentPlan(targetAgentIndex);
+            expect(targetPlan).toBeDefined();
+            const waypoints = targetPlan!.getWaypoints();
+            const endWaypointIndex = waypoints.findIndex((waypoint) =>
+                waypoint.getActions().some((action) => action.getType() === "end")
+            );
+
+            if (expectEndWaypoint) {
+                expect(endWaypointIndex).toBeGreaterThan(1);
+                expect(deliveryAction!.getWaypointIndex()).toBe(endWaypointIndex - 1);
+                expect(pickupAction!.getWaypointIndex()).toBe(endWaypointIndex - 2);
+            } else {
+                expect(endWaypointIndex).toBe(-1);
+                expect(pickupAction!.getWaypointIndex()).toBe(waypoints.length - 2);
+                expect(deliveryAction!.getWaypointIndex()).toBe(waypoints.length - 1);
+            }
+        };
+
+        // case 1: with end location -> append should place pickup+delivery right before end waypoint
+        const withEndInput = loadJson(baseInputFile) as RoutePlannerInputData;
+        for (const agent of withEndInput.agents || []) {
+            if (!agent.end_location && agent.start_location) {
+                agent.end_location = [...agent.start_location] as [number, number];
+            }
+        }
+        const withEndPlanner = new RoutePlanner({ apiKey: LIVE_TEST_API_KEY }, withEndInput);
+        const withEndResult = await withEndPlanner.plan();
+        await runAppendCase(withEndResult, true);
+
+        // case 2: without end location -> append should place pickup+delivery at route end
+        const withoutEndResult = await buildShipmentsResult(baseInputFile);
+        await runAppendCase(withoutEndResult, false);
     });
 
     liveTest("preserveOrder + assign all unassigned", async () => {
-        fail("TODO");
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 2;
+
+        const getUnassignedShipmentIndexes = (plannerResult: any): number[] =>
+            plannerResult
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+        let current = editor.getModifiedResult();
+        let unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+
+        // Ensure this scenario always has unassigned shipments to test.
+        if (!unassignedShipmentIndexes.length) {
+            const candidates = current
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => {
+                    const agentIndex = shipmentPlan.getAgentIndex();
+                    return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+                })
+                .slice(0, 2)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+            if (candidates.length) {
+                await editor.removeShipments(candidates, { strategy: PRESERVE_ORDER });
+                current = editor.getModifiedResult();
+                unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+            }
+        }
+
+        expect(unassignedShipmentIndexes.length).toBeGreaterThan(0);
+
+        await editor.assignShipments(targetAgentIndex, unassignedShipmentIndexes, {
+            strategy: PRESERVE_ORDER,
+            removeStrategy: REOPTIMIZE
+        });
+
+        const modified = editor.getModifiedResult();
+        const targetPlan = modified.getAgentPlan(targetAgentIndex);
+        expect(targetPlan).toBeDefined();
+
+        for (const shipmentIndex of unassignedShipmentIndexes) {
+            const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect((pickupAction!.getWaypointIndex() as number)).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+        }
+
+        const remainingUnassigned = modified
+            .getShipmentPlans()
+            .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined);
+        expect(remainingUnassigned.length).toBe(0);
+
+        expect(targetPlan!.getViolations().length).toBeGreaterThan(0);
+    });
+
+    liveTest("preserveOrder + assign all unassigned + append", async () => {
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 2;
+
+        const getUnassignedShipmentIndexes = (plannerResult: any): number[] =>
+            plannerResult
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+        let current = editor.getModifiedResult();
+        let unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+
+        if (!unassignedShipmentIndexes.length) {
+            const candidates = current
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => {
+                    const agentIndex = shipmentPlan.getAgentIndex();
+                    return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+                })
+                .slice(0, 2)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+            if (candidates.length) {
+                await editor.removeShipments(candidates, { strategy: PRESERVE_ORDER });
+                current = editor.getModifiedResult();
+                unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+            }
+        }
+
+        expect(unassignedShipmentIndexes.length).toBeGreaterThan(0);
+
+        const beforeWaypointCount = current.getAgentPlan(targetAgentIndex)?.getWaypoints().length ?? 0;
+
+        await editor.assignShipments(targetAgentIndex, unassignedShipmentIndexes, {
+            strategy: PRESERVE_ORDER,
+            removeStrategy: REOPTIMIZE,
+            append: true
+        });
+
+        const modified = editor.getModifiedResult();
+        const pickupWaypointIndexes: number[] = [];
+        const deliveryWaypointIndexes: number[] = [];
+
+        for (const shipmentIndex of unassignedShipmentIndexes) {
+            const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect((pickupAction!.getWaypointIndex() as number)).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+
+            pickupWaypointIndexes.push(pickupAction!.getWaypointIndex() as number);
+            deliveryWaypointIndexes.push(deliveryAction!.getWaypointIndex() as number);
+        }
+
+        // append=true without explicit position should place inserted shipments at route tail.
+        expect(Math.min(...pickupWaypointIndexes)).toBeGreaterThanOrEqual(beforeWaypointCount - 1);
+        expect(Math.min(...deliveryWaypointIndexes)).toBeGreaterThanOrEqual(beforeWaypointCount - 1);
     });
 
     liveTest("preserveOrder + assign all unassigned + position", async () => {
-        fail("TODO");
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 2;
+        const afterWaypointIndex = 3;
+
+        const getUnassignedShipmentIndexes = (plannerResult: any): number[] =>
+            plannerResult
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+        let current = editor.getModifiedResult();
+        let unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+
+        if (!unassignedShipmentIndexes.length) {
+            const candidates = current
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => {
+                    const agentIndex = shipmentPlan.getAgentIndex();
+                    return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+                })
+                .slice(0, 2)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+            if (candidates.length) {
+                await editor.removeShipments(candidates, { strategy: PRESERVE_ORDER });
+                current = editor.getModifiedResult();
+                unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+            }
+        }
+
+        expect(unassignedShipmentIndexes.length).toBeGreaterThan(0);
+
+        await editor.assignShipments(targetAgentIndex, unassignedShipmentIndexes, {
+            strategy: PRESERVE_ORDER,
+            removeStrategy: REOPTIMIZE,
+            afterWaypointIndex
+        });
+
+        const modified = editor.getModifiedResult();
+        for (const shipmentIndex of unassignedShipmentIndexes) {
+            const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect(pickupAction!.getWaypointIndex()).toBeGreaterThan(afterWaypointIndex);
+            expect(deliveryAction!.getWaypointIndex()).toBeGreaterThan(afterWaypointIndex);
+            expect((pickupAction!.getWaypointIndex() as number)).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+        }
     });
 
     liveTest("preserveOrder + assign all unassigned + position + append", async () => {
-        fail("TODO");
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 2;
+        const afterWaypointIndex = 3;
+
+        const getUnassignedShipmentIndexes = (plannerResult: any): number[] =>
+            plannerResult
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+        let current = editor.getModifiedResult();
+        let unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+
+        if (!unassignedShipmentIndexes.length) {
+            const candidates = current
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => {
+                    const agentIndex = shipmentPlan.getAgentIndex();
+                    return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+                })
+                .slice(0, 2)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+            if (candidates.length) {
+                await editor.removeShipments(candidates, { strategy: PRESERVE_ORDER });
+                current = editor.getModifiedResult();
+                unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+            }
+        }
+
+        expect(unassignedShipmentIndexes.length).toBeGreaterThan(0);
+
+        await editor.assignShipments(targetAgentIndex, unassignedShipmentIndexes, {
+            strategy: PRESERVE_ORDER,
+            removeStrategy: REOPTIMIZE,
+            afterWaypointIndex,
+            append: true
+        });
+
+        const modified = editor.getModifiedResult();
+        const insertedPickupWaypointIndexes: number[] = [];
+
+        for (const shipmentIndex of unassignedShipmentIndexes) {
+            const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect(pickupAction!.getWaypointIndex()).toBeGreaterThan(afterWaypointIndex);
+            expect(deliveryAction!.getWaypointIndex()).toBeGreaterThan(afterWaypointIndex);
+            expect((pickupAction!.getWaypointIndex() as number)).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+            insertedPickupWaypointIndexes.push(pickupAction!.getWaypointIndex() as number);
+        }
+
+        // With append=true and explicit position, first inserted pickup should be right after anchor.
+        expect(Math.min(...insertedPickupWaypointIndexes)).toBe(afterWaypointIndex + 1);
     });
 
     liveTest("reoptimize + without position + deletion + reoptimize", async () => {
-        fail("TODO");
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 0;
+
+        const movingShipments = ["order_45", "order_73"];
+
+        const sourceByShipment = new Map<string, number | undefined>(
+            movingShipments.map((shipmentId) => [shipmentId, result.getShipmentPlan(shipmentId)!.getAgentIndex()])
+        );
+
+        const targetShipmentsBefore = result.getAgentPlan(targetAgentIndex)?.getPlannedShipments().length ?? 0;
+
+        await editor.assignShipments(targetAgentIndex, movingShipments, {
+            strategy: REOPTIMIZE,
+            removeStrategy: REOPTIMIZE
+        });
+
+        const modified = editor.getModifiedResult();
+        const targetPlan = modified.getAgentPlan(targetAgentIndex);
+        expect(targetPlan).toBeDefined();
+        expect(targetPlan!.getPlannedShipments().length).toBe(targetShipmentsBefore + movingShipments.length);
+
+        for (const shipmentId of movingShipments) {
+            const shipmentPlan = modified.getShipmentPlan(shipmentId);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+            expect(targetPlan?.containsShipment(shipmentId)).toBe(true);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect((pickupAction!.getWaypointIndex() as number)).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+
+            const sourceAgentIndex = sourceByShipment.get(shipmentId);
+            if (sourceAgentIndex !== undefined && sourceAgentIndex !== targetAgentIndex) {
+                const sourcePlanAfter = modified.getAgentPlan(sourceAgentIndex);
+                if (sourcePlanAfter) {
+                    expect(sourcePlanAfter.containsShipment(shipmentId)).toBe(false);
+                }
+            }
+        }
     });
 
-    liveTest("reoptimize + end position + exception + deletion + reoptimize", async () => {
-        fail("TODO");
-    });
-
-    liveTest("reoptimize + midle position + deletion + reoptimize", async () => {
-        fail("TODO");
-    });
 
     liveTest("reoptimize + assign all unassigned", async () => {
-        fail("TODO");
-    });
+        const result = await buildShipmentsResult(
+            "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
+        );
+        const editor = new RoutePlannerResultEditor(result);
+        const targetAgentIndex = 0;
 
-    liveTest("reoptimize + assign all unassigned + position", async () => {
-        fail("TODO");
+        const getUnassignedShipmentIndexes = (plannerResult: any): number[] =>
+            plannerResult
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+        let current = editor.getModifiedResult();
+        let unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+
+        if (!unassignedShipmentIndexes.length) {
+            const candidates = current
+                .getShipmentPlans()
+                .filter((shipmentPlan: any) => {
+                    const agentIndex = shipmentPlan.getAgentIndex();
+                    return agentIndex !== undefined && agentIndex !== targetAgentIndex;
+                })
+                .slice(0, 2)
+                .map((shipmentPlan: any) => shipmentPlan.getShipmentIndex());
+
+            if (candidates.length) {
+                await editor.removeShipments(candidates, { strategy: REOPTIMIZE });
+                current = editor.getModifiedResult();
+                unassignedShipmentIndexes = getUnassignedShipmentIndexes(current);
+            }
+        }
+
+        expect(unassignedShipmentIndexes.length).toBeGreaterThan(0);
+
+        await editor.assignShipments(targetAgentIndex, unassignedShipmentIndexes, {
+            strategy: REOPTIMIZE,
+            removeStrategy: REOPTIMIZE
+        });
+
+        const modified = editor.getModifiedResult();
+        const targetPlan = modified.getAgentPlan(targetAgentIndex);
+        expect(targetPlan).toBeDefined();
+
+        for (const shipmentIndex of unassignedShipmentIndexes) {
+            const shipmentPlan = modified.getShipmentPlan(shipmentIndex);
+            expect(shipmentPlan).toBeDefined();
+            expect(shipmentPlan!.getAgentIndex()).toBe(targetAgentIndex);
+
+            const pickupAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "pickup");
+            const deliveryAction = shipmentPlan!.getRouteActions().find((action) => action.getType() === "delivery");
+            expect(pickupAction).toBeDefined();
+            expect(deliveryAction).toBeDefined();
+            expect((pickupAction!.getWaypointIndex() as number)).toBeLessThan(deliveryAction!.getWaypointIndex() as number);
+        }
+
+        const remainingUnassigned = modified
+            .getShipmentPlans()
+            .filter((shipmentPlan: any) => shipmentPlan.getAgentIndex() === undefined);
+        expect(remainingUnassigned.length).toBe(0);
     });
 });

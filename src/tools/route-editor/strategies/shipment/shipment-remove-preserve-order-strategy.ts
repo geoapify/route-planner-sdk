@@ -2,7 +2,7 @@ import { RemoveOptions} from "../../../../models";
 import { RemoveStrategy as IRemoveStrategy } from "../base";
 import { RouteResultEditorBase } from "../../route-result-editor-base";
 import { AgentPlanRecalculator, WaypointBuilder } from "../preserve-order";
-import { RouteViolationValidator } from "../preserve-order/validations";
+import { RouteViolationValidator } from "../../validations";
 
 /**
  * Strategy that removes shipments while preserving the order of remaining items.

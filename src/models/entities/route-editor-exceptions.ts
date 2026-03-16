@@ -58,12 +58,15 @@ export class BreakViolation extends ViolationError {
     }
 }
 
-export class InvalidParameterType extends Error {
+export class InvalidParameter extends Error {
     constructor(message: string, public parameterName: string) {
         super(message);
-        this.name = 'InvalidParameterType';
+        this.name = 'InvalidParameter';
     }
 }
+
+// Backward-compatible alias. Prefer InvalidParameter in new code.
+export class InvalidParameterType extends InvalidParameter {}
 
 export class AgentNotFound extends Error {
     constructor(message: string, public agentIdOrIndex?: string | number) {

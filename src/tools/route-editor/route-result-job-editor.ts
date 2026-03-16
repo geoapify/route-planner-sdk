@@ -4,7 +4,7 @@ import {
     AddAssignOptions,
     RemoveOptions,
     REOPTIMIZE,
-    ItemAlreadyAssigned, JobNotFound
+    ItemAlreadyAssigned, JobNotFound, InvalidParameter
 } from "../../models";
 import { JobStrategyFactory } from "./strategies";
 import { RouteResultEditorBase } from "./route-result-editor-base";
@@ -37,6 +37,7 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         const jobsRaw = jobs.map(job => job.getRaw());
         this.validateAgent(agentIndex);
         this.ensureNewItemsValid(jobsRaw, "jobs");
+        this.validateNewJobsHaveLocations(jobsRaw);
         
         const newJobIndexes = this.appendJobsToInput(jobsRaw);
         
@@ -85,6 +86,18 @@ export class RouteResultJobEditor extends RouteResultEditorBase {
         const startIndex = params.jobs.length;
         params.jobs.push(...jobsRaw);
         return jobsRaw.map((_, i) => startIndex + i);
+    }
+
+    private validateNewJobsHaveLocations(jobsRaw: JobData[]): void {
+        for (let i = 0; i < jobsRaw.length; i++) {
+            const job = jobsRaw[i];
+            if (job.location === undefined && job.location_index === undefined) {
+                throw new InvalidParameter(
+                    `New job at position ${i} must have either location or location_index`,
+                    "jobs"
+                );
+            }
+        }
     }
 
 }

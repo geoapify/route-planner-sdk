@@ -1,10 +1,11 @@
 import {
     Shipment,
     ShipmentData,
+    ShipmentStepData,
     AddAssignOptions,
     RemoveOptions,
     REOPTIMIZE,
-    ItemAlreadyAssigned, ShipmentNotFound
+    ItemAlreadyAssigned, ShipmentNotFound, InvalidParameter
 } from "../../models";
 import { ShipmentStrategyFactory } from "./strategies";
 import { RouteResultEditorBase } from "./route-result-editor-base";
@@ -37,6 +38,7 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         const shipmentsRaw = shipments.map(s => s.getRaw());
         this.validateAgent(agentIndex);
         this.ensureNewItemsValid(shipmentsRaw, "shipments");
+        this.validateNewShipmentsHaveLocations(shipmentsRaw);
         
         const newShipmentIndexes = this.appendShipmentsToInput(shipmentsRaw);
         
@@ -83,6 +85,34 @@ export class RouteResultShipmentEditor extends RouteResultEditorBase {
         const startIndex = params.shipments.length;
         params.shipments.push(...shipmentsRaw);
         return shipmentsRaw.map((_, i) => startIndex + i);
+    }
+
+    private validateNewShipmentsHaveLocations(shipmentsRaw: ShipmentData[]): void {
+        for (let i = 0; i < shipmentsRaw.length; i++) {
+            const shipment = shipmentsRaw[i];
+            this.validateShipmentStepLocation(shipment.pickup, i, "pickup");
+            this.validateShipmentStepLocation(shipment.delivery, i, "delivery");
+        }
+    }
+
+    private validateShipmentStepLocation(
+        step: ShipmentStepData | undefined,
+        shipmentPosition: number,
+        stepName: "pickup" | "delivery"
+    ): void {
+        if (!step) {
+            throw new InvalidParameter(
+                `New shipment at position ${shipmentPosition} must have ${stepName} step`,
+                "shipments"
+            );
+        }
+
+        if (step.location === undefined && step.location_index === undefined) {
+            throw new InvalidParameter(
+                `New shipment at position ${shipmentPosition} has ${stepName} step without location or location_index`,
+                "shipments"
+            );
+        }
     }
 
 }

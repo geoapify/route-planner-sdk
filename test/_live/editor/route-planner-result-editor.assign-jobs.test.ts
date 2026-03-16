@@ -1,6 +1,7 @@
-import { AgentPlan, Job, PRESERVE_ORDER, REOPTIMIZE, RoutePlannerResultEditor } from "../../../src";
+import RoutePlanner, { AgentPlan, Job, PRESERVE_ORDER, REOPTIMIZE, RoutePlannerInputData, RoutePlannerResultEditor } from "../../../src";
 import { RoutePlannerResult } from "../../../src/models/entities/route-planner-result";
-import { buildJobsResult, hasLiveApiKey } from "./editor-live.helper";
+import { loadJson } from "../../utils.helper";
+import { buildJobsResult, hasLiveApiKey, LIVE_TEST_API_KEY } from "./editor-live.helper";
 
 jest.setTimeout(120000);
 
@@ -185,8 +186,8 @@ describe("RoutePlannerResultEditor.assignJobs (live)", () => {
         expect(targetPlanAfter7.getWaypoints().length).toBe(waypointsBefore7 + 1);
         expect(newJobWaypointAfter7).toBeDefined();
         expect(newJobWaypointAfter7!).toBeGreaterThan(referenceJobWaypointIndex!);
-        expect(targetPlanAfter7.getWaypoints()[newJobWaypointAfter7!].getLocation()).toEqual(
-            targetPlanAfter7.getWaypoints()[referenceJobWaypointIndex!].getLocation()
+        expect(targetPlanAfter7.getWaypoints()[newJobWaypointAfter7!].getOriginalLocation()).toEqual(
+            targetPlanAfter7.getWaypoints()[referenceJobWaypointIndex!].getOriginalLocation()
         );
     });
 
@@ -438,49 +439,69 @@ describe("RoutePlannerResultEditor.assignJobs (live)", () => {
     });
 
     liveTest("preserveOrder + append + deletion + reoptimize", async () => {
-        const result = await buildJobsResult(
-            "_data/live-scenarios/salesman-with-time-frames__init-jobs_jobs-30_shipments-0_items-req-no_items-tw-yes_agents-3_agent-caps-no_agent-tw-no_agent-breaks-no_agent-end-yes_agent-capacity-no-input.json"
-        );
-        const editor = new RoutePlannerResultEditor(result);
+        const bulkyInputFile =
+            "_data/live-scenarios/bulky-items-houston__init-jobs_jobs-250_shipments-0_items-req-no_items-tw-no_agents-5_agent-caps-no_agent-tw-no_agent-breaks-no_agent-end-yes_agent-capacity-yes-input.json";
 
-        const targetAgentIndex = 1;
-        const jobToMove = result
-            .getJobPlans()
-            .find((jobPlan) => jobPlan.getAgentIndex() !== undefined && jobPlan.getAgentIndex() !== targetAgentIndex)
-            ?.getJobIndex();
-        expect(jobToMove).toBeDefined();
+        const runAppendCase = async (result: any, expectEndWaypoint: boolean) => {
+            const editor = new RoutePlannerResultEditor(result);
+            const targetAgentIndex = 1;
+            const jobToMove = result
+                .getJobPlans()
+                .find((jobPlan: any) => jobPlan.getAgentIndex() !== undefined && jobPlan.getAgentIndex() !== targetAgentIndex)
+                ?.getJobIndex();
+            expect(jobToMove).toBeDefined();
 
-        const sourceAgentIndex = result.getJobPlan(jobToMove as number)?.getAgentIndex();
-        expect(sourceAgentIndex).toBeDefined();
+            const sourceAgentIndex = result.getJobPlan(jobToMove as number)?.getAgentIndex();
+            expect(sourceAgentIndex).toBeDefined();
 
-        await editor.assignJobs(targetAgentIndex, [jobToMove as number], {
-            strategy: PRESERVE_ORDER,
-            removeStrategy: REOPTIMIZE,
-            append: true
-        });
+            await editor.assignJobs(targetAgentIndex, [jobToMove as number], {
+                strategy: PRESERVE_ORDER,
+                removeStrategy: REOPTIMIZE,
+                append: true
+            });
 
-        const modified = editor.getModifiedResult();
-        expect(modified.getJobPlan(jobToMove as number)?.getAgentIndex()).toBe(targetAgentIndex);
+            const modified = editor.getModifiedResult();
+            expect(modified.getJobPlan(jobToMove as number)?.getAgentIndex()).toBe(targetAgentIndex);
 
-        if (sourceAgentIndex !== undefined && sourceAgentIndex !== targetAgentIndex) {
-            const sourcePlanAfter = modified.getAgentPlan(sourceAgentIndex);
-            if (sourcePlanAfter) {
-                expect(sourcePlanAfter.containsJob(jobToMove as number)).toBe(false);
+            if (sourceAgentIndex !== undefined && sourceAgentIndex !== targetAgentIndex) {
+                const sourcePlanAfter = modified.getAgentPlan(sourceAgentIndex);
+                if (sourcePlanAfter) {
+                    expect(sourcePlanAfter.containsJob(jobToMove as number)).toBe(false);
+                }
             }
+
+            const targetPlan = modified.getAgentPlan(targetAgentIndex);
+            expect(targetPlan).toBeDefined();
+
+            const waypoints = targetPlan!.getWaypoints();
+            const endWaypointIndex = waypoints.findIndex((waypoint) =>
+                waypoint.getActions().some((action) => action.getType() === "end")
+            );
+            const insertedJobWaypointIndex = getJobWaypointIndex(modified, jobToMove as number);
+            expect(insertedJobWaypointIndex).toBeDefined();
+
+            if (expectEndWaypoint) {
+                expect(endWaypointIndex).toBeGreaterThan(0);
+                expect(insertedJobWaypointIndex).toBe(endWaypointIndex - 1);
+            } else {
+                expect(endWaypointIndex).toBe(-1);
+                expect(insertedJobWaypointIndex).toBe(waypoints.length - 1);
+            }
+        };
+
+        // case 1: with end position -> append should place new waypoint before end waypoint
+        const withEndResult = await buildJobsResult(bulkyInputFile);
+        await runAppendCase(withEndResult, true);
+
+        // case 2: without end position -> append should place new waypoint at route end
+        const withoutEndInput = loadJson(bulkyInputFile) as RoutePlannerInputData;
+        for (const agent of withoutEndInput.agents || []) {
+            delete (agent as any).end_location;
+            delete (agent as any).end_location_index;
         }
-
-        const targetPlan = modified.getAgentPlan(targetAgentIndex);
-        expect(targetPlan).toBeDefined();
-
-        const waypoints = targetPlan!.getWaypoints();
-        const endWaypointIndex = waypoints.findIndex((waypoint) =>
-            waypoint.getActions().some((action) => action.getType() === "end")
-        );
-        expect(endWaypointIndex).toBeGreaterThan(0);
-
-        const insertedJobWaypointIndex = getJobWaypointIndex(modified, jobToMove as number);
-        expect(insertedJobWaypointIndex).toBeDefined();
-        expect(insertedJobWaypointIndex).toBe(endWaypointIndex - 1);
+        const withoutEndPlanner = new RoutePlanner({ apiKey: LIVE_TEST_API_KEY }, withoutEndInput);
+        const withoutEndResult = await withoutEndPlanner.plan();
+        await runAppendCase(withoutEndResult, false);
     });
 
     liveTest("preserveOrder + assign all unassigned", async () => {

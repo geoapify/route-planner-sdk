@@ -3,7 +3,7 @@ import { ActionResponseData, InvalidInsertionPosition } from "../../../models";
 import { RouteResultEditorBase } from "../route-result-editor-base";
 import { AgentPlanRecalculator, WaypointBuilder } from "../strategies";
 import { WaypointResponseData } from "../../../models";
-import { RouteViolationValidator } from "../strategies/preserve-order/validations";
+import { RouteViolationValidator } from "../validations";
 
 export class WaypointMoveHelper {
 

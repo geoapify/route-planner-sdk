@@ -8,7 +8,7 @@ import {
     PreserveOrderShipmentHelper,
     ShipmentInsertPositions
 } from "../preserve-order/helpers/preserve-order-shipment-helper";
-import {RouteViolationValidator} from "../preserve-order/validations";
+import {RouteViolationValidator} from "../../validations";
 import {ShipmentRemovePreserveOrderStrategy} from "./shipment-remove-preserve-order-strategy";
 import {ShipmentRemoveReoptimizeStrategy} from "./shipment-remove-reoptimize-strategy";
 

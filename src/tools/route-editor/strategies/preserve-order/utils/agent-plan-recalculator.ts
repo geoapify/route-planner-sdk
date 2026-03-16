@@ -54,6 +54,7 @@ export class AgentPlanRecalculator {
             }            
         }    
         agentFeature.properties.end_time = time;
+        agentFeature.properties.time = agentFeature.properties.end_time - agentFeature.properties.start_time;
         agentFeature.properties.actions = actions;
         agentFeature.properties.distance = legs.reduce((sum, leg) => {
             return sum + leg.distance;

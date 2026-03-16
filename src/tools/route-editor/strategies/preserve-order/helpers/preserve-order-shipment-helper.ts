@@ -25,7 +25,7 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
     ): Promise<ShipmentInsertPositions> {
         // append: true (no position) → Append to end
         if (InsertPositionResolver.shouldAppend(options)) {
-            const positions = this.getAppendToEndPositions(context, agentIndex);
+            const positions = await this.getAppendToEndPositions(context, agentIndex);
             return {
                 ...positions,
                 createPickupWaypoint: true,
@@ -38,6 +38,7 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
             const pickupPosition = InsertPositionResolver.resolveInsertPosition(options);
             return {
                 pickup: pickupPosition,
+                // Pickup waypoint is inserted first, so delivery should go to the next index.
                 delivery: pickupPosition + 1,
                 createPickupWaypoint: true,
                 createDeliveryWaypoint: true
@@ -57,12 +58,17 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
     static async getAppendToEndPositions(context: RouteResultEditorBase, agentIndex: number): Promise<{ pickup: number; delivery: number }> {
         const agentFeature = await context.getOrCreateAgentFeature(agentIndex);
         const waypoints = agentFeature.properties.waypoints || [];
+        if (waypoints.length === 0) {
+            return { pickup: 0, delivery: 1 };
+        }
         const hasEndAction = waypoints[waypoints.length - 1].actions.some(action => action.type === 'end');
 
         if (hasEndAction) {
             return {
-                pickup: waypoints.length - 2,
-                delivery: waypoints.length - 1
+                // Insert pickup right before end; after pickup insertion, end shifts by +1,
+                // so delivery should be inserted at the original end index.
+                pickup: waypoints.length - 1,
+                delivery: waypoints.length
             }
         } else {
             return { pickup: waypoints.length, delivery: waypoints.length + 1 };
@@ -211,7 +217,7 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
             } else {
                 const pickupOptions = hasDeliveryAfterMin
                     ? { canInsertBeforeFirst: false, canInsertAfterLast: false }
-                    : { canInsertBeforeFirst: false, canInsertAfterLast: this.hasAgentEndLocation(context, agentIndex)};
+                    : { canInsertBeforeFirst: false, canInsertAfterLast: !this.hasAgentEndLocation(context, agentIndex)};
                 pickupTravelTimes = await this.calculateTravelTimes(context, routeLocationsAfter, pickupLocation);
 
                 pickupIndexRelative = await InsertionCostCalculator.findOptimalInsertionPoint(

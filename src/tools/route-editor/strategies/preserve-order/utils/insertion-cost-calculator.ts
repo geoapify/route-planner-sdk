@@ -61,6 +61,7 @@ export class InsertionCostCalculator {
         const agentFeature = context.getAgentFeature(agentIndex);
         const legs = agentFeature.properties.legs || [];
         const waypointLocations = (agentFeature.properties.waypoints || []).map((waypoint) => waypoint.location || waypoint.original_location);
+        const subRouteStartIndex = this.findSubRouteStartIndex(waypointLocations, routeLocations);
 
         const result: number[] = [];
         for (let i = 0; i < routeLocations.length - 1; i++) {
@@ -72,22 +73,16 @@ export class InsertionCostCalculator {
                 continue;
             }
 
-            const fromWaypointIndex = waypointLocations.findIndex((waypointLocation) =>
-                waypointLocation && this.sameLocation(waypointLocation, fromLocation)
-            );
-
-            const toWaypointIndex = waypointLocations.findIndex((waypointLocation) =>
-                waypointLocation && this.sameLocation(waypointLocation, toLocation)
-            );
-
             // 1. try to get from existing legs
-            if (fromWaypointIndex >= 0 && toWaypointIndex >= 0) {
+            if (subRouteStartIndex !== -1) {
+                const fromWaypointIndex = subRouteStartIndex + i;
+                const toWaypointIndex = fromWaypointIndex + 1;
                 const leg = legs.find((candidate) =>
                     candidate.from_waypoint_index === fromWaypointIndex &&
                     candidate.to_waypoint_index === toWaypointIndex
                 );
 
-                if (leg) {
+                if (leg && typeof leg.time === "number" && leg.time >= 0) {
                     result.push(leg.time);
                     continue;
                 }
@@ -96,7 +91,7 @@ export class InsertionCostCalculator {
             // 2. try to get from matrix
             const key = this.getTravelTimeKey(fromLocation, toLocation);
             const time = travelTimeMap.get(key);
-            if (time) {
+            if (time !== undefined) {
                 result.push(time);
                 continue;
             }
@@ -115,6 +110,31 @@ export class InsertionCostCalculator {
         }
 
         return result;
+    }
+
+    private static findSubRouteStartIndex(
+        waypointLocations: [number, number][],
+        routeLocations: [number, number][]
+    ): number {
+        if (routeLocations.length === 0 || waypointLocations.length < routeLocations.length) {
+            return -1;
+        }
+
+        const maxStart = waypointLocations.length - routeLocations.length;
+        for (let start = 0; start <= maxStart; start++) {
+            let matches = true;
+            for (let offset = 0; offset < routeLocations.length; offset++) {
+                if (!this.sameLocation(waypointLocations[start + offset], routeLocations[offset])) {
+                    matches = false;
+                    break;
+                }
+            }
+            if (matches) {
+                return start;
+            }
+        }
+
+        return -1;
     }
 
     private static sameLocation(a: [number, number], b: [number, number]): boolean {
