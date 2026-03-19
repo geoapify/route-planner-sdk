@@ -47,6 +47,23 @@ describe("RouteViolationValidator", () => {
         expect(getViolations(rawData)).toHaveLength(0);
     });
 
+    test("does not report delay action as break conflict", () => {
+        const rawData = {
+            properties: {
+                params: {
+                    agents: [{ breaks: [{ time_windows: [[10, 20]] }] }],
+                    jobs: [],
+                    shipments: []
+                }
+            }
+        };
+        const actions = [createAction({ type: "delay", start_time: 12, duration: 5 })];
+
+        RouteViolationValidator.validate(createContext(rawData, actions), 0);
+
+        expect(getViolations(rawData)).toHaveLength(0);
+    });
+
     test("reports break conflict for non-break action", () => {
         const rawData = {
             properties: {

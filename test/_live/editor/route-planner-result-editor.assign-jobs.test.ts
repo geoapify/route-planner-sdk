@@ -22,7 +22,8 @@ function assertLegTimesMatchWaypoints(agentPlan: AgentPlan, maxAllowedDiffSec = 
         const actions = agentPlan.getActions();
         const firstWaypointActionIndex = currWaypoint.getActions()[0].getActionIndex();
 
-        const breakTimeBeforeFirstAction = actions[firstWaypointActionIndex - 1] && actions[firstWaypointActionIndex - 1].getType() === 'break'
+        const breakTimeBeforeFirstAction = actions[firstWaypointActionIndex - 1] &&
+            ['break', 'delay'].includes(actions[firstWaypointActionIndex - 1].getType())
             ? actions[firstWaypointActionIndex - 1].getDuration()
             : 0;
 

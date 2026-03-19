@@ -245,8 +245,15 @@ export class RoutePlannerResultEditor {
         return AgentReoptimizeHelper.execute(this.getJobEditor(), options);
     }
 
+    addDelayAfterWaypoint(agentIdOrIndex: string | number, waypointIndex: number, delaySeconds: number): void {
+        return AgentTimeOffsetHelper.execute(this.getJobEditor(), agentIdOrIndex, waypointIndex, delaySeconds);
+    }
+
+    /**
+     * @deprecated use addDelayAfterWaypoint()
+     */
     addTimeOffsetAfterWaypoint(agentIdOrIndex: string | number, waypointIndex: number, offsetSeconds: number): void {
-        return AgentTimeOffsetHelper.execute(this.getJobEditor(), agentIdOrIndex, waypointIndex, offsetSeconds);
+        return this.addDelayAfterWaypoint(agentIdOrIndex, waypointIndex, offsetSeconds);
     }
 
     async moveWaypoint(agentIdOrIndex: string | number, fromWaypointIndex: number, toWaypointIndex: number): Promise<void> {

@@ -21,6 +21,7 @@ export class RouteViolationValidator {
     private static readonly ACTION_TYPE_START = 'start';
     private static readonly ACTION_TYPE_END = 'end';
     private static readonly ACTION_TYPE_BREAK = 'break';
+    private static readonly ACTION_TYPE_DELAY = 'delay';
     private static readonly ACTION_TYPE_JOB = 'job';
 
     static validate(context: RouteResultEditorBase, agentIndex: number): void {
@@ -50,7 +51,8 @@ export class RouteViolationValidator {
             if (
                 action.type === this.ACTION_TYPE_START ||
                 action.type === this.ACTION_TYPE_END ||
-                action.type === this.ACTION_TYPE_BREAK
+                action.type === this.ACTION_TYPE_BREAK ||
+                action.type === this.ACTION_TYPE_DELAY
             ) {
                 continue;
             }
@@ -84,7 +86,8 @@ export class RouteViolationValidator {
             if (
                 action.type === this.ACTION_TYPE_START ||
                 action.type === this.ACTION_TYPE_END ||
-                action.type === this.ACTION_TYPE_BREAK
+                action.type === this.ACTION_TYPE_BREAK ||
+                action.type === this.ACTION_TYPE_DELAY
             ) {
                 continue;
             }

@@ -117,7 +117,7 @@ const buildReoptimizeSection = (
   return section;
 };
 
-const buildTimeOffsetSection = (
+const buildDelaySection = (
   context: DemoModifyContext,
   waypointOptions: WaypointOption[],
   makeButton: (label: string, onClick: () => Promise<void>, disabled?: boolean) => HTMLButtonElement,
@@ -129,27 +129,27 @@ const buildTimeOffsetSection = (
 
   const title = document.createElement("div");
   title.className = "modify-section__title";
-  title.textContent = "Add Time Offset";
+  title.textContent = "Add Delay";
   section.appendChild(title);
 
   const waypointSelect = createWaypointSelect(waypointOptions);
   
-  const offsetInput = document.createElement("input");
-  offsetInput.type = "number";
-  offsetInput.placeholder = "seconds (e.g., 300)";
+  const delayInput = document.createElement("input");
+  delayInput.type = "number";
+  delayInput.placeholder = "seconds (e.g., 300)";
 
-  const button = makeButton("Add time offset", async () => {
+  const button = makeButton("Add delay", async () => {
     const waypointIndex = Number(waypointSelect.value);
-    const offsetSeconds = readNumberValue(offsetInput);
+    const delaySeconds = readNumberValue(delayInput);
     
-    if (Number.isNaN(waypointIndex) || offsetSeconds === undefined) return;
+    if (Number.isNaN(waypointIndex) || delaySeconds === undefined) return;
     
-    context.editor.addTimeOffsetAfterWaypoint(context.agentIndex, waypointIndex, offsetSeconds);
+    context.editor.addDelayAfterWaypoint(context.agentIndex, waypointIndex, delaySeconds);
     updateModifiedResult(context);
   });
 
   section.appendChild(createField("After waypoint", waypointSelect));
-  section.appendChild(createField("Offset (seconds)", offsetInput));
+  section.appendChild(createField("Delay (seconds)", delayInput));
   const row = document.createElement("div");
   row.className = "modify-row";
   row.appendChild(button);
@@ -181,7 +181,7 @@ export const buildAdvancedTabContent = (
 
   content.appendChild(buildMoveWaypointSection(context, waypointOptions, makeButton, createField));
   content.appendChild(buildReoptimizeSection(context, makeButton, createField));
-  content.appendChild(buildTimeOffsetSection(context, waypointOptions, makeButton, createField, readNumberValue));
+  content.appendChild(buildDelaySection(context, waypointOptions, makeButton, createField, readNumberValue));
 
   return content;
 };

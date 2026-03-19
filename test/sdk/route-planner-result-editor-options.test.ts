@@ -283,4 +283,58 @@ describe("RoutePlannerResultEditor errors from incorrect params", () => {
 
         await expect(editor.moveWaypoint(agentIndex, -1, 0)).rejects.toBeInstanceOf(InvalidInsertionPosition);
     });
+
+    test("should throw InvalidInsertionPosition when moving shipment pickup after delivery", async () => {
+        const editor = createShipmentsEditor();
+        const raw = editor.getModifiedResult().getRaw();
+
+        let targetAgentIndex = -1;
+        let pickupWaypointIndex = -1;
+        let deliveryWaypointIndex = -1;
+
+        for (const feature of raw.features) {
+            const waypoints = feature.properties.waypoints;
+
+            for (let currentPickupIndex = 0; currentPickupIndex < waypoints.length; currentPickupIndex++) {
+                const pickupWaypoint = waypoints[currentPickupIndex];
+                const hasBoundaryAction = pickupWaypoint.actions.some(
+                    (action) => action.type === "start" || action.type === "end"
+                );
+                if (hasBoundaryAction) {
+                    continue;
+                }
+
+                const pickupAction = pickupWaypoint.actions.find(
+                    (action) => action.type === "pickup" && typeof action.shipment_index === "number"
+                );
+                if (!pickupAction || pickupAction.shipment_index === undefined) {
+                    continue;
+                }
+
+                const currentDeliveryIndex = waypoints.findIndex((waypoint) =>
+                    waypoint.actions.some(
+                        (action) =>
+                            action.type === "delivery" &&
+                            action.shipment_index === pickupAction.shipment_index
+                    )
+                );
+
+                if (currentDeliveryIndex !== -1 && currentPickupIndex < currentDeliveryIndex) {
+                    targetAgentIndex = feature.properties.agent_index;
+                    pickupWaypointIndex = currentPickupIndex;
+                    deliveryWaypointIndex = currentDeliveryIndex;
+                    break;
+                }
+            }
+
+            if (targetAgentIndex !== -1) {
+                break;
+            }
+        }
+
+        expect(targetAgentIndex).toBeGreaterThanOrEqual(0);
+        await expect(
+            editor.moveWaypoint(targetAgentIndex, pickupWaypointIndex, deliveryWaypointIndex)
+        ).rejects.toBeInstanceOf(InvalidInsertionPosition);
+    });
 });

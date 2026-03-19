@@ -138,7 +138,7 @@ describe("RoutePlannerResultEditor", () => {
         expect(spy).toHaveBeenCalledWith(fakeJobEditor, { agentIdOrIndex: 0 });
     });
 
-    test("addTimeOffsetAfterWaypoint should delegate to AgentTimeOffsetHelper", () => {
+    test("addDelayAfterWaypoint should delegate to AgentTimeOffsetHelper", () => {
         const editor = new RoutePlannerResultEditor(createResult(JOBS_RESULT_FILE));
         const fakeJobEditor = {
             assignJobs: jest.fn(),
@@ -149,8 +149,16 @@ describe("RoutePlannerResultEditor", () => {
 
         const spy = jest.spyOn(AgentTimeOffsetHelper, "execute").mockImplementation(() => {});
 
-        editor.addTimeOffsetAfterWaypoint(0, 1, 60);
+        editor.addDelayAfterWaypoint(0, 1, 60);
         expect(spy).toHaveBeenCalledWith(fakeJobEditor, 0, 1, 60);
+    });
+
+    test("addTimeOffsetAfterWaypoint should delegate to addDelayAfterWaypoint", () => {
+        const editor = new RoutePlannerResultEditor(createResult(JOBS_RESULT_FILE));
+        const spy = jest.spyOn(editor, "addDelayAfterWaypoint").mockImplementation(() => {});
+
+        editor.addTimeOffsetAfterWaypoint(0, 1, 60);
+        expect(spy).toHaveBeenCalledWith(0, 1, 60);
     });
 
     test("moveWaypoint should delegate to WaypointMoveHelper", async () => {

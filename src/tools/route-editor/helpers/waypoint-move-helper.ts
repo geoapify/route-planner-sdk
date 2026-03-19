@@ -75,21 +75,30 @@ export class WaypointMoveHelper {
         }
 
         for (const shipmentIndex of shipmentIndexes) {
-            let pickupWaypointIndex = -1;
+            const pickupPosition = this.findShipmentActionPosition(waypoints, shipmentIndex, "pickup");
+            const deliveryPosition = this.findShipmentActionPosition(waypoints, shipmentIndex, "delivery");
 
-            for (let waypointIndex = 0; waypointIndex < waypoints.length; waypointIndex++) {
-                const hasPickup = waypoints[waypointIndex].actions.some(
-                    (action: ActionResponseData) =>
-                        action.type === "pickup" && action.shipment_index === shipmentIndex
-                );
-
-                if (hasPickup) {
-                    pickupWaypointIndex = waypointIndex;
-                    break;
-                }
+            if (!pickupPosition || !deliveryPosition) {
+                continue;
             }
 
-            if (pickupWaypointIndex !== -1 && pickupWaypointIndex >= toWaypointIndex) {
+            const projectedPickupWaypointIndex = this.mapMovedWaypointIndex(
+                pickupPosition.waypointIndex,
+                fromWaypointIndex,
+                toWaypointIndex
+            );
+            const projectedDeliveryWaypointIndex = this.mapMovedWaypointIndex(
+                deliveryPosition.waypointIndex,
+                fromWaypointIndex,
+                toWaypointIndex
+            );
+
+            const validOrder =
+                projectedPickupWaypointIndex < projectedDeliveryWaypointIndex ||
+                (projectedPickupWaypointIndex === projectedDeliveryWaypointIndex &&
+                    pickupPosition.actionIndex < deliveryPosition.actionIndex);
+
+            if (!validOrder) {
                 throw new InvalidInsertionPosition(
                     `Cannot move waypoint ${fromWaypointIndex} before pickup for shipment ${shipmentIndex}`,
                     agentIndex,
@@ -97,6 +106,50 @@ export class WaypointMoveHelper {
                 );
             }
         }
+    }
+
+    private static findShipmentActionPosition(
+        waypoints: WaypointResponseData[],
+        shipmentIndex: number,
+        actionType: "pickup" | "delivery"
+    ): { waypointIndex: number; actionIndex: number } | undefined {
+        for (let waypointIndex = 0; waypointIndex < waypoints.length; waypointIndex++) {
+            const waypoint = waypoints[waypointIndex];
+            for (let actionIndex = 0; actionIndex < waypoint.actions.length; actionIndex++) {
+                const action = waypoint.actions[actionIndex] as ActionResponseData;
+                if (action.type === actionType && action.shipment_index === shipmentIndex) {
+                    return { waypointIndex, actionIndex };
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    private static mapMovedWaypointIndex(
+        originalWaypointIndex: number,
+        fromWaypointIndex: number,
+        toWaypointIndex: number
+    ): number {
+        if (originalWaypointIndex === fromWaypointIndex) {
+            return toWaypointIndex;
+        }
+
+        if (fromWaypointIndex < toWaypointIndex) {
+            if (originalWaypointIndex > fromWaypointIndex && originalWaypointIndex <= toWaypointIndex) {
+                return originalWaypointIndex - 1;
+            }
+            return originalWaypointIndex;
+        }
+
+        if (fromWaypointIndex > toWaypointIndex) {
+            if (originalWaypointIndex >= toWaypointIndex && originalWaypointIndex < fromWaypointIndex) {
+                return originalWaypointIndex + 1;
+            }
+            return originalWaypointIndex;
+        }
+
+        return originalWaypointIndex;
     }
 
 
