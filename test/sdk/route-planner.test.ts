@@ -13,7 +13,7 @@ describe("RoutePlanner", () => {
         const planner = new RoutePlanner({ apiKey: "test-key" });
         const raw = planner.getRaw();
 
-        expect((planner as any).options.baseUrl).toBe("https://api.geoapify.com");
+        expect((planner as any).baseUrl).toBe("https://api.geoapify.com");
         expect(raw.agents).toEqual([]);
         expect(raw.jobs).toEqual([]);
         expect(raw.shipments).toEqual([]);

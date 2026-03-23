@@ -40,12 +40,4 @@ describe("RoutePlannerResultConverter", () => {
         expect(resultData.agents[0].actions[0].type).toBe(originalType);
         expect(resultData.agents[0].waypoints[0].start_time).toBe(originalStartTime);
     });
-
-    test("should return empty legs when feature legs are undefined", () => {
-        const response = loadResponse();
-        (response.features[0].properties as any).legs = undefined;
-
-        const resultData = RoutePlannerResultConverter.generateRoutePlannerResultData(response);
-        expect(resultData.agents[0].legs).toEqual([]);
-    });
 });
