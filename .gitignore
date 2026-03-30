@@ -13,3 +13,4 @@
 docs-site/site
 node_modules
 .npm-cache
+demo/demo-env-variables.mjs
