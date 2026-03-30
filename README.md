@@ -3,9 +3,14 @@
 [![Docs](https://img.shields.io/badge/Docs-View%20Documentation-blue)](https://geoapify.github.io/route-planner-sdk/)
 [![npm version](https://img.shields.io/npm/v/@geoapify/route-planner-sdk)](https://www.npmjs.com/package/@geoapify/route-planner-sdk)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Migration V1→V2](https://img.shields.io/badge/Migration-V1%E2%86%92V2-orange)](https://geoapify.github.io/route-planner-sdk/migration-from-v1/)
 
 
 The **Geoapify Route Optimization SDK** is a lightweight, dependency-free TypeScript library that simplifies building, executing requests, and modifying results for the [Geoapify Route Planner API](https://www.geoapify.com/route-planner-api/). It helps you easily implement advanced **route optimization** and delivery planning in both frontend (browser) and backend (Node.js) environments.
+
+> Migration note: V2 was introduced with improved method signatures and expanded route-editor capabilities.  
+> If you are upgrading from V1, follow the migration guide:  
+> [Migration from V1 to V2](https://geoapify.github.io/route-planner-sdk/migration-from-v1/)
 
 ![Delivery Routes Optimization](https://github.com/geoapify/route-planner-sdk/blob/main/img/delivery-routes-optimization.png?raw=true)
 
@@ -58,6 +63,21 @@ The Geoapify Route Optimization SDK provides a modern, dependency-free way to in
 - Extract structured timeline and status data for each agent
 - Analyze and display routes and schedules using charts or maps
 
+### Route Editing Capabilities
+
+| Human-readable action | Editor method | Typical use cases |
+|---|---|---|
+| Move existing jobs to another agent | `assignJobs()` | <ul><li>Driver calls in sick and jobs must be reassigned.</li><li>Urgent jobs are moved to a nearby agent.</li><li>Workload is balanced between two agents during the day.</li><li>Dispatcher applies manual override after optimization.</li></ul> |
+| Move existing shipments (pickup+delivery) to another agent | `assignShipments()` | <ul><li>Reassign a full order when a vehicle is delayed.</li><li>Move temperature-sensitive shipments to an equipped vehicle.</li><li>Recover from route disruptions.</li></ul> |
+| Remove jobs from active plans | `removeJobs()` | <ul><li>Customer cancels appointment.</li><li>Stop is postponed to next day.</li></ul> |
+| Remove shipments from active plans | `removeShipments()` | <ul><li>Order is canceled after planning.</li><li>Pickup is not ready yet.</li><li>Shipment is moved to a later batch.</li></ul> |
+| Add new jobs to existing route | `addNewJobs()` | <ul><li>Same-day on-demand request arrives.</li><li>Dispatcher creates a manual task.</li><li>Inspection/service stop is added mid-shift.</li></ul> |
+| Add new shipments to existing route | `addNewShipments()` | <ul><li>New pickup+dropoff request comes in live.</li><li>Priority order is inserted into a running route.</li></ul> |
+| Add or remove schedule delay after a waypoint | `addDelayAfterWaypoint()` | <ul><li>Traffic jam causes route delay.</li><li>Loading dock queue adds waiting time.</li><li>Service finishes earlier than expected (negative delay).</li></ul> |
+| Manually reorder a stop in one route | `moveWaypoint()` | <ul><li>Dispatcher drag-and-drop resequencing.</li><li>Prioritize a VIP stop earlier.</li></ul> |
+| Reoptimize one agent route | `reoptimizeAgentPlan()` | <ul><li>Clean up route after many manual edits.</li><li>Include unassigned tasks for one agent.</li><li>Run strict reoptimization with <code>allowViolations: false</code>.</li><li>Run relaxed reoptimization with <code>allowViolations: true</code>.</li></ul> |
+| Read current edited snapshot | `getModifiedResult()` | <ul><li>Persist edited plan.</li><li>Render map/timeline after each edit.</li><li>Implement undo/redo history in UI.</li></ul> |
+
 ## Installation
 
 Install the SDK from NPM:
@@ -82,7 +102,7 @@ For commercial use and higher request volumes, consider upgrading your plan.
 ### Import the SDK
 
 ```ts
-import RoutePlanner, { Agent, Job } from "@geoapify/route-planner-sdk";
+import { RoutePlanner, Agent, Job } from "@geoapify/route-planner-sdk";
 const planner = new RoutePlanner({ apiKey: "YOUR_API_KEY" });
 ```
 
@@ -98,6 +118,8 @@ Or use in HTML:
 ### Example: Create Shipment / Delivery Task
 
 ```ts
+import { RoutePlanner, Agent, Location, Shipment, ShipmentStep, Avoid } from "@geoapify/route-planner-sdk";
+
 const planner = new RoutePlanner({apiKey: API_KEY});
 
 planner.setMode("drive");
@@ -130,6 +152,8 @@ const result = await planner.plan();
 ### Example: Create Job Optimization Task
 
 ```js
+import { RoutePlanner, Agent, Job } from "@geoapify/route-planner-sdk";
+
 const planner = new RoutePlanner({apiKey: API_KEY});
 
 planner.setMode("drive");
@@ -166,11 +190,15 @@ The editor supports two main strategies for modifying routes:
 | `reoptimize` | Full route re-optimization (default). Best results. | Route Planner API |
 | `preserveOrder` | Insert without reordering existing stops. Fast and flexible. | Route Matrix API (if no position specified) or None |
 
+All regular edit operations (`assign*`, `addNew*`, `remove*`, `moveWaypoint`, `addDelayAfterWaypoint`) are soft:
+the requested change is applied and any constraint issues are stored as violations.
+For strict route improvement, use `reoptimizeAgentPlan(agentIdOrIndex, { allowViolations: false })`.
+
 **`preserveOrder` strategy behavior:**
 - **No position params** → Uses Route Matrix API to find optimal insertion point
-- **With beforeId/afterId** → Inserts relative to job/shipment ID (no API call)
-- **With beforeWaypointIndex/afterWaypointIndex** → Inserts relative to waypoint index (no API call)
-- **With appendToEnd: true** → Appends to end of route (no API call)
+- **With afterId/afterWaypointIndex** → Uses Route Matrix API to optimize insertion after that position
+- **With afterId/afterWaypointIndex + append: true** → Inserts directly after that position (no API call)
+- **With append: true** → Appends to end of route (no API call)
 
 ### Example: Assign jobs to the agent
 
@@ -186,16 +214,16 @@ await routeEditor.assignJobs('agent-a', ['job-2'], { strategy: 'preserveOrder' }
 // Append to end of route (no API call)
 await routeEditor.assignJobs('agent-a', ['job-2'], { 
   strategy: 'preserveOrder', 
-  appendToEnd: true 
+  append: true
 });
 
-// Insert after a specific job by ID (no API call)
+// Optimize insertion after a specific job by ID (Route Matrix API)
 await routeEditor.assignJobs('agent-a', ['job-2'], { 
   strategy: 'preserveOrder', 
   afterId: 'job-1' 
 });
 
-// Insert after a specific waypoint by index (no API call)
+// Optimize insertion after a specific waypoint by index (Route Matrix API)
 await routeEditor.assignJobs('agent-a', ['job-2'], { 
   strategy: 'preserveOrder', 
   afterWaypointIndex: 1  // After first stop
@@ -213,7 +241,7 @@ await routeEditor.assignShipments('agent-b', ['shipment-2']);
 // Or with strategy
 await routeEditor.assignShipments('agent-b', ['shipment-2'], { 
   strategy: 'preserveOrder', 
-  appendToEnd: true 
+  append: true
 });
 
 let modifiedResult = routeEditor.getModifiedResult();
@@ -259,7 +287,7 @@ await routeEditor.addNewJobs('agent-A', [newJob]);
 // Or append to end of route
 await routeEditor.addNewJobs('agent-A', [newJob], { 
   strategy: 'preserveOrder', 
-  appendToEnd: true 
+  append: true
 });
 
 let modifiedResult = routeEditor.getModifiedResult();
@@ -321,8 +349,6 @@ You can first generate an empty placeholder timeline and later initialize it usi
 
 Displays a complete timeline that includes the computed routing results, along with interactive waypoint popups for each stop.
 
-Let me know if you'd like to emphasize route optimization, travel times, or interactivity more explicitly.
-
 ```ts
 const container = document.getElementById('timeline-container');
 
@@ -343,6 +369,20 @@ new RoutePlannerTimeline(container, inputData, result, {
 ### Example: Timeline with Custom Popup and Agent Actions
 
 ```ts
+import {
+  RoutePlannerTimeline,
+  Waypoint,
+  TimelineMenuItem
+} from "@geoapify/route-planner-sdk";
+
+const toPrettyTime = (seconds: number): string => `${Math.floor(seconds / 60)} min`;
+const timeLabels = [
+  { position: "25%", label: "1h" },
+  { position: "50%", label: "2h" },
+  { position: "75%", label: "3h" }
+];
+const agentVisibilityState: boolean[] = [];
+
 const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
   const popupDiv = document.createElement('div');
   popupDiv.innerHTML = `
@@ -350,9 +390,9 @@ const customWaypointPopupGenerator = (waypoint: Waypoint): HTMLElement => {
       <h4 style="margin: 0">${[...new Set(waypoint.getActions().map(
         action => action.getType().charAt(0).toUpperCase() + action.getType().slice(1))
       )].join(' / ')}</h4>
-      <p style="margin: 0">Duration: ${this.toPrettyTime(waypoint.getDuration()) || 'N/A'}</p>
-      <p style="margin: 0">Time Before: ${this.toPrettyTime(waypoint.getStartTime()) || 'N/A'}</p>
-      <p style="margin: 0">Time After: ${this.toPrettyTime(waypoint.getStartTime() + waypoint.getDuration()) || 'N/A'}</p>
+      <p style="margin: 0">Duration: ${toPrettyTime(waypoint.getDuration()) || 'N/A'}</p>
+      <p style="margin: 0">Time Before: ${toPrettyTime(waypoint.getStartTime()) || 'N/A'}</p>
+      <p style="margin: 0">Time After: ${toPrettyTime(waypoint.getStartTime() + waypoint.getDuration()) || 'N/A'}</p>
     </div>`;
   return popupDiv;
 };
@@ -385,7 +425,7 @@ const timeline = new RoutePlannerTimeline(container, inputData, undefined, {
   agentLabel: 'Truck',
   label: 'Simple delivery route planner',
   description: 'Deliver ordered items to customers within defined timeframe',
-  timeLabels: this.timeLabels, // optional
+  timeLabels, // optional
   showWaypointPopup: true,
   waypointPopupGenerator: customWaypointPopupGenerator,
   agentMenuItems: agentActions,
@@ -408,7 +448,7 @@ timeline.on('beforeAgentMenuShow', (agentIndex: number, actions: TimelineMenuIte
     if (action.key === 'show-hide-agent') {
       return {
         ...action,
-        label: this.agentVisibilityState[agentIndex] ? 'Show Route' : 'Hide Route'
+        label: agentVisibilityState[agentIndex] ? 'Show Route' : 'Hide Route'
       };
     }
     return action;
@@ -418,7 +458,7 @@ timeline.on('beforeAgentMenuShow', (agentIndex: number, actions: TimelineMenuIte
 
 ### Timeline Setup Requirements
 
-- Include the timeline-specific CSS: `./node_modules/@geoapify/route-planner-sdk/styles/minimal.css`
+- Include the timeline-specific CSS: `./node_modules/@geoapify/route-planner-sdk/styles/timeline-minimal.css`
 - Ensure that your HTML container (`'timeline-container'`) is present and ready to render the timeline
 - Import the necessary types for the timeline feature, such as `RoutePlannerInputData` and `RoutePlannerResult`
 

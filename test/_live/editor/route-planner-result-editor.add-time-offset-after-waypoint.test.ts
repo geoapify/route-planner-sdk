@@ -107,7 +107,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const editor = new RoutePlannerResultEditor(result);
         const delaySeconds = 30;
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find(
             (feature) => feature.properties.legs?.some((leg) => (leg.time || 0) > delaySeconds)
         );
@@ -147,7 +147,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const result = await buildJobsResult();
         const editor = new RoutePlannerResultEditor(result);
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find((feature) => feature.properties.waypoints?.length > 1);
         expect(beforeFeature).toBeDefined();
 
@@ -182,7 +182,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const result = await buildJobsResult();
         const editor = new RoutePlannerResultEditor(result);
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find((feature) => feature.properties.waypoints.length >= 3);
         expect(beforeFeature).toBeDefined();
 
@@ -212,7 +212,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const result = await buildJobsResult();
         const editor = new RoutePlannerResultEditor(result);
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find((feature) => feature.properties.waypoints.length >= 3);
         expect(beforeFeature).toBeDefined();
 
@@ -233,7 +233,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const editor = new RoutePlannerResultEditor(result);
         const delaySeconds = 60;
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find((feature) => feature.properties.waypoints.length >= 4);
         expect(beforeFeature).toBeDefined();
 
@@ -263,7 +263,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const editor = new RoutePlannerResultEditor(result);
         const delaySeconds = 90;
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find((feature: any) =>
             feature.properties.waypoints.length >= 3 &&
             !feature.properties.actions.some((action: any) => action.type === "delay")
@@ -296,7 +296,7 @@ describe("RoutePlannerResultEditor.addDelayAfterWaypoint (live)", () => {
         const result = await buildJobsResult();
         const editor = new RoutePlannerResultEditor(result);
 
-        const beforeRaw = editor.getModifiedResult().getRaw();
+        const beforeRaw = result.getRaw();
         const beforeFeature = beforeRaw.features.find((feature: any) =>
             feature.properties.waypoints.length >= 4 &&
             !feature.properties.actions.some((action: any) => action.type === "delay")

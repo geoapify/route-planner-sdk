@@ -11,7 +11,7 @@ This result helps answer key questions:
 
 The SDK processes this output and provides tools to explore, visualize, and modify the result.
 
----
+
 
 ## How the Result Is Structured
 
@@ -25,19 +25,42 @@ The result is organized by agent. For each agent, the system provides:
 
 It also includes a summary of **issues**, such as unassigned jobs or idle agents.
 
+```
+RoutePlannerResult
+│
+├─ Agent 1
+│  ├─ Route path
+│  ├─ Waypoints
+│  │  ├─ Waypoint 1 → actions + arrival time
+│  │  ├─ Waypoint 2 → actions + arrival time
+│  │  └─ Waypoint 3 → actions + arrival time
+│  ├─ Legs
+│  │  ├─ Leg 1 → distance + duration
+│  │  └─ Leg 2 → distance + duration
+│  └─ Timeline
+│
+├─ Agent 2
+│  └─ ...
+│
+└─ Unassigned
+   ├─ Jobs
+   ├─ Shipments
+   └─ Agents
+```
+
+
 Think of it as a personalized itinerary for every agent, shaped by all the constraints and optimization logic you provided.
 
----
+## AgentPlan: Agent Execution Plan
 
-## AgentSolution: Agent Execution Plan
-
-Each agent’s result is encapsulated as an `AgentSolution`. This object describes all activities and movements assigned to the agent, including:
+Each agent’s result is encapsulated as an `AgentPlan`. This object describes all activities and movements assigned to the agent, including:
 
 * **Start time**: When their shift or route begins
 * **Route geometry**: A visual path between all stops
 * **Action list**: Step-by-step tasks like pickups and deliveries
 * **Waypoint list**: All physical locations visited
 * **Travel segments**: Durations and distances between stops
+
 
 These components allow you to:
 
@@ -46,29 +69,103 @@ These components allow you to:
 * Animate movement between tasks
 * Track delays or idle time
 
----
+```
+AgentPlan data
+│
+├── routeGeometry ───────→ Map visualization
+│
+├── waypoints + actions ─→ Stop list / itinerary
+│
+├── timeline ────────────→ Daily schedule view
+│
+├── legs ────────────────→ Distance & duration analysis
+│
+└── all combined ────────→ Animation / simulation
+```
 
-## Waypoints and Actions
+## Relationship Between Waypoints, Legs, and Actions
 
-Each stop along an agent's route is called a **waypoint**. A waypoint includes:
+A route is built from three interconnected elements: waypoints, legs, and actions:
 
-* Its location
-* The time the agent arrives
-* All actions performed at that location (e.g., deliver a package, take a break)
+* Waypoints represent fixed locations where the agent stops
+* Legs represent movement between two waypoints
+* Actions represent work performed either at a waypoint or during travel
 
-Actions are the smallest unit of work. They can represent:
+```
+[Waypoint A | 09:00]
+  actions: start
+      │
+      ├─ Leg 1 (5 km, 10 min)
+      │     actions: break (5 min)
+      ▼
+[Waypoint B | 09:30]
+  actions: pickup, job
+      │
+      ├─ Leg 2 (8 km, 15 min)
+      │     actions: delay (traffic)
+      ▼
+[Waypoint C | 10:15]
+  actions: delivery
+      │
+      ├─ Leg 3 (3 km, 7 min)
+      ▼
+[Waypoint D | 10:30]
+  actions: end
+```
 
-* **Start** of the route
-* **Pickup** of a shipment
-* **Job** execution
-* **Delivery** of a shipment
-* **End** of the route
+### Waypoints (stops on map)
 
-By combining actions with locations and times, you can reconstruct an agent’s full day.
+Waypoints represent physical route stops:
 
----
+* Location (coordinates)
+* Planned start time at that stop
+* Total stop duration
+* Actions executed at that location
 
-## Travel Segments (Legs)
+Use waypoints for:
+
+* map markers
+* stop lists
+* ETA/stop cards
+
+#### Waypoint list Example
+
+| Waypoint | Start Time | Duration | Actions at Waypoint | UX Meaning |
+|---|---|---|---|---|
+| `0` | `08:00` | `0m` | `start` | Depot/start marker |
+| `1` | `08:12` | `10m` | `pickup`, `job` | Customer stop with multiple tasks |
+| `2` | `08:34` | `4m` | `delivery` | Next customer stop |
+
+### Actions (events on timeline)
+
+Actions represent events in time:
+
+* `start`, `job`, `pickup`, `delivery`, `end`
+* plus `break` and `delay` events
+
+Actions can be:
+
+* attached to a waypoint via `waypoint_index`
+* between waypoints (for example, timeline-level `break` / `delay` events)
+
+Use actions for:
+
+* timeline view
+* workload/order of tasks
+* detailed operational logs
+
+#### Action List Example
+
+| Action | Time | Duration | Waypoint Link | UX Meaning |
+|---|---|---|---|---|
+| `start` | `08:00` | `0m` | `waypoint_index=0` | Route begins |
+| `pickup` | `08:12` | `3m` | `waypoint_index=1` | Pickup at stop 1 |
+| `job` | `08:18` | `7m` | `waypoint_index=1` | Service at same stop |
+| `delay` | `08:25` | `5m` | `-` | Between-stop delay (traffic/loading) |
+| `delivery` | `08:34` | `4m` | `waypoint_index=2` | Delivery at stop 2 |
+
+
+### Travel Segments (Legs)
 
 Between every pair of waypoints is a **travel leg**. Legs describe:
 
@@ -113,5 +210,6 @@ This enables:
 To work with this output, use the SDK’s:
 
 * [`RoutePlannerResult`](./api/route-planner-result.md) — to access the plan
+* [`Understanding Editing Functionality`](./editing-functionality.md) — when and how to apply route edits
 * [`RoutePlannerResultEditor`](./api/route-planner-result-editor.md) — to modify or rebalance the plan
 * [`RoutePlannerTimeline`](./api/route-planner-timeline.md) — to generate structured timelines for UI components

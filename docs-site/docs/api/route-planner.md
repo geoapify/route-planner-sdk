@@ -2,11 +2,56 @@
 
 This page documents the `RoutePlanner` class from the `@geoapify/route-planner-sdk` library — including setup, configuration, and all available methods.
 Use it to **build and execute route optimization requests** to the Geoapify Route Planner API, combining agents, jobs, shipments, and constraints into an optimal plan.
+`RoutePlanner` is also a convenient builder for creating valid Route Planner API input (`RoutePlannerInputData`) before sending it.
+
+## Creating RoutePlanner Input
+
+You can create a planner in two ways:
+
+1. Build input incrementally with SDK methods (`setMode`, `addAgent`, `addJob`, `addShipment`, and so on).
+2. Initialize directly from an existing Route Planner API input JSON object (`RoutePlannerInputData`).
+
+This is useful when your app:
+
+- builds requests in UI forms (method-based approach), or
+- already stores/receives API request payloads as JSON (raw-object approach).
+
+### Method-based creation
+
+```typescript
+import { RoutePlanner, Agent, Job } from '@geoapify/route-planner-sdk';
+
+const planner = new RoutePlanner({ apiKey: 'YOUR_API_KEY' });
+
+planner
+  .setMode('drive')
+  .addAgent(new Agent().setId('agent-1').setStartLocation(13.38, 52.52))
+  .addJob(new Job().setId('job-1').setLocation(13.39, 52.51));
+```
+
+### JSON-based creation (Route Planner API input object)
+
+```typescript
+import { RoutePlanner } from '@geoapify/route-planner-sdk';
+
+const input = {
+  mode: 'drive',
+  agents: [{ id: 'agent-1', start_location: [13.38, 52.52] }],
+  jobs: [{ id: 'job-1', location: [13.39, 52.51], duration: 300 }],
+  shipments: [],
+  locations: [],
+  avoid: []
+};
+
+const planner = new RoutePlanner({ apiKey: 'YOUR_API_KEY' }, input);
+```
+
+You can also replace data later with [`setRaw()`](#setraw).
 
 ## Constructor
 
 ```typescript
-constructor(options: RoutePlannerOptions, raw?: RoutePlannerInputData)
+constructor(options: RoutePlannerCallOptions, raw?: RoutePlannerInputData)
 ```
 
 Creates a new **RoutePlanner** instance and optionally initializes it with raw input data.
@@ -15,10 +60,8 @@ Here are the parameters you can pass to the constructor:
 
 | Name | Type | Description |
 |------|------|-------------|
-| `options` | [`RoutePlannerOptions`](#routeplanneroptions) | Configuration object containing API key and optional base URL |
-| `raw` | [`RoutePlannerInputData`](#routeplannerinputdata) *(optional)* | Pre-built input data to use instead of building incrementally |
-
-If no base URL is provided in options, defaults to Geoapify's public API (`https://api.geoapify.com`).
+| `options` | [`RoutePlannerCallOptions`](#routeplannercalloptions-interface) | Configuration object containing API key |
+| `raw` | [`RoutePlannerInputData`](#routeplannerinputdata-interface) *(optional)* | Pre-built input data to use instead of building incrementally |
 
 Here's a basic example of how to initialize and use the planner:
 
@@ -33,6 +76,7 @@ const result = await planner
   .addJob(new Job().setId('job-1').setLocation(13.39, 52.51))
   .plan();
 ```
+
 
 ## Methods
 
@@ -292,43 +336,8 @@ Executes the route optimization request and returns the result. This method send
 const result = await planner.plan();
 
 // Access results
-const agents = result.getAgentSolutions();
+const agents = result.getAgentPlans();
 const unassignedJobs = result.getUnassignedJobs();
-```
-
-## Options Interfaces
-
-### RoutePlannerOptions
-
-Configuration options for the RoutePlanner.
-
-```typescript
-interface RoutePlannerOptions {
-  /** Your Geoapify API key (required) */
-  apiKey: string;
-  
-  /** Base URL for the API (default: https://api.geoapify.com) */
-  baseUrl?: string;
-}
-```
-
-### RoutePlannerInputData
-
-The raw input data structure for route planning. This matches the [Geoapify Route Planner API](https://www.geoapify.com/route-planner-api/) request format.
-
-```typescript
-interface RoutePlannerInputData {
-  mode?: TravelMode;
-  agents?: AgentData[];
-  jobs?: JobData[];
-  shipments?: ShipmentData[];
-  locations?: LocationData[];
-  avoid?: AvoidData[];
-  traffic?: TrafficType;
-  type?: RouteType;
-  max_speed?: number;
-  units?: DistanceUnitType;
-}
 ```
 
 ## Error Handling
@@ -384,10 +393,77 @@ planner
 const result = await planner.plan();
 
 // Process results
-result.getAgentSolutions().forEach(agent => {
+result.getAgentPlans().forEach(agent => {
+  if (!agent) return;
   console.log(`Agent ${agent.getAgentId()}: ${agent.getDistance()}m, ${agent.getTime()}s`);
 });
 ```
+
+## RoutePlannerCallOptions Interface
+
+```typescript
+interface RoutePlannerCallOptions {
+  apiKey: string;
+  baseUrl?: string;
+  httpOptions?: Record<string, any>;
+}
+```
+
+## RoutePlannerInputData Interface
+
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```typescript
+interface RoutePlannerInputData {
+  mode?: TravelMode;
+  type?: RouteType;
+  avoid?: AvoidData[];
+  traffic?: TrafficType;
+  max_speed?: number;
+  units?: DistanceUnitType;
+  agents: AgentData[];
+  jobs: JobData[];
+  shipments: ShipmentData[];
+  locations: LocationData[];
+}
+```
+
+Referenced interfaces:
+
+- [`AgentData`](./agent.md#agentdata-interface)
+- [`JobData`](./job.md#jobdata-interface)
+- [`ShipmentData`](./shipment.md#shipmentdata-interface)
+- [`LocationData`](./location.md#locationdata-interface)
+- [`AvoidData`](./avoid.md#avoiddata-interface)
+
+### Travel and Route Types
+
+These types are used by `RoutePlannerInputData` and reused in result params.
+
+```typescript
+type TravelMode =
+  | 'drive'
+  | 'light_truck'
+  | 'medium_truck'
+  | 'truck'
+  | 'heavy_truck'
+  | 'truck_dangerous_goods'
+  | 'long_truck'
+  | 'bus'
+  | 'scooter'
+  | 'motorcycle'
+  | 'bicycle'
+  | 'mountain_bike'
+  | 'road_bike'
+  | 'walk'
+  | 'hike'
+  | 'transit'
+  | 'approximated_transit';
+type RouteType = 'balanced' | 'short' | 'less_maneuvers';
+type TrafficType = 'free_flow' | 'approximated';
+type DistanceUnitType = 'metric' | 'imperial';
+```
+
 
 ## Learn More
 

@@ -39,8 +39,7 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         expect(afterAdd.getJobPlan(highPriorityJob1Id)?.getAgentIndex()).toBe(targetAgentIndex);
         expect(afterAdd.getJobPlan(highPriorityJob2Id)?.getAgentIndex()).toBe(targetAgentIndex);
 
-        const success = await editor.reoptimizeAgentPlan({
-            agentIdOrIndex: targetAgentIndex,
+        const success = await editor.reoptimizeAgentPlan(targetAgentIndex, {
             includeUnassigned: false,
             allowViolations: false
         });
@@ -59,6 +58,13 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         const result = await buildShipmentsResult(
             "_data/live-scenarios/simple-delivery-berlin__init-shipments_jobs-0_shipments-82_items-req-no_items-tw-no_agents-3_agent-caps-no_agent-tw-yes_agent-breaks-no_agent-end-no_agent-capacity-no-input.json"
         );
+
+        const targetRaw = result.getRaw();
+        const unassignedShipmentIndex = targetRaw.properties.issues?.unassigned_shipments?.[0];
+        expect(typeof unassignedShipmentIndex).toBe("number");
+        // Boost one currently unassigned shipment to make it preferable during reoptimize.
+        targetRaw.properties.params.shipments[unassignedShipmentIndex as number].priority = 99;
+
         const editor = new RoutePlannerResultEditor(result);
 
         const targetAgentPlan = result.getAgentPlans().find((agentPlan) => !!agentPlan);
@@ -68,15 +74,7 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         const unassignedShipmentsBefore = result.getUnassignedShipments();
         expect(unassignedShipmentsBefore.length).toBeGreaterThan(0);
 
-        const targetRaw = editor.getModifiedResult().getRaw();
-        const unassignedShipmentIndex = targetRaw.properties.issues?.unassigned_shipments?.[0];
-        expect(typeof unassignedShipmentIndex).toBe("number");
-
-        // Boost one currently unassigned shipment to make it preferable during reoptimize.
-        targetRaw.properties.params.shipments[unassignedShipmentIndex as number].priority = 99;
-
-        const success = await editor.reoptimizeAgentPlan({
-            agentIdOrIndex: targetAgentIndex,
+        const success = await editor.reoptimizeAgentPlan(targetAgentIndex, {
             includeUnassigned: true,
             allowViolations: false
         });
@@ -149,8 +147,7 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         expect(planAfterAdd).toBeDefined();
         const oldPlanTime = planAfterAdd!.getTime();
 
-        const success = await editor.reoptimizeAgentPlan({
-            agentIdOrIndex: targetAgentIndex,
+        const success = await editor.reoptimizeAgentPlan(targetAgentIndex, {
             includeUnassigned: false,
             allowViolations: true
         });
@@ -185,8 +182,7 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         const beforeUnassignedJobs = [...(beforeRaw.properties.issues?.unassigned_jobs || [])];
         const beforeUnassignedShipments = [...(beforeRaw.properties.issues?.unassigned_shipments || [])];
 
-        const success = await editor.reoptimizeAgentPlan({
-            agentIdOrIndex: targetAgentIndex,
+        const success = await editor.reoptimizeAgentPlan(targetAgentIndex, {
             includeUnassigned: false,
             allowViolations: false
         });
@@ -251,8 +247,7 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         expect(beforeReoptimize!.getViolations().length).toBeGreaterThan(0);
         expect(beforeReoptimize!.getViolations().some((v) => v.name === "AgentPickupCapacityExceeded")).toBe(true);
 
-        const success = await editor.reoptimizeAgentPlan({
-            agentIdOrIndex: targetAgentIndex,
+        const success = await editor.reoptimizeAgentPlan(targetAgentIndex, {
             includeUnassigned: false,
             allowViolations: true
         });
@@ -309,8 +304,7 @@ describe("RoutePlannerResultEditor.reoptimizeAgentPlan (live)", () => {
         expect(beforeReoptimize!.getViolations().length).toBeGreaterThan(0);
         expect(beforeReoptimize!.getViolations().some((v) => v.name === "AgentPickupCapacityExceeded")).toBe(true);
 
-        const success = await editor.reoptimizeAgentPlan({
-            agentIdOrIndex: targetAgentIndex,
+        const success = await editor.reoptimizeAgentPlan(targetAgentIndex, {
             includeUnassigned: false,
             allowViolations: false
         });

@@ -71,11 +71,29 @@ const buildViolationsElement = (agentPlan: AgentPlan): HTMLElement | null => {
   
   const violationsList = document.createElement("div");
   violationsList.className = "violations-list";
+
+  const formatViolation = (violation: any): string => {
+    if (violation == null) {
+      return "Unknown violation";
+    }
+
+    if (typeof violation === "string") {
+      return violation;
+    }
+
+    const name = typeof violation.name === "string" && violation.name ? violation.name : "Violation";
+    const message =
+      typeof violation.message === "string" && violation.message.trim().length > 0
+        ? violation.message
+        : "";
+
+    return message ? `${name}: ${message}` : name;
+  };
   
   violations.forEach((violation) => {
     const violationItem = document.createElement("div");
     violationItem.className = "violation-item";
-    violationItem.textContent = violation.toString();
+    violationItem.textContent = formatViolation(violation);
     violationsList.appendChild(violationItem);
   });
   

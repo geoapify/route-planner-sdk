@@ -1,156 +1,343 @@
 # `RoutePlannerResult`
 
-The `RoutePlannerResult` class is the main entry point for working with the output of the Geoapify Route Planner API. It allows you to access planned agent routes, job and shipment assignments, and unassigned tasks.
+`RoutePlannerResult` represents a Route Optimization result returned by the Geoapify Route Planner API.
 
-You can also extract structured timelines, detailed routing actions, and generate enriched visualizations or dashboards using its convenience methods.
+It provides:
 
----
+- raw response access
+- normalized result data
+- agent/job/shipment plans
+- unassigned agents, jobs, and shipments
 
-## Purpose
+## Getting RoutePlannerResult with RoutePlanner
 
-Use `RoutePlannerResult` to:
+The main way to get a `RoutePlannerResult` is from `routePlanner.plan()`.  
+It can also be created directly with the constructor when you already have API response data.
 
-- Parse the raw result from the Geoapify Route Planner API
-- Access planned agent routes and actions
-- Retrieve assignment info for jobs and shipments
-- Handle unassigned tasks
-- Fetch additional routing details for visualization
+```ts
+import { RoutePlanner, Agent, Job } from '@geoapify/route-planner-sdk';
 
----
+const planner = new RoutePlanner({ apiKey: 'YOUR_API_KEY' });
+
+planner
+  .setMode('drive')
+  .addAgent(new Agent().setId('agent-1').setStartLocation(13.38, 52.52))
+  .addJob(new Job().setId('job-1').setLocation(13.39, 52.51).setDuration(300));
+
+const result = await planner.plan(); // RoutePlannerResult
+const agentPlan = result.getAgentPlan('agent-1');
+const firstAgentWaypoints = agentPlan?.getWaypoints() ?? [];
+```
 
 ## Constructor
 
 ```ts
-new RoutePlannerResult(options: RoutePlannerOptions, rawData: RoutePlannerResultResponseData)
+new RoutePlannerResult(
+  callOptions: RoutePlannerCallOptions,
+  rawData: RoutePlannerResultResponseData
+)
 ```
 
-Initializes the result handler with routing options and the raw API response.
+In most cases, you do not construct it manually; it is returned by `RoutePlanner.plan()`.
 
----
+Manual construction is useful when:
 
-## Core Methods
+- you already have a saved API response JSON and want to read/analyze it with SDK helpers
+- you pass planner results between services and reconstruct objects later
+- you write tests with fixture JSON instead of live API calls
 
-| Method         | Description                                                 |
-| -------------- | ----------------------------------------------------------- |
-| `getData()`    | Returns structured planner result (processed via converter) |
-| `getRawData()` | Returns the raw JSON from the API response                  |
-| `getOptions()` | Returns the `RoutePlannerOptions` used to make the request  |
+Example:
 
----
+```ts
+const result = new RoutePlannerResult(
+  { apiKey: 'YOUR_API_KEY' },
+  rawApiResponse
+);
+```
 
-## Agent Routes
 
-| Method                                    | Description                                                                      |
-| ----------------------------------------- | -------------------------------------------------------------------------------- |
-| `getAgentSolutions()`                     | Returns a list of [`AgentSolution`](./agent-solution.md) for all assigned agents |
-| `getAgentSolutionsByIndex()`              | Returns agent solutions in array indexed by input agent list                     |
-| `getAgentSolution(agentIdOrIndex)`        | Retrieves a specific agent's solution                                            |
-| `getAgentWaypoints(agentIdOrIndex)`       | Returns that agent's [`Waypoint`](./waypoint.md)s                                |
-| `getAgentRouteActions(agentIdOrIndex)`    | Returns that agent's [`RouteAction`](./route-action.md)s                         |
-| `getAgentRouteLegs(agentIdOrIndex)`       | Returns that agent's [`RouteLeg`](./route-leg.md)s                               |
+## Methods
 
----
+| Method | Signature | Purpose |
+|---|---|---|
+| [`getData`](#getdata) | `getData(): RoutePlannerResultData` | Get normalized result data |
+| [`getRaw`](#getraw) | `getRaw(): RoutePlannerResultResponseData` | Get raw API response |
+| [`getCallOptions`](#getcalloptions) | `getCallOptions(): RoutePlannerCallOptions` | Get call options used by result |
+| [`getRoutingOptions`](#getroutingoptions) | `getRoutingOptions(): RoutingOptions` | Get routing options from input |
+| [`getAgentPlans`](#getagentplans) | `getAgentPlans(): (AgentPlan \| undefined)[]` | Get all agent plans |
+| [`getAgentPlan`](#getagentplan) | `getAgentPlan(agentIdOrIndex): AgentPlan \| undefined` | Get one agent plan |
+| [`getJobPlans`](#getjobplans) | `getJobPlans(): JobPlan[]` | Get all job plans |
+| [`getJobPlan`](#getjobplan) | `getJobPlan(jobIdOrIndex): JobPlan \| undefined` | Get one job plan |
+| [`getShipmentPlans`](#getshipmentplans) | `getShipmentPlans(): ShipmentPlan[]` | Get all shipment plans |
+| [`getShipmentPlan`](#getshipmentplan) | `getShipmentPlan(shipmentIdOrIndex): ShipmentPlan \| undefined` | Get one shipment plan |
+| [`getUnassignedAgents`](#getunassignedagents) | `getUnassignedAgents(): AgentData[]` | Get unassigned agents |
+| [`getUnassignedJobs`](#getunassignedjobs) | `getUnassignedJobs(): JobData[]` | Get unassigned jobs |
+| [`getUnassignedShipments`](#getunassignedshipments) | `getUnassignedShipments(): ShipmentData[]` | Get unassigned shipments |
 
-## Assignments
+### getData()
 
-| Method                                      | Description                                                                 |
-| ------------------------------------------- | --------------------------------------------------------------------------- |
-| `getJobSolutions()`                         | Returns a list of [`JobSolution`](./job-solution.md)s for all assigned jobs |
-| `getJobSolution(jobIdOrIndex)`              | Finds a job solution by its ID or index                                    |
-| `getAgentJobs(agentIdOrIndex)`              | Returns indexes of jobs assigned to an agent                                |
-| `getShipmentSolutions()`                    | Returns a list of [`ShipmentSolution`](./shipment-solution.md)s             |
-| `getShipmentSolution(shipmentIdOrIndex)`    | Finds a shipment solution by ID or index                                   |
-| `getAgentShipments(agentIdOrIndex)`         | Returns shipment indexes assigned to the agent                              |
+Signature: `getData(): RoutePlannerResultData`
 
----
+Returns normalized result data generated by the SDK converter.
 
-## Unassigned Tasks
+```ts
+const normalized = result.getData();
+console.log(normalized.agents.length);
+```
 
-| Method                     | Description                                         |
-| -------------------------- | --------------------------------------------------- |
-| `getUnassignedAgents()`    | Returns a list of unassigned `AgentData` entries    |
-| `getUnassignedJobs()`      | Returns a list of unassigned `JobData` entries      |
-| `getUnassignedShipments()` | Returns a list of unassigned `ShipmentData` entries |
+### getRaw()
 
----
+Signature: `getRaw(): RoutePlannerResultResponseData`
 
-## Constraint Violations
+Returns the raw Route Planner API response object.
 
-| Method              | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `getViolations()`   | Returns constraint violation messages (string[])   |
+```ts
+const raw = result.getRaw();
+console.log(raw.type); // e.g. "FeatureCollection"
+```
 
-Constraint violations are added when using [`RoutePlannerResultEditor`](./route-planner-result-editor.md) with `allowViolations: true` (default).
+### getCallOptions()
 
-**Example:**
+Signature: `getCallOptions(): RoutePlannerCallOptions`
 
-```typescript
-const editor = new RoutePlannerResultEditor(result);
+Returns [`RoutePlannerCallOptions`](./route-planner.md#routeplannercalloptions-interface) that were used to build this result.
 
-// Add job that might violate constraints
-const heavyJob = new Job()
-  .setId('heavy-delivery')
-  .setDeliveryAmount(1000);  // Might exceed capacity
+```ts
+const callOptions = result.getCallOptions();
+console.log(callOptions.apiKey);
+```
 
-await editor.addNewJobs('agent-A', [heavyJob]); // Default: allowViolations = true
+### getRoutingOptions()
 
-// Check for violations
-const violations = editor.getModifiedResult().getViolations();
-if (violations.length > 0) {
-  console.log('Constraint violations:');
-  violations.forEach(v => console.log(`- ${v}`));
+Signature: `getRoutingOptions(): RoutingOptions`
+
+Returns [`RoutingOptions`](./agent-plan.md#routingoptions-interface) from the original planner input.
+
+```ts
+const routingOptions = result.getRoutingOptions();
+console.log(routingOptions.mode);
+```
+
+### getAgentPlans()
+
+Signature: `getAgentPlans(): (AgentPlan | undefined)[]`
+
+Returns all [`AgentPlan`](./agent-plan.md) objects.  
+The array maps 1:1 to agents from the original request (`inputData.agents`) by index.  
+Unassigned agents appear as `undefined` in their corresponding positions.
+
+```ts
+const agentPlans = result.getAgentPlans();
+const assignedCount = agentPlans.filter(Boolean).length;
+```
+
+### getAgentPlan()
+
+Signature: `getAgentPlan(agentIdOrIndex: string | number): AgentPlan | undefined`
+
+Returns one [`AgentPlan`](./agent-plan.md) by agent ID or index.
+
+```ts
+const agentPlan = result.getAgentPlan("agent-1");
+const waypoints = agentPlan?.getWaypoints() ?? [];
+```
+
+### getJobPlans()
+
+Signature: `getJobPlans(): JobPlan[]`
+
+Returns all [`JobPlan`](./job-plan.md) objects, mapped 1:1 to input jobs by index.  
+Unlike `getAgentPlans()`, this array does not contain `undefined` entries.
+For an unassigned job, the `JobPlan` exists but has no agent link (`getAgentPlan()` / `getAgentId()` / `getAgentIndex()` return `undefined`).
+
+```ts
+const jobPlans = result.getJobPlans();
+console.log(jobPlans.length);
+
+const someJobPlan = jobPlans[0];
+console.log(someJobPlan.getAgentPlan()); // undefined if unassigned
+```
+
+### getJobPlan()
+
+Signature: `getJobPlan(jobIdOrIndex: string | number): JobPlan | undefined`
+
+Returns one [`JobPlan`](./job-plan.md) by job ID or index.  
+Returns `undefined` only when the requested job ID/index is not found in input.
+
+```ts
+const jobPlan = result.getJobPlan("job-42");
+console.log(jobPlan?.getAgentPlan());
+```
+
+### getShipmentPlans()
+
+Signature: `getShipmentPlans(): ShipmentPlan[]`
+
+Returns all [`ShipmentPlan`](./shipment-plan.md) objects, mapped 1:1 to input shipments by index.  
+For an unassigned shipment, the `ShipmentPlan` still exists but has no agent link.
+
+```ts
+const shipmentPlans = result.getShipmentPlans();
+console.log(shipmentPlans.length);
+
+const someShipmentPlan = shipmentPlans[0];
+console.log(someShipmentPlan.getAgentPlan()); // undefined if unassigned
+```
+
+### getShipmentPlan()
+
+Signature: `getShipmentPlan(shipmentIdOrIndex: string | number): ShipmentPlan | undefined`
+
+Returns one [`ShipmentPlan`](./shipment-plan.md) by shipment ID or index.  
+Returns `undefined` only when the requested shipment ID/index is not found in input.
+
+```ts
+const shipmentPlan = result.getShipmentPlan("order-1001");
+console.log(shipmentPlan?.getAgentPlan()); // undefined if unassigned
+```
+
+### getUnassignedAgents()
+
+Signature: `getUnassignedAgents(): AgentData[]`
+
+Returns input agent objects that are unassigned in the result.
+
+```ts
+const unassignedAgents = result.getUnassignedAgents();
+console.log(unassignedAgents.length);
+```
+
+### getUnassignedJobs()
+
+Signature: `getUnassignedJobs(): JobData[]`
+
+Returns input jobs that were not assigned to any agent.
+
+```ts
+const unassignedJobs = result.getUnassignedJobs();
+console.log(unassignedJobs.map((job) => job.id));
+```
+
+### getUnassignedShipments()
+
+Signature: `getUnassignedShipments(): ShipmentData[]`
+
+Returns input shipments that were not assigned to any agent.
+
+```ts
+const unassignedShipments = result.getUnassignedShipments();
+console.log(unassignedShipments.map((shipment) => shipment.id));
+```
+
+## RoutePlannerResultResponseData Interface
+
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface RoutePlannerResultResponseData {
+  type: string;
+  properties: {
+    mode: string;
+    params: {
+      mode?: TravelMode;
+      agents: AgentData[];
+      jobs: JobData[];
+      shipments: ShipmentData[];
+      locations: LocationData[];
+      avoid?: AvoidData[];
+      traffic?: TrafficType;
+      type?: RouteType;
+      max_speed?: number;
+      units?: DistanceUnitType;
+    };
+    issues?: RoutePlannerIssues;
+  };
+  features: FeatureResponseData[];
+}
+
+interface FeatureResponseData {
+  geometry: GeometryResponseData;
+  type: string;
+  properties: AgentPlanData;
+}
+
+interface AgentPlanData {
+  agent_index: number;
+  agent_id: string;
+  time: number;
+  start_time: number;
+  end_time: number;
+  distance: number;
+  mode: string;
+  legs: RouteLegData[];
+  actions: RouteActionData[];
+  waypoints: WaypointData[];
+}
+
+interface RouteLegData {
+  distance: number;
+  time: number;
+  steps: RouteLegStepData[];
+  from_waypoint_index: number;
+  to_waypoint_index: number;
+}
+
+interface RouteLegStepData {
+  distance: number;
+  time: number;
+  from_index: number;
+  to_index: number;
+}
+
+interface RouteActionData {
+  type: string;
+  start_time: number;
+  duration: number;
+  index: number;
+  shipment_index?: number;
+  shipment_id?: string;
+  location_index?: number;
+  location_id?: string;
+  job_index?: number;
+  job_id?: string;
+  waypoint_index?: number;
+}
+
+interface WaypointData {
+  original_location: [number, number];
+  original_location_index?: number;
+  original_location_id?: string;
+  location?: [number, number];
+  start_time: number;
+  duration: number;
+  actions: RouteActionData[];
+  prev_leg_index?: number;
+  next_leg_index?: number;
+}
+
+interface RoutePlannerIssues {
+  unassigned_agents?: number[];
+  unassigned_jobs?: number[];
+  unassigned_shipments?: number[];
 }
 ```
 
-See [Constraint Validation](./route-planner-result-editor.md#constraint-validation) for details.
+Travel and route type values are documented in
+[`RoutePlanner`](./route-planner.md#travel-and-route-types).
 
----
+Referenced interfaces:
 
-## Job & Shipment Info
+- [`AgentData`](./agent.md#agentdata-interface)
+- [`JobData`](./job.md#jobdata-interface)
+- [`ShipmentData`](./shipment.md#shipmentdata-interface)
+- [`LocationData`](./location.md#locationdata-interface)
+- [`AvoidData`](./avoid.md#avoiddata-interface)
+- `FeatureResponseData`
+- `AgentPlanData`
 
-[//]: # TODO: Update documentation, it should be getJobPlan, same for getShipmentPlan
-| Method                              | Description                                                                              |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| `getJobInfo(jobIdOrIndex)`          | Returns [`RouteActionInfo`](./route-action-info.md) for a job (agent, actions, timeline) |
-| `getShipmentInfo(shipmentIdOrIndex)`| Returns [`RouteActionInfo`](./route-action-info.md) for a shipment                       |
+## Learn More
 
----
-
-## External Routing Fetch
-
-| Method                                     | Description                                                                 |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| `getAgentRoute(agentIdOrIndex, options)`   | Fetches enriched routing details using agent waypoints and `RoutingOptions` |
-
-
-
-> This triggers an HTTP request and returns additional polyline/route info from Geoapify Routing API.
-
----
-
-## Example
-
-```ts
-const result = new RoutePlannerResult(options, rawResponse);
-
-// Use ID
-const agent = result.getAgentSolution("agent-1");
-const waypoints = result.getAgentWaypoints("agent-1");
-
-// Or use index
-const agentByIndex = result.getAgentSolution(0);
-const waypointsByIndex = result.getAgentWaypoints(0);
-
-const unassignedJobs = result.getUnassignedJobs();
-```
-
----
-
-## Related
-
-* [`AgentSolution`](./agent-solution.md)
-* [`JobSolution`](./job-solution.md)
-* [`ShipmentSolution`](./shipment-solution.md)
-* [`RouteAction`](./route-action.md)
-* [`Waypoint`](./waypoint.md)
-* [`RoutingOptions`](./types.md#routingoptions)
+- [`RoutePlanner`](./route-planner.md)
+- [`AgentPlan`](./agent-plan.md)
+- [`RoutePlannerResultEditor`](./route-planner-result-editor.md)

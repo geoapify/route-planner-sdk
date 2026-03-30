@@ -4,7 +4,7 @@ import { AddAssignOptions, AgentDeliveryCapacityExceeded} from "../../../../../m
 import {InsertPositionResolver} from "../utils/insert-position-resolver";
 import {RouteEditorHelper} from "../utils/route-editor-helper";
 import {InsertionCostCalculator, InsertionTravelTimes} from "../utils/insertion-cost-calculator";
-import {WaypointResponseData} from "../../../../../models";
+import {WaypointData} from "../../../../../models";
 
 const LOCATION_EPSILON = 1e-6;
 
@@ -267,7 +267,7 @@ export class PreserveOrderShipmentHelper extends PreserveOrderBaseHelper {
     }
 
     private static findExistingWaypointByOriginalLocation(
-        waypoints: WaypointResponseData[],
+        waypoints: WaypointData[],
         targetLocation: [number, number],
         minWaypointIndex: number
     ): number {

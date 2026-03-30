@@ -21,5 +21,6 @@ npm run build
 npm run preview
 
 Notes:
+
 - The demo imports SDK sources directly from `src/` via the Vite alias `@sdk`.
 - The page loads MapLibre + Geoapify tiles from CDNs, so network access is required.

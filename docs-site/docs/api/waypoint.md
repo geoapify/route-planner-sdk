@@ -1,88 +1,143 @@
 # `Waypoint`
 
-A `Waypoint` represents a physical location in an agent’s route where one or more actions (e.g., pickup, delivery, start, end) occur. It includes information about its coordinates, when the agent will arrive, how long they will stay, and the actions performed.
-
-Waypoints are central to building **timelines**, **visual routes**, and **event logs** for each agent.
-
----
-
-## Purpose
-
-Use `Waypoint` to:
-
-- Determine when and where an agent stops
-- See which jobs or shipments are performed at each stop
-- Build route visualization or Gantt timelines
-- Link travel segments before/after the stop
-
----
+`Waypoint` represents one route stop where one or more actions are executed.
 
 ## Constructor
 
+Signature: `new Waypoint(raw: WaypointData)`
+
+Creates a waypoint wrapper around raw waypoint payload.
+
 ```ts
-new Waypoint(raw: WaypointData)
+const waypoint = new Waypoint(rawWaypoint);
 ```
-
-Creates a `Waypoint` from raw result data. Throws an error if data is missing.
-
----
 
 ## Methods
 
-### Location & Identification
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): WaypointData` | Return raw waypoint payload |
+| `getOriginalLocation` | `getOriginalLocation(): [number, number]` | Get original input coordinates |
+| `getOriginalLocationIndex` | `getOriginalLocationIndex(): number \| undefined` | Get original location index |
+| `getOriginalLocationId` | `getOriginalLocationId(): string \| undefined` | Get original location id |
+| `getLocation` | `getLocation(): [number, number]` | Get effective route location |
+| `getStartTime` | `getStartTime(): number` | Get waypoint start time |
+| `getDuration` | `getDuration(): number` | Get total waypoint duration |
+| `getActions` | `getActions(): RouteAction[]` | Get actions at this waypoint |
+| `getPrevLegIndex` | `getPrevLegIndex(): number \| undefined` | Get previous leg index |
+| `getNextLegIndex` | `getNextLegIndex(): number \| undefined` | Get next leg index |
 
-| Method                       | Description                                     |
-| ---------------------------- | ----------------------------------------------- |
-| `getOriginalLocation()`      | Coordinates of the declared location (input)    |
-| `getOriginalLocationIndex()` | Index in the `locations[]` array (if used)      |
-| `getOriginalLocationId()`    | ID of the input location (if set)               |
-| `getLocation()`              | Final matched location after route optimization |
+### getRaw()
 
-### Timing
+Returns raw `WaypointData`.
 
-| Method           | Description                                   |
-| ---------------- | --------------------------------------------- |
-| `getStartTime()` | Time when the agent arrives at the waypoint   |
-| `getDuration()`  | Total duration spent at the stop (in seconds) |
+```ts
+const raw = waypoint.getRaw();
+```
 
-### Actions
+### getOriginalLocation()
 
-| Method         | Description                                                                             |
-| -------------- | --------------------------------------------------------------------------------------- |
-| `getActions()` | Returns a list of [`RouteAction`](./route-action.md) objects performed at this location |
+Returns original input location coordinates.
 
-### Route Position
+```ts
+const original = waypoint.getOriginalLocation();
+```
 
-| Method              | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `getPrevLegIndex()` | Index of the route leg leading into this waypoint   |
-| `getNextLegIndex()` | Index of the route leg going out from this waypoint |
+### getOriginalLocationIndex()
 
----
+Returns original input location index if present.
+
+```ts
+const idx = waypoint.getOriginalLocationIndex();
+```
+
+### getOriginalLocationId()
+
+Returns original input location ID if present.
+
+```ts
+const id = waypoint.getOriginalLocationId();
+```
+
+### getLocation()
+
+Returns effective (possibly snapped/adjusted) route location.
+
+```ts
+const location = waypoint.getLocation();
+```
+
+### getStartTime()
+
+Returns waypoint start time.
+
+```ts
+const start = waypoint.getStartTime();
+```
+
+### getDuration()
+
+Returns total waypoint duration.
+
+```ts
+const duration = waypoint.getDuration();
+```
+
+### getActions()
+
+Returns actions attached to this waypoint.
+
+```ts
+const actions = waypoint.getActions();
+```
+
+### getPrevLegIndex()
+
+Returns previous leg index.
+
+```ts
+const prev = waypoint.getPrevLegIndex();
+```
+
+### getNextLegIndex()
+
+Returns next leg index.
+
+```ts
+const next = waypoint.getNextLegIndex();
+```
 
 ## Example
 
 ```ts
 const waypoint = new Waypoint(data);
 
-console.log("Arrives at:", waypoint.getStartTime());
-console.log("Does:", waypoint.getActions().map(a => a.getType()).join(", "));
+console.log(waypoint.getStartTime());
+console.log(waypoint.getActions().map((a) => a.getType()));
 ```
 
----
+## WaypointData Interface
 
-## Use Cases
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
 
-* Timeline visualizations for dispatchers
-* Gantt-style charts for mobile agents
-* Stop-by-stop maps and reports
-* Popup details in interactive maps
+```ts
+interface WaypointData {
+  original_location: [number, number];
+  original_location_index?: number;
+  original_location_id?: string;
+  location?: [number, number];
+  start_time: number;
+  duration: number;
+  actions: RouteActionData[];
+  prev_leg_index?: number;
+  next_leg_index?: number;
+}
+```
 
----
+Referenced nested interface: [`RouteActionData`](./route-action.md#routeactiondata-interface).
 
 ## Related
 
-* [`RouteAction`](./route-action.md) – actions executed at this location
-* [`AgentSolution`](./agent-solution.md) – contains a list of waypoints
-* [`RouteLeg`](./route-leg.md) – links between waypoints
-
+- [`RouteAction`](./route-action.md)
+- [`AgentPlan`](./agent-plan.md)
+- [`RouteLeg`](./route-leg.md)

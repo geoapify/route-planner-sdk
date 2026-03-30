@@ -12,16 +12,14 @@ export * from "./result/route-planner-result-response-data";
 export * from "./result/route-planner-result-response-data-extended";
 export * from "./result/route-planner-result-data";
 
-export * from "./nested/result/agent-plan-data";
-export * from "./nested/result/route-leg-step-data";
-
 export * from "./nested/response/action-response-data";
 export * from "./nested/response/feature-response-data";
 export * from "./nested/response/geometry-response-data";
-export * from "./nested/response/leg-response-data";
-export * from "./nested/response/leg-step-response-data";
+export * from "./nested/response/route-action-data";
+export * from "./nested/response/route-leg-data";
+export * from "./nested/response/route-leg-step-data";
 export * from "./nested/response/properties-response-data";
-export * from "./nested/response/waypoint-response-data";
+export * from "./nested/response/waypoint-data";
 
 export * from "./route-planner-timeline/route-planner-timeline-label";
 export * from "./route-planner-timeline/timeline-item";

@@ -1,66 +1,84 @@
 # `Avoid`
 
-The `Avoid` class allows you to define route restrictions for the optimization engine. It is used to specify what the agent should avoid — such as toll roads, highways, or specific coordinates.
-
-This can be helpful when:
-
-- A vehicle cannot use toll roads
-- Certain areas are inaccessible or off-limits
-- You want to exclude parts of the map due to traffic, regulation, or policy
-
----
-
-## Purpose
-
-Used within a route planning request to indicate areas or road types that should be avoided during optimization. Each avoid rule has a `type` and one or more `values` depending on the type.
-
-Common types include:
-
--`"tolls"` – avoid toll roads
-- `"highways"` – avoid highways
-- `"locations"` – avoid specific locations by coordinates
-
----
+`Avoid` defines routing restrictions for route planning input.
 
 ## Constructor
 
+Signature: `new Avoid(raw?: AvoidData)`
+
+Creates an avoid rule. If `raw` is omitted, `values` is initialized as an empty array.
+
 ```ts
-new Avoid(raw?: AvoidData)
+const avoid = new Avoid();
 ```
-
-Creates a new `Avoid` object. If no data is passed, it initializes an empty avoid configuration with no values.
-
----
 
 ## Methods
 
-| Method               | Description                                                        |
-| -------------------- | ------------------------------------------------------------------ |
-| `getRaw()`           | Returns the internal `AvoidData` object                            |
-| `setRaw(data)`       | Replaces the avoid rule with a new `AvoidData` object              |
-| `setType(type)`      | Sets the avoid type (`"tolls"`, `"highways"`, `"locations"`, etc.) |
-| `addValue(lon, lat)` | Adds a geographic point to avoid — only for type `"locations"`     |
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): AvoidData` | Return current avoid payload |
+| `setRaw` | `setRaw(value: AvoidData): this` | Replace avoid payload |
+| `setType` | `setType(type: AvoidType): this` | Set avoid type |
+| `addValue` | `addValue(lon: number, lat: number): this` | Add avoid coordinate |
 
-> Note: `addValue()` should only be used when `type` is set to `"locations"`.
+### getRaw()
 
----
+Returns current `AvoidData`.
+
+```ts
+const raw = avoid.getRaw();
+```
+
+### setRaw(value)
+
+Replaces full avoid payload.
+
+```ts
+avoid.setRaw({ type: 'locations', values: [{ lon: 13.41, lat: 52.52 }] });
+```
+
+### setType(type)
+
+Sets avoid category (`tolls`, `highways`, `ferries`, `locations`, ...).
+
+```ts
+avoid.setType('locations');
+```
+
+### addValue(lon, lat)
+
+Adds one coordinate value (typically for `type: 'locations'`).
+
+```ts
+avoid.addValue(13.41, 52.52);
+```
 
 ## Example
 
 ```ts
-import { Avoid } from "@geoapify/route-planner-sdk";
+import { Avoid } from '@geoapify/route-planner-sdk';
 
 const avoid = new Avoid()
-  .setType("locations")
-  .addValue(13.41, 52.52) // a blocked road
-  .addValue(13.37, 52.50); // restricted square
+  .setType('locations')
+  .addValue(13.41, 52.52)
+  .addValue(13.37, 52.50);
 ```
 
-This rule tells the route planner to avoid specific geographic points. These are typically used when a driver should not pass through certain zones.
+## AvoidData Interface
 
----
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface AvoidData {
+  type?: AvoidType;
+  importance?: number;
+  values: CoordinatesData[];
+}
+```
+
+Referenced nested interface: [`CoordinatesData`](./coordinates.md#coordinatesdata-interface).
 
 ## Related
 
-* [`Coordinates`](./coordinates.md) – utility for managing location points
-* [`RoutePlanner`](./route-planner.md) – where avoid rules can be passed as input
+- [`Coordinates`](./coordinates.md)
+- [`RoutePlanner`](./route-planner.md)

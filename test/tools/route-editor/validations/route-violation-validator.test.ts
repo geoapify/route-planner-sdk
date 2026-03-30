@@ -4,7 +4,7 @@ import {
     AgentMissingCapability,
     AgentPickupCapacityExceeded,
     BreakViolation,
-    ViolationError
+    Violation
 } from "../../../../src/models/entities/route-editor-exceptions";
 import { ActionResponseData } from "../../../../src/models/interfaces";
 
@@ -25,7 +25,7 @@ function createContext(rawData: any, actions: ActionResponseData[]) {
     } as any;
 }
 
-function getViolations(rawData: any): ViolationError[] {
+function getViolations(rawData: any): Violation[] {
     return rawData.properties.violations || [];
 }
 

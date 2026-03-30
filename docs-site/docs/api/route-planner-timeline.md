@@ -23,7 +23,7 @@ Here are the parameters you can pass to the constructor:
 | Name | Type | Description |
 |------|------|-------------|
 | `container` | `HTMLElement` | The DOM element where the timeline will be rendered |
-| `inputData` | [`RoutePlannerInputData`](./route-planner.md#routeplannerinputdata) *(optional)* | Route planner input data (for preview mode without results) |
+| `inputData` | [`RoutePlannerInputData`](./route-planner.md#routeplannerinputdata-interface) *(optional)* | Route planner input data (for preview mode without results) |
 | `result` | [`RoutePlannerResult`](./route-planner-result.md) *(optional)* | The optimized route result to visualize |
 | `options` | [`RoutePlannerTimelineOptions`](#routeplannertimelineoptions) *(optional)* | Configuration options for appearance and behavior |
 
@@ -46,17 +46,29 @@ The `RoutePlannerTimeline` class provides methods to update the timeline, config
 
 | Method | Signature | Purpose |
 |--------|-----------|---------|
+| [`getResult`](#getresult) | `getResult(): RoutePlannerResult \| undefined` | Get current result |
 | [`setResult`](#setresult) | `setResult(result: RoutePlannerResult): void` | Update timeline with new result |
+| [`getTimelineType`](#gettimelinetype) | `getTimelineType(): 'time' \| 'distance' \| undefined` | Get current timeline mode |
 | [`setTimelineType`](#settimelinetype) | `setTimelineType(type: 'time' \| 'distance'): void` | Switch between time/distance views |
+| [`getAgentMenuItems`](#getagentmenuitems) | `getAgentMenuItems(): TimelineMenuItem[] \| undefined` | Get current agent dropdown menu items |
 | [`setAgentMenuItems`](#setagentmenuitems) | `setAgentMenuItems(items: TimelineMenuItem[]): void` | Update agent dropdown menu |
 | [`on`](#on) | `on(event, handler): void` | Subscribe to timeline events |
 | [`off`](#off) | `off(event, handler): void` | Unsubscribe from events |
-| `getHasLargeDescription` / `setHasLargeDescription` | Getter/Setter | Check or toggle wide agent info display |
-| `getAgentColors` / `setAgentColors` | Getter/Setter | Get or set agent color palette |
-| `getCapacityUnit` / `setCapacityUnit` | Getter/Setter | Get or set capacity unit label |
-| `getTimeLabels` / `setTimeLabels` | Getter/Setter | Get or set time axis labels |
-| `getDistanceLabels` / `setDistanceLabels` | Getter/Setter | Get or set distance axis labels |
-| `getAgentLabel` / `setAgentLabel` | Getter/Setter | Get or set agent label text |
+| [`getHasLargeDescription`](#gethaslargedescription) | `getHasLargeDescription(): boolean \| undefined` | Get wide agent info mode |
+| [`setHasLargeDescription`](#sethaslargedescription) | `setHasLargeDescription(value: boolean): void` | Set wide agent info mode |
+| [`getAgentColors`](#getagentcolors) | `getAgentColors(): string[] \| undefined` | Get agent color palette |
+| [`setAgentColors`](#setagentcolors) | `setAgentColors(colors: string[]): void` | Set agent color palette |
+| [`getCapacityUnit`](#getcapacityunit) | `getCapacityUnit(): string \| undefined` | Get capacity unit label |
+| [`setCapacityUnit`](#setcapacityunit) | `setCapacityUnit(unit: string \| undefined): void` | Set capacity unit label |
+| [`getTimeLabels`](#gettimelabels) | `getTimeLabels(): RoutePlannerTimelineLabel[] \| undefined` | Get time axis labels |
+| [`setTimeLabels`](#settimelabels) | `setTimeLabels(labels: RoutePlannerTimelineLabel[]): void` | Set time axis labels |
+| [`getDistanceLabels`](#getdistancelabels) | `getDistanceLabels(): RoutePlannerTimelineLabel[] \| undefined` | Get distance axis labels |
+| [`setDistanceLabels`](#setdistancelabels) | `setDistanceLabels(labels: RoutePlannerTimelineLabel[]): void` | Set distance axis labels |
+| [`getShowTimelineLabels`](#getshowtimelinelabels) | `getShowTimelineLabels(): boolean \| undefined` | Get timeline labels visibility |
+| [`setShowTimelineLabels`](#setshowtimelinelabels) | `setShowTimelineLabels(value: boolean): void` | Set timeline labels visibility |
+| [`getAgentLabel`](#getagentlabel) | `getAgentLabel(): string \| undefined` | Get agent label text |
+| [`setAgentLabel`](#setagentlabel) | `setAgentLabel(label: string): void` | Set agent label text |
+| [`getAgentColorByIndex`](#getagentcolorbyindex) | `getAgentColorByIndex(index: number): string` | Resolve color from current palette |
 
 Here's the detailed version of method descriptions:
 
@@ -73,6 +85,26 @@ const modifiedResult = editor.getModifiedResult();
 timeline.setResult(modifiedResult);
 ```
 
+### getResult()
+
+Signature: `getResult(): RoutePlannerResult | undefined`
+
+Returns the currently attached result object.
+
+```typescript
+const result = timeline.getResult();
+```
+
+### getTimelineType()
+
+Signature: `getTimelineType(): 'time' | 'distance' | undefined`
+
+Returns current timeline mode.
+
+```typescript
+const mode = timeline.getTimelineType();
+```
+
 ### setTimelineType()
 
 Signature: `setTimelineType(type: 'time' | 'distance'): void`
@@ -84,6 +116,16 @@ Switches between time-based and distance-based visualization.
 ```typescript
 timeline.setTimelineType('time');     // Show by time
 timeline.setTimelineType('distance'); // Show by distance
+```
+
+### getAgentMenuItems()
+
+Signature: `getAgentMenuItems(): TimelineMenuItem[] | undefined`
+
+Returns currently configured menu items.
+
+```typescript
+const items = timeline.getAgentMenuItems();
 ```
 
 ### setAgentMenuItems()
@@ -107,6 +149,165 @@ timeline.setAgentMenuItems([
     callback: (agentIndex) => toggleVisibility(agentIndex)
   }
 ]);
+```
+
+### getHasLargeDescription()
+
+Signature: `getHasLargeDescription(): boolean | undefined`
+
+Returns whether agent information is displayed in a wider format.
+
+```typescript
+const isLarge = timeline.getHasLargeDescription();
+```
+
+### setHasLargeDescription()
+
+Signature: `setHasLargeDescription(value: boolean): void`
+
+Sets whether agent information is displayed in a wider format.
+
+```typescript
+timeline.setHasLargeDescription(true);
+```
+
+### getAgentColors()
+
+Signature: `getAgentColors(): string[] | undefined`
+
+Returns current color palette for agent rows.
+
+```typescript
+const colors = timeline.getAgentColors();
+```
+
+### setAgentColors()
+
+Signature: `setAgentColors(colors: string[]): void`
+
+Sets color palette used for agent rows.
+
+```typescript
+timeline.setAgentColors(['#ff4d4d', '#1a8cff', '#00cc66', '#b300b3']);
+```
+
+### getCapacityUnit()
+
+Signature: `getCapacityUnit(): string | undefined`
+
+Returns current unit label for capacity values.
+
+```typescript
+const unit = timeline.getCapacityUnit();
+```
+
+### setCapacityUnit()
+
+Signature: `setCapacityUnit(unit: string | undefined): void`
+
+Sets unit label for capacity values.
+
+```typescript
+timeline.setCapacityUnit('kg');
+timeline.setCapacityUnit('items');
+```
+
+### getTimeLabels()
+
+Signature: `getTimeLabels(): RoutePlannerTimelineLabel[] | undefined`
+
+Returns current vertical markers for the time axis.
+
+```typescript
+const labels = timeline.getTimeLabels();
+```
+
+### setTimeLabels()
+
+Signature: `setTimeLabels(labels: RoutePlannerTimelineLabel[]): void`
+
+Sets vertical markers for the time axis.
+
+```typescript
+timeline.setTimeLabels([
+  { position: '25%', label: '1h' },
+  { position: '50%', label: '2h' },
+  { position: '75%', label: '3h' }
+]);
+```
+
+### getDistanceLabels()
+
+Signature: `getDistanceLabels(): RoutePlannerTimelineLabel[] | undefined`
+
+Returns current vertical markers for the distance axis.
+
+```typescript
+const labels = timeline.getDistanceLabels();
+```
+
+### setDistanceLabels()
+
+Signature: `setDistanceLabels(labels: RoutePlannerTimelineLabel[]): void`
+
+Sets vertical markers for the distance axis.
+
+```typescript
+timeline.setDistanceLabels([
+  { position: '25%', label: '5 km' },
+  { position: '50%', label: '10 km' },
+  { position: '75%', label: '15 km' }
+]);
+```
+
+### getShowTimelineLabels()
+
+Signature: `getShowTimelineLabels(): boolean | undefined`
+
+Returns whether generated/custom timeline labels are shown.
+
+```typescript
+const showLabels = timeline.getShowTimelineLabels();
+```
+
+### setShowTimelineLabels()
+
+Signature: `setShowTimelineLabels(value: boolean): void`
+
+Sets whether generated/custom timeline labels are shown.
+
+```typescript
+timeline.setShowTimelineLabels(true);
+```
+
+### getAgentLabel()
+
+Signature: `getAgentLabel(): string | undefined`
+
+Returns current label text used for agents.
+
+```typescript
+const label = timeline.getAgentLabel();
+```
+
+### setAgentLabel()
+
+Signature: `setAgentLabel(label: string): void`
+
+Sets label text used for agents (e.g., "Driver", "Truck", "Courier").
+
+```typescript
+timeline.setAgentLabel('Delivery Van');
+```
+
+### getAgentColorByIndex()
+
+Signature: `getAgentColorByIndex(index: number): string`
+
+Returns the color for a given agent index using the current color palette.
+
+```typescript
+const color = timeline.getAgentColorByIndex(2);
 ```
 
 ### on()
@@ -137,9 +338,9 @@ timeline.on('beforeAgentMenuShow', (agentIndex, actions) => {
 
 ### off()
 
-Signature: `off(event: string, handler?: Function): void`
+Signature: `off(event: string, handler: Function): void`
 
-Unsubscribes from timeline events. If no handler is provided, removes all handlers for the event.
+Unsubscribes a specific handler from timeline events.
 
 **Example:**
 
@@ -149,88 +350,6 @@ timeline.on('onWaypointClick', handler);
 
 // Later, unsubscribe
 timeline.off('onWaypointClick', handler);
-```
-
-### getHasLargeDescription() / setHasLargeDescription()
-
-Signature: `getHasLargeDescription(): boolean` / `setHasLargeDescription(value: boolean): void`
-
-Gets or sets whether agent information is displayed in a wider format.
-
-**Example:**
-
-```typescript
-const isLarge = timeline.getHasLargeDescription();
-timeline.setHasLargeDescription(true);
-```
-
-### getAgentColors() / setAgentColors()
-
-Signature: `getAgentColors(): string[]` / `setAgentColors(colors: string[]): void`
-
-Gets or sets the color palette used for agent rows.
-
-**Example:**
-
-```typescript
-timeline.setAgentColors(['#ff4d4d', '#1a8cff', '#00cc66', '#b300b3']);
-```
-
-### getCapacityUnit() / setCapacityUnit()
-
-Signature: `getCapacityUnit(): string` / `setCapacityUnit(unit: string): void`
-
-Gets or sets the unit label displayed for capacity values.
-
-**Example:**
-
-```typescript
-timeline.setCapacityUnit('kg');
-timeline.setCapacityUnit('items');
-```
-
-### getTimeLabels() / setTimeLabels()
-
-Signature: `getTimeLabels(): RoutePlannerTimelineLabel[]` / `setTimeLabels(labels: RoutePlannerTimelineLabel[]): void`
-
-Gets or sets vertical markers for the time axis.
-
-**Example:**
-
-```typescript
-timeline.setTimeLabels([
-  { position: '25%', label: '1h' },
-  { position: '50%', label: '2h' },
-  { position: '75%', label: '3h' }
-]);
-```
-
-### getDistanceLabels() / setDistanceLabels()
-
-Signature: `getDistanceLabels(): RoutePlannerTimelineLabel[]` / `setDistanceLabels(labels: RoutePlannerTimelineLabel[]): void`
-
-Gets or sets vertical markers for the distance axis.
-
-**Example:**
-
-```typescript
-timeline.setDistanceLabels([
-  { position: '25%', label: '5 km' },
-  { position: '50%', label: '10 km' },
-  { position: '75%', label: '15 km' }
-]);
-```
-
-### getAgentLabel() / setAgentLabel()
-
-Signature: `getAgentLabel(): string` / `setAgentLabel(label: string): void`
-
-Gets or sets the label text used for agents (e.g., "Driver", "Truck", "Courier").
-
-**Example:**
-
-```typescript
-timeline.setAgentLabel('Delivery Van');
 ```
 
 ## Listening For Events
@@ -282,43 +401,39 @@ Configuration options for timeline appearance and behavior.
 
 ```typescript
 interface RoutePlannerTimelineOptions {
-  /** Display mode: 'time' (default) or 'distance' */
   timelineType?: 'time' | 'distance';
-  
-  /** Enable wider agent info display */
   hasLargeDescription?: boolean;
-  
-  /** Unit label for capacity (e.g., 'kg', 'items') */
   capacityUnit?: string;
-  
-  /** Label for agents (e.g., 'Driver', 'Truck') */
   agentLabel?: string;
-  
-  /** Main title for the timeline */
   label?: string;
-  
-  /** Description text below the title */
   description?: string;
-  
-  /** Vertical markers for time axis */
+  showTimelineLabels?: boolean;
   timeLabels?: RoutePlannerTimelineLabel[];
-  
-  /** Vertical markers for distance axis */
   distanceLabels?: RoutePlannerTimelineLabel[];
-  
-  /** Color palette for agents */
   agentColors?: string[];
-  
-  /** Show popup on waypoint hover */
   showWaypointPopup?: boolean;
-  
-  /** Custom popup generator function */
   waypointPopupGenerator?: (waypoint: Waypoint) => HTMLElement;
-  
-  /** Dropdown menu items for each agent */
   agentMenuItems?: TimelineMenuItem[];
 }
 ```
+
+| Field | Type | Description |
+|---|---|---|
+| `timelineType` | `'time' \| 'distance'` | Timeline mode. Default is `time`. |
+| `hasLargeDescription` | `boolean` | Enables wider layout for agent info text. |
+| `capacityUnit` | `string` | Unit label shown in agent description (for example `kg`, `items`). |
+| `agentLabel` | `string` | Prefix label for agents (for example `Driver`, `Truck`). |
+| `label` | `string` | Timeline title value accepted by options. |
+| `description` | `string` | Timeline subtitle value accepted by options. |
+| `showTimelineLabels` | `boolean` | Shows generated/custom axis labels (`timeLabels` / `distanceLabels`). |
+| `timeLabels` | `RoutePlannerTimelineLabel[]` | Custom labels/markers for time axis. |
+| `distanceLabels` | `RoutePlannerTimelineLabel[]` | Custom labels/markers for distance axis. |
+| `agentColors` | `string[]` | Color palette used for agent rows. |
+| `showWaypointPopup` | `boolean` | Enables waypoint popup on hover. |
+| `waypointPopupGenerator` | `(waypoint: Waypoint) => HTMLElement` | Custom popup content renderer for a waypoint. |
+| `agentMenuItems` | `TimelineMenuItem[]` | Three-dot menu items per agent row. |
+
+`label` and `description` are accepted by the options interface, but are currently not rendered by the timeline template.
 
 ### TimelineMenuItem
 
@@ -326,22 +441,21 @@ Menu item configuration for agent dropdown menus.
 
 ```typescript
 interface TimelineMenuItem {
-  /** Unique identifier for the menu item */
   key: string;
-  
-  /** Display text */
   label?: string;
-  
-  /** Whether the item is disabled */
   disabled?: boolean;
-  
-  /** Whether the item is hidden */
   hidden?: boolean;
-  
-  /** Callback when clicked */
   callback: (agentIndex: number) => void;
 }
 ```
+
+| Field | Type | Required | Description | Example |
+|---|---|---|---|---|
+| `key` | `string` | Yes | Unique menu item identifier used in event handlers and conditional updates. | `'toggle-visibility'` |
+| `label` | `string` | No | Text shown in the menu item. | `'Hide Route'` |
+| `disabled` | `boolean` | No | If `true`, the item is visible but not clickable. | `true` |
+| `hidden` | `boolean` | No | If `true`, the item is not rendered. | `false` |
+| `callback` | `(agentIndex: number) => void` | Yes | Runs when user clicks the item. Receives the clicked agent index. | `(agentIndex) => openAgentDialog(agentIndex)` |
 
 ### RoutePlannerTimelineLabel
 
@@ -349,13 +463,15 @@ Label configuration for axis markers.
 
 ```typescript
 interface RoutePlannerTimelineLabel {
-  /** Position as percentage (e.g., '25%', '50%') */
   position: string;
-  
-  /** Label text to display */
   label: string;
 }
 ```
+
+| Field | Type | Required | Description | Example |
+|---|---|---|---|---|
+| `position` | `string` | Yes | Position on axis as a percent string. | `'50%'` |
+| `label` | `string` | Yes | Text displayed near the marker line. | `'10 km'` |
 
 ## Styling
 
@@ -448,5 +564,5 @@ timeline.on('onWaypointClick', (waypoint, agentIndex) => {
 ## Learn More
 
 * [`RoutePlannerResult`](./route-planner-result.md) — The result object used for visualization
-* [`AgentSolution`](./agent-solution.md) — Agent-level solution data
+* [`AgentPlan`](./agent-plan.md) — Agent-level plan data
 * [`Waypoint`](./waypoint.md) — Individual waypoint details

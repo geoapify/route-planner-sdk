@@ -1,15 +1,17 @@
-export class ViolationError extends Error {
+export class Violation {
+    name: string;
+    message: string;
+
     constructor(message: string, public readonly agentIndex: number) {
-        super(message);
-        this.name = 'ViolationError';
+        this.message = message;
+        this.name = 'Violation';
     }
 
     toString(): string {
         return this.message;
     }
 }
-
-export class AgentPickupCapacityExceeded extends ViolationError {
+export class AgentPickupCapacityExceeded extends Violation {
     constructor(
         message: string, 
         agentIndex: number,
@@ -21,7 +23,7 @@ export class AgentPickupCapacityExceeded extends ViolationError {
     }
 }
 
-export class AgentDeliveryCapacityExceeded extends ViolationError {
+export class AgentDeliveryCapacityExceeded extends Violation {
     constructor(
         message: string, 
         agentIndex: number,
@@ -33,7 +35,7 @@ export class AgentDeliveryCapacityExceeded extends ViolationError {
     }
 }
 
-export class AgentMissingCapability extends ViolationError {
+export class AgentMissingCapability extends Violation {
     constructor(
         message: string, 
         agentIndex: number,
@@ -44,14 +46,14 @@ export class AgentMissingCapability extends ViolationError {
     }
 }
 
-export class TimeWindowViolation extends ViolationError {
+export class TimeWindowViolation extends Violation {
     constructor(message: string, agentIndex: number) {
         super(message, agentIndex);
         this.name = 'TimeWindowViolation';
     }
 }
 
-export class BreakViolation extends ViolationError {
+export class BreakViolation extends Violation {
     constructor(message: string, agentIndex: number) {
         super(message, agentIndex);
         this.name = 'BreakViolation';
@@ -64,9 +66,6 @@ export class InvalidParameter extends Error {
         this.name = 'InvalidParameter';
     }
 }
-
-// Backward-compatible alias. Prefer InvalidParameter in new code.
-export class InvalidParameterType extends InvalidParameter {}
 
 export class AgentNotFound extends Error {
     constructor(message: string, public agentIdOrIndex?: string | number) {

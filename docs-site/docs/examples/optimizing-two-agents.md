@@ -1,30 +1,21 @@
 # Example: Optimizing Delivery Routes with Two Agents
 
 This example demonstrates how to use the Geoapify Route Optimization SDK to:
+
 - Define multiple delivery jobs
 - Assign two delivery agents
 - Send a request to the Route Planner API
 - Print the optimized job sequence for each agent
 
----
-
 ## Step-by-Step Guide
 
 ### 1. Import the SDK
 
-Install the SDK via npm:
-
-```bash
-npm install @geoapify/route-planner-sdk
-```
-
-Then import it in your TypeScript project:
+Import it in your TypeScript project:
 
 ```ts
 import RoutePlanner, { Agent, Job } from "@geoapify/route-planner-sdk";
 ```
-
----
 
 ### 2. Create Your Planner Instance
 
@@ -33,8 +24,6 @@ You need to pass your API key:
 ```ts
 const planner = new RoutePlanner({ apiKey: "YOUR_API_KEY" });
 ```
-
----
 
 ### 3. Define Agents
 
@@ -50,8 +39,6 @@ planner
     .setStartLocation(13.3889, 52.5170)); // Berlin Mitte
 ```
 
----
-
 ### 4. Add Jobs
 
 Each job is a delivery task. Specify location and optional details like duration or priority.
@@ -63,8 +50,6 @@ planner
   .addJob(new Job().setId("job-3").setLocation(13.4285, 52.5232));
 ```
 
----
-
 ### 5. Plan the Route
 
 Call `.plan()` to send the request and receive an optimized route plan.
@@ -73,14 +58,13 @@ Call `.plan()` to send the request and receive an optimized route plan.
 const result = await planner.setMode("drive").plan();
 ```
 
----
-
 ### 6. Inspect the Result
 
 Print a simplified summary of the plan:
 
 ```ts
-for (const agent of result.getAgentSolutions()) {
+for (const agent of result.getAgentPlans()) {
+  if (!agent) continue;
   console.log(`Agent: ${agent.getAgentId()}`);
   for (const action of agent.getActions()) {
     console.log(` - ${action.getType()} at time ${action.getStartTime()}`);
@@ -89,8 +73,6 @@ for (const agent of result.getAgentSolutions()) {
 ```
 
 This will show when each agent starts, what actions they perform, and in what order.
-
----
 
 ## What's Next?
 

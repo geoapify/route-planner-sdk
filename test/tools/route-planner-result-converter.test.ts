@@ -20,8 +20,8 @@ describe("RoutePlannerResultConverter", () => {
         expect(resultData.unassignedShipments).toEqual(response.properties.issues?.unassigned_shipments);
 
         expect(resultData.agents).toHaveLength(response.features.length);
-        expect(resultData.agents[0].agentIndex).toBe(response.features[0].properties.agent_index);
-        expect(resultData.agents[0].agentId).toBe(response.features[0].properties.agent_id);
+        expect(resultData.agents[0].agent_index).toBe(response.features[0].properties.agent_index);
+        expect(resultData.agents[0].agent_id).toBe(response.features[0].properties.agent_id);
         expect(resultData.agents[0].actions).toHaveLength(response.features[0].properties.actions.length);
         expect(resultData.agents[0].legs).toHaveLength((response.features[0].properties.legs || []).length);
         expect(resultData.agents[0].waypoints).toHaveLength(response.features[0].properties.waypoints.length);

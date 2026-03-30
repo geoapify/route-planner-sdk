@@ -3,14 +3,14 @@ import { AgentData, AgentPlanData, RoutingOptions, RoutingOptionsExtended } from
 import { RouteAction } from "./route-action";
 import { Waypoint } from "./waypoint";
 import { RoutePlannerCallOptions } from "../../../interfaces/route-planner-call-options";
-import { ViolationError } from "../../route-editor-exceptions";
+import { Violation } from "../../route-editor-exceptions";
 
 export class AgentPlan {
     constructor(private readonly raw: AgentPlanData,
                 private readonly agentInputData: AgentData,
                 private readonly routingOptions: RoutingOptions,
                 private readonly callOptions: RoutePlannerCallOptions,
-                private readonly violations: ViolationError[]) {
+                private readonly violations: Violation[]) {
         if (!raw) {
             throw new Error("AgentSolutionData is undefined");
         }
@@ -21,11 +21,11 @@ export class AgentPlan {
     }
 
     getAgentIndex(): number {
-        return this.raw.agentIndex;
+        return this.raw.agent_index;
     }
 
     getAgentId(): string {
-        return this.raw.agentId;
+        return this.raw.agent_id;
     }
 
     getTime(): number {
@@ -54,6 +54,10 @@ export class AgentPlan {
 
     getActions(): RouteAction[] {
         return this.raw.actions.map((action) => new RouteAction(action));
+    }
+
+    getDelays(): RouteAction[] {
+        return this.getActions().filter((action) => action.getType() === 'delay');
     }
 
     getWaypoints(): Waypoint[] {
@@ -86,7 +90,7 @@ export class AgentPlan {
                     || action.getJobId() === jonIdOrIndex);
     }
 
-    getViolations(): ViolationError[] {
+    getViolations(): Violation[] {
         return this.violations;
     }
 

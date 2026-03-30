@@ -33,6 +33,16 @@ describe("RoutePlannerResultEditor", () => {
         expect(original.getRaw().properties.params.agents[0].id).not.toBe("changed-agent");
     });
 
+    test("getModifiedResult should return an isolated snapshot", () => {
+        const editor = new RoutePlannerResultEditor(createResult(JOBS_RESULT_FILE));
+
+        const snapshot1 = editor.getModifiedResult();
+        snapshot1.getRaw().properties.params.agents[0].id = "snapshot-only-agent";
+
+        const snapshot2 = editor.getModifiedResult();
+        expect(snapshot2.getRaw().properties.params.agents[0].id).not.toBe("snapshot-only-agent");
+    });
+
     test("assignJobs should delegate to RouteResultJobEditor", async () => {
         const editor = new RoutePlannerResultEditor(createResult(JOBS_RESULT_FILE));
         const assignJobs = jest.fn().mockResolvedValue(true);
@@ -134,8 +144,8 @@ describe("RoutePlannerResultEditor", () => {
 
         const spy = jest.spyOn(AgentReoptimizeHelper, "execute").mockResolvedValue(true);
 
-        await expect(editor.reoptimizeAgentPlan({ agentIdOrIndex: 0 })).resolves.toBe(true);
-        expect(spy).toHaveBeenCalledWith(fakeJobEditor, { agentIdOrIndex: 0 });
+        await expect(editor.reoptimizeAgentPlan(0)).resolves.toBe(true);
+        expect(spy).toHaveBeenCalledWith(fakeJobEditor, 0, {});
     });
 
     test("addDelayAfterWaypoint should delegate to AgentTimeOffsetHelper", () => {

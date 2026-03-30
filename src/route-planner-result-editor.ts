@@ -238,11 +238,14 @@ export class RoutePlannerResultEditor {
     }
 
     getModifiedResult(): RoutePlannerResult {
-        return new RoutePlannerResult(this.callOptions, this.rawData);
+        return new RoutePlannerResult(
+            this.callOptions,
+            Utils.cloneObject(this.rawData)
+        );
     }
 
-    async reoptimizeAgentPlan(options: ReoptimizeOptions): Promise<boolean> {
-        return AgentReoptimizeHelper.execute(this.getJobEditor(), options);
+    async reoptimizeAgentPlan(agentIdOrIndex: string | number, options: ReoptimizeOptions = {}): Promise<boolean> {
+        return AgentReoptimizeHelper.execute(this.getJobEditor(), agentIdOrIndex, options);
     }
 
     addDelayAfterWaypoint(agentIdOrIndex: string | number, waypointIndex: number, delaySeconds: number): void {

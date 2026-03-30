@@ -99,11 +99,11 @@ const buildReoptimizeSection = (
   allowViolationsToggle.appendChild(document.createTextNode("Allow violations"));
 
   const button = makeButton("Reoptimize plan", async () => {
-    const options: any = { agentIdOrIndex: context.agentIndex };
+    const options: any = {};
     if (includeUnassignedInput.checked) options.includeUnassigned = true;
     if (allowViolationsInput.checked) options.allowViolations = true;
     
-    await context.editor.reoptimizeAgentPlan(options);
+    await context.editor.reoptimizeAgentPlan(context.agentIndex, options);
     updateModifiedResult(context);
   });
 

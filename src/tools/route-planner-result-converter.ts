@@ -1,8 +1,8 @@
 import {
-  ActionResponseData, AgentPlanData,
-  FeatureResponseData, LegResponseData, LegStepResponseData,
+  AgentPlanData,
+  FeatureResponseData,
   RoutePlannerResultData,
-  RoutePlannerResultResponseData, WaypointResponseData
+  RoutePlannerResultResponseData
 } from "../models";
 import {Utils} from "./utils";
 
@@ -22,19 +22,7 @@ export class RoutePlannerResultConverter {
   private static generateAgents(response: RoutePlannerResultResponseData): AgentPlanData[] {
     let result: AgentPlanData[] = [];
     response.features.forEach((feature: FeatureResponseData) => {
-      let properties = feature.properties;
-      result.push({
-        agentIndex: properties.agent_index,
-        agentId: properties.agent_id,
-        time: properties.time,
-        start_time: properties.start_time,
-        end_time: properties.end_time,
-        distance: properties.distance,
-        mode: properties.mode,
-        legs: properties.legs,
-        actions: properties.actions,
-        waypoints: properties.waypoints
-      })
+      result.push(feature.properties);
     });
     return result;
   }

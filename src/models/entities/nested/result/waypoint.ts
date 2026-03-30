@@ -1,10 +1,10 @@
 import { RouteAction } from "./route-action";
-import { ActionResponseData, WaypointResponseData } from "../../../interfaces";
+import { ActionResponseData, WaypointData } from "../../../interfaces";
 
 export class Waypoint {
-    private readonly raw: WaypointResponseData;
+    private readonly raw: WaypointData;
 
-    constructor(raw?: WaypointResponseData) {
+    constructor(raw?: WaypointData) {
         if (raw) {
             this.raw = raw;
         } else {
@@ -12,7 +12,7 @@ export class Waypoint {
         }
     }
 
-    getRaw(): WaypointResponseData {
+    getRaw(): WaypointData {
         return this.raw;
     }
 

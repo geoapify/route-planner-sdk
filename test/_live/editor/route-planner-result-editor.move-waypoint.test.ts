@@ -83,7 +83,7 @@ describe("RoutePlannerResultEditor.moveWaypoint (live)", () => {
         expect(agentPlan).toBeDefined();
 
         const agentIndex = agentPlan!.getAgentIndex();
-        const beforeFeature = editor.getModifiedResult().getRaw().features.find(
+        const beforeFeature = result.getRaw().features.find(
             (feature) => feature.properties.agent_index === agentIndex
         );
         expect(beforeFeature).toBeDefined();
@@ -293,8 +293,7 @@ describe("RoutePlannerResultEditor.moveWaypoint (live)", () => {
 
     liveTest("moveWaypoint + should merge adjacent waypoints with same location", async () => {
         const result = await buildJobsResult();
-        const editor = new RoutePlannerResultEditor(result);
-        const raw = editor.getModifiedResult().getRaw();
+        const raw = result.getRaw();
 
         const targetFeature = raw.features.find((feature) => {
             const movableWaypoints = feature.properties.waypoints.filter(
@@ -339,6 +338,8 @@ describe("RoutePlannerResultEditor.moveWaypoint (live)", () => {
             ];
         }
 
+        // Initialize editor after test data mutation so editor clone contains the prepared scenario.
+        const editor = new RoutePlannerResultEditor(result);
         const agentIndex = targetFeature!.properties.agent_index;
         await editor.moveWaypoint(agentIndex, sourceWaypointIndex, targetWaypointIndex);
 

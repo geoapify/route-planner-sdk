@@ -1,108 +1,180 @@
 # `Agent`
 
-The `Agent` class represents a resource (driver, vehicle, or field worker) in the Geoapify Route Optimization SDK. It is used to define who can perform jobs and shipments during route planning.
-
-Each agent can have constraints such as start and end location, working time windows, vehicle capacity, and custom capabilities (e.g., refrigerated vehicle, medical skills, etc.).
-
----
-
-## Purpose
-
-The `Agent` class wraps the raw `AgentData` object and provides a fluent, chainable API to configure all aspects of the agent.
-
-You use this class to:
-- Define where an agent starts and ends their route
-- Add working time windows and rest breaks
-- Assign vehicle or skill capabilities
-- Set container capacities for pickups and deliveries
-
----
+`Agent` defines a worker/vehicle that can execute jobs and shipments.
 
 ## Constructor
 
+Signature: `new Agent(raw?: AgentData)`
+
+Creates an agent instance. If `raw` is omitted, empty arrays for `capabilities`, `time_windows`, and `breaks` are initialized.
+
 ```ts
-new Agent(raw?: AgentData)
+const agent = new Agent();
 ```
-
-Creates a new agent instance. If `raw` is not provided, initializes an empty agent with default empty arrays for capabilities, time windows, and breaks.
-
----
 
 ## Methods
 
-### Basic Configuration
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): AgentData` | Return current raw payload |
+| `setRaw` | `setRaw(value: AgentData): this` | Replace raw payload |
+| `setId` | `setId(value: string): this` | Set agent ID |
+| `setDescription` | `setDescription(value: string): this` | Set description |
+| `setStartLocation` | `setStartLocation(lon: number, lat: number): this` | Set start coordinates |
+| `setStartLocationIndex` | `setStartLocationIndex(value: number): this` | Set start location index |
+| `setEndLocation` | `setEndLocation(lon: number, lat: number): this` | Set end coordinates |
+| `setEndLocationIndex` | `setEndLocationIndex(value: number): this` | Set end location index |
+| `setPickupCapacity` | `setPickupCapacity(value: number): this` | Set pickup capacity |
+| `setDeliveryCapacity` | `setDeliveryCapacity(value: number): this` | Set delivery capacity |
+| `addCapability` | `addCapability(value: string): this` | Add required capability tag |
+| `addTimeWindow` | `addTimeWindow(start: number, end: number): this` | Add availability window |
+| `addBreak` | `addBreak(value: Break): this` | Add break window/duration |
 
-| Method                          | Description                             |
-| ------------------------------- | --------------------------------------- |
-| `setId(value: string)`          | Assigns a custom agent ID               |
-| `setDescription(value: string)` | Adds a human-readable description       |
-| `getRaw()`                      | Returns the internal `AgentData` object |
-| `setRaw(value: AgentData)`      | Replaces the current agent data         |
+### getRaw()
 
----
+Returns current `AgentData`.
 
-### Location Setup
+```ts
+const raw = agent.getRaw();
+```
 
-| Method                         | Description                                                          |
-| ------------------------------ | -------------------------------------------------------------------- |
-| `setStartLocation(lon, lat)`   | Defines the starting point of the route                              |
-| `setStartLocationIndex(index)` | Uses a reusable location from the [`locations`](./location.md) array |
-| `setEndLocation(lon, lat)`     | Defines the end point of the route (optional)                        |
-| `setEndLocationIndex(index)`   | References a shared end location by index                            |
+### setRaw(value)
 
----
+Replaces the whole agent payload.
 
-### Capacity
+```ts
+agent.setRaw({ id: 'agent-1', capabilities: [], time_windows: [], breaks: [] });
+```
 
-| Method                       | Description                                                     |
-| ---------------------------- | --------------------------------------------------------------- |
-| `setPickupCapacity(value)`   | Max amount of goods the agent can pick up (for bulky shipments) |
-| `setDeliveryCapacity(value)` | Max amount of goods the agent can deliver (for bulky shipments) |
+### setId(value)
 
----
+Sets a custom agent ID.
 
-### Time & Breaks
+```ts
+agent.setId('agent-1');
+```
 
-| Method                      | Description                                                                 |
-| --------------------------- | --------------------------------------------------------------------------- |
-| `addTimeWindow(start, end)` | Adds an available working interval in relative seconds                      |
-| `addBreak(break: Break)`    | Adds a break (with duration and allowed windows); see [`Break`](./break.md) |
+### setDescription(value)
 
-Time windows represent when the agent is available to work (e.g. `[[0, 14400], [18000, 32400]]` for 8 hours with a 1-hour lunch).
+Sets human-readable description.
 
----
+```ts
+agent.setDescription('North zone van');
+```
 
-### Capabilities
+### setStartLocation(lon, lat)
 
-| Method                 | Description                                          |
-| ---------------------- | ---------------------------------------------------- |
-| `addCapability(value)` | Adds a tag like `'refrigerated'`, `'electric'`, etc. |
+Sets start location coordinates.
 
-Capabilities are matched against [`Job`](./job.md) or [`Shipment`](./shipment.md) requirements.
+```ts
+agent.setStartLocation(13.38, 52.52);
+```
 
----
+### setStartLocationIndex(value)
+
+Sets start location by `locations[]` index.
+
+```ts
+agent.setStartLocationIndex(0);
+```
+
+### setEndLocation(lon, lat)
+
+Sets end location coordinates.
+
+```ts
+agent.setEndLocation(13.41, 52.51);
+```
+
+### setEndLocationIndex(value)
+
+Sets end location by `locations[]` index.
+
+```ts
+agent.setEndLocationIndex(1);
+```
+
+### setPickupCapacity(value)
+
+Sets max pickup amount.
+
+```ts
+agent.setPickupCapacity(1000);
+```
+
+### setDeliveryCapacity(value)
+
+Sets max delivery amount.
+
+```ts
+agent.setDeliveryCapacity(1500);
+```
+
+### addCapability(value)
+
+Adds one capability tag.
+
+```ts
+agent.addCapability('refrigerated');
+```
+
+### addTimeWindow(start, end)
+
+Adds one availability interval in seconds.
+
+```ts
+agent.addTimeWindow(0, 28800);
+```
+
+### addBreak(value)
+
+Adds one break definition.
+
+```ts
+agent.addBreak(new Break().setDuration(1800).addTimeWindow(14400, 18000));
+```
 
 ## Example
 
 ```ts
-import { Agent } from "@geoapify/route-planner-sdk";
+import { Agent, Break } from '@geoapify/route-planner-sdk';
 
 const agent = new Agent()
-  .setId("van-1")
+  .setId('agent-1')
   .setStartLocation(13.38, 52.52)
-  .addCapability("refrigerated")
-  .addTimeWindow(0, 28800) // available for 8 hours
+  .setEndLocation(13.40, 52.50)
   .setPickupCapacity(1000)
-  .setDescription("Morning delivery van");
+  .setDeliveryCapacity(1000)
+  .addCapability('refrigerated')
+  .addTimeWindow(0, 28800)
+  .addBreak(new Break().setDuration(1800).addTimeWindow(14400, 18000));
 ```
 
-This creates an agent ready for planning with location, time, and capacity settings.
+## AgentData Interface
 
----
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface AgentData {
+  start_location?: [number, number];
+  start_location_index?: number;
+  end_location?: [number, number];
+  end_location_index?: number;
+  pickup_capacity?: number;
+  delivery_capacity?: number;
+  capabilities: string[];
+  time_windows: [number, number][];
+  breaks: BreakData[];
+  id?: string;
+  description?: string;
+}
+```
+
+Referenced nested interface: [`BreakData`](./break.md#breakdata-interface).
 
 ## Related
 
-* [`Break`](./break.md) – to define rest periods
-* [`Job`](./job.md) – tasks that agents can be assigned
-* [`Shipment`](./shipment.md) – pickup and delivery pairs
-* [`Location`](./location.md) – shared reusable location entries
+- [`Break`](./break.md)
+- [`Job`](./job.md)
+- [`Shipment`](./shipment.md)
+- [`Location`](./location.md)

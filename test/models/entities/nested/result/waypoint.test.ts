@@ -1,8 +1,8 @@
-import { RouteAction, Waypoint, WaypointResponseData } from "../../../../../src";
+import { RouteAction, Waypoint, WaypointData } from "../../../../../src";
 
 describe("Waypoint", () => {
     let waypoint: Waypoint;
-    let initialData: WaypointResponseData;
+    let initialData: WaypointData;
 
     beforeEach(() => {
         initialData = {
@@ -47,7 +47,7 @@ describe("Waypoint", () => {
     });
 
     test("should fallback to original location when location is missing", () => {
-        const noResolvedLocation: WaypointResponseData = {
+        const noResolvedLocation: WaypointData = {
             ...initialData,
             location: undefined
         };
@@ -78,7 +78,7 @@ describe("Waypoint", () => {
     });
 
     test("should return an empty array if no actions are provided", () => {
-        const emptyActionsData: WaypointResponseData = {
+        const emptyActionsData: WaypointData = {
             ...initialData,
             actions: [],
         };

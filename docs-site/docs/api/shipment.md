@@ -1,92 +1,147 @@
 # `Shipment`
 
-The `Shipment` class defines a delivery that includes both a **pickup** and a **delivery** step. Both steps must be completed by the same agent, and each can have its own location, duration, and time constraints.
-
-Shipments are used when goods must be transported between two points, often with size, skill, or scheduling requirements.
-
----
-
-## Purpose
-
-Use the `Shipment` class to:
-
-- Define pickup and delivery tasks as one logical unit
-- Ensure both steps are assigned to the same agent
-- Specify handling or equipment requirements
-- Control when each step should happen
-- Track priority or quantity for delivery planning
-
----
+`Shipment` defines a pickup+delivery pair that must be executed by the same agent.
 
 ## Constructor
 
+Signature: `new Shipment(raw?: ShipmentData)`
+
+Creates a shipment instance. If `raw` is omitted, empty `requirements` are initialized.
+
 ```ts
-new Shipment(raw?: ShipmentData)
+const shipment = new Shipment();
 ```
-
-Initializes a shipment with an empty `requirements` array if no data is passed.
-
----
 
 ## Methods
 
-### Identification & Description
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): ShipmentData` | Return current raw payload |
+| `setRaw` | `setRaw(value: ShipmentData): this` | Replace raw payload |
+| `setId` | `setId(id: string): this` | Set shipment ID |
+| `setPickup` | `setPickup(value: ShipmentStep): this` | Set pickup step |
+| `setDelivery` | `setDelivery(value: ShipmentStep): this` | Set delivery step |
+| `addRequirement` | `addRequirement(value: string): this` | Add required capability |
+| `setPriority` | `setPriority(value: number): this` | Set priority |
+| `setDescription` | `setDescription(value: string): this` | Set description |
+| `setAmount` | `setAmount(value: number): this` | Set amount for capacity calculations |
 
-| Method                 | Description                                 |
-| ---------------------- | ------------------------------------------- |
-| `setId(id)`            | Assigns a unique identifier to the shipment |
-| `setDescription(text)` | Adds an optional human-readable description |
+### getRaw()
 
-### Steps
+Returns current `ShipmentData`.
 
-| Method                            | Description                                         |
-| --------------------------------- | --------------------------------------------------- |
-| `setPickup(step: ShipmentStep)`   | Defines the pickup location, timing, and duration   |
-| `setDelivery(step: ShipmentStep)` | Defines the delivery location, timing, and duration |
+```ts
+const raw = shipment.getRaw();
+```
 
-Each step must be an instance of [`ShipmentStep`](./shipment-step.md).
+### setRaw(value)
 
-### Constraints
+Replaces whole shipment payload.
 
-| Method                  | Description                                                       |
-| ----------------------- | ----------------------------------------------------------------- |
-| `addRequirement(value)` | Adds a required agent capability (e.g., `"fragile"`, `"hazmat"`)  |
-| `setPriority(value)`    | Sets a priority from 0–100; low-priority shipments may be skipped |
-| `setAmount(value)`      | Specifies how much is being shipped (for capacity management)     |
+```ts
+shipment.setRaw({ requirements: [], pickup: { location: [13.38, 52.52] }, delivery: { location: [13.40, 52.50] } });
+```
 
----
+### setId(id)
+
+Sets shipment ID.
+
+```ts
+shipment.setId('order-1');
+```
+
+### setPickup(value)
+
+Sets pickup step.
+
+```ts
+shipment.setPickup(new ShipmentStep().setLocation(13.38, 52.52).setDuration(180));
+```
+
+### setDelivery(value)
+
+Sets delivery step.
+
+```ts
+shipment.setDelivery(new ShipmentStep().setLocation(13.40, 52.50).setDuration(180));
+```
+
+### addRequirement(value)
+
+Adds required capability tag.
+
+```ts
+shipment.addRequirement('cooled');
+```
+
+### setPriority(value)
+
+Sets shipment priority.
+
+```ts
+shipment.setPriority(90);
+```
+
+### setDescription(value)
+
+Sets human-readable description.
+
+```ts
+shipment.setDescription('Pickup at warehouse, deliver to store');
+```
+
+### setAmount(value)
+
+Sets shipment amount for capacity tracking.
+
+```ts
+shipment.setAmount(20);
+```
 
 ## Example
 
 ```ts
-import { Shipment, ShipmentStep } from "@geoapify/route-planner-sdk";
+import { Shipment, ShipmentStep } from '@geoapify/route-planner-sdk';
 
 const pickup = new ShipmentStep()
   .setLocation(13.38, 52.52)
-  .setDuration(300)
+  .setDuration(180)
   .addTimeWindow(0, 14400);
 
 const delivery = new ShipmentStep()
-  .setLocation(13.41, 52.50)
-  .setDuration(300)
-  .addTimeWindow(18000, 32400);
+  .setLocation(13.40, 52.50)
+  .setDuration(180)
+  .addTimeWindow(3600, 21600);
 
 const shipment = new Shipment()
-  .setId("delivery-1")
+  .setId('order-1')
   .setPickup(pickup)
   .setDelivery(delivery)
-  .addRequirement("cooled")
   .setAmount(20)
-  .setPriority(80);
+  .setPriority(80)
+  .addRequirement('cooled');
 ```
 
-This defines a shipment that must be picked up and delivered within specific time windows, and requires a vehicle capable of handling cooled goods.
+## ShipmentData Interface
 
----
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface ShipmentData {
+  id?: string;
+  pickup?: ShipmentStepData;
+  delivery?: ShipmentStepData;
+  requirements: string[];
+  priority?: number;
+  description?: string;
+  amount?: number;
+}
+```
+
+Referenced nested interface: [`ShipmentStepData`](./shipment-step.md#shipmentstepdata-interface).
 
 ## Related
 
-* [`ShipmentStep`](./shipment-step.md) – used to define pickup and delivery points
-* [`Agent`](./agent.md) – must satisfy all requirements and constraints
-* [`Job`](./job.md) – for simpler single-location tasks
-* [`Location`](./location.md) – for shared coordinates
+- [`ShipmentStep`](./shipment-step.md)
+- [`Agent`](./agent.md)
+- [`Job`](./job.md)

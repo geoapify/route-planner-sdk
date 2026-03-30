@@ -19,8 +19,8 @@ describe("AgentPlan", () => {
 
     beforeEach(() => {
         initialData = {
-            agentIndex: 1,
-            agentId: "A1",
+            agent_index: 1,
+            agent_id: "A1",
             time: 1000,
             start_time: 500,
             end_time: 2000,
@@ -106,6 +106,22 @@ describe("AgentPlan", () => {
         const actions = agentPlan.getActions();
         expect(actions.length).toBe(1);
         expect(actions[0]).toBeInstanceOf(RouteAction);
+    });
+
+    test("should return only delay actions via getDelays", () => {
+        const planData: AgentPlanData = {
+            ...initialData,
+            actions: [
+                { type: "job", start_time: 1, duration: 10, job_index: 1, index: 0, waypoint_index: 0 },
+                { type: "delay", start_time: 2, duration: 30, index: 1 },
+                { type: "break", start_time: 3, duration: 20, index: 2 },
+                { type: "delay", start_time: 4, duration: -15, index: 3 }
+            ]
+        };
+        const p = new AgentPlan(planData, agentInputData, routingOptions, callOptions, []);
+        const delays = p.getDelays();
+        expect(delays).toHaveLength(2);
+        expect(delays.every((action) => action.getType() === "delay")).toBe(true);
     });
 
     test("should return an array of Waypoint instances", () => {

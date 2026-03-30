@@ -1,59 +1,90 @@
 # `RouteLegStep`
 
-The `RouteLegStep` class provides a fine-grained breakdown of a travel leg between two waypoints. Each step represents a segment of the road network — such as a turn, road segment, or instruction — with its own time, distance, and coordinate reference.
-
-This class is especially useful for building animated route visualizations or generating navigation-style instructions.
-
----
-
-## Purpose
-
-Use `RouteLegStep` to:
-
-- Animate route drawing step-by-step
-- Analyze the path taken between stops
-- Estimate costs or timing for each road segment
-- Link steps to specific coordinates in the route geometry
-
----
+`RouteLegStep` represents one low-level travel step within a leg.
 
 ## Constructor
 
+Signature: `new RouteLegStep(raw: RouteLegStepData)`
+
+Creates a step wrapper around raw leg-step payload.
+
 ```ts
-new RouteLegStep(raw: RouteLegStepData)
+const step = new RouteLegStep(rawStep);
 ```
-
-Initializes a `RouteLegStep` with timing and distance data. Throws an error if the raw input is missing.
-
----
 
 ## Methods
 
-| Method           | Description                                               |
-| ---------------- | --------------------------------------------------------- |
-| `getRaw()`       | Returns the raw `RouteLegStepData` object                 |
-| `getDistance()`  | Distance of this step in meters                           |
-| `getTime()`      | Travel time in seconds                                    |
-| `getFromIndex()` | Index of the start coordinate in the route geometry array |
-| `getToIndex()`   | Index of the end coordinate in the route geometry array   |
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): RouteLegStepData` | Return raw step payload |
+| `getDistance` | `getDistance(): number` | Get step distance |
+| `getTime` | `getTime(): number` | Get step travel time |
+| `getFromIndex` | `getFromIndex(): number` | Get source geometry index |
+| `getToIndex` | `getToIndex(): number` | Get destination geometry index |
 
----
+### getRaw()
+
+Returns raw `RouteLegStepData`.
+
+```ts
+const raw = step.getRaw();
+```
+
+### getDistance()
+
+Returns step distance.
+
+```ts
+const distance = step.getDistance();
+```
+
+### getTime()
+
+Returns step time.
+
+```ts
+const time = step.getTime();
+```
+
+### getFromIndex()
+
+Returns source geometry index.
+
+```ts
+const from = step.getFromIndex();
+```
+
+### getToIndex()
+
+Returns destination geometry index.
+
+```ts
+const to = step.getToIndex();
+```
 
 ## Example
 
 ```ts
 const step = new RouteLegStep(data);
 
-console.log("Step duration:", step.getTime());
-console.log("From coord index:", step.getFromIndex());
+console.log(step.getTime(), step.getDistance());
+console.log(step.getFromIndex(), step.getToIndex());
 ```
 
-Used in combination with the route’s geometry array, this allows you to reconstruct the exact map path followed in each leg.
+## RouteLegStepData Interface
 
----
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface RouteLegStepData {
+  distance: number;
+  time: number;
+  from_index: number;
+  to_index: number;
+}
+```
 
 ## Related
 
-* [`RouteLeg`](./route-leg.md) – parent object containing a list of steps
-* [`AgentSolution`](./agent-solution.md) – contains all route legs and steps
-* [`Waypoint`](./waypoint.md) – points connected by legs and steps
+- [`RouteLeg`](./route-leg.md)
+- [`AgentPlan`](./agent-plan.md)

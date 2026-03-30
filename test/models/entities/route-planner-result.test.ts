@@ -147,8 +147,8 @@ describe("RoutePlannerResult", () => {
         const rawWithViolations = JSON.parse(JSON.stringify(jobsRaw));
         const firstAgentIndex = rawWithViolations.features[0].properties.agent_index;
         rawWithViolations.properties.violations = [
-            { message: "belongs", agentIndex: firstAgentIndex, name: "ViolationError" },
-            { message: "other", agentIndex: 9999, name: "ViolationError" }
+            { message: "belongs", agentIndex: firstAgentIndex, name: "Violation" },
+            { message: "other", agentIndex: 9999, name: "Violation" }
         ];
 
         const resultWithViolations = new RoutePlannerResult(options, rawWithViolations);

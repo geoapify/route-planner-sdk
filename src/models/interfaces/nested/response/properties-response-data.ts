@@ -1,8 +1,8 @@
-import { LegResponseData } from "./leg-response-data";
-import { ActionResponseData } from "./action-response-data";
-import { WaypointResponseData } from "./waypoint-response-data";
+import { RouteLegData } from "./route-leg-data";
+import { RouteActionData } from "./route-action-data";
+import { WaypointData } from "./waypoint-data";
 
-export interface AgentPlanResponceData {
+export interface AgentPlanData {
     agent_index: number;
     agent_id: string;
     time: number;
@@ -10,7 +10,7 @@ export interface AgentPlanResponceData {
     end_time: number;
     distance: number;
     mode: string;
-    legs: LegResponseData[];
-    actions: ActionResponseData[];
-    waypoints: WaypointResponseData[];
+    legs: RouteLegData[];
+    actions: RouteActionData[];
+    waypoints: WaypointData[];
 }

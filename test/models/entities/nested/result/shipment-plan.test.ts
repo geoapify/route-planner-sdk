@@ -27,8 +27,8 @@ describe("ShipmentPlan", () => {
     };
 
     const agentPlanData: AgentPlanData = {
-        agentIndex: 1,
-        agentId: "agent-1",
+        agent_index: 1,
+        agent_id: "agent-1",
         time: 100,
         start_time: 0,
         end_time: 100,

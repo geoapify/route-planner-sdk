@@ -2,7 +2,7 @@ import { IndexConverter } from "../../../helpers/index-converter";
 import { ActionResponseData, InvalidInsertionPosition } from "../../../models";
 import { RouteResultEditorBase } from "../route-result-editor-base";
 import { AgentPlanRecalculator, WaypointBuilder } from "../strategies";
-import { WaypointResponseData } from "../../../models";
+import { WaypointData } from "../../../models";
 import { RouteViolationValidator } from "../validations";
 
 export class WaypointMoveHelper {
@@ -43,7 +43,7 @@ export class WaypointMoveHelper {
         RouteViolationValidator.validate(context, agentIndex);
     }
 
-    private static validateWaypointIndex(waypoints: WaypointResponseData[], index: number, agentIndex: number, label: string): void {
+    private static validateWaypointIndex(waypoints: WaypointData[], index: number, agentIndex: number, label: string): void {
         if (index < 0 || index >= waypoints.length) {
             throw new InvalidInsertionPosition(`Waypoint ${label} index ${index} out of range (0-${waypoints.length - 1})`, agentIndex, index);
         }
@@ -56,7 +56,7 @@ export class WaypointMoveHelper {
     }
 
     private static validatePickupDeliveryOrder(
-        waypoints: WaypointResponseData[],
+        waypoints: WaypointData[],
         fromWaypointIndex: number,
         toWaypointIndex: number,
         agentIndex: number
@@ -109,7 +109,7 @@ export class WaypointMoveHelper {
     }
 
     private static findShipmentActionPosition(
-        waypoints: WaypointResponseData[],
+        waypoints: WaypointData[],
         shipmentIndex: number,
         actionType: "pickup" | "delivery"
     ): { waypointIndex: number; actionIndex: number } | undefined {
@@ -153,7 +153,7 @@ export class WaypointMoveHelper {
     }
 
 
-    private static mergeAdjacentDuplicateLocations(waypoints: WaypointResponseData[], movedIndex: number): void {
+    private static mergeAdjacentDuplicateLocations(waypoints: WaypointData[], movedIndex: number): void {
         const hasPreviousMatch = movedIndex > 0 &&
             this.haveSameLocation(waypoints[movedIndex - 1], waypoints[movedIndex]);
 
@@ -167,7 +167,7 @@ export class WaypointMoveHelper {
         }
     }
 
-    private static haveSameLocation(firstWaypoint: WaypointResponseData, secondWaypoint: WaypointResponseData): boolean {
+    private static haveSameLocation(firstWaypoint: WaypointData, secondWaypoint: WaypointData): boolean {
         if (firstWaypoint.original_location_index !== undefined && secondWaypoint.original_location_index !== undefined) {
             return firstWaypoint.original_location_index === secondWaypoint.original_location_index;
         }
@@ -177,7 +177,7 @@ export class WaypointMoveHelper {
         return lat1 === lat2 && lon1 === lon2;
     }
 
-    private static mergeWaypoints(waypoints: WaypointResponseData[], keepIndex: number, removeIndex: number): void {
+    private static mergeWaypoints(waypoints: WaypointData[], keepIndex: number, removeIndex: number): void {
         const keepWaypoint = waypoints[keepIndex];
         const removeWaypoint = waypoints[removeIndex];
 

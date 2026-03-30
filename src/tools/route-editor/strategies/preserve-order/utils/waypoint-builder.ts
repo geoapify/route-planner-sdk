@@ -1,6 +1,6 @@
 import { RouteEditorHelper } from "./route-editor-helper";
 import { LegRecalculator, MISSING_LEG_DATA } from "./leg-recalculator";
-import {ActionResponseData, LegResponseData, WaypointResponseData} from "../../../../../models";
+import {ActionResponseData, RouteLegData, WaypointData} from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
 import {ShipmentInsertPositions} from "../helpers/preserve-order-shipment-helper";
 import { JobInsertPosition } from "../helpers/preserve-order-job-helper";
@@ -28,7 +28,7 @@ export class WaypointBuilder {
 
         if (position.createWaypoint) {
 
-            const newWaypoint: WaypointResponseData = {
+            const newWaypoint: WaypointData = {
                 original_location: jobLocationData.location,
                 original_location_index: jobLocationData.locationIndex,
                 original_location_id: jobLocationData.locationId,
@@ -64,7 +64,7 @@ export class WaypointBuilder {
 
         if (positions.createPickupWaypoint) {
             const pickupLocationData = RouteEditorHelper.resolveShipmentStepWaypointLocationData(context, shipment.pickup!);
-            const pickupWaypoint: WaypointResponseData = {
+            const pickupWaypoint: WaypointData = {
                 original_location: pickupLocationData.location,
                 original_location_index: pickupLocationData.locationIndex,
                 original_location_id: pickupLocationData.locationId,
@@ -85,7 +85,7 @@ export class WaypointBuilder {
 
         if (positions.createDeliveryWaypoint) {
             const deliveryLocationData = RouteEditorHelper.resolveShipmentStepWaypointLocationData(context, shipment.delivery!);
-            const deliveryWaypoint: WaypointResponseData = {
+            const deliveryWaypoint: WaypointData = {
                 original_location: deliveryLocationData.location,
                 original_location_index: deliveryLocationData.locationIndex,
                 original_location_id: deliveryLocationData.locationId,
@@ -105,7 +105,7 @@ export class WaypointBuilder {
         }
     }
 
-    private static addActionToWaypoint(waypoint: WaypointResponseData, action: ActionResponseData): void {
+    private static addActionToWaypoint(waypoint: WaypointData, action: ActionResponseData): void {
         const endActionIndex = waypoint.actions.findIndex(existingAction => existingAction.type === "end");
         if (endActionIndex >= 0) {
             waypoint.actions.splice(endActionIndex, 0, { ...action });
@@ -123,23 +123,23 @@ export class WaypointBuilder {
         return false;
     }
 
-    static removeJobsFromWaypoints(waypoints: WaypointResponseData[], jobIndex: number): void {
+    static removeJobsFromWaypoints(waypoints: WaypointData[], jobIndex: number): void {
         for (const waypoint of waypoints) {
             waypoint.actions = waypoint.actions.filter(a => a.job_index !== jobIndex);
         }
     }
 
-    static removeShipmentsFromWaypoints(waypoints: WaypointResponseData[], shipmentIndex: number): void {
+    static removeShipmentsFromWaypoints(waypoints: WaypointData[], shipmentIndex: number): void {
         for (const waypoint of waypoints) {
             waypoint.actions = waypoint.actions.filter(a => a.shipment_index !== shipmentIndex);
         }
     }
 
     static removeEmptyWaypoints(
-        waypoints: WaypointResponseData[],
-        legDataMap?: Map<string, LegResponseData>
-    ): { waypoints: WaypointResponseData[]; legs?: LegResponseData[]; removedWaypointIndices: number[] } {
-        const updatedWaypoints: WaypointResponseData[] = [];
+        waypoints: WaypointData[],
+        legDataMap?: Map<string, RouteLegData>
+    ): { waypoints: WaypointData[]; legs?: RouteLegData[]; removedWaypointIndices: number[] } {
+        const updatedWaypoints: WaypointData[] = [];
         const removedWaypointIndices: number[] = [];
 
         for (let i = 0; i < waypoints.length; i++) {
@@ -161,9 +161,9 @@ export class WaypointBuilder {
         };
     }
 
-    static buildLegDataMap(waypoints: WaypointResponseData[],
-                           legs: LegResponseData[]): Map<string, LegResponseData> {
-        const result = new Map<string, LegResponseData>();
+    static buildLegDataMap(waypoints: WaypointData[],
+                           legs: RouteLegData[]): Map<string, RouteLegData> {
+        const result = new Map<string, RouteLegData>();
 
         for (const leg of legs) {
             const fromWaypoint = waypoints[leg.from_waypoint_index];
@@ -182,9 +182,9 @@ export class WaypointBuilder {
         return result;
     }
 
-    static rebuildLegs(waypoints: WaypointResponseData[],
-                       legDataMap: Map<string, LegResponseData>): LegResponseData[] {
-        const legs: LegResponseData[] = [];
+    static rebuildLegs(waypoints: WaypointData[],
+                       legDataMap: Map<string, RouteLegData>): RouteLegData[] {
+        const legs: RouteLegData[] = [];
 
         for (let i = 0; i < waypoints.length - 1; i++) {
             const fromWaypoint = waypoints[i];
@@ -221,7 +221,7 @@ export class WaypointBuilder {
         return `${from[0]},${from[1]}->${to[0]},${to[1]}`;
     }
 
-    private static getWaypointLocation(waypoint: WaypointResponseData): [number, number] {
+    private static getWaypointLocation(waypoint: WaypointData): [number, number] {
         return waypoint.location || waypoint.original_location;
     }
 }

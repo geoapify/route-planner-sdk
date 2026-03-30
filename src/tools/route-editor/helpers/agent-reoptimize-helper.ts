@@ -7,12 +7,16 @@ import { RouteViolationValidator } from "../validations";
 export class AgentReoptimizeHelper {
     private static readonly MAX_CAPACITY = 2147483647;
 
-    static async execute(context: RouteResultEditorBase, options: ReoptimizeOptions): Promise<boolean> {
-        if (options.agentIdOrIndex === undefined) {
+    static async execute(
+        context: RouteResultEditorBase,
+        agentIdOrIndex: string | number,
+        options: ReoptimizeOptions = {}
+    ): Promise<boolean> {
+        if (agentIdOrIndex === undefined || agentIdOrIndex === null) {
             throw new InvalidParameter("agentIdOrIndex is required", "agentIdOrIndex");
         }
 
-        const agentIndex = IndexConverter.convertAgentToIndex(context.getRawData(), options.agentIdOrIndex, true);
+        const agentIndex = IndexConverter.convertAgentToIndex(context.getRawData(), agentIdOrIndex, true);
         const targetJobIndexes = new Set<number>(context.getAgentJobs(agentIndex));
         const targetShipmentIndexes = new Set<number>(context.getAgentShipments(agentIndex));
 

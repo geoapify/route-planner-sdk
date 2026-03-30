@@ -1,78 +1,162 @@
 # `RouteAction`
 
-The `RouteAction` class represents a single step or task that an agent performs along their route. It encapsulates what happens, when it happens, and how it relates to jobs, shipments, and locations.
-
-Actions are the atomic units of execution in the result and can include types like `start`, `pickup`, `delivery`, and `end`.
-
----
-
-## Purpose
-
-Use `RouteAction` to:
-
-- Understand what the agent does at each stop
-- Determine the timing and duration of actions
-- Trace actions back to jobs or shipments
-- Build execution timelines or visual route logs
-
-Each action is tied to a specific waypoint and contributes to the route's structure and semantics.
-
----
+`RouteAction` represents one action in an agent route timeline.
 
 ## Constructor
 
+Signature: `new RouteAction(raw: RouteActionData)`
+
+Creates a route action wrapper around raw action payload.
+
 ```ts
-new RouteAction(raw: ActionResponseData)
+const action = new RouteAction(rawAction);
 ```
-
-Creates a `RouteAction` from raw result data. Throws an error if no data is provided.
-
----
 
 ## Methods
 
-| Method           | Description                                                         |
-| ---------------- | ------------------------------------------------------------------- |
-| `getRaw()`       | Returns the internal `RouteActionData` object                       |
-| `getType()`      | Returns the action type: `start`, `pickup`, `delivery`, `end`, etc. |
-| `getStartTime()` | Time (in seconds) when the action begins                            |
-| `getDuration()`  | How long the action takes (in seconds)                              |
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): RouteActionData` | Return raw action payload |
+| `getType` | `getType(): string` | Get action type |
+| `getStartTime` | `getStartTime(): number` | Get start time |
+| `getDuration` | `getDuration(): number` | Get action duration |
+| `getShipmentIndex` | `getShipmentIndex(): number \| undefined` | Get shipment index |
+| `getShipmentId` | `getShipmentId(): string \| undefined` | Get shipment id |
+| `getLocationIndex` | `getLocationIndex(): number \| undefined` | Get location index |
+| `getLocationId` | `getLocationId(): string \| undefined` | Get location id |
+| `getJobIndex` | `getJobIndex(): number \| undefined` | Get job index |
+| `getJobId` | `getJobId(): string \| undefined` | Get job id |
+| `getActionIndex` | `getActionIndex(): number` | Get action order index |
+| `getWaypointIndex` | `getWaypointIndex(): number \| undefined` | Get waypoint index |
 
-### Job and Shipment Linking
+### getRaw()
 
-| Method               | Description                                     |
-| -------------------- | ----------------------------------------------- |
-| `getJobIndex()`      | Index of the job in the original `jobs[]` array |
-| `getJobId()`         | Custom ID of the job (if set)                   |
-| `getShipmentIndex()` | Index of the shipment (if applicable)           |
-| `getShipmentId()`    | Custom ID of the shipment (if set)              |
+Returns raw `RouteActionData`.
 
-### Location Metadata
+```ts
+const raw = action.getRaw();
+```
 
-| Method               | Description                                      |
-| -------------------- | ------------------------------------------------ |
-| `getLocationIndex()` | Index in the shared `locations[]` list           |
-| `getLocationId()`    | Custom ID of the location (if provided)          |
-| `getWaypointIndex()` | Index of the corresponding waypoint in the route |
+### getType()
 
----
+Returns action type (`start`, `job`, `pickup`, `delivery`, `break`, `delay`, `end`, ...).
+
+```ts
+const type = action.getType();
+```
+
+### getStartTime()
+
+Returns action start time.
+
+```ts
+const start = action.getStartTime();
+```
+
+### getDuration()
+
+Returns action duration.
+
+```ts
+const duration = action.getDuration();
+```
+
+### getShipmentIndex()
+
+Returns shipment index if action belongs to a shipment.
+
+```ts
+const shipmentIndex = action.getShipmentIndex();
+```
+
+### getShipmentId()
+
+Returns shipment ID if present.
+
+```ts
+const shipmentId = action.getShipmentId();
+```
+
+### getLocationIndex()
+
+Returns referenced location index if present.
+
+```ts
+const locIndex = action.getLocationIndex();
+```
+
+### getLocationId()
+
+Returns referenced location ID if present.
+
+```ts
+const locId = action.getLocationId();
+```
+
+### getJobIndex()
+
+Returns job index if action belongs to a job.
+
+```ts
+const jobIndex = action.getJobIndex();
+```
+
+### getJobId()
+
+Returns job ID if present.
+
+```ts
+const jobId = action.getJobId();
+```
+
+### getActionIndex()
+
+Returns global action index in agent action list.
+
+```ts
+const idx = action.getActionIndex();
+```
+
+### getWaypointIndex()
+
+Returns waypoint index linked to this action.
+
+```ts
+const wpIndex = action.getWaypointIndex();
+```
 
 ## Example
 
 ```ts
 const action = new RouteAction(data);
 
-console.log(action.getType()); // 'pickup'
-console.log(action.getStartTime()); // 3600 (1 hour into route)
+console.log(action.getType());
+console.log(action.getStartTime());
+console.log(action.getDuration());
 ```
 
-You can use route actions to generate step-by-step timelines or visualize delivery workflows.
+## RouteActionData Interface
 
----
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface RouteActionData {
+  type: string;
+  start_time: number;
+  duration: number;
+  index: number;
+  shipment_index?: number;
+  shipment_id?: string;
+  location_index?: number;
+  location_id?: string;
+  job_index?: number;
+  job_id?: string;
+  waypoint_index?: number;
+}
+```
 
 ## Related
 
-* [`AgentSolution`](./agent-solution.md) – contains all actions for an agent
-* [`JobSolution`](./job-solution.md) – filters actions by job
-* [`Waypoint`](./waypoint.md) – location where actions take place
-* [`RouteLeg`](./route-leg.md) – the travel segment between actions
+- [`AgentPlan`](./agent-plan.md)
+- [`JobPlan`](./job-plan.md)
+- [`Waypoint`](./waypoint.md)

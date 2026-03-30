@@ -12,7 +12,7 @@ import { JobPlan } from "./nested/result/job-plan";
 import { ShipmentPlan } from "./nested/result/shipment-plan";
 import { IndexConverter } from "../../helpers/index-converter";
 import { RoutePlannerCallOptions } from "../interfaces/route-planner-call-options";
-import {ViolationError} from "./route-editor-exceptions";
+import { Violation } from "./route-editor-exceptions";
 
 /**
  * Provides convenient methods for reading Route Planner API results.
@@ -31,7 +31,13 @@ export class RoutePlannerResult {
         // generate agent plans
         this.agentPlans = new Array(this.data.inputData.agents.length).fill(undefined);
         this.data.agents.forEach((agentPlan) => {
-            this.agentPlans[agentPlan.agentIndex] = new AgentPlan(agentPlan, this.data.inputData.agents[agentPlan.agentIndex], this.getData().inputData, this.callOptions, this.getAgentViolations(agentPlan.agentIndex));
+            this.agentPlans[agentPlan.agent_index] = new AgentPlan(
+                agentPlan,
+                this.data.inputData.agents[agentPlan.agent_index],
+                this.getData().inputData,
+                this.callOptions,
+                this.getAgentViolations(agentPlan.agent_index)
+            );
         });
 
         // generate shipment plans
@@ -168,7 +174,7 @@ export class RoutePlannerResult {
         return this.data.inputData;
     }
 
-    private getAgentViolations(agentIndex: number): ViolationError[] {
+    private getAgentViolations(agentIndex: number): Violation[] {
         const extendedData = this.rawData as RoutePlannerResultResponseDataExtended;
         return extendedData.properties.violations?.filter(violation => violation.agentIndex === agentIndex) ?? [];
     }

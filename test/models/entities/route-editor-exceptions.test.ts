@@ -16,17 +16,16 @@ import {
     ShipmentNotFound,
     TimeWindowViolation,
     UnknownStrategy,
-    ViolationError
+    Violation
 } from "../../../src";
 
 describe("route-editor-exceptions", () => {
-    test("ViolationError should keep message, agent index, and toString", () => {
-        const error = new ViolationError("Violation message", 3);
-        expect(error).toBeInstanceOf(Error);
-        expect(error.name).toBe("ViolationError");
-        expect(error.message).toBe("Violation message");
-        expect(error.agentIndex).toBe(3);
-        expect(error.toString()).toBe("Violation message");
+    test("Violation should keep message, agent index, and toString", () => {
+        const violation = new Violation("Violation message", 3);
+        expect(violation.name).toBe("Violation");
+        expect(violation.message).toBe("Violation message");
+        expect(violation.agentIndex).toBe(3);
+        expect(violation.toString()).toBe("Violation message");
     });
 
     test("violation subclasses should set names and extra fields", () => {

@@ -23,33 +23,33 @@ plugins:
 nav:
   - Home: index.md
   - Installation: installation-and-import.md
+  - Migration from V1: migration-from-v1.md
   - Core Concepts & Entities: entities.md
   - Understanding Results & Output Structure: results.md
+  - Understanding Editing Functionality: editing-functionality.md
   - API Reference: 
     - API Overview: api/index.md
     - RoutePlanner: api/route-planner.md
     - RoutePlannerResult: api/route-planner-result.md
     - RoutePlannerResultEditor: api/route-planner-result-editor.md
-    - RoutePlannerTimeline: api/route-planner-timeline.md
     - Entities:
       - Agent: api/agent.md
       - Job: api/job.md
       - Shipment: api/shipment.md
+      - ShipmentStep: api/shipment-step.md      
       - Avoid: api/avoid.md
       - Break: api/break.md
+      - Location: api/location.md      
       - Coordinates: api/coordinates.md
-      - Location: api/location.md
-      - ShipmentStep: api/shipment-step.md
     - Result Types:
-      - AgentSolution: api/agent-solution.md
-      - JobSolution: api/job-solution.md
-      - ShipmentSolution: api/shipment-solution.md
+      - AgentPlan: api/agent-plan.md
+      - JobPlan: api/job-plan.md
+      - ShipmentPlan: api/shipment-plan.md
       - RouteAction: api/route-action.md
-      - RouteActionInfo: api/route-action-info.md
       - RouteLeg: api/route-leg.md
       - RouteLegStep: api/route-leg-step.md
       - Waypoint: api/waypoint.md
-    - Other Types and Interfaces: api/types.md
+    - RoutePlannerTimeline: api/route-planner-timeline.md
   - Examples: 
     - Optimizing Delivery Routes with Two Agents: examples/optimizing-two-agents.md
     - Planning 20 Shipments with 3 Agents: examples/optimizing-shipments-3-agents.md

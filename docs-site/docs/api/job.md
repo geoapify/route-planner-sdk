@@ -1,95 +1,166 @@
 # `Job`
 
-The `Job` class defines a single task to be completed by an agent — such as a delivery, service visit, or on-site inspection. It includes location, duration, and scheduling details, along with optional constraints like required skills or priority.
-
-Jobs are the simplest form of work assignment in the route planner. Unlike shipments, jobs involve only one location.
-
----
-
-## Purpose
-
-Use the `Job` class to define a stop that needs to be visited by an agent. You can set:
-
-- A location (or reference a location index)
-- How long the job takes
-- Required skills (via `requirements`)
-- When it must be done (via `time_windows`)
-- Importance (via `priority`)
-
-Jobs can be optional or mandatory depending on how they’re configured.
-
----
+`Job` defines a single-stop task (service, delivery, visit) in route planning.
 
 ## Constructor
 
+Signature: `new Job(raw?: JobData)`
+
+Creates a job instance. If `raw` is omitted, empty `requirements` and `time_windows` are initialized.
+
 ```ts
-new Job(raw?: JobData)
+const job = new Job();
 ```
-
-Initializes a job. If no data is passed, it creates a job with empty `requirements` and `time_windows`.
-
----
 
 ## Methods
 
-### Identification
+| Method | Signature | Purpose |
+|---|---|---|
+| `getRaw` | `getRaw(): JobData` | Return current raw payload |
+| `setRaw` | `setRaw(value: JobData): this` | Replace raw payload |
+| `setId` | `setId(value: string): this` | Set job ID |
+| `setDescription` | `setDescription(value: string): this` | Set description |
+| `setLocation` | `setLocation(lon: number, lat: number): this` | Set job coordinates |
+| `setLocationIndex` | `setLocationIndex(value: number): this` | Set location by index |
+| `setPriority` | `setPriority(value: number): this` | Set priority |
+| `setDuration` | `setDuration(value: number): this` | Set service duration |
+| `setPickupAmount` | `setPickupAmount(value: number): this` | Set pickup amount |
+| `setDeliveryAmount` | `setDeliveryAmount(value: number): this` | Set delivery amount |
+| `addRequirement` | `addRequirement(value: string): this` | Add required capability |
+| `addTimeWindow` | `addTimeWindow(start: number, end: number): this` | Add allowed execution window |
 
-| Method                  | Description                       |
-| ----------------------- | --------------------------------- |
-| `setId(value)`          | Sets a unique job ID              |
-| `setDescription(value)` | Adds a human-readable description |
+### getRaw()
 
-### Location
+Returns current `JobData`.
 
-| Method                    | Description                                                    |
-| ------------------------- | -------------------------------------------------------------- |
-| `setLocation(lon, lat)`   | Sets the job location directly                                 |
-| `setLocationIndex(index)` | References a predefined location by index (from `locations[]`) |
+```ts
+const raw = job.getRaw();
+```
 
-### Scheduling
+### setRaw(value)
 
-| Method                      | Description                                   |
-| --------------------------- | --------------------------------------------- |
-| `addTimeWindow(start, end)` | Adds a time window (in relative seconds)      |
-| `setDuration(value)`        | Specifies how long the job takes (in seconds) |
+Replaces the whole job payload.
 
-### Constraints
+```ts
+job.setRaw({ requirements: [], time_windows: [], duration: 300, location: [13.38, 52.52] });
+```
 
-| Method                  | Description                                            |
-| ----------------------- | ------------------------------------------------------ |
-| `setPriority(value)`    | Importance from `0` (lowest) to `100` (highest)        |
-| `addRequirement(value)` | Adds a skill or capability required to perform the job |
+### setId(value)
 
-### Capacity (for bulky goods use cases)
+Sets custom job ID.
 
-| Method                     | Description                                |
-| -------------------------- | ------------------------------------------ |
-| `setPickupAmount(value)`   | Number of units picked up at this location |
-| `setDeliveryAmount(value)` | Number of units delivered at this location |
+```ts
+job.setId('job-1');
+```
 
----
+### setDescription(value)
+
+Sets human-readable description.
+
+```ts
+job.setDescription('Deliver spare parts');
+```
+
+### setLocation(lon, lat)
+
+Sets direct coordinates.
+
+```ts
+job.setLocation(13.38, 52.52);
+```
+
+### setLocationIndex(value)
+
+Sets location by `locations[]` index.
+
+```ts
+job.setLocationIndex(2);
+```
+
+### setPriority(value)
+
+Sets job priority.
+
+```ts
+job.setPriority(80);
+```
+
+### setDuration(value)
+
+Sets service time in seconds.
+
+```ts
+job.setDuration(300);
+```
+
+### setPickupAmount(value)
+
+Sets pickup amount for capacity-constrained scenarios.
+
+```ts
+job.setPickupAmount(10);
+```
+
+### setDeliveryAmount(value)
+
+Sets delivery amount for capacity-constrained scenarios.
+
+```ts
+job.setDeliveryAmount(20);
+```
+
+### addRequirement(value)
+
+Adds required capability tag.
+
+```ts
+job.addRequirement('fragile');
+```
+
+### addTimeWindow(start, end)
+
+Adds allowed execution interval.
+
+```ts
+job.addTimeWindow(0, 14400);
+```
 
 ## Example
 
 ```ts
-import { Job } from "@geoapify/route-planner-sdk";
+import { Job } from '@geoapify/route-planner-sdk';
 
 const job = new Job()
-  .setId("order-1")
+  .setId('job-1')
+  .setDescription('Deliver order #1')
   .setLocation(13.38, 52.52)
-  .setDuration(300) // 5 minutes
+  .setDuration(300)
+  .addRequirement('fragile')
   .addTimeWindow(0, 14400)
-  .addRequirement("fragile")
   .setPriority(80);
 ```
 
-This example defines a 5-minute job that must be completed within the first 4 hours of the planning window and requires a vehicle/agent with "fragile" handling capability.
+## JobData Interface
 
----
+This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.
+
+```ts
+interface JobData {
+  location?: [number, number];
+  location_index?: number;
+  priority?: number;
+  duration?: number;
+  pickup_amount?: number;
+  delivery_amount?: number;
+  requirements: string[];
+  time_windows: [number, number][];
+  id?: string;
+  description?: string;
+}
+```
 
 ## Related
 
-* [`Agent`](./agent.md) – performs the job
-* [`Shipment`](./shipment.md) – for jobs that require both pickup and delivery
-* [`Location`](./location.md) – for reusable location references
-
+- [`Agent`](./agent.md)
+- [`Shipment`](./shipment.md)
+- [`Location`](./location.md)

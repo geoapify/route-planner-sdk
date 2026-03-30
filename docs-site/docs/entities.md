@@ -111,8 +111,6 @@ const result = await planner
 
 The SDK wraps the API call, handles validation, and returns a `RoutePlannerResult` — which you can use as-is or modify using tools like `RoutePlannerResultEditor` and visualize with `RoutePlannerTimeline`.
 
----
-
 For details on how to format each object (Agent, Job, Shipment, etc.), see the [API Reference](./api/index.md).
 
 Try it in the [Playground](https://apidocs.geoapify.com/playground/route-planner/).

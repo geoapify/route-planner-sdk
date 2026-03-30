@@ -3,7 +3,7 @@ import {
     AgentData,
     JobData,
     ShipmentData,
-    ViolationError,
+    Violation,
     TimeWindowViolation,
     BreakViolation,
     AgentPickupCapacityExceeded,
@@ -27,7 +27,7 @@ export class RouteViolationValidator {
     static validate(context: RouteResultEditorBase, agentIndex: number): void {
         const rawData = context.getRawData();
 
-        const violations: ViolationError[] = [];
+        const violations: Violation[] = [];
 
         let timeWindowViolations = this.validateTimeWindows(context, agentIndex);
         violations.push(...timeWindowViolations);
@@ -41,8 +41,8 @@ export class RouteViolationValidator {
         this.addViolationsToResult(rawData, agentIndex, violations);
     }
 
-    private static validateTimeWindows(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
-        const result: ViolationError[] = [];
+    private static validateTimeWindows(context: RouteResultEditorBase, agentIndex: number): Violation[] {
+        const result: Violation[] = [];
         const rawData = context.getRawData();
         const agent = rawData.properties.params.agents[agentIndex];
         const actions = context.getAgentActions(agentIndex);
@@ -72,8 +72,8 @@ export class RouteViolationValidator {
         return result;
     }
 
-    private static validateBreaks(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
-        const result: ViolationError[] = [];
+    private static validateBreaks(context: RouteResultEditorBase, agentIndex: number): Violation[] {
+        const result: Violation[] = [];
         const rawData = context.getRawData();
         const agent = rawData.properties.params.agents[agentIndex];
         const actions = context.getAgentActions(agentIndex);
@@ -105,8 +105,8 @@ export class RouteViolationValidator {
         return result;
     }
 
-    private static validateCapacity(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
-        const violations: ViolationError[] = [];
+    private static validateCapacity(context: RouteResultEditorBase, agentIndex: number): Violation[] {
+        const violations: Violation[] = [];
         const rawData = context.getRawData();
         const agent = rawData.properties.params.agents[agentIndex];
         const actions = context.getAgentActions(agentIndex);
@@ -161,8 +161,8 @@ export class RouteViolationValidator {
         return violations;
     }
 
-    private static validateCapabilities(context: RouteResultEditorBase, agentIndex: number): ViolationError[] {
-        const violations: ViolationError[] = [];
+    private static validateCapabilities(context: RouteResultEditorBase, agentIndex: number): Violation[] {
+        const violations: Violation[] = [];
         const rawData = context.getRawData();
         const agent = rawData.properties.params.agents[agentIndex];
         const actions = context.getAgentActions(agentIndex);
@@ -284,9 +284,9 @@ export class RouteViolationValidator {
         );
     }
 
-    private static addViolationsToResult(rawData: any, agentIndex: number, violations: ViolationError[]): void {
+    private static addViolationsToResult(rawData: any, agentIndex: number, violations: Violation[]): void {
         rawData.properties.violations = (rawData.properties.violations || []).filter(
-            (violation: ViolationError) => violation.agentIndex !== agentIndex
+            (violation: Violation) => violation.agentIndex !== agentIndex
         );
 
         if (violations.length === 0) {

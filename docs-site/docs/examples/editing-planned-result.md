@@ -9,15 +9,11 @@ In this example, we'll:
 
 This is useful when you want to manually adjust plans based on real-world constraints (like agent availability or new priorities).
 
----
-
 ## 1. Import the SDK
 
 ```ts
-import RoutePlanner, { Agent, Job, RoutePlannerResultEditor } from "@geoapify/route-planner-sdk";
+import { RoutePlanner, Agent, Job, RoutePlannerResultEditor } from "@geoapify/route-planner-sdk";
 ```
-
----
 
 ## 2. Initialize Planner and Add Input
 
@@ -32,28 +28,25 @@ planner
   .addJob(new Job().setId("job-2").setLocation(13.39, 52.53));
 ```
 
----
-
 ## 3. Plan the Route
 
 ```ts
 const result = await planner.plan();
 ```
 
----
-
 ## 4. View Initial Assignments
 
 ```ts
-result.getAgentSolutions().forEach(agent => {
+result.getAgentPlans().forEach(agent => {
+  if (!agent) return;
   console.log(`Agent: ${agent.getAgentId()}`);
   agent.getActions().forEach(action => {
-    console.log(` - ${action.getType()} ${action.getJobId()}`);
+    const jobId = action.getJobId();
+    if (!jobId) return;
+    console.log(` - ${action.getType()} ${jobId}`);
   });
 });
 ```
-
----
 
 ## 5. Reassign a Job to Another Agent
 
@@ -67,8 +60,6 @@ await editor.assignJobs("agent-2", ["job-1"]);
 
 const updatedResult = editor.getModifiedResult();
 ```
-
----
 
 ## 6. Using Different Strategies
 
@@ -100,14 +91,14 @@ const editor = new RoutePlannerResultEditor(result);
 await editor.assignJobs("agent-2", ["job-1"], { strategy: 'preserveOrder' });
 ```
 
-#### 2. Insert at Specific Position (No API Call)
+#### 2. Insert Near Specific Position (Route Matrix API)
 
-Use when you know exactly where to place the item:
+Use when you want insertion constrained to a route segment after a known stop:
 
 ```ts
 const editor = new RoutePlannerResultEditor(result);
 
-// Insert after a specific job (no API call)
+// Optimize insertion after a specific job (Route Matrix API)
 await editor.assignJobs("agent-2", ["job-1"], { 
   strategy: 'preserveOrder', 
   afterId: 'job-2' 
@@ -119,11 +110,6 @@ await editor.assignJobs("agent-2", ["job-1"], {
   afterWaypointIndex: 0  // After start waypoint (first position)
 });
 
-// Or insert before a specific job
-await editor.assignJobs("agent-2", ["job-1"], { 
-  strategy: 'preserveOrder', 
-  beforeId: 'job-3' 
-});
 ```
 
 #### 3. Append to End (No API Call, Fastest)
@@ -136,7 +122,7 @@ const editor = new RoutePlannerResultEditor(result);
 // Append to end of route (no API call)
 await editor.assignJobs("agent-2", ["job-1"], { 
   strategy: 'preserveOrder', 
-  appendToEnd: true 
+  append: true 
 });
 ```
 
@@ -151,22 +137,21 @@ const editor = new RoutePlannerResultEditor(result);
 await editor.removeJobs(["job-1"], { strategy: 'preserveOrder' });
 ```
 
----
-
 ## 7. View Modified Assignments
 
 ```ts
 console.log("Modified solution:");
 
-updatedResult.getAgentSolutions().forEach(agent => {
+updatedResult.getAgentPlans().forEach(agent => {
+  if (!agent) return;
   console.log(`Agent: ${agent.getAgentId()}`);
   agent.getActions().forEach(action => {
-    console.log(` - ${action.getType()} ${action.getJobId()}`);
+    const jobId = action.getJobId();
+    if (!jobId) return;
+    console.log(` - ${action.getType()} ${jobId}`);
   });
 });
 ```
-
----
 
 ## Strategy Comparison
 
@@ -174,11 +159,8 @@ updatedResult.getAgentSolutions().forEach(agent => {
 |----------|-------|-----------|----------|
 | `reoptimize` | Slowest | Route Planner API | Finding optimal route |
 | `preserveOrder` (no position) | Medium | Route Matrix API | Quick optimal insertion without reordering |
-| `preserveOrder` (beforeId/afterId) | Fastest | None | Insert relative to job/shipment |
-| `preserveOrder` (waypoint index) | Fastest | None | Insert at specific waypoint |
-| `preserveOrder` (appendToEnd) | Fastest | None | Real-time UI updates |
-
----
+| `preserveOrder` (`afterId`/`afterWaypointIndex`) | Medium | Route Matrix API | Insert after a known point with local order preserved |
+| `preserveOrder` (`append: true`) | Fastest | None | Direct insert after position or append to route end |
 
 ## Summary
 

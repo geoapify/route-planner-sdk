@@ -27,8 +27,8 @@ describe("JobPlan", () => {
     };
 
     const agentPlanData: AgentPlanData = {
-        agentIndex: 2,
-        agentId: "agent-2",
+        agent_index: 2,
+        agent_id: "agent-2",
         time: 100,
         start_time: 0,
         end_time: 100,

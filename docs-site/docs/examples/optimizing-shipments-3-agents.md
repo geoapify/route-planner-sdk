@@ -6,23 +6,17 @@ This example demonstrates how to use the Geoapify Route Optimization SDK to:
 * Define 20 shipments with predefined pickup and delivery points
 * Optimize delivery plans for 3 agents
 
----
-
 ## 1. Import the SDK
 
 ```ts
-import RoutePlanner, { Agent, Shipment, ShipmentStep } from "@geoapify/route-planner-sdk";
+import { RoutePlanner, Agent, Shipment, ShipmentStep } from "@geoapify/route-planner-sdk";
 ```
-
----
 
 ## 2. Create the Planner
 
 ```ts
 const planner = new RoutePlanner({ apiKey: "YOUR_API_KEY" });
 ```
-
----
 
 ## 3. Add Agents
 
@@ -34,8 +28,6 @@ planner
   .addAgent(new Agent().setId("agent-2").setStartLocation(13.42, 52.50))
   .addAgent(new Agent().setId("agent-3").setStartLocation(13.39, 52.53));
 ```
-
----
 
 ## 4. Add 20 Shipments with Predefined Coordinates
 
@@ -75,22 +67,23 @@ shipmentCoords.forEach(({ pickup, delivery }, i) => {
 });
 ```
 
----
-
 ## 5. Plan and Analyze
 
 ```ts
 const result = await planner.setMode("drive").plan();
 
-result.getAgentSolutions().forEach((agent) => {
+result.getAgentPlans().forEach((agent) => {
+  if (!agent) return;
   console.log(`Agent: ${agent.getAgentId()}`);
   agent.getActions().forEach((action) => {
-    console.log(` - ${action.getType()} shipment ${action.getShipmentId()} at ${action.getStartTime()}s`);
+    const shipmentId = action.getShipmentId();
+    if (!shipmentId) return;
+    console.log(` - ${action.getType()} shipment ${shipmentId} at ${action.getStartTime()}s`);
   });
 });
-```
 
----
+console.log("Unassigned shipments:", result.getUnassignedShipments().length);
+```
 
 ## Result
 
@@ -99,8 +92,6 @@ You now have an optimized plan that distributes 20 shipments across 3 agents, ba
 To visualize the output, see [`RoutePlannerTimeline`](../api/route-planner-timeline.md).
 
 For editing the result manually, use [`RoutePlannerResultEditor`](../api/route-planner-result-editor.md).
-
----
 
 ## See Also
 

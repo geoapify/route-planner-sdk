@@ -1,4 +1,4 @@
-import {FeatureResponseData, LegResponseData, WaypointResponseData} from "../../../../../models";
+import {FeatureResponseData, RouteLegData, WaypointData} from "../../../../../models";
 import {RouteResultEditorBase} from "../../../route-result-editor-base";
 
 export const MISSING_LEG_DATA = -1;
@@ -72,8 +72,8 @@ export class LegRecalculator {
 
     private static async fillMissingOrderedLegs(
         context: RouteResultEditorBase,
-        waypoints: WaypointResponseData[],
-        legs: LegResponseData[],
+        waypoints: WaypointData[],
+        legs: RouteLegData[],
         missingLegIndices: number[]
     ): Promise<void> {
         const routingHelper = context.getRoutingHelper();
@@ -132,8 +132,8 @@ export class LegRecalculator {
 
     private static recreateGeometry(
         agentFeature: FeatureResponseData,
-        waypoints: WaypointResponseData[],
-        legs: LegResponseData[]
+        waypoints: WaypointData[],
+        legs: RouteLegData[]
     ): void {
         const coordinates: [number, number][][] = [];
 
@@ -168,14 +168,14 @@ export class LegRecalculator {
         return mappedWaypoint?.location || routeWaypoints[originalIndex]?.location;
     }
 
-    private static getWaypointLocation(waypoint: WaypointResponseData | undefined): [number, number] | undefined {
+    private static getWaypointLocation(waypoint: WaypointData | undefined): [number, number] | undefined {
         if (!waypoint) {
             return undefined;
         }
         return waypoint.location || waypoint.original_location;
     }
 
-    private static findMissingLegIndices(legs: LegResponseData[]): number[] {
+    private static findMissingLegIndices(legs: RouteLegData[]): number[] {
         const missingLegs: number[] = [];
         for (let i = 0; i < legs.length; i++) {
             const leg = legs[i];

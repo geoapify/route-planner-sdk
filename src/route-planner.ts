@@ -23,8 +23,11 @@ export class RoutePlanner {
 
     constructor(options: RoutePlannerCallOptions,
                 raw?: RoutePlannerInputData) {
-        this.options = options;
-        this.baseUrl = options.baseUrl || 'https://api.geoapify.com';        
+        this.baseUrl = options.baseUrl || 'https://api.geoapify.com';
+        this.options = {
+            ...options,
+            baseUrl: this.baseUrl
+        };
         if(raw) {
             this.raw = raw;
         } else {
