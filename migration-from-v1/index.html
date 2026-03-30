@@ -1,0 +1,2014 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../installation-and-import/">
+      
+      
+        <link rel="next" href="../entities/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Migration from V1 - Geoapify Route Optimization SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#migration-from-v1-to-v2" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Geoapify Route Optimization SDK" class="md-header__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Geoapify Route Optimization SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Migration from V1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Geoapify Route Optimization SDK" class="md-nav__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    Geoapify Route Optimization SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation-and-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration from V1
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration from V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ai-prompt-for-migration-codex-similar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Prompt for Migration (Codex / / Similar)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-routeplanner-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. RoutePlanner Construction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-result-model-renames" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Result Model Renames
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Result Model Renames">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#routeplannerresult-method-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerResult Method Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result-interface-renames" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Interface Renames
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-waypointsactionslegs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing Waypoints/Actions/Legs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-route-fetching-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Route Fetching Change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-editor-api-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Editor API Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Editor API Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assignremove-signature-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assign/Remove Signature Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-delay-api-rename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Delay API Rename
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-new-editor-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. New Editor Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-validation-error-rename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Validation Error Rename
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#typical-migration-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Migration Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../entities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts & Entities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Results & Output Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../editing-functionality/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Editing Functionality
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-planner-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResult
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-planner-result-editor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResultEditor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Entities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/shipment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shipment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/shipment-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/avoid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avoid
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/break/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/location/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result Types
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Result Types
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/agent-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AgentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/job-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JobPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/shipment-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-action/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-leg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLeg
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-leg-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLegStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/waypoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Waypoint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/route-planner-timeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerTimeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/optimizing-two-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizing Delivery Routes with Two Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/optimizing-shipments-3-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planning 20 Shipments with 3 Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/editing-planned-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Editing Planned Result After Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/constraint-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constraint Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ai-prompt-for-migration-codex-similar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Prompt for Migration (Codex / / Similar)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-routeplanner-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. RoutePlanner Construction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-result-model-renames" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Result Model Renames
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Result Model Renames">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#routeplannerresult-method-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerResult Method Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result-interface-renames" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Interface Renames
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-waypointsactionslegs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing Waypoints/Actions/Legs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-route-fetching-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Route Fetching Change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-editor-api-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Editor API Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Editor API Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assignremove-signature-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assign/Remove Signature Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-delay-api-rename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Delay API Rename
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-new-editor-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. New Editor Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-validation-error-rename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Validation Error Rename
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#typical-migration-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Migration Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="migration-from-v1-to-v2">Migration From V1 to V2</h1>
+<p>This guide covers the main API changes needed to migrate from the V1 SDK surface to V2.</p>
+<h2 id="ai-prompt-for-migration-codex-similar">AI Prompt for Migration (Codex /  / Similar)</h2>
+<p>Use this prompt with your coding assistant when you want it to migrate a custom project (that uses the library) from V1 APIs to V2 APIs after updating the dependency.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>You are working in a custom project that uses @geoapify/route-planner-sdk and needs migration to V2 after dependency update.
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Do not change the library source code itself; only change the project code that consumes the library.
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Goal:
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Migrate V1 API usage to V2 API usage in the requested files only.
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>V1 -&gt; V2 mapping to apply:
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>- AgentSolution -&gt; AgentPlan
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>- JobSolution -&gt; JobPlan
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>- ShipmentSolution -&gt; ShipmentPlan
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>- RoutePlannerResult.getRawData() -&gt; getRaw()
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>- RoutePlannerResult.getOptions() -&gt; getCallOptions()
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>- RoutePlannerResult.getAgentSolutions() -&gt; getAgentPlans()
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>- RoutePlannerResult.getAgentSolution(x) -&gt; getAgentPlan(x)
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>- RoutePlannerResult.getJobSolutions() -&gt; getJobPlans()
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>- RoutePlannerResult.getJobSolution(x) -&gt; getJobPlan(x)
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>- RoutePlannerResult.getShipmentSolutions() -&gt; getShipmentPlans()
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>- RoutePlannerResult.getShipmentSolution(x) -&gt; getShipmentPlan(x)
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>- RoutePlannerResult.getAgentRoute(...) -&gt; result.getAgentPlan(...).getRoute(...)
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>- RoutePlannerResultEditor assign/add/remove methods: use options objects instead of numeric third arg
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>- addTimeOffsetAfterWaypoint(...) -&gt; addDelayAfterWaypoint(...) (keep alias only when explicitly requested)
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>- InvalidParameterType -&gt; InvalidParameter
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>Constraints:
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>1. Keep behavior unchanged unless migration requires API renames/signature updates.
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>2. Do not refactor unrelated code.
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>3. Update tests for changed API usage.
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>4. Update docs that still mention V1 methods/classes.
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>5. Summarize:
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>   - files changed
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>   - exact replacements made
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>   - commands run
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>   - test results
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>   - any remaining V1 references
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>Execution workflow:
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>1. Scan target paths for V1 symbols.
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>2. Propose a short migration plan.
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>3. Apply changes in small, reviewable diffs.
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>4. Run targeted tests.
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>5. Report unresolved edge cases/questions.
+</span></code></pre></div>
+<h2 id="quick-checklist">Quick Checklist</h2>
+<ul>
+<li>Update planner constructor typing/usages:</li>
+<li>use <code>RoutePlannerCallOptions</code> for constructor options</li>
+<li>pass <code>RoutePlannerInputData</code> directly when you already have API input JSON</li>
+<li>Replace <code>*Solution</code> result classes with <code>*Plan</code> classes.</li>
+<li>Update <code>RoutePlannerResult</code> method calls (<code>getRawData()</code> -&gt; <code>getRaw()</code>, etc.).</li>
+<li>Update <code>RoutePlannerResultEditor</code> calls to use options objects instead of a numeric 3rd argument.</li>
+<li>Switch from <code>addTimeOffsetAfterWaypoint()</code> to <code>addDelayAfterWaypoint()</code> (old method is still available as a deprecated alias).</li>
+<li>If you catch editor validation errors, use <code>InvalidParameter</code>.</li>
+<li>Update route result data interface names:</li>
+<li><code>LegResponseData</code> -&gt; <code>RouteLegData</code></li>
+<li><code>LegStepResponseData</code> -&gt; <code>RouteLegStepData</code></li>
+<li><code>WaypointResponseData</code> -&gt; <code>WaypointData</code></li>
+<li>If you use deep internal imports, move <code>nested/result/*</code> paths to <code>nested/response/*</code>.</li>
+</ul>
+<h2 id="1-routeplanner-construction">1. RoutePlanner Construction</h2>
+<p>Use <code>RoutePlannerCallOptions</code> for constructor options, and pass a raw <code>RoutePlannerInputData</code> object when you already store API payloads in JSON.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Current</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">planner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">({</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.GEOAPIFY_API_KEY</span><span class="o">!</span><span class="w"> </span><span class="p">});</span>
+</span></code></pre></div>
+<p>or</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Current (direct JSON-based initialization)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">planner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">(</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.GEOAPIFY_API_KEY</span><span class="o">!</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">routePlannerInputJson</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="2-result-model-renames">2. Result Model Renames</h2>
+<p>V1 returned/used solution-style entities. The current API uses plan-style entities.</p>
+<table>
+<thead>
+<tr>
+<th>V1</th>
+<th>Current</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AgentSolution</code></td>
+<td><code>AgentPlan</code></td>
+</tr>
+<tr>
+<td><code>JobSolution</code></td>
+<td><code>JobPlan</code></td>
+</tr>
+<tr>
+<td><code>ShipmentSolution</code></td>
+<td><code>ShipmentPlan</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="routeplannerresult-method-mapping">RoutePlannerResult Method Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>V1 method</th>
+<th>Current method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getRawData()</code></td>
+<td><code>getRaw()</code></td>
+</tr>
+<tr>
+<td><code>getOptions()</code></td>
+<td><code>getCallOptions()</code></td>
+</tr>
+<tr>
+<td><code>getAgentSolutions()</code></td>
+<td><code>getAgentPlans()</code></td>
+</tr>
+<tr>
+<td><code>getAgentSolution(idOrIndex)</code></td>
+<td><code>getAgentPlan(idOrIndex)</code></td>
+</tr>
+<tr>
+<td><code>getJobSolutions()</code></td>
+<td><code>getJobPlans()</code></td>
+</tr>
+<tr>
+<td><code>getJobSolution(idOrIndex)</code></td>
+<td><code>getJobPlan(idOrIndex)</code></td>
+</tr>
+<tr>
+<td><code>getShipmentSolutions()</code></td>
+<td><code>getShipmentPlans()</code></td>
+</tr>
+<tr>
+<td><code>getShipmentSolution(idOrIndex)</code></td>
+<td><code>getShipmentPlan(idOrIndex)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="result-interface-renames">Result Interface Renames</h3>
+<p>These data interfaces were normalized to non-<code>Response</code> names:</p>
+<table>
+<thead>
+<tr>
+<th>Old</th>
+<th>Current</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LegResponseData</code></td>
+<td><code>RouteLegData</code></td>
+</tr>
+<tr>
+<td><code>LegStepResponseData</code></td>
+<td><code>RouteLegStepData</code></td>
+</tr>
+<tr>
+<td><code>WaypointResponseData</code></td>
+<td><code>WaypointData</code></td>
+</tr>
+</tbody>
+</table>
+<p>If your project imports internal SDK paths directly (not recommended), note that route-result interfaces now live under <code>src/models/interfaces/nested/response</code>.</p>
+<h3 id="accessing-waypointsactionslegs">Accessing Waypoints/Actions/Legs</h3>
+<p>V1 convenience methods such as <code>getAgentWaypoints()</code>, <code>getAgentRouteActions()</code>, and <code>getAgentRouteLegs()</code> were replaced by access through <code>AgentPlan</code>.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// V1</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">waypoints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentWaypoints</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">);</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">// Current</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">waypoints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentPlan</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">getWaypoints</span><span class="p">()</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="p">[];</span>
+</span></code></pre></div>
+<h2 id="3-route-fetching-change">3. Route Fetching Change</h2>
+<p><code>RoutePlannerResult.getAgentRoute(...)</code> moved to <code>AgentPlan.getRoute(...)</code>.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// V1</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">route</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentRoute</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">);</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">// Current</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">route</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentPlan</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">getRoute</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="4-editor-api-changes">4. Editor API Changes</h2>
+<p><code>RoutePlannerResultEditor</code> now uses strategy/options objects for add/assign/remove flows.</p>
+<h3 id="assignremove-signature-change">Assign/Remove Signature Change</h3>
+<table>
+<thead>
+<tr>
+<th>V1</th>
+<th>Current</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>assignJobs(agent, jobs, priority?)</code></td>
+<td><code>assignJobs(agent, jobs, options?)</code></td>
+</tr>
+<tr>
+<td><code>assignShipments(agent, shipments, priority?)</code></td>
+<td><code>assignShipments(agent, shipments, options?)</code></td>
+</tr>
+<tr>
+<td><code>removeJobs(jobs)</code></td>
+<td><code>removeJobs(jobs, options?)</code></td>
+</tr>
+<tr>
+<td><code>removeShipments(shipments)</code></td>
+<td><code>removeShipments(shipments, options?)</code></td>
+</tr>
+<tr>
+<td><code>addNewJobs(agent, jobs)</code></td>
+<td><code>addNewJobs(agent, jobs, options?)</code></td>
+</tr>
+<tr>
+<td><code>addNewShipments(agent, shipments)</code></td>
+<td><code>addNewShipments(agent, shipments, options?)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// V1</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s2">&quot;agent-A&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;job-1&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">100</span><span class="p">);</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// Current</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s2">&quot;agent-A&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;job-1&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;preserveOrder&quot;</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nx">append</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">});</span>
+</span></code></pre></div>
+<p>Notes:</p>
+<ul>
+<li>Numeric priority as the 3rd argument is no longer part of the assign signatures.</li>
+<li><code>append</code> is the current flag used for direct insertion/append behavior.</li>
+</ul>
+<h2 id="5-delay-api-rename">5. Delay API Rename</h2>
+<p>Prefer:</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nx">editor</span><span class="p">.</span><span class="nx">addDelayAfterWaypoint</span><span class="p">(</span><span class="nx">agentIdOrIndex</span><span class="p">,</span><span class="w"> </span><span class="nx">waypointIndex</span><span class="p">,</span><span class="w"> </span><span class="nx">delaySeconds</span><span class="p">);</span>
+</span></code></pre></div>
+<p>Legacy alias (still works, deprecated):</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nx">editor</span><span class="p">.</span><span class="nx">addTimeOffsetAfterWaypoint</span><span class="p">(</span><span class="nx">agentIdOrIndex</span><span class="p">,</span><span class="w"> </span><span class="nx">waypointIndex</span><span class="p">,</span><span class="w"> </span><span class="nx">offsetSeconds</span><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="6-new-editor-capabilities">6. New Editor Capabilities</h2>
+<p>The current editor also includes:</p>
+<ul>
+<li><code>reoptimizeAgentPlan(agentIdOrIndex, options?)</code></li>
+<li><code>moveWaypoint(agentIdOrIndex, fromWaypointIndex, toWaypointIndex)</code></li>
+</ul>
+<h2 id="7-validation-error-rename">7. Validation Error Rename</h2>
+<p>Use <code>InvalidParameter</code> for invalid input checks.<br />
+<code>InvalidParameterType</code> was removed. Use <code>InvalidParameter</code>.</p>
+<h2 id="typical-migration-example">Typical Migration Example</h2>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// V1 style</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentSolution</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">);</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;job-3&quot;</span><span class="p">],</span><span class="w"> </span><span class="mf">10</span><span class="p">);</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1">// Current style</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="kd">const</span><span class="w"> </span><span class="nx">agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentPlan</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">);</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s2">&quot;agent-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;job-3&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;reoptimize&quot;</span><span class="w"> </span><span class="p">});</span>
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy", "navigation.expand"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

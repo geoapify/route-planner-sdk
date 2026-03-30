@@ -1,0 +1,2878 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../waypoint/">
+      
+      
+        <link rel="next" href="../../examples/optimizing-two-agents/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>RoutePlannerTimeline - Geoapify Route Optimization SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#routeplannertimeline" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Geoapify Route Optimization SDK" class="md-header__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Geoapify Route Optimization SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RoutePlannerTimeline
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Geoapify Route Optimization SDK" class="md-nav__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    Geoapify Route Optimization SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation-and-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration-from-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration from V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts & Entities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Results & Output Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../editing-functionality/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Editing Functionality
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResult
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-result-editor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResultEditor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Entities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shipment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avoid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avoid
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../break/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../location/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result Types
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Result Types
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AgentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JobPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-action/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-leg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLeg
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-leg-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLegStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../waypoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Waypoint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerTimeline
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerTimeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setResult()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getResult()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gettimelinetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getTimelineType()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settimelinetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setTimelineType()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentmenuitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentMenuItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setagentmenuitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setAgentMenuItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gethaslargedescription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getHasLargeDescription()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sethaslargedescription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setHasLargeDescription()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentcolors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentColors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setagentcolors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setAgentColors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getcapacityunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getCapacityUnit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setcapacityunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setCapacityUnit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gettimelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getTimeLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settimelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setTimeLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getdistancelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getDistanceLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setdistancelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setDistanceLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getshowtimelinelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getShowTimelineLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setshowtimelinelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setShowTimelineLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentlabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentLabel()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setagentlabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setAgentLabel()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentcolorbyindex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentColorByIndex()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        off()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#listening-for-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listening For Events
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Options Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#routeplannertimelineoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerTimelineOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timelinemenuitem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TimelineMenuItem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routeplannertimelinelabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerTimelineLabel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learn-more" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learn More
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/optimizing-two-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizing Delivery Routes with Two Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/optimizing-shipments-3-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planning 20 Shipments with 3 Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/editing-planned-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Editing Planned Result After Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/constraint-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constraint Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setResult()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getResult()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gettimelinetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getTimelineType()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settimelinetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setTimelineType()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentmenuitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentMenuItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setagentmenuitems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setAgentMenuItems()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gethaslargedescription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getHasLargeDescription()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sethaslargedescription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setHasLargeDescription()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentcolors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentColors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setagentcolors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setAgentColors()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getcapacityunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getCapacityUnit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setcapacityunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setCapacityUnit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gettimelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getTimeLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settimelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setTimeLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getdistancelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getDistanceLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setdistancelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setDistanceLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getshowtimelinelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getShowTimelineLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setshowtimelinelabels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setShowTimelineLabels()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentlabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentLabel()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setagentlabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setAgentLabel()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getagentcolorbyindex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getAgentColorByIndex()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        off()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#listening-for-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listening For Events
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Options Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#routeplannertimelineoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerTimelineOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timelinemenuitem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TimelineMenuItem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routeplannertimelinelabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerTimelineLabel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learn-more" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learn More
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="routeplannertimeline">RoutePlannerTimeline</h1>
+<p>This page documents the <code>RoutePlannerTimeline</code> class from the <code>@geoapify/route-planner-sdk</code> library — including setup, configuration, and all available methods.
+Use it to <strong>visualize agent schedules and routes</strong> as interactive horizontal timelines, either by time or by distance.</p>
+<p><img alt="Timeline example" src="https://github.com/geoapify/route-planner-sdk/blob/main/img/timeline.png?raw=true" /></p>
+<h2 id="constructor">Constructor</h2>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kr">constructor</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nx">container</span><span class="o">:</span><span class="w"> </span><span class="kt">HTMLElement</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nx">inputData?</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerInputData</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nx">result?</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerResult</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nx">options?</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerTimelineOptions</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>Creates a new <strong>RoutePlannerTimeline</strong> instance and renders it into the specified container element.</p>
+<p>Here are the parameters you can pass to the constructor:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>container</code></td>
+<td><code>HTMLElement</code></td>
+<td>The DOM element where the timeline will be rendered</td>
+</tr>
+<tr>
+<td><code>inputData</code></td>
+<td><a href="../route-planner/#routeplannerinputdata-interface"><code>RoutePlannerInputData</code></a> <em>(optional)</em></td>
+<td>Route planner input data (for preview mode without results)</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td><a href="../route-planner-result/"><code>RoutePlannerResult</code></a> <em>(optional)</em></td>
+<td>The optimized route result to visualize</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#routeplannertimelineoptions"><code>RoutePlannerTimelineOptions</code></a> <em>(optional)</em></td>
+<td>Configuration options for appearance and behavior</td>
+</tr>
+</tbody>
+</table>
+<p>Here's a basic example of how to create a timeline:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RoutePlannerTimeline</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;timeline&#39;</span><span class="p">);</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">timeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlannerTimeline</span><span class="p">(</span><span class="nx">container</span><span class="p">,</span><span class="w"> </span><span class="nx">inputData</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nx">timelineType</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;time&#39;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nx">agentLabel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Driver&#39;</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nx">showWaypointPopup</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="methods">Methods</h2>
+<p>The <code>RoutePlannerTimeline</code> class provides methods to update the timeline, configure display options, and listen to events.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#getresult"><code>getResult</code></a></td>
+<td><code>getResult(): RoutePlannerResult \| undefined</code></td>
+<td>Get current result</td>
+</tr>
+<tr>
+<td><a href="#setresult"><code>setResult</code></a></td>
+<td><code>setResult(result: RoutePlannerResult): void</code></td>
+<td>Update timeline with new result</td>
+</tr>
+<tr>
+<td><a href="#gettimelinetype"><code>getTimelineType</code></a></td>
+<td><code>getTimelineType(): 'time' \| 'distance' \| undefined</code></td>
+<td>Get current timeline mode</td>
+</tr>
+<tr>
+<td><a href="#settimelinetype"><code>setTimelineType</code></a></td>
+<td><code>setTimelineType(type: 'time' \| 'distance'): void</code></td>
+<td>Switch between time/distance views</td>
+</tr>
+<tr>
+<td><a href="#getagentmenuitems"><code>getAgentMenuItems</code></a></td>
+<td><code>getAgentMenuItems(): TimelineMenuItem[] \| undefined</code></td>
+<td>Get current agent dropdown menu items</td>
+</tr>
+<tr>
+<td><a href="#setagentmenuitems"><code>setAgentMenuItems</code></a></td>
+<td><code>setAgentMenuItems(items: TimelineMenuItem[]): void</code></td>
+<td>Update agent dropdown menu</td>
+</tr>
+<tr>
+<td><a href="#on"><code>on</code></a></td>
+<td><code>on(event, handler): void</code></td>
+<td>Subscribe to timeline events</td>
+</tr>
+<tr>
+<td><a href="#off"><code>off</code></a></td>
+<td><code>off(event, handler): void</code></td>
+<td>Unsubscribe from events</td>
+</tr>
+<tr>
+<td><a href="#gethaslargedescription"><code>getHasLargeDescription</code></a></td>
+<td><code>getHasLargeDescription(): boolean \| undefined</code></td>
+<td>Get wide agent info mode</td>
+</tr>
+<tr>
+<td><a href="#sethaslargedescription"><code>setHasLargeDescription</code></a></td>
+<td><code>setHasLargeDescription(value: boolean): void</code></td>
+<td>Set wide agent info mode</td>
+</tr>
+<tr>
+<td><a href="#getagentcolors"><code>getAgentColors</code></a></td>
+<td><code>getAgentColors(): string[] \| undefined</code></td>
+<td>Get agent color palette</td>
+</tr>
+<tr>
+<td><a href="#setagentcolors"><code>setAgentColors</code></a></td>
+<td><code>setAgentColors(colors: string[]): void</code></td>
+<td>Set agent color palette</td>
+</tr>
+<tr>
+<td><a href="#getcapacityunit"><code>getCapacityUnit</code></a></td>
+<td><code>getCapacityUnit(): string \| undefined</code></td>
+<td>Get capacity unit label</td>
+</tr>
+<tr>
+<td><a href="#setcapacityunit"><code>setCapacityUnit</code></a></td>
+<td><code>setCapacityUnit(unit: string \| undefined): void</code></td>
+<td>Set capacity unit label</td>
+</tr>
+<tr>
+<td><a href="#gettimelabels"><code>getTimeLabels</code></a></td>
+<td><code>getTimeLabels(): RoutePlannerTimelineLabel[] \| undefined</code></td>
+<td>Get time axis labels</td>
+</tr>
+<tr>
+<td><a href="#settimelabels"><code>setTimeLabels</code></a></td>
+<td><code>setTimeLabels(labels: RoutePlannerTimelineLabel[]): void</code></td>
+<td>Set time axis labels</td>
+</tr>
+<tr>
+<td><a href="#getdistancelabels"><code>getDistanceLabels</code></a></td>
+<td><code>getDistanceLabels(): RoutePlannerTimelineLabel[] \| undefined</code></td>
+<td>Get distance axis labels</td>
+</tr>
+<tr>
+<td><a href="#setdistancelabels"><code>setDistanceLabels</code></a></td>
+<td><code>setDistanceLabels(labels: RoutePlannerTimelineLabel[]): void</code></td>
+<td>Set distance axis labels</td>
+</tr>
+<tr>
+<td><a href="#getshowtimelinelabels"><code>getShowTimelineLabels</code></a></td>
+<td><code>getShowTimelineLabels(): boolean \| undefined</code></td>
+<td>Get timeline labels visibility</td>
+</tr>
+<tr>
+<td><a href="#setshowtimelinelabels"><code>setShowTimelineLabels</code></a></td>
+<td><code>setShowTimelineLabels(value: boolean): void</code></td>
+<td>Set timeline labels visibility</td>
+</tr>
+<tr>
+<td><a href="#getagentlabel"><code>getAgentLabel</code></a></td>
+<td><code>getAgentLabel(): string \| undefined</code></td>
+<td>Get agent label text</td>
+</tr>
+<tr>
+<td><a href="#setagentlabel"><code>setAgentLabel</code></a></td>
+<td><code>setAgentLabel(label: string): void</code></td>
+<td>Set agent label text</td>
+</tr>
+<tr>
+<td><a href="#getagentcolorbyindex"><code>getAgentColorByIndex</code></a></td>
+<td><code>getAgentColorByIndex(index: number): string</code></td>
+<td>Resolve color from current palette</td>
+</tr>
+</tbody>
+</table>
+<p>Here's the detailed version of method descriptions:</p>
+<h3 id="setresult">setResult()</h3>
+<p>Signature: <code>setResult(result: RoutePlannerResult): void</code></p>
+<p>Updates the timeline to display a new route planning result. Use this after modifying the result with <code>RoutePlannerResultEditor</code>.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">modifiedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">getModifiedResult</span><span class="p">();</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setResult</span><span class="p">(</span><span class="nx">modifiedResult</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="getresult">getResult()</h3>
+<p>Signature: <code>getResult(): RoutePlannerResult | undefined</code></p>
+<p>Returns the currently attached result object.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getResult</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="gettimelinetype">getTimelineType()</h3>
+<p>Signature: <code>getTimelineType(): 'time' | 'distance' | undefined</code></p>
+<p>Returns current timeline mode.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getTimelineType</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="settimelinetype">setTimelineType()</h3>
+<p>Signature: <code>setTimelineType(type: 'time' | 'distance'): void</code></p>
+<p>Switches between time-based and distance-based visualization.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setTimelineType</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">);</span><span class="w">     </span><span class="c1">// Show by time</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setTimelineType</span><span class="p">(</span><span class="s1">&#39;distance&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Show by distance</span>
+</span></code></pre></div>
+<h3 id="getagentmenuitems">getAgentMenuItems()</h3>
+<p>Signature: <code>getAgentMenuItems(): TimelineMenuItem[] | undefined</code></p>
+<p>Returns currently configured menu items.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getAgentMenuItems</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="setagentmenuitems">setAgentMenuItems()</h3>
+<p>Signature: <code>setAgentMenuItems(items: TimelineMenuItem[]): void</code></p>
+<p>Updates the dropdown menu items shown when clicking the three-dot menu on each agent row.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setAgentMenuItems</span><span class="p">([</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;edit&#39;</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Edit Agent&#39;</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nx">callback</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">openEditDialog</span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hide&#39;</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hide on Map&#39;</span><span class="p">,</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="nx">callback</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">toggleVisibility</span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">)</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">]);</span>
+</span></code></pre></div>
+<h3 id="gethaslargedescription">getHasLargeDescription()</h3>
+<p>Signature: <code>getHasLargeDescription(): boolean | undefined</code></p>
+<p>Returns whether agent information is displayed in a wider format.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">isLarge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getHasLargeDescription</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="sethaslargedescription">setHasLargeDescription()</h3>
+<p>Signature: <code>setHasLargeDescription(value: boolean): void</code></p>
+<p>Sets whether agent information is displayed in a wider format.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setHasLargeDescription</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="getagentcolors">getAgentColors()</h3>
+<p>Signature: <code>getAgentColors(): string[] | undefined</code></p>
+<p>Returns current color palette for agent rows.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getAgentColors</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="setagentcolors">setAgentColors()</h3>
+<p>Signature: <code>setAgentColors(colors: string[]): void</code></p>
+<p>Sets color palette used for agent rows.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setAgentColors</span><span class="p">([</span><span class="s1">&#39;#ff4d4d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#1a8cff&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#00cc66&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#b300b3&#39;</span><span class="p">]);</span>
+</span></code></pre></div>
+<h3 id="getcapacityunit">getCapacityUnit()</h3>
+<p>Signature: <code>getCapacityUnit(): string | undefined</code></p>
+<p>Returns current unit label for capacity values.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getCapacityUnit</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="setcapacityunit">setCapacityUnit()</h3>
+<p>Signature: <code>setCapacityUnit(unit: string | undefined): void</code></p>
+<p>Sets unit label for capacity values.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setCapacityUnit</span><span class="p">(</span><span class="s1">&#39;kg&#39;</span><span class="p">);</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setCapacityUnit</span><span class="p">(</span><span class="s1">&#39;items&#39;</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="gettimelabels">getTimeLabels()</h3>
+<p>Signature: <code>getTimeLabels(): RoutePlannerTimelineLabel[] | undefined</code></p>
+<p>Returns current vertical markers for the time axis.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getTimeLabels</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="settimelabels">setTimeLabels()</h3>
+<p>Signature: <code>setTimeLabels(labels: RoutePlannerTimelineLabel[]): void</code></p>
+<p>Sets vertical markers for the time axis.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setTimeLabels</span><span class="p">([</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;25%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1h&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2h&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;75%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;3h&#39;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="p">]);</span>
+</span></code></pre></div>
+<h3 id="getdistancelabels">getDistanceLabels()</h3>
+<p>Signature: <code>getDistanceLabels(): RoutePlannerTimelineLabel[] | undefined</code></p>
+<p>Returns current vertical markers for the distance axis.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getDistanceLabels</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="setdistancelabels">setDistanceLabels()</h3>
+<p>Signature: <code>setDistanceLabels(labels: RoutePlannerTimelineLabel[]): void</code></p>
+<p>Sets vertical markers for the distance axis.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setDistanceLabels</span><span class="p">([</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;25%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;5 km&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;10 km&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;75%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;15 km&#39;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="p">]);</span>
+</span></code></pre></div>
+<h3 id="getshowtimelinelabels">getShowTimelineLabels()</h3>
+<p>Signature: <code>getShowTimelineLabels(): boolean | undefined</code></p>
+<p>Returns whether generated/custom timeline labels are shown.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">showLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getShowTimelineLabels</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="setshowtimelinelabels">setShowTimelineLabels()</h3>
+<p>Signature: <code>setShowTimelineLabels(value: boolean): void</code></p>
+<p>Sets whether generated/custom timeline labels are shown.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setShowTimelineLabels</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="getagentlabel">getAgentLabel()</h3>
+<p>Signature: <code>getAgentLabel(): string | undefined</code></p>
+<p>Returns current label text used for agents.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getAgentLabel</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="setagentlabel">setAgentLabel()</h3>
+<p>Signature: <code>setAgentLabel(label: string): void</code></p>
+<p>Sets label text used for agents (e.g., "Driver", "Truck", "Courier").</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">setAgentLabel</span><span class="p">(</span><span class="s1">&#39;Delivery Van&#39;</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="getagentcolorbyindex">getAgentColorByIndex()</h3>
+<p>Signature: <code>getAgentColorByIndex(index: number): string</code></p>
+<p>Returns the color for a given agent index using the current color palette.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timeline</span><span class="p">.</span><span class="nx">getAgentColorByIndex</span><span class="p">(</span><span class="mf">2</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="on">on()</h3>
+<p>Signature: <code>on(event: string, handler: Function): void</code></p>
+<p>Subscribes to timeline events.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;onWaypointHover&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="p">,</span><span class="w"> </span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Hovered:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">waypoint</span><span class="p">.</span><span class="nx">getLocation</span><span class="p">());</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="p">});</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;onWaypointClick&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="p">,</span><span class="w"> </span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">  </span><span class="nx">showWaypointDetails</span><span class="p">(</span><span class="nx">waypoint</span><span class="p">);</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="p">});</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;beforeAgentMenuShow&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">,</span><span class="w"> </span><span class="nx">actions</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">  </span><span class="c1">// Modify menu items before showing</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">actions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">action</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="w">    </span><span class="p">...</span><span class="nx">action</span><span class="p">,</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="w">    </span><span class="nx">disabled</span><span class="o">:</span><span class="w"> </span><span class="kt">agentIndex</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span>
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a><span class="w">  </span><span class="p">}));</span>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="off">off()</h3>
+<p>Signature: <code>off(event: string, handler: Function): void</code></p>
+<p>Unsubscribes a specific handler from timeline events.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">waypoint</span><span class="p">);</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;onWaypointClick&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handler</span><span class="p">);</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1">// Later, unsubscribe</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">off</span><span class="p">(</span><span class="s1">&#39;onWaypointClick&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handler</span><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="listening-for-events">Listening For Events</h2>
+<p>The <code>RoutePlannerTimeline</code> component emits various events for user interactions.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Payload</th>
+<th>Fired when...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onWaypointHover</code></td>
+<td><code>(waypoint: Waypoint, agentIndex: number)</code></td>
+<td>Mouse hovers over a waypoint</td>
+</tr>
+<tr>
+<td><code>onWaypointClick</code></td>
+<td><code>(waypoint: Waypoint, agentIndex: number)</code></td>
+<td>Mouse clicks a waypoint</td>
+</tr>
+<tr>
+<td><code>beforeAgentMenuShow</code></td>
+<td><code>(agentIndex: number, actions: TimelineMenuItem[])</code></td>
+<td>Before showing agent context menu</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example: Handling events</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1">// Waypoint hover - update map highlight</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;onWaypointHover&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="p">,</span><span class="w"> </span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">  </span><span class="nx">highlightOnMap</span><span class="p">(</span><span class="nx">waypoint</span><span class="p">.</span><span class="nx">getLocation</span><span class="p">());</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="p">});</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="c1">// Waypoint click - show details panel</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;onWaypointClick&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="p">,</span><span class="w"> </span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w">  </span><span class="nx">showDetailsPanel</span><span class="p">({</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="w">    </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="kt">waypoint.getLocation</span><span class="p">(),</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="w">    </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="kt">waypoint.getDuration</span><span class="p">(),</span>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">    </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="kt">waypoint.getActions</span><span class="p">()</span>
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="w">  </span><span class="p">});</span>
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="p">});</span>
+</span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>
+</span><span id="__span-25-15"><a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="c1">// Modify menu items dynamically</span>
+</span><span id="__span-25-16"><a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;beforeAgentMenuShow&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">,</span><span class="w"> </span><span class="nx">actions</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-17"><a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">actions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">action</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-18"><a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">key</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;toggle-visibility&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-19"><a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-20"><a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a><span class="w">        </span><span class="p">...</span><span class="nx">action</span><span class="p">,</span>
+</span><span id="__span-25-21"><a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="kt">isAgentVisible</span><span class="p">(</span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;Hide Route&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Show Route&#39;</span>
+</span><span id="__span-25-22"><a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="w">      </span><span class="p">};</span>
+</span><span id="__span-25-23"><a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-25-24"><a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">action</span><span class="p">;</span>
+</span><span id="__span-25-25"><a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a><span class="w">  </span><span class="p">});</span>
+</span><span id="__span-25-26"><a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="options-interface">Options Interface</h2>
+<h3 id="routeplannertimelineoptions">RoutePlannerTimelineOptions</h3>
+<p>Configuration options for timeline appearance and behavior.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">RoutePlannerTimelineOptions</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="nx">timelineType</span><span class="o">?:</span><span class="w"> </span><span class="s1">&#39;time&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;distance&#39;</span><span class="p">;</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">  </span><span class="nx">hasLargeDescription?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">  </span><span class="nx">capacityUnit?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">  </span><span class="nx">agentLabel?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">  </span><span class="nx">label?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">  </span><span class="nx">description?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">  </span><span class="nx">showTimelineLabels?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">  </span><span class="nx">timeLabels?</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerTimelineLabel</span><span class="p">[];</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">  </span><span class="nx">distanceLabels?</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerTimelineLabel</span><span class="p">[];</span>
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">  </span><span class="nx">agentColors?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="w">  </span><span class="nx">showWaypointPopup?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w">  </span><span class="nx">waypointPopupGenerator</span><span class="o">?:</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="o">:</span><span class="w"> </span><span class="kt">Waypoint</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">HTMLElement</span><span class="p">;</span>
+</span><span id="__span-26-14"><a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w">  </span><span class="nx">agentMenuItems?</span><span class="o">:</span><span class="w"> </span><span class="kt">TimelineMenuItem</span><span class="p">[];</span>
+</span><span id="__span-26-15"><a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timelineType</code></td>
+<td><code>'time' \| 'distance'</code></td>
+<td>Timeline mode. Default is <code>time</code>.</td>
+</tr>
+<tr>
+<td><code>hasLargeDescription</code></td>
+<td><code>boolean</code></td>
+<td>Enables wider layout for agent info text.</td>
+</tr>
+<tr>
+<td><code>capacityUnit</code></td>
+<td><code>string</code></td>
+<td>Unit label shown in agent description (for example <code>kg</code>, <code>items</code>).</td>
+</tr>
+<tr>
+<td><code>agentLabel</code></td>
+<td><code>string</code></td>
+<td>Prefix label for agents (for example <code>Driver</code>, <code>Truck</code>).</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td><code>string</code></td>
+<td>Timeline title value accepted by options.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>string</code></td>
+<td>Timeline subtitle value accepted by options.</td>
+</tr>
+<tr>
+<td><code>showTimelineLabels</code></td>
+<td><code>boolean</code></td>
+<td>Shows generated/custom axis labels (<code>timeLabels</code> / <code>distanceLabels</code>).</td>
+</tr>
+<tr>
+<td><code>timeLabels</code></td>
+<td><code>RoutePlannerTimelineLabel[]</code></td>
+<td>Custom labels/markers for time axis.</td>
+</tr>
+<tr>
+<td><code>distanceLabels</code></td>
+<td><code>RoutePlannerTimelineLabel[]</code></td>
+<td>Custom labels/markers for distance axis.</td>
+</tr>
+<tr>
+<td><code>agentColors</code></td>
+<td><code>string[]</code></td>
+<td>Color palette used for agent rows.</td>
+</tr>
+<tr>
+<td><code>showWaypointPopup</code></td>
+<td><code>boolean</code></td>
+<td>Enables waypoint popup on hover.</td>
+</tr>
+<tr>
+<td><code>waypointPopupGenerator</code></td>
+<td><code>(waypoint: Waypoint) =&gt; HTMLElement</code></td>
+<td>Custom popup content renderer for a waypoint.</td>
+</tr>
+<tr>
+<td><code>agentMenuItems</code></td>
+<td><code>TimelineMenuItem[]</code></td>
+<td>Three-dot menu items per agent row.</td>
+</tr>
+</tbody>
+</table>
+<p><code>label</code> and <code>description</code> are accepted by the options interface, but are currently not rendered by the timeline template.</p>
+<h3 id="timelinemenuitem">TimelineMenuItem</h3>
+<p>Menu item configuration for agent dropdown menus.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">TimelineMenuItem</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">  </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">  </span><span class="nx">label?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">  </span><span class="nx">disabled?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">  </span><span class="nx">hidden?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">  </span><span class="nx">callback</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">agentIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Unique menu item identifier used in event handlers and conditional updates.</td>
+<td><code>'toggle-visibility'</code></td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Text shown in the menu item.</td>
+<td><code>'Hide Route'</code></td>
+</tr>
+<tr>
+<td><code>disabled</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>If <code>true</code>, the item is visible but not clickable.</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>If <code>true</code>, the item is not rendered.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>callback</code></td>
+<td><code>(agentIndex: number) =&gt; void</code></td>
+<td>Yes</td>
+<td>Runs when user clicks the item. Receives the clicked agent index.</td>
+<td><code>(agentIndex) =&gt; openAgentDialog(agentIndex)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="routeplannertimelinelabel">RoutePlannerTimelineLabel</h3>
+<p>Label configuration for axis markers.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">RoutePlannerTimelineLabel</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">  </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">  </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>position</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Position on axis as a percent string.</td>
+<td><code>'50%'</code></td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>Text displayed near the marker line.</td>
+<td><code>'10 km'</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="styling">Styling</h2>
+<p>The timeline component generates CSS classes that can be customized:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.geoapify-rp-sdk-timeline-item</code></td>
+<td>Main container for each agent's timeline row</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-timeline-item.agent-{index}</code></td>
+<td>Per-agent styling (e.g., <code>agent-0</code>, <code>agent-1</code>)</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-agent-info</code></td>
+<td>Container for agent label and description</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-solution-item</code></td>
+<td>Individual jobs, shipments, or waypoints</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-three-dot-menu</code></td>
+<td>Three-dot menu button</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-menu-list</code></td>
+<td>Dropdown menu container</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-menu-item</code></td>
+<td>Individual menu items</td>
+</tr>
+<tr>
+<td><code>.geoapify-rp-sdk-custom-tooltip</code></td>
+<td>Tooltip container for waypoint hover</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example: Custom styling</strong></p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c">/* Grey out hidden agents */</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="p">.</span><span class="nc">geoapify-rp-sdk-timeline-item</span><span class="p">.</span><span class="nc">agent-hidden</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">  </span><span class="k">opacity</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="p">}</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="c">/* Custom waypoint colors */</span>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="p">.</span><span class="nc">geoapify-rp-sdk-solution-item</span><span class="p">.</span><span class="nc">pickup</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="w">  </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="mh">#27ae60</span><span class="p">;</span>
+</span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a><span class="p">}</span>
+</span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="p">.</span><span class="nc">geoapify-rp-sdk-solution-item</span><span class="p">.</span><span class="nc">delivery</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="w">  </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="mh">#e74c3c</span><span class="p">;</span>
+</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="complete-example">Complete Example</h2>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RoutePlannerTimeline</span><span class="p">,</span><span class="w"> </span><span class="nx">Waypoint</span><span class="p">,</span><span class="w"> </span><span class="nx">TimelineMenuItem</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;timeline&#39;</span><span class="p">);</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="c1">// Custom popup generator</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a><span class="kd">const</span><span class="w"> </span><span class="nx">popupGenerator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="o">:</span><span class="w"> </span><span class="kt">Waypoint</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">HTMLElement</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">div</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">);</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a><span class="w">  </span><span class="nx">div</span><span class="p">.</span><span class="nx">innerHTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span>
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a><span class="sb">    &lt;strong&gt;</span><span class="si">${</span><span class="nx">waypoint</span><span class="p">.</span><span class="nx">getActions</span><span class="p">().</span><span class="nx">map</span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">getType</span><span class="p">()).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; / &#39;</span><span class="p">)</span><span class="si">}</span><span class="sb">&lt;/strong&gt;</span>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="sb">    &lt;p&gt;Duration: </span><span class="si">${</span><span class="nx">waypoint</span><span class="p">.</span><span class="nx">getDuration</span><span class="p">()</span><span class="si">}</span><span class="sb">s&lt;/p&gt;</span>
+</span><span id="__span-30-11"><a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a><span class="sb">    &lt;p&gt;Start: </span><span class="si">${</span><span class="nx">waypoint</span><span class="p">.</span><span class="nx">getStartTime</span><span class="p">()</span><span class="si">}</span><span class="sb">s&lt;/p&gt;</span>
+</span><span id="__span-30-12"><a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a><span class="sb">  `</span><span class="p">;</span>
+</span><span id="__span-30-13"><a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">div</span><span class="p">;</span>
+</span><span id="__span-30-14"><a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a><span class="p">};</span>
+</span><span id="__span-30-15"><a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a>
+</span><span id="__span-30-16"><a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a><span class="c1">// Menu items</span>
+</span><span id="__span-30-17"><a id="__codelineno-30-17" name="__codelineno-30-17" href="#__codelineno-30-17"></a><span class="kd">const</span><span class="w"> </span><span class="nx">menuItems</span><span class="o">:</span><span class="w"> </span><span class="kt">TimelineMenuItem</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-30-18"><a id="__codelineno-30-18" name="__codelineno-30-18" href="#__codelineno-30-18"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-30-19"><a id="__codelineno-30-19" name="__codelineno-30-19" href="#__codelineno-30-19"></a><span class="w">    </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;details&#39;</span><span class="p">,</span>
+</span><span id="__span-30-20"><a id="__codelineno-30-20" name="__codelineno-30-20" href="#__codelineno-30-20"></a><span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;View Details&#39;</span><span class="p">,</span>
+</span><span id="__span-30-21"><a id="__codelineno-30-21" name="__codelineno-30-21" href="#__codelineno-30-21"></a><span class="w">    </span><span class="nx">callback</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">index</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">showAgentDetails</span><span class="p">(</span><span class="nx">index</span><span class="p">)</span>
+</span><span id="__span-30-22"><a id="__codelineno-30-22" name="__codelineno-30-22" href="#__codelineno-30-22"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-30-23"><a id="__codelineno-30-23" name="__codelineno-30-23" href="#__codelineno-30-23"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-30-24"><a id="__codelineno-30-24" name="__codelineno-30-24" href="#__codelineno-30-24"></a><span class="w">    </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;toggle&#39;</span><span class="p">,</span>
+</span><span id="__span-30-25"><a id="__codelineno-30-25" name="__codelineno-30-25" href="#__codelineno-30-25"></a><span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Toggle Visibility&#39;</span><span class="p">,</span>
+</span><span id="__span-30-26"><a id="__codelineno-30-26" name="__codelineno-30-26" href="#__codelineno-30-26"></a><span class="w">    </span><span class="nx">callback</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">index</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">toggleAgent</span><span class="p">(</span><span class="nx">index</span><span class="p">)</span>
+</span><span id="__span-30-27"><a id="__codelineno-30-27" name="__codelineno-30-27" href="#__codelineno-30-27"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-30-28"><a id="__codelineno-30-28" name="__codelineno-30-28" href="#__codelineno-30-28"></a><span class="p">];</span>
+</span><span id="__span-30-29"><a id="__codelineno-30-29" name="__codelineno-30-29" href="#__codelineno-30-29"></a>
+</span><span id="__span-30-30"><a id="__codelineno-30-30" name="__codelineno-30-30" href="#__codelineno-30-30"></a><span class="c1">// Create timeline</span>
+</span><span id="__span-30-31"><a id="__codelineno-30-31" name="__codelineno-30-31" href="#__codelineno-30-31"></a><span class="kd">const</span><span class="w"> </span><span class="nx">timeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlannerTimeline</span><span class="p">(</span><span class="nx">container</span><span class="p">,</span><span class="w"> </span><span class="nx">inputData</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-30-32"><a id="__codelineno-30-32" name="__codelineno-30-32" href="#__codelineno-30-32"></a><span class="w">  </span><span class="nx">timelineType</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;time&#39;</span><span class="p">,</span>
+</span><span id="__span-30-33"><a id="__codelineno-30-33" name="__codelineno-30-33" href="#__codelineno-30-33"></a><span class="w">  </span><span class="nx">agentLabel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Courier&#39;</span><span class="p">,</span>
+</span><span id="__span-30-34"><a id="__codelineno-30-34" name="__codelineno-30-34" href="#__codelineno-30-34"></a><span class="w">  </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Delivery Schedule&#39;</span><span class="p">,</span>
+</span><span id="__span-30-35"><a id="__codelineno-30-35" name="__codelineno-30-35" href="#__codelineno-30-35"></a><span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Daily delivery routes for all couriers&#39;</span><span class="p">,</span>
+</span><span id="__span-30-36"><a id="__codelineno-30-36" name="__codelineno-30-36" href="#__codelineno-30-36"></a><span class="w">  </span><span class="nx">showWaypointPopup</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+</span><span id="__span-30-37"><a id="__codelineno-30-37" name="__codelineno-30-37" href="#__codelineno-30-37"></a><span class="w">  </span><span class="nx">waypointPopupGenerator</span><span class="o">:</span><span class="w"> </span><span class="kt">popupGenerator</span><span class="p">,</span>
+</span><span id="__span-30-38"><a id="__codelineno-30-38" name="__codelineno-30-38" href="#__codelineno-30-38"></a><span class="w">  </span><span class="nx">agentMenuItems</span><span class="o">:</span><span class="w"> </span><span class="kt">menuItems</span><span class="p">,</span>
+</span><span id="__span-30-39"><a id="__codelineno-30-39" name="__codelineno-30-39" href="#__codelineno-30-39"></a><span class="w">  </span><span class="nx">agentColors</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;#e74c3c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#3498db&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#2ecc71&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;#9b59b6&#39;</span><span class="p">],</span>
+</span><span id="__span-30-40"><a id="__codelineno-30-40" name="__codelineno-30-40" href="#__codelineno-30-40"></a><span class="w">  </span><span class="nx">timeLabels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-30-41"><a id="__codelineno-30-41" name="__codelineno-30-41" href="#__codelineno-30-41"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;25%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2h&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-30-42"><a id="__codelineno-30-42" name="__codelineno-30-42" href="#__codelineno-30-42"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;4h&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-30-43"><a id="__codelineno-30-43" name="__codelineno-30-43" href="#__codelineno-30-43"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;75%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;6h&#39;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-30-44"><a id="__codelineno-30-44" name="__codelineno-30-44" href="#__codelineno-30-44"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-30-45"><a id="__codelineno-30-45" name="__codelineno-30-45" href="#__codelineno-30-45"></a><span class="p">});</span>
+</span><span id="__span-30-46"><a id="__codelineno-30-46" name="__codelineno-30-46" href="#__codelineno-30-46"></a>
+</span><span id="__span-30-47"><a id="__codelineno-30-47" name="__codelineno-30-47" href="#__codelineno-30-47"></a><span class="c1">// Listen for events</span>
+</span><span id="__span-30-48"><a id="__codelineno-30-48" name="__codelineno-30-48" href="#__codelineno-30-48"></a><span class="nx">timeline</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;onWaypointClick&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">waypoint</span><span class="p">,</span><span class="w"> </span><span class="nx">agentIndex</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-30-49"><a id="__codelineno-30-49" name="__codelineno-30-49" href="#__codelineno-30-49"></a><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Clicked waypoint for agent </span><span class="si">${</span><span class="nx">agentIndex</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</span><span id="__span-30-50"><a id="__codelineno-30-50" name="__codelineno-30-50" href="#__codelineno-30-50"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="learn-more">Learn More</h2>
+<ul>
+<li><a href="../route-planner-result/"><code>RoutePlannerResult</code></a> — The result object used for visualization</li>
+<li><a href="../agent-plan/"><code>AgentPlan</code></a> — Agent-level plan data</li>
+<li><a href="../waypoint/"><code>Waypoint</code></a> — Individual waypoint details</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.expand"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

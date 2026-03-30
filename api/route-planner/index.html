@@ -1,0 +1,2468 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../route-planner-result/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>RoutePlanner - Geoapify Route Optimization SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#routeplanner" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Geoapify Route Optimization SDK" class="md-header__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Geoapify Route Optimization SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RoutePlanner
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Geoapify Route Optimization SDK" class="md-nav__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    Geoapify Route Optimization SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation-and-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration-from-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration from V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts & Entities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Results & Output Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../editing-functionality/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Editing Functionality
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlanner
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creating-routeplanner-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating RoutePlanner Input
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating RoutePlanner Input">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-based-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method-based creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-based-creation-route-planner-api-input-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON-based creation (Route Planner API input object)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setmode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setMode()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setTraffic()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setType()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setmaxspeed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setMaxSpeed()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setunits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setUnits()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addAgent()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addjob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addJob()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addshipment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addShipment()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addlocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addLocation()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addavoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addAvoid()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getraw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getRaw()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setraw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setRaw()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#routeplannercalloptions-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerCallOptions Interface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#routeplannerinputdata-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerInputData Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RoutePlannerInputData Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#travel-and-route-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Travel and Route Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learn-more" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learn More
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResult
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-result-editor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResultEditor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Entities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shipment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avoid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avoid
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../break/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../location/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result Types
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Result Types
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AgentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JobPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-action/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-leg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLeg
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-leg-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLegStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../waypoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Waypoint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-timeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerTimeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/optimizing-two-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizing Delivery Routes with Two Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/optimizing-shipments-3-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planning 20 Shipments with 3 Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/editing-planned-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Editing Planned Result After Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/constraint-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constraint Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creating-routeplanner-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating RoutePlanner Input
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating RoutePlanner Input">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-based-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method-based creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-based-creation-route-planner-api-input-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON-based creation (Route Planner API input object)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setmode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setMode()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settraffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setTraffic()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setType()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setmaxspeed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setMaxSpeed()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setunits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setUnits()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addAgent()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addjob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addJob()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addshipment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addShipment()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addlocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addLocation()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addavoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addAvoid()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getraw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getRaw()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setraw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setRaw()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#routeplannercalloptions-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerCallOptions Interface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#routeplannerinputdata-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoutePlannerInputData Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RoutePlannerInputData Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#travel-and-route-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Travel and Route Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learn-more" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learn More
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="routeplanner">RoutePlanner</h1>
+<p>This page documents the <code>RoutePlanner</code> class from the <code>@geoapify/route-planner-sdk</code> library — including setup, configuration, and all available methods.
+Use it to <strong>build and execute route optimization requests</strong> to the Geoapify Route Planner API, combining agents, jobs, shipments, and constraints into an optimal plan.
+<code>RoutePlanner</code> is also a convenient builder for creating valid Route Planner API input (<code>RoutePlannerInputData</code>) before sending it.</p>
+<h2 id="creating-routeplanner-input">Creating RoutePlanner Input</h2>
+<p>You can create a planner in two ways:</p>
+<ol>
+<li>Build input incrementally with SDK methods (<code>setMode</code>, <code>addAgent</code>, <code>addJob</code>, <code>addShipment</code>, and so on).</li>
+<li>Initialize directly from an existing Route Planner API input JSON object (<code>RoutePlannerInputData</code>).</li>
+</ol>
+<p>This is useful when your app:</p>
+<ul>
+<li>builds requests in UI forms (method-based approach), or</li>
+<li>already stores/receives API request payloads as JSON (raw-object approach).</li>
+</ul>
+<h3 id="method-based-creation">Method-based creation</h3>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">,</span><span class="w"> </span><span class="nx">Agent</span><span class="p">,</span><span class="w"> </span><span class="nx">Job</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">planner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">({</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YOUR_API_KEY&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nx">planner</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="p">.</span><span class="nx">addAgent</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">().</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;agent-1&#39;</span><span class="p">).</span><span class="nx">setStartLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">))</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="p">.</span><span class="nx">addJob</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Job</span><span class="p">().</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;job-1&#39;</span><span class="p">).</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.39</span><span class="p">,</span><span class="w"> </span><span class="mf">52.51</span><span class="p">));</span>
+</span></code></pre></div>
+<h3 id="json-based-creation-route-planner-api-input-object">JSON-based creation (Route Planner API input object)</h3>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;drive&#39;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nx">agents</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;agent-1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">start_location</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">]</span><span class="w"> </span><span class="p">}],</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nx">jobs</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;job-1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">13.39</span><span class="p">,</span><span class="w"> </span><span class="mf">52.51</span><span class="p">],</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="kt">300</span><span class="w"> </span><span class="p">}],</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nx">shipments</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nx">locations</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nx">avoid</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">};</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="kd">const</span><span class="w"> </span><span class="nx">planner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">({</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YOUR_API_KEY&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">input</span><span class="p">);</span>
+</span></code></pre></div>
+<p>You can also replace data later with <a href="#setraw"><code>setRaw()</code></a>.</p>
+<h2 id="constructor">Constructor</h2>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kr">constructor</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerCallOptions</span><span class="p">,</span><span class="w"> </span><span class="nx">raw?</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerInputData</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Creates a new <strong>RoutePlanner</strong> instance and optionally initializes it with raw input data.</p>
+<p>Here are the parameters you can pass to the constructor:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>options</code></td>
+<td><a href="#routeplannercalloptions-interface"><code>RoutePlannerCallOptions</code></a></td>
+<td>Configuration object containing API key</td>
+</tr>
+<tr>
+<td><code>raw</code></td>
+<td><a href="#routeplannerinputdata-interface"><code>RoutePlannerInputData</code></a> <em>(optional)</em></td>
+<td>Pre-built input data to use instead of building incrementally</td>
+</tr>
+</tbody>
+</table>
+<p>Here's a basic example of how to initialize and use the planner:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Agent</span><span class="p">,</span><span class="w"> </span><span class="nx">Job</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">planner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">({</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YOUR_API_KEY&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">planner</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="p">.</span><span class="nx">addAgent</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">().</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;agent-1&#39;</span><span class="p">).</span><span class="nx">setStartLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">))</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">.</span><span class="nx">addJob</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Job</span><span class="p">().</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;job-1&#39;</span><span class="p">).</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.39</span><span class="p">,</span><span class="w"> </span><span class="mf">52.51</span><span class="p">))</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="p">.</span><span class="nx">plan</span><span class="p">();</span>
+</span></code></pre></div>
+<h2 id="methods">Methods</h2>
+<p>The <code>RoutePlanner</code> class provides methods for configuration, adding input data, and executing requests. All setter methods return <code>this</code> for chaining.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#setmode"><code>setMode</code></a></td>
+<td><code>setMode(mode: TravelMode): this</code></td>
+<td>Set travel mode (drive, truck, etc.)</td>
+</tr>
+<tr>
+<td><a href="#settraffic"><code>setTraffic</code></a></td>
+<td><code>setTraffic(traffic: TrafficType): this</code></td>
+<td>Set traffic model</td>
+</tr>
+<tr>
+<td><a href="#settype"><code>setType</code></a></td>
+<td><code>setType(type: RouteType): this</code></td>
+<td>Set route optimization type</td>
+</tr>
+<tr>
+<td><a href="#setmaxspeed"><code>setMaxSpeed</code></a></td>
+<td><code>setMaxSpeed(speed: number): this</code></td>
+<td>Limit maximum vehicle speed</td>
+</tr>
+<tr>
+<td><a href="#setunits"><code>setUnits</code></a></td>
+<td><code>setUnits(units: DistanceUnitType): this</code></td>
+<td>Set measurement units</td>
+</tr>
+<tr>
+<td><a href="#addagent"><code>addAgent</code></a></td>
+<td><code>addAgent(agent: Agent): this</code></td>
+<td>Add an agent to the plan</td>
+</tr>
+<tr>
+<td><a href="#addjob"><code>addJob</code></a></td>
+<td><code>addJob(job: Job): this</code></td>
+<td>Add a job to the plan</td>
+</tr>
+<tr>
+<td><a href="#addshipment"><code>addShipment</code></a></td>
+<td><code>addShipment(shipment: Shipment): this</code></td>
+<td>Add a shipment to the plan</td>
+</tr>
+<tr>
+<td><a href="#addlocation"><code>addLocation</code></a></td>
+<td><code>addLocation(location: Location): this</code></td>
+<td>Add a reusable location</td>
+</tr>
+<tr>
+<td><a href="#addavoid"><code>addAvoid</code></a></td>
+<td><code>addAvoid(avoid: Avoid): this</code></td>
+<td>Add a travel restriction</td>
+</tr>
+<tr>
+<td><a href="#getraw"><code>getRaw</code></a></td>
+<td><code>getRaw(): RoutePlannerInputData</code></td>
+<td>Get current input data</td>
+</tr>
+<tr>
+<td><a href="#setraw"><code>setRaw</code></a></td>
+<td><code>setRaw(raw: RoutePlannerInputData): this</code></td>
+<td>Set raw input data directly</td>
+</tr>
+<tr>
+<td><a href="#plan"><code>plan</code></a></td>
+<td><code>plan(): Promise&lt;RoutePlannerResult&gt;</code></td>
+<td>Execute the optimization request</td>
+</tr>
+</tbody>
+</table>
+<p>Here's the detailed version of method descriptions:</p>
+<h3 id="setmode">setMode()</h3>
+<p>Signature: <code>setMode(mode: TravelMode): this</code></p>
+<p>Sets the travel mode for route calculation. This determines how travel times and distances are computed.</p>
+<p><strong>Type:</strong> <code>TravelMode</code> — <code>'drive'</code> | <code>'truck'</code> | <code>'scooter'</code> | <code>'bicycle'</code> | <code>'walk'</code> | <code>'transit'</code></p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">);</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="s1">&#39;truck&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// For heavy vehicles with road restrictions</span>
+</span></code></pre></div>
+<h3 id="settraffic">setTraffic()</h3>
+<p>Signature: <code>setTraffic(traffic: TrafficType): this</code></p>
+<p>Sets the traffic model used for travel time estimation.</p>
+<p><strong>Type:</strong> <code>TrafficType</code> — <code>'free_flow'</code> | <code>'approximated'</code></p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setTraffic</span><span class="p">(</span><span class="s1">&#39;free_flow&#39;</span><span class="p">);</span><span class="w">      </span><span class="c1">// Ideal conditions</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setTraffic</span><span class="p">(</span><span class="s1">&#39;approximated&#39;</span><span class="p">);</span><span class="w">   </span><span class="c1">// Typical traffic patterns</span>
+</span></code></pre></div>
+<h3 id="settype">setType()</h3>
+<p>Signature: <code>setType(type: RouteType): this</code></p>
+<p>Sets the route optimization preference.</p>
+<p><strong>Type:</strong> <code>RouteType</code> — <code>'balanced'</code> | <code>'short'</code> | <code>'less_maneuvers'</code></p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setType</span><span class="p">(</span><span class="s1">&#39;balanced&#39;</span><span class="p">);</span><span class="w">       </span><span class="c1">// Balance time and distance</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setType</span><span class="p">(</span><span class="s1">&#39;short&#39;</span><span class="p">);</span><span class="w">          </span><span class="c1">// Shortest distance</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setType</span><span class="p">(</span><span class="s1">&#39;less_maneuvers&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Fewer turns and lane changes</span>
+</span></code></pre></div>
+<h3 id="setmaxspeed">setMaxSpeed()</h3>
+<p>Signature: <code>setMaxSpeed(speed: number): this</code></p>
+<p>Limits the maximum vehicle speed in km/h. Useful for company policies or vehicle restrictions.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setMaxSpeed</span><span class="p">(</span><span class="mf">80</span><span class="p">);</span><span class="w"> </span><span class="c1">// Max 80 km/h</span>
+</span></code></pre></div>
+<h3 id="setunits">setUnits()</h3>
+<p>Signature: <code>setUnits(units: DistanceUnitType): this</code></p>
+<p>Sets the unit system for distances in the response.</p>
+<p><strong>Type:</strong> <code>DistanceUnitType</code> — <code>'metric'</code> | <code>'imperial'</code></p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setUnits</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">);</span><span class="w">   </span><span class="c1">// Kilometers</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setUnits</span><span class="p">(</span><span class="s1">&#39;imperial&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Miles</span>
+</span></code></pre></div>
+<h3 id="addagent">addAgent()</h3>
+<p>Signature: <code>addAgent(agent: Agent): this</code></p>
+<p>Adds an agent (driver, vehicle, worker) to the route plan. Agents perform jobs and shipments.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td><a href="../agent/"><code>Agent</code></a></td>
+<td>The agent to add</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">()</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;driver-1&#39;</span><span class="p">)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">setStartLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">)</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="p">.</span><span class="nx">setEndLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="p">.</span><span class="nx">addTimeWindow</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">28800</span><span class="p">);</span><span class="w"> </span><span class="c1">// 8-hour shift</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">addAgent</span><span class="p">(</span><span class="nx">agent</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="addjob">addJob()</h3>
+<p>Signature: <code>addJob(job: Job): this</code></p>
+<p>Adds a job (single-location task) to the route plan.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>job</code></td>
+<td><a href="../job/"><code>Job</code></a></td>
+<td>The job to add</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">job</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Job</span><span class="p">()</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;delivery-1&#39;</span><span class="p">)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.39</span><span class="p">,</span><span class="w"> </span><span class="mf">52.51</span><span class="p">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="p">.</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">300</span><span class="p">)</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="p">.</span><span class="nx">addRequirement</span><span class="p">(</span><span class="s1">&#39;refrigerated&#39;</span><span class="p">);</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">addJob</span><span class="p">(</span><span class="nx">job</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="addshipment">addShipment()</h3>
+<p>Signature: <code>addShipment(shipment: Shipment): this</code></p>
+<p>Adds a shipment (pickup + delivery pair) to the route plan.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shipment</code></td>
+<td><a href="../shipment/"><code>Shipment</code></a></td>
+<td>The shipment to add</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">shipment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Shipment</span><span class="p">()</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;order-1&#39;</span><span class="p">)</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">setPickup</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">ShipmentStep</span><span class="p">().</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">).</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">120</span><span class="p">))</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="p">.</span><span class="nx">setDelivery</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">ShipmentStep</span><span class="p">().</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.42</span><span class="p">,</span><span class="w"> </span><span class="mf">52.50</span><span class="p">).</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">120</span><span class="p">));</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">addShipment</span><span class="p">(</span><span class="nx">shipment</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="addlocation">addLocation()</h3>
+<p>Signature: <code>addLocation(location: Location): this</code></p>
+<p>Adds a reusable named location that can be referenced by index in agents, jobs, or shipments.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>location</code></td>
+<td><a href="../location/"><code>Location</code></a></td>
+<td>The location to add</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Location</span><span class="p">()</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;warehouse-main&#39;</span><span class="p">)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">);</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">addLocation</span><span class="p">(</span><span class="nx">warehouse</span><span class="p">);</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1">// Reference by index</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="kd">const</span><span class="w"> </span><span class="nx">agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">()</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="p">.</span><span class="nx">setStartLocationIndex</span><span class="p">(</span><span class="mf">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Uses warehouse-main</span>
+</span></code></pre></div>
+<h3 id="addavoid">addAvoid()</h3>
+<p>Signature: <code>addAvoid(avoid: Avoid): this</code></p>
+<p>Adds a travel restriction to avoid certain road types or areas.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>avoid</code></td>
+<td><a href="../avoid/"><code>Avoid</code></a></td>
+<td>The avoidance rule to add</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">avoidTolls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Avoid</span><span class="p">().</span><span class="nx">setType</span><span class="p">(</span><span class="s1">&#39;tolls&#39;</span><span class="p">);</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">avoidHighways</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Avoid</span><span class="p">().</span><span class="nx">setType</span><span class="p">(</span><span class="s1">&#39;highways&#39;</span><span class="p">);</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">addAvoid</span><span class="p">(</span><span class="nx">avoidTolls</span><span class="p">).</span><span class="nx">addAvoid</span><span class="p">(</span><span class="nx">avoidHighways</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="getraw">getRaw()</h3>
+<p>Signature: <code>getRaw(): RoutePlannerInputData</code></p>
+<p>Returns the current input data. Useful for inspecting or serializing the current state before planning.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">currentInput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">planner</span><span class="p">.</span><span class="nx">getRaw</span><span class="p">();</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">currentInput</span><span class="p">.</span><span class="nx">agents</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span><span class="w"> </span><span class="c1">// Check how many agents</span>
+</span></code></pre></div>
+<h3 id="setraw">setRaw()</h3>
+<p>Signature: <code>setRaw(raw: RoutePlannerInputData): this</code></p>
+<p>Sets the complete input data directly instead of building incrementally. Useful when you have pre-built request data.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">rawData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;drive&#39;</span><span class="p">,</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nx">agents</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">start_location</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">]</span><span class="w"> </span><span class="p">}],</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="nx">jobs</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">13.39</span><span class="p">,</span><span class="w"> </span><span class="mf">52.51</span><span class="p">],</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="kt">300</span><span class="w"> </span><span class="p">}]</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="p">};</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="nx">planner</span><span class="p">.</span><span class="nx">setRaw</span><span class="p">(</span><span class="nx">rawData</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="plan">plan()</h3>
+<p>Signature: <code>plan(): Promise&lt;RoutePlannerResult&gt;</code></p>
+<p>Executes the route optimization request and returns the result. This method sends the data to the Geoapify Route Planner API.</p>
+<p><strong>Returns:</strong> <code>Promise&lt;RoutePlannerResult&gt;</code> — The optimized route plan</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">planner</span><span class="p">.</span><span class="nx">plan</span><span class="p">();</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1">// Access results</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">agents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentPlans</span><span class="p">();</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">unassignedJobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">getUnassignedJobs</span><span class="p">();</span>
+</span></code></pre></div>
+<h2 id="error-handling">Error Handling</h2>
+<p>If the API returns an error, the <code>plan()</code> method throws a <code>RoutePlannerError</code> with detailed information:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">planner</span><span class="p">.</span><span class="nx">plan</span><span class="p">();</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">RoutePlannerError</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;API Error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Status:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">status</span><span class="p">);</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="complete-example">Complete Example</h2>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Agent</span><span class="p">,</span><span class="w"> </span><span class="nx">Job</span><span class="p">,</span><span class="w"> </span><span class="nx">Shipment</span><span class="p">,</span><span class="w"> </span><span class="nx">ShipmentStep</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">planner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlanner</span><span class="p">({</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YOUR_API_KEY&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1">// Configure</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="nx">planner</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">)</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">  </span><span class="p">.</span><span class="nx">setTraffic</span><span class="p">(</span><span class="s1">&#39;approximated&#39;</span><span class="p">)</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="p">.</span><span class="nx">setUnits</span><span class="p">(</span><span class="s1">&#39;metric&#39;</span><span class="p">);</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="c1">// Add agents</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="nx">planner</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">  </span><span class="p">.</span><span class="nx">addAgent</span><span class="p">(</span>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">()</span>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">      </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;van-1&#39;</span><span class="p">)</span>
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">      </span><span class="p">.</span><span class="nx">setStartLocation</span><span class="p">(</span><span class="mf">13.38</span><span class="p">,</span><span class="w"> </span><span class="mf">52.52</span><span class="p">)</span>
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="w">      </span><span class="p">.</span><span class="nx">addTimeWindow</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">28800</span><span class="p">)</span>
+</span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">      </span><span class="p">.</span><span class="nx">addCapability</span><span class="p">(</span><span class="s1">&#39;refrigerated&#39;</span><span class="p">)</span>
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="w">  </span><span class="p">)</span>
+</span><span id="__span-18-20"><a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a><span class="w">  </span><span class="p">.</span><span class="nx">addAgent</span><span class="p">(</span>
+</span><span id="__span-18-21"><a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a><span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">()</span>
+</span><span id="__span-18-22"><a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a><span class="w">      </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;van-2&#39;</span><span class="p">)</span>
+</span><span id="__span-18-23"><a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a><span class="w">      </span><span class="p">.</span><span class="nx">setStartLocation</span><span class="p">(</span><span class="mf">13.40</span><span class="p">,</span><span class="w"> </span><span class="mf">52.50</span><span class="p">)</span>
+</span><span id="__span-18-24"><a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a><span class="w">      </span><span class="p">.</span><span class="nx">addTimeWindow</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">28800</span><span class="p">)</span>
+</span><span id="__span-18-25"><a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a><span class="w">  </span><span class="p">);</span>
+</span><span id="__span-18-26"><a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a>
+</span><span id="__span-18-27"><a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a><span class="c1">// Add jobs</span>
+</span><span id="__span-18-28"><a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a><span class="nx">planner</span>
+</span><span id="__span-18-29"><a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a><span class="w">  </span><span class="p">.</span><span class="nx">addJob</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Job</span><span class="p">().</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;job-1&#39;</span><span class="p">).</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.39</span><span class="p">,</span><span class="w"> </span><span class="mf">52.51</span><span class="p">).</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">300</span><span class="p">))</span>
+</span><span id="__span-18-30"><a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a><span class="w">  </span><span class="p">.</span><span class="nx">addJob</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Job</span><span class="p">().</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;job-2&#39;</span><span class="p">).</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">13.41</span><span class="p">,</span><span class="w"> </span><span class="mf">52.49</span><span class="p">).</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">600</span><span class="p">));</span>
+</span><span id="__span-18-31"><a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a>
+</span><span id="__span-18-32"><a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a><span class="c1">// Execute</span>
+</span><span id="__span-18-33"><a id="__codelineno-18-33" name="__codelineno-18-33" href="#__codelineno-18-33"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">planner</span><span class="p">.</span><span class="nx">plan</span><span class="p">();</span>
+</span><span id="__span-18-34"><a id="__codelineno-18-34" name="__codelineno-18-34" href="#__codelineno-18-34"></a>
+</span><span id="__span-18-35"><a id="__codelineno-18-35" name="__codelineno-18-35" href="#__codelineno-18-35"></a><span class="c1">// Process results</span>
+</span><span id="__span-18-36"><a id="__codelineno-18-36" name="__codelineno-18-36" href="#__codelineno-18-36"></a><span class="nx">result</span><span class="p">.</span><span class="nx">getAgentPlans</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">agent</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-37"><a id="__codelineno-18-37" name="__codelineno-18-37" href="#__codelineno-18-37"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">agent</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+</span><span id="__span-18-38"><a id="__codelineno-18-38" name="__codelineno-18-38" href="#__codelineno-18-38"></a><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Agent </span><span class="si">${</span><span class="nx">agent</span><span class="p">.</span><span class="nx">getAgentId</span><span class="p">()</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">agent</span><span class="p">.</span><span class="nx">getDistance</span><span class="p">()</span><span class="si">}</span><span class="sb">m, </span><span class="si">${</span><span class="nx">agent</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span><span class="si">}</span><span class="sb">s`</span><span class="p">);</span>
+</span><span id="__span-18-39"><a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="routeplannercalloptions-interface">RoutePlannerCallOptions Interface</h2>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">RoutePlannerCallOptions</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="nx">baseUrl?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span><span class="nx">httpOptions?</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">any</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="routeplannerinputdata-interface">RoutePlannerInputData Interface</h2>
+<p>This is the original plain data object shape used in API payloads (request/response), not the SDK wrapper class.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">RoutePlannerInputData</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nx">mode?</span><span class="o">:</span><span class="w"> </span><span class="kt">TravelMode</span><span class="p">;</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="kr">type</span><span class="nx">?</span><span class="o">:</span><span class="w"> </span><span class="kt">RouteType</span><span class="p">;</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nx">avoid?</span><span class="o">:</span><span class="w"> </span><span class="kt">AvoidData</span><span class="p">[];</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="nx">traffic?</span><span class="o">:</span><span class="w"> </span><span class="kt">TrafficType</span><span class="p">;</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">  </span><span class="nx">max_speed?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">  </span><span class="nx">units?</span><span class="o">:</span><span class="w"> </span><span class="kt">DistanceUnitType</span><span class="p">;</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">  </span><span class="nx">agents</span><span class="o">:</span><span class="w"> </span><span class="kt">AgentData</span><span class="p">[];</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">  </span><span class="nx">jobs</span><span class="o">:</span><span class="w"> </span><span class="kt">JobData</span><span class="p">[];</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">  </span><span class="nx">shipments</span><span class="o">:</span><span class="w"> </span><span class="kt">ShipmentData</span><span class="p">[];</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">  </span><span class="nx">locations</span><span class="o">:</span><span class="w"> </span><span class="kt">LocationData</span><span class="p">[];</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Referenced interfaces:</p>
+<ul>
+<li><a href="../agent/#agentdata-interface"><code>AgentData</code></a></li>
+<li><a href="../job/#jobdata-interface"><code>JobData</code></a></li>
+<li><a href="../shipment/#shipmentdata-interface"><code>ShipmentData</code></a></li>
+<li><a href="../location/#locationdata-interface"><code>LocationData</code></a></li>
+<li><a href="../avoid/#avoiddata-interface"><code>AvoidData</code></a></li>
+</ul>
+<h3 id="travel-and-route-types">Travel and Route Types</h3>
+<p>These types are used by <code>RoutePlannerInputData</code> and reused in result params.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kr">type</span><span class="w"> </span><span class="nx">TravelMode</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;drive&#39;</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;light_truck&#39;</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;medium_truck&#39;</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;truck&#39;</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;heavy_truck&#39;</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;truck_dangerous_goods&#39;</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;long_truck&#39;</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;bus&#39;</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;scooter&#39;</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;motorcycle&#39;</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;bicycle&#39;</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;mountain_bike&#39;</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;road_bike&#39;</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;walk&#39;</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;hike&#39;</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;transit&#39;</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;approximated_transit&#39;</span><span class="p">;</span>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a><span class="kr">type</span><span class="w"> </span><span class="nx">RouteType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;balanced&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;short&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;less_maneuvers&#39;</span><span class="p">;</span>
+</span><span id="__span-21-20"><a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a><span class="kr">type</span><span class="w"> </span><span class="nx">TrafficType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;free_flow&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;approximated&#39;</span><span class="p">;</span>
+</span><span id="__span-21-21"><a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a><span class="kr">type</span><span class="w"> </span><span class="nx">DistanceUnitType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;metric&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;imperial&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<h2 id="learn-more">Learn More</h2>
+<ul>
+<li><a href="../route-planner-result/"><code>RoutePlannerResult</code></a> — Understanding the response</li>
+<li><a href="../agent/"><code>Agent</code></a>, <a href="../job/"><code>Job</code></a>, <a href="../shipment/"><code>Shipment</code></a> — Input entities</li>
+<li><a href="../../examples/optimizing-two-agents/">Examples</a> — Step-by-step tutorials</li>
+<li><a href="https://apidocs.geoapify.com/playground/route-planner/">API Playground</a> — Interactive testing</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.expand"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

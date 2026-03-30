@@ -1,0 +1,2726 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../route-planner-result/">
+      
+      
+        <link rel="next" href="../agent/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>RoutePlannerResultEditor - Geoapify Route Optimization SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#routeplannerresulteditor" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Geoapify Route Optimization SDK" class="md-header__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Geoapify Route Optimization SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RoutePlannerResultEditor
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Geoapify Route Optimization SDK" class="md-nav__button md-logo" aria-label="Geoapify Route Optimization SDK" data-md-component="logo">
+      
+  <img src="../../assets/geoapify-white-logo-only.png" alt="logo">
+
+    </a>
+    Geoapify Route Optimization SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/geoapify/route-planner-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation-and-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration-from-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration from V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts & Entities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Results & Output Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../editing-functionality/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding Editing Functionality
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResult
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResultEditor
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerResultEditor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assignjobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assignJobs()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assignshipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assignShipments()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removejobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        removeJobs()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removeshipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        removeShipments()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addnewjobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addNewJobs()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addnewshipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addNewShipments()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adddelayafterwaypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addDelayAfterWaypoint()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movewaypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        moveWaypoint()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reoptimizeagentplan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reoptimizeAgentPlan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmodifiedresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getModifiedResult()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constraint-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constraint Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategy-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy Constants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options Interfaces
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Options Interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addassignoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddAssignOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removeoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RemoveOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reoptimizeoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReoptimizeOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#route-editor-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Route Editor Exceptions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#route-editor-violations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Route Editor Violations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learn-more" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learn More
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Entities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shipment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avoid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avoid
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../break/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../location/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Result Types
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Result Types
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AgentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JobPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shipment-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShipmentPlan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-action/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-leg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLeg
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-leg-step/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RouteLegStep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../waypoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Waypoint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../route-planner-timeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoutePlannerTimeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/optimizing-two-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizing Delivery Routes with Two Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/optimizing-shipments-3-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planning 20 Shipments with 3 Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/editing-planned-result/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Editing Planned Result After Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/constraint-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constraint Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assignjobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assignJobs()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assignshipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assignShipments()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removejobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        removeJobs()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removeshipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        removeShipments()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addnewjobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addNewJobs()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addnewshipments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addNewShipments()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adddelayafterwaypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        addDelayAfterWaypoint()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movewaypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        moveWaypoint()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reoptimizeagentplan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reoptimizeAgentPlan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmodifiedresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getModifiedResult()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constraint-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constraint Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategy-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy Constants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options Interfaces
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Options Interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addassignoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddAssignOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removeoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RemoveOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reoptimizeoptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReoptimizeOptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#route-editor-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Route Editor Exceptions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#route-editor-violations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Route Editor Violations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learn-more" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learn More
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="routeplannerresulteditor">RoutePlannerResultEditor</h1>
+<p><code>RoutePlannerResultEditor</code> helps you modify an already calculated route (<code>RoutePlannerResult</code>).</p>
+<p>Key functionality:</p>
+<ul>
+<li>Changes can be local or using API, depending on the method and options.</li>
+<li>All edit operations are <strong>soft</strong> (<code>assign*</code>, <code>addNew*</code>, <code>remove*</code>, <code>moveWaypoint</code>, <code>addDelayAfterWaypoint</code>):<br />
+  the requested change is applied even if constraints are violated.</li>
+<li>Checks route constraints after the change and stores violations in <code>AgentPlan.getViolations()</code>.<br />
+  Example: capacity/time-window/capability conflicts appear as violation entries.</li>
+<li><code>reoptimizeAgentPlan()</code> additionally supports two modes via <code>allowViolations</code>:<br />
+  strict (<code>false</code>) and relaxed (<code>true</code>).</li>
+</ul>
+<h2 id="constructor">Constructor</h2>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kr">constructor</span><span class="p">(</span><span class="nx">result</span><span class="o">:</span><span class="w"> </span><span class="kt">RoutePlannerResult</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Creates a new <strong>RoutePlannerResultEditor</strong> instance that works on a cloned copy of the provided result. Changes do not affect the original object.</p>
+<p>Here are the parameters you can pass to the constructor:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>result</code></td>
+<td><a href="../route-planner-result/"><code>RoutePlannerResult</code></a></td>
+<td>The route planner result to edit. The editor clones route raw data internally.</td>
+</tr>
+</tbody>
+</table>
+<p>Here's a basic example of how to initialize the editor:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RoutePlannerResultEditor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">editor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RoutePlannerResultEditor</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">// Make modifications...</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-1&#39;</span><span class="p">]);</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1">// Get the modified result</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kd">const</span><span class="w"> </span><span class="nx">modifiedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">getModifiedResult</span><span class="p">();</span>
+</span></code></pre></div>
+<h2 id="methods">Methods</h2>
+<p>The <code>RoutePlannerResultEditor</code> class provides methods to modify job and shipment assignments.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#assignjobs"><code>assignJobs</code></a></td>
+<td><code>assignJobs(agentIdOrIndex, jobIdsOrIndexes, options?): Promise&lt;boolean&gt;</code></td>
+<td>Reassign existing jobs to an agent</td>
+</tr>
+<tr>
+<td><a href="#assignshipments"><code>assignShipments</code></a></td>
+<td><code>assignShipments(agentIdOrIndex, shipmentIdsOrIndexes, options?): Promise&lt;boolean&gt;</code></td>
+<td>Reassign existing shipments to an agent</td>
+</tr>
+<tr>
+<td><a href="#removejobs"><code>removeJobs</code></a></td>
+<td><code>removeJobs(jobIdsOrIndexes, options?): Promise&lt;boolean&gt;</code></td>
+<td>Remove jobs from the plan</td>
+</tr>
+<tr>
+<td><a href="#removeshipments"><code>removeShipments</code></a></td>
+<td><code>removeShipments(shipmentIdsOrIndexes, options?): Promise&lt;boolean&gt;</code></td>
+<td>Remove shipments from the plan</td>
+</tr>
+<tr>
+<td><a href="#addnewjobs"><code>addNewJobs</code></a></td>
+<td><code>addNewJobs(agentIdOrIndex, jobs, options?): Promise&lt;boolean&gt;</code></td>
+<td>Add new jobs to an agent's plan</td>
+</tr>
+<tr>
+<td><a href="#addnewshipments"><code>addNewShipments</code></a></td>
+<td><code>addNewShipments(agentIdOrIndex, shipments, options?): Promise&lt;boolean&gt;</code></td>
+<td>Add new shipments to an agent's plan</td>
+</tr>
+<tr>
+<td><a href="#adddelayafterwaypoint"><code>addDelayAfterWaypoint</code></a></td>
+<td><code>addDelayAfterWaypoint(agentIdOrIndex, waypointIndex, delaySeconds): void</code></td>
+<td>Add delay after a waypoint</td>
+</tr>
+<tr>
+<td><a href="#movewaypoint"><code>moveWaypoint</code></a></td>
+<td><code>moveWaypoint(agentIdOrIndex, fromWaypointIndex, toWaypointIndex): Promise&lt;void&gt;</code></td>
+<td>Move waypoint in route</td>
+</tr>
+<tr>
+<td><a href="#reoptimizeagentplan"><code>reoptimizeAgentPlan</code></a></td>
+<td><code>reoptimizeAgentPlan(agentIdOrIndex, options?): Promise&lt;boolean&gt;</code></td>
+<td>Reoptimize one agent plan</td>
+</tr>
+<tr>
+<td><a href="#getmodifiedresult"><code>getModifiedResult</code></a></td>
+<td><code>getModifiedResult(): RoutePlannerResult</code></td>
+<td>Returns the modified result</td>
+</tr>
+</tbody>
+</table>
+<p>Here's the detailed version of method descriptions:</p>
+<h3 id="assignjobs">assignJobs()</h3>
+<p>Signature: <code>assignJobs(agentIdOrIndex: string | number, jobIdsOrIndexes: string[] | number[], options?: AddAssignOptions): Promise&lt;boolean&gt;</code></p>
+<p>Reassigns existing jobs to a specified agent. If jobs are currently assigned to another agent, they are removed from that agent first.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agentIdOrIndex</code></td>
+<td><code>string \| number</code></td>
+<td>The ID or index of the target agent</td>
+</tr>
+<tr>
+<td><code>jobIdsOrIndexes</code></td>
+<td><code>string[] \| number[]</code></td>
+<td>Array of job IDs or indexes to assign</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#addassignoptions"><code>AddAssignOptions</code></a></td>
+<td>Assignment options</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Strategy / options behavior:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Options</th>
+<th>Behavior</th>
+<th>API call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reoptimize</code> (default)</td>
+<td>no options or <code>{ strategy: 'reoptimize' }</code></td>
+<td>Full target-agent reoptimization with reassignment</td>
+<td><a href="https://www.geoapify.com/route-planner-api/">Route Planner API</a></td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder' }</code></td>
+<td>Find optimal insertion point anywhere while keeping existing order</td>
+<td><a href="https://www.geoapify.com/route-matrix-api/">Route Matrix API</a></td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder', afterId / afterWaypointIndex }</code></td>
+<td>Find optimal insertion point after the given position</td>
+<td><a href="https://www.geoapify.com/route-matrix-api/">Route Matrix API</a></td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder', afterId / afterWaypointIndex, append: true }</code></td>
+<td>Insert directly after the given position</td>
+<td>No API call</td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder', append: true }</code></td>
+<td>Append to route end</td>
+<td>No API call</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Default: full reoptimization (Route Planner API)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;job-2&#39;</span><span class="p">]);</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">// Find optimal insertion point (Route Matrix API)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1">// Append to end of route (no API call)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nx">append</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">});</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1">// Find optimal position after specific job (Route Matrix API)</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-2&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nx">afterId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;job-1&#39;</span><span class="w"> </span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="p">});</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="c1">// Find optimal position after specific waypoint (Route Matrix API)</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="nx">afterWaypointIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="w">  </span><span class="c1">// After first stop</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="assignshipments">assignShipments()</h3>
+<p>Signature: <code>assignShipments(agentIdOrIndex: string | number, shipmentIdsOrIndexes: string[] | number[], options?: AddAssignOptions): Promise&lt;boolean&gt;</code></p>
+<p>Reassigns existing shipments to a specified agent. Both pickup and delivery are moved together.</p>
+<p>A shipment usually affects two stops (pickup and delivery), so insertion/removal is more complex than jobs.
+The editor keeps shipment consistency during reassignment (pickup must remain before delivery).</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agentIdOrIndex</code></td>
+<td><code>string \| number</code></td>
+<td>The ID or index of the target agent</td>
+</tr>
+<tr>
+<td><code>shipmentIdsOrIndexes</code></td>
+<td><code>string[] \| number[]</code></td>
+<td>Array of shipment IDs or indexes to assign</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#addassignoptions"><code>AddAssignOptions</code></a></td>
+<td>Assignment options</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Strategy / options behavior:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Options</th>
+<th>Behavior</th>
+<th>Pickup/Delivery handling</th>
+<th>API call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reoptimize</code> (default)</td>
+<td>no options or <code>{ strategy: 'reoptimize' }</code></td>
+<td>Full target-agent reoptimization with shipment reassignment</td>
+<td>API decides best valid pair placement (<code>pickup</code> before <code>delivery</code>)</td>
+<td><a href="https://www.geoapify.com/route-planner-api/">Route Planner API</a></td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder' }</code></td>
+<td>Find optimal pickup/delivery insertion while keeping existing order</td>
+<td>Finds positions for both stops, keeps <code>pickup</code> before <code>delivery</code></td>
+<td><a href="https://www.geoapify.com/route-matrix-api/">Route Matrix API</a></td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder', afterId / afterWaypointIndex }</code></td>
+<td>Find optimal insertion near the given position</td>
+<td>Optimizes pickup and delivery in the route segment starting from the anchor; may reuse existing same-location waypoints</td>
+<td><a href="https://www.geoapify.com/route-matrix-api/">Route Matrix API</a></td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder', afterId / afterWaypointIndex, append: true }</code></td>
+<td>Insert shipment directly after given position (pickup and delivery placement resolved locally)</td>
+<td>Inserts both stops locally and preserves <code>pickup</code> before <code>delivery</code></td>
+<td>No API call</td>
+</tr>
+<tr>
+<td><code>preserveOrder</code></td>
+<td><code>{ strategy: 'preserveOrder', append: true }</code></td>
+<td>Append shipment toward route end with valid pickup/delivery order</td>
+<td>Appends the pair at route end while preserving order</td>
+<td>No API call</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Default: full reoptimization</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignShipments</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;shipment-1&#39;</span><span class="p">]);</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">// Find optimal insertion point (Route Matrix API)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignShipments</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;shipment-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1">// Append pickup and delivery to end of route (no API call)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignShipments</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;shipment-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nx">append</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="removejobs">removeJobs()</h3>
+<p>Signature: <code>removeJobs(jobIdsOrIndexes: string[] | number[], options?: RemoveOptions): Promise&lt;boolean&gt;</code></p>
+<p>Removes jobs from the plan, marking them as unassigned.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jobIdsOrIndexes</code></td>
+<td><code>string[] \| number[]</code></td>
+<td>Array of job IDs or indexes to remove</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#removeoptions"><code>RemoveOptions</code></a></td>
+<td>Removal options</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Default: reoptimize remaining route</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">removeJobs</span><span class="p">([</span><span class="s1">&#39;job-1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;job-2&#39;</span><span class="p">]);</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">// Remove without reordering remaining jobs (fastest)</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">removeJobs</span><span class="p">([</span><span class="s1">&#39;job-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="removeshipments">removeShipments()</h3>
+<p>Signature: <code>removeShipments(shipmentIdsOrIndexes: string[] | number[], options?: RemoveOptions): Promise&lt;boolean&gt;</code></p>
+<p>Removes shipments from the plan, marking them as unassigned.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shipmentIdsOrIndexes</code></td>
+<td><code>string[] \| number[]</code></td>
+<td>Array of shipment IDs or indexes to remove</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#removeoptions"><code>RemoveOptions</code></a></td>
+<td>Removal options</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Default: reoptimize remaining route</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">removeShipments</span><span class="p">([</span><span class="s1">&#39;shipment-1&#39;</span><span class="p">]);</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// Remove without reordering (preserves existing order)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">removeShipments</span><span class="p">([</span><span class="s1">&#39;shipment-1&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="addnewjobs">addNewJobs()</h3>
+<p>Signature: <code>addNewJobs(agentIdOrIndex: string | number, jobs: Job[], options?: AddAssignOptions): Promise&lt;boolean&gt;</code></p>
+<p>Adds new jobs to an agent's schedule. The jobs are added to the input data and then placed according to the strategy.
+Strategy/options behavior is the same as in <a href="#assignjobs"><code>assignJobs()</code></a> (see its Strategy / options behavior table).</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agentIdOrIndex</code></td>
+<td><code>string \| number</code></td>
+<td>The ID or index of the target agent</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td><a href="../job/"><code>Job[]</code></a></td>
+<td>Array of Job objects to add</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#addassignoptions"><code>AddAssignOptions</code></a></td>
+<td>Assignment options</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">newJob</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Job</span><span class="p">()</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;new-job&#39;</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">44.5</span><span class="p">,</span><span class="w"> </span><span class="mf">40.2</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="p">.</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">300</span><span class="p">);</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="c1">// Default: reoptimize with new job (Route Planner API)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">addNewJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">newJob</span><span class="p">]);</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1">// Find optimal insertion point (Route Matrix API)</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">addNewJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">newJob</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="c1">// Append to end of route (no API call, fastest)</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">addNewJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">newJob</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="nx">append</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="p">});</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="c1">// Find optimal position after specific waypoint (Route Matrix API)</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">addNewJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">newJob</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">  </span><span class="nx">afterWaypointIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="w">  </span><span class="c1">// After waypoint 2</span>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="addnewshipments">addNewShipments()</h3>
+<p>Signature: <code>addNewShipments(agentIdOrIndex: string | number, shipments: Shipment[], options?: AddAssignOptions): Promise&lt;boolean&gt;</code></p>
+<p>Adds new shipments to an agent's schedule.
+Strategy/options behavior is the same as in <a href="#assignshipments"><code>assignShipments()</code></a> (see its Strategy / options behavior table).</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agentIdOrIndex</code></td>
+<td><code>string \| number</code></td>
+<td>The ID or index of the target agent</td>
+</tr>
+<tr>
+<td><code>shipments</code></td>
+<td><a href="../shipment/"><code>Shipment[]</code></a></td>
+<td>Array of Shipment objects to add</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><a href="#addassignoptions"><code>AddAssignOptions</code></a></td>
+<td>Assignment options</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">newShipment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Shipment</span><span class="p">()</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">setId</span><span class="p">(</span><span class="s1">&#39;new-shipment&#39;</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">setPickup</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">ShipmentStep</span><span class="p">().</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">44.5</span><span class="p">,</span><span class="w"> </span><span class="mf">40.2</span><span class="p">).</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">120</span><span class="p">))</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="p">.</span><span class="nx">setDelivery</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">ShipmentStep</span><span class="p">().</span><span class="nx">setLocation</span><span class="p">(</span><span class="mf">44.6</span><span class="p">,</span><span class="w"> </span><span class="mf">40.3</span><span class="p">).</span><span class="nx">setDuration</span><span class="p">(</span><span class="mf">120</span><span class="p">));</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1">// Default: reoptimize with new shipment</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">addNewShipments</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">newShipment</span><span class="p">]);</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1">// Append to end of route (no API call)</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">addNewShipments</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">newShipment</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="nx">append</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="adddelayafterwaypoint">addDelayAfterWaypoint()</h3>
+<p>Signature: <code>addDelayAfterWaypoint(agentIdOrIndex: string | number, waypointIndex: number, delaySeconds: number): void</code></p>
+<p>Adds or updates an action with <code>type: "delay"</code> after the specified waypoint.</p>
+<ul>
+<li>Positive value adds delay.</li>
+<li>Negative value is also supported and shifts the schedule earlier.</li>
+<li>Delays can be read from <a href="../agent-plan/"><code>AgentPlan.getDelays()</code></a>.</li>
+</ul>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nx">editor</span><span class="p">.</span><span class="nx">addDelayAfterWaypoint</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="mf">300</span><span class="p">);</span><span class="w">  </span><span class="c1">// +5 minutes</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nx">editor</span><span class="p">.</span><span class="nx">addDelayAfterWaypoint</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">120</span><span class="p">);</span><span class="w"> </span><span class="c1">// -2 minutes</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">delays</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">editor</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="p">.</span><span class="nx">getModifiedResult</span><span class="p">()</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="p">.</span><span class="nx">getAgentPlan</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="o">?</span><span class="p">.</span><span class="nx">getDelays</span><span class="p">()</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="p">[];</span>
+</span></code></pre></div>
+<h3 id="movewaypoint">moveWaypoint()</h3>
+<p>Signature: <code>moveWaypoint(agentIdOrIndex: string | number, fromWaypointIndex: number, toWaypointIndex: number): Promise&lt;void&gt;</code></p>
+<p>Moves a waypoint within one agent route.</p>
+<p>Useful when you need manual route adjustments in UI workflows:</p>
+<ul>
+<li>drag-and-drop stop reordering in dispatcher tools</li>
+<li>quick local route tuning without full reassignment</li>
+<li>operational overrides (for example, visit one customer earlier)</li>
+</ul>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">moveWaypoint</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="mf">5</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="reoptimizeagentplan">reoptimizeAgentPlan()</h3>
+<p>Signature: <code>reoptimizeAgentPlan(agentIdOrIndex: string | number, options?: ReoptimizeOptions): Promise&lt;boolean&gt;</code></p>
+<p>Reoptimizes one agent plan.</p>
+<p>Useful when route quality degraded after many manual edits, and you want to improve sequencing/time while keeping control over scope.</p>
+<p>Options:</p>
+<ul>
+<li><code>includeUnassigned</code>: whether to include currently unassigned jobs/shipments into reoptimization</li>
+<li><code>allowViolations</code>: whether capacity/time-window/capability violations are allowed in the generated plan</li>
+</ul>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">reoptimizeAgentPlan</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nx">includeUnassigned</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nx">allowViolations</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="getmodifiedresult">getModifiedResult()</h3>
+<p>Signature: <code>getModifiedResult(): RoutePlannerResult</code></p>
+<p>Returns a <code>RoutePlannerResult</code> view for the editor's current state.</p>
+<p>Why this method is needed:</p>
+<ul>
+<li>editor methods mutate internal route data</li>
+<li><code>getModifiedResult()</code> gives you the standard result API (<code>getAgentPlan()</code>, <code>getJobPlan()</code>, <code>getUnassigned...()</code>, etc.) on top of that edited state</li>
+</ul>
+<p>Each call returns a snapshot with cloned route <code>raw</code> data.
+This is useful for history workflows (undo/redo) because previously returned results are not affected by future edits.</p>
+<p><strong>Example:</strong></p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-1&#39;</span><span class="p">]);</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">removeShipments</span><span class="p">([</span><span class="s1">&#39;shipment-2&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">modifiedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">getModifiedResult</span><span class="p">();</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1">// Use the modified result</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">modifiedResult</span><span class="p">.</span><span class="nx">getAgentPlans</span><span class="p">());</span>
+</span></code></pre></div>
+<h2 id="constraint-validation">Constraint Validation</h2>
+<p>Editing operations are forced, then validated.</p>
+<p>That means the SDK applies your requested route change first, and if constraints are violated, it records issues or <a href="#route-editor-violations">Route Editor Violations</a> in the affected <code>AgentPlan</code> instead of rejecting the edit.</p>
+<p>Use <a href="../agent-plan/#getviolations"><code>AgentPlan.getViolations()</code></a> on the modified result to inspect and display those issues in your UI/workflow.</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">violations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">getModifiedResult</span><span class="p">()</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="p">.</span><span class="nx">getAgentPlan</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="o">?</span><span class="p">.</span><span class="nx">getViolations</span><span class="p">()</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="p">[];</span>
+</span></code></pre></div>
+<p>For <code>reoptimizeAgentPlan()</code>, use:</p>
+<ul>
+<li><code>allowViolations: false</code> for strict/constraint-preserving reoptimization</li>
+<li><code>allowViolations: true</code> for relaxed reoptimization, then inspect resulting violations</li>
+</ul>
+<h2 id="strategy-constants">Strategy Constants</h2>
+<p>Use exported constants to avoid hardcoded strategy strings:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">REOPTIMIZE</span><span class="p">,</span><span class="w"> </span><span class="nx">PRESERVE_ORDER</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@geoapify/route-planner-sdk&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Value</th>
+<th>Typical usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REOPTIMIZE</code></td>
+<td><code>'reoptimize'</code></td>
+<td>Full API reoptimization for assign/remove</td>
+</tr>
+<tr>
+<td><code>PRESERVE_ORDER</code></td>
+<td><code>'preserveOrder'</code></td>
+<td>Keep sequence and apply local/Matrix-based insertion/removal</td>
+</tr>
+</tbody>
+</table>
+<p>Related strategy types:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kr">type</span><span class="w"> </span><span class="nx">AddAssignStrategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;reoptimize&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">;</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kr">type</span><span class="w"> </span><span class="nx">RemoveStrategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;reoptimize&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<h2 id="options-interfaces">Options Interfaces</h2>
+<h3 id="addassignoptions">AddAssignOptions</h3>
+<p>Options for assigning or adding jobs/shipments to an agent's route.</p>
+<p>Used by:</p>
+<ul>
+<li><a href="#assignjobs"><code>assignJobs()</code></a></li>
+<li><a href="#assignshipments"><code>assignShipments()</code></a></li>
+<li><a href="#addnewjobs"><code>addNewJobs()</code></a></li>
+<li><a href="#addnewshipments"><code>addNewShipments()</code></a></li>
+</ul>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">AddAssignOptions</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">?:</span><span class="w"> </span><span class="s1">&#39;reoptimize&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">;</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nx">removeStrategy</span><span class="o">?:</span><span class="w"> </span><span class="s1">&#39;reoptimize&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">;</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="nx">afterWaypointIndex?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="nx">afterId?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="nx">append?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strategy</code></td>
+<td>Insert strategy: <code>reoptimize</code> (API reoptimization) or <code>preserveOrder</code> (keep existing sequence). Position options (<code>afterWaypointIndex</code>, <code>afterId</code>, <code>append</code>) apply only to <code>preserveOrder</code>.</td>
+<td><code>{ strategy: 'preserveOrder' }</code></td>
+</tr>
+<tr>
+<td><code>removeStrategy</code></td>
+<td>When reassigning from another agent, how to update source route.</td>
+<td><code>{ removeStrategy: 'reoptimize' }</code></td>
+</tr>
+<tr>
+<td><code>afterWaypointIndex</code></td>
+<td>Insert after a specific waypoint index. Only for <code>preserveOrder</code>.</td>
+<td><code>{ strategy: 'preserveOrder', afterWaypointIndex: 3 }</code></td>
+</tr>
+<tr>
+<td><code>afterId</code></td>
+<td>Insert after a stop by ID (job/shipment id). Only for <code>preserveOrder</code>.</td>
+<td><code>{ strategy: 'preserveOrder', afterId: 'job-12' }</code></td>
+</tr>
+<tr>
+<td><code>append</code></td>
+<td>Only for <code>preserveOrder</code>: if <code>true</code>, place directly after target position (or at end if no position).</td>
+<td><code>{ strategy: 'preserveOrder', append: true }</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">assignJobs</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;job-12&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">,</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="nx">afterWaypointIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">4</span><span class="p">,</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">  </span><span class="nx">append</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="removeoptions">RemoveOptions</h3>
+<p>Options for removing jobs/shipments from an agent's route.</p>
+<p>Used by:</p>
+<ul>
+<li><a href="#removejobs"><code>removeJobs()</code></a></li>
+<li><a href="#removeshipments"><code>removeShipments()</code></a></li>
+</ul>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">RemoveOptions</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nx">strategy</span><span class="o">?:</span><span class="w"> </span><span class="s1">&#39;reoptimize&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="p">;</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strategy</code></td>
+<td>Removal strategy: <code>reoptimize</code> (API call) or <code>preserveOrder</code> (local remove).</td>
+<td><code>{ strategy: 'preserveOrder' }</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">removeShipments</span><span class="p">([</span><span class="s1">&#39;shipment-2&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">strategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;preserveOrder&#39;</span><span class="w"> </span><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="reoptimizeoptions">ReoptimizeOptions</h3>
+<p>Used by:</p>
+<ul>
+<li><a href="#reoptimizeagentplan"><code>reoptimizeAgentPlan()</code></a></li>
+</ul>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">ReoptimizeOptions</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nx">includeUnassigned?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="nx">allowViolations?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>includeUnassigned</code></td>
+<td>Include currently unassigned jobs/shipments in reoptimization input.</td>
+<td><code>{ includeUnassigned: true }</code></td>
+</tr>
+<tr>
+<td><code>allowViolations</code></td>
+<td>Allow violations in generated plan when constraints cannot all be satisfied.</td>
+<td><code>{ allowViolations: true }</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">editor</span><span class="p">.</span><span class="nx">reoptimizeAgentPlan</span><span class="p">(</span><span class="s1">&#39;agent-A&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nx">includeUnassigned</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nx">allowViolations</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="p">});</span>
+</span></code></pre></div>
+<h2 id="route-editor-exceptions">Route Editor Exceptions</h2>
+<p>All methods validate input and throw typed route-editor exceptions.</p>
+<table>
+<thead>
+<tr>
+<th>Exception</th>
+<th>Detailed Description</th>
+<th>Methods That Can Throw</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InvalidParameter</code></td>
+<td>Invalid parameter value or shape (for example, non-array input, missing required argument, or new job/shipment without required location data).</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#removejobs"><code>removeJobs()</code></a>, <a href="#removeshipments"><code>removeShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a>, <a href="#reoptimizeagentplan"><code>reoptimizeAgentPlan()</code></a></td>
+</tr>
+<tr>
+<td><code>AgentNotFound</code></td>
+<td>Target agent ID/index does not exist in input <code>agents[]</code>.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a>, <a href="#adddelayafterwaypoint"><code>addDelayAfterWaypoint()</code></a>, <a href="#movewaypoint"><code>moveWaypoint()</code></a>, <a href="#reoptimizeagentplan"><code>reoptimizeAgentPlan()</code></a></td>
+</tr>
+<tr>
+<td><code>JobNotFound</code></td>
+<td>One or more job IDs/indexes are not present in input <code>jobs[]</code>.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#removejobs"><code>removeJobs()</code></a></td>
+</tr>
+<tr>
+<td><code>ShipmentNotFound</code></td>
+<td>One or more shipment IDs/indexes are not present in input <code>shipments[]</code>.</td>
+<td><a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#removeshipments"><code>removeShipments()</code></a></td>
+</tr>
+<tr>
+<td><code>AgentHasNoPlan</code></td>
+<td>Agent exists but currently has no assigned route feature to edit.</td>
+<td><a href="#adddelayafterwaypoint"><code>addDelayAfterWaypoint()</code></a>, <a href="#movewaypoint"><code>moveWaypoint()</code></a></td>
+</tr>
+<tr>
+<td><code>NoItemsProvided</code></td>
+<td>Empty array passed for jobs/shipments/new items.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#removejobs"><code>removeJobs()</code></a>, <a href="#removeshipments"><code>removeShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a></td>
+</tr>
+<tr>
+<td><code>ItemsNotUnique</code></td>
+<td>Input array contains duplicates.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#removejobs"><code>removeJobs()</code></a>, <a href="#removeshipments"><code>removeShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a></td>
+</tr>
+<tr>
+<td><code>ItemAlreadyAssigned</code></td>
+<td>Trying to assign an item to the same agent where it is already assigned.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a></td>
+</tr>
+<tr>
+<td><code>InvalidInsertionPosition</code></td>
+<td>Invalid <code>afterId</code> / <code>afterWaypointIndex</code> / waypoint move boundary (out of range, end waypoint, start/end move restriction, etc.).</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a>, <a href="#adddelayafterwaypoint"><code>addDelayAfterWaypoint()</code></a>, <a href="#movewaypoint"><code>moveWaypoint()</code></a></td>
+</tr>
+<tr>
+<td><code>UnknownStrategy</code></td>
+<td>Unsupported <code>strategy</code> / <code>removeStrategy</code> value.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#removejobs"><code>removeJobs()</code></a>, <a href="#removeshipments"><code>removeShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a></td>
+</tr>
+<tr>
+<td><code>RouteMatrixApiError</code></td>
+<td>Route Matrix API call failed while finding insertion candidates for preserve-order operations.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a> when using <code>strategy: 'preserveOrder'</code> with optimized insertion</td>
+</tr>
+<tr>
+<td><code>RoutingApiError</code></td>
+<td>Routing API call failed while recalculating route metrics/legs after an edit.</td>
+<td>Any editing method that triggers routing recalculation (typically preserve-order edits)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="route-editor-violations">Route Editor Violations</h2>
+<p>Violations are validation records (not thrown exceptions). They are attached to agent plans and returned by <code>AgentPlan.getViolations()</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Violation</th>
+<th>Detailed Description</th>
+<th>Produced By Methods</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Violation</code></td>
+<td>Base violation record with <code>agentIndex</code> and message.</td>
+<td>Any method that modifies an agent plan and triggers validation</td>
+</tr>
+<tr>
+<td><code>AgentPickupCapacityExceeded</code></td>
+<td>Total pickup amount exceeds configured pickup capacity.</td>
+<td><a href="#assignjobs"><code>assignJobs()</code></a>, <a href="#assignshipments"><code>assignShipments()</code></a>, <a href="#removejobs"><code>removeJobs()</code></a>, <a href="#removeshipments"><code>removeShipments()</code></a>, <a href="#addnewjobs"><code>addNewJobs()</code></a>, <a href="#addnewshipments"><code>addNewShipments()</code></a>, <a href="#adddelayafterwaypoint"><code>addDelayAfterWaypoint()</code></a>, <a href="#movewaypoint"><code>moveWaypoint()</code></a>, <a href="#reoptimizeagentplan"><code>reoptimizeAgentPlan()</code></a></td>
+</tr>
+<tr>
+<td><code>AgentDeliveryCapacityExceeded</code></td>
+<td>Total delivery amount exceeds configured delivery capacity.</td>
+<td>Same as above (after validation on edited plan)</td>
+</tr>
+<tr>
+<td><code>AgentMissingCapability</code></td>
+<td>Agent lacks one or more required capabilities for assigned items.</td>
+<td>Same as above (after validation on edited plan)</td>
+</tr>
+<tr>
+<td><code>TimeWindowViolation</code></td>
+<td>Action timing conflicts with agent/item time window constraints.</td>
+<td>Same as above (after validation on edited plan)</td>
+</tr>
+<tr>
+<td><code>BreakViolation</code></td>
+<td>Action timing conflicts with configured break windows.</td>
+<td>Same as above (after validation on edited plan)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="learn-more">Learn More</h2>
+<ul>
+<li><a href="../route-planner-result/"><code>RoutePlannerResult</code></a> – the result object this editor modifies</li>
+<li><a href="../job/"><code>Job</code></a>, <a href="../shipment/"><code>Shipment</code></a> – entities used in <code>addNewJobs</code> and <code>addNewShipments</code></li>
+<li><a href="../../examples/editing-planned-result/">Editing Planned Result Example</a> – step-by-step tutorial</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.expand"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
